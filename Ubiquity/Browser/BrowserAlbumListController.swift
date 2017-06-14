@@ -18,6 +18,7 @@ public func ToolbarMake() -> UIToolbar.Type {
     return ExtendedToolbar.self
 }
 
+/// the album list in library
 internal class BrowserAlbumListController: UITableViewController {
     
     init(library: Library) {
@@ -141,9 +142,10 @@ internal extension BrowserAlbumListController {
         guard let collection = _collections?.ub_get(at: indexPath.row) else {
             return
         }
-        logger.debug?.write("show album with: \(collection.ub_localizedTitle ?? "")")
+        logger.debug?.write("show album with: \(collection.ub_title ?? "")")
         
         let controller = BrowserAlbumController(source: .init(collection), library: _library)
+        //let controller = PickerAlbumController(source: .init(collection), library: _library)
         // push to next page
         show(controller, sender: indexPath)
     }

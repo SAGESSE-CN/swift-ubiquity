@@ -86,7 +86,7 @@ internal class Animator: NSObject {
     weak var source: TransitioningDataSource?
     weak var destination: TransitioningDataSource?
     
-    var duration: TimeInterval = 0.35
+    var duration: TimeInterval = 0.3
     var indexPath: IndexPath?
     
     func ub_animate(with options: UIViewAnimationOptions, animations: @escaping () -> Swift.Void, completion: ((Bool) -> Void)? = nil) {
@@ -307,20 +307,25 @@ extension Animator {
         func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
             // create transition context
             let context = AnimatedTransitioningContext(animator: animator, context: transitionContext, operation: operation)
-            let application = UIApplication.shared
             // apply transition context for from
             context.prepare(for: .from)
-            application.beginIgnoringInteractionEvents()
-            // preform animation
-            animator.ub_animate(with: .curveEaseInOut, animations: {
-                // apply transition context for to
-                context.apply(for: .to)
-                
-            }, completion: { finished in
-                // complate transition, clear context
-                context.complete(!transitionContext.transitionWasCancelled)
-                application.endIgnoringInteractionEvents()
-            })
+            
+            // make animation on next runloop
+            DispatchQueue.main.async { [animator] in
+                // disable all user interface
+                UIApplication.shared.beginIgnoringInteractionEvents()
+                // preform animation
+                animator.ub_animate(with: .curveEaseInOut, animations: {
+                    // apply transition context for to
+                    context.apply(for: .to)
+                    
+                }, completion: { finished in
+                    // complate transition, clear context
+                    context.complete(!transitionContext.transitionWasCancelled)
+                    // enable all user interface
+                    UIApplication.shared.endIgnoringInteractionEvents()
+                })
+            }
         }
         
         // This is a convenience and if implemented will be invoked by the system when the transition context's completeTransition: method is invoked.

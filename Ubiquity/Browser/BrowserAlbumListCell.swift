@@ -21,7 +21,7 @@ internal class BrowserAlbumListCell: UITableViewCell {
     
     // display asset
     func willDisplay(with collection: Collection, in library: Library) {
-        //logger.trace?.write(collection.ub_localIdentifier)
+        //logger.trace?.write(collection.ub_identifier)
         
         // have any change?
         guard _collection !== collection else {
@@ -33,10 +33,10 @@ internal class BrowserAlbumListCell: UITableViewCell {
         _collection = collection
         
         let count = collection.ub_assetCount
-        let assets = collection.ub_assets(at: max(count - 3, 0) ..< count)
+        let assets = (max(count - 3, 0) ..< count).flatMap { collection.ub_asset(at: $0) }
         
         // setup content
-        _titleLabel.text = collection.ub_localizedTitle
+        _titleLabel.text = collection.ub_title
         _subtitleLabel.text = "\(count)"
         
         // setup badge icon & background
@@ -59,7 +59,7 @@ internal class BrowserAlbumListCell: UITableViewCell {
         _thumbView.images = assets.map { _ in nil }
         _requests = assets.reversed().enumerated().flatMap { offset, asset in
             // request thumbnail image
-            library.ub_requestImage(for: asset, targetSize: size, contentMode: .aspectFill, options: options) { [weak self, weak collection] contents, response in
+            library.ub_requestImage(for: asset, size: size, mode: .aspectFill, options: options) { [weak self, weak collection] contents, response in
                 // if the asset is nil, the asset has been released
                 guard let collection = collection else {
                     return
@@ -71,7 +71,7 @@ internal class BrowserAlbumListCell: UITableViewCell {
     }
     // end display asset
     func endDisplay(with collection: Collection, in library: Library) {
-        //logger.trace?.write(collection.ub_localIdentifier)
+        //logger.trace?.write(collection.ub_identifier)
         
         // when are requesting an image, please cancel it
         _requests?.forEach { request in
@@ -93,10 +93,10 @@ internal class BrowserAlbumListCell: UITableViewCell {
         // the current collection has been changed?
         guard _collection === collection else {
             // change, all reqeust is expire
-            logger.debug?.write("\(collection.ub_localIdentifier) image is expire")
+            logger.debug?.write("\(collection.ub_identifier) image is expire")
             return
         }
-        //logger.trace?.write("\(collection.ub_localIdentifier) at \(index)")
+        //logger.trace?.write("\(collection.ub_identifier) at \(index)")
         // no change, update content
         var images = _thumbView.images
         images?[index] = contents

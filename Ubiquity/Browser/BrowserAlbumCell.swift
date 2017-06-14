@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class BrowserAlbumCell: UICollectionViewCell {
+internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -27,7 +27,18 @@ internal class BrowserAlbumCell: UICollectionViewCell {
         endDisplay(with: asset, in: library)
     }
     
-    // display asset
+    ///
+    /// the displayer delegate
+    ///
+    weak var delegate: AnyObject? 
+    
+    ///
+    /// Show an asset
+    ///
+    /// - parameter asset: need the display the resource
+    /// - parameter library: the asset in this library
+    /// - parameter orientation: need to display the image direction
+    ///
     func willDisplay(with asset: Asset, in library: Library, orientation: UIImageOrientation) {
         
         // save context
@@ -42,7 +53,7 @@ internal class BrowserAlbumCell: UICollectionViewCell {
         
         // setup content
         _allowsInvaildContents = true
-        _request = library.ub_requestImage(for: asset, targetSize: BrowserAlbumLayout.thumbnailItemSize, contentMode: .aspectFill, options: options) { [weak self, weak asset] contents, response in
+        _request = library.ub_requestImage(for: asset, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: options) { [weak self, weak asset] contents, response in
             // if the asset is nil, the asset has been released
             guard let asset = asset else {
                 return
@@ -51,7 +62,13 @@ internal class BrowserAlbumCell: UICollectionViewCell {
             self?._updateContents(contents, response: response, asset: asset)
         }
     }
-    // end display asset
+    
+    ///
+    /// Hide an asset
+    ///
+    /// - parameter asset: current display the resource
+    /// - parameter library: the asset in this library
+    ///
     func endDisplay(with asset: Asset, in library: Library) {
         
         // when are requesting an image, please cancel it
@@ -75,23 +92,14 @@ internal class BrowserAlbumCell: UICollectionViewCell {
         guard _asset === asset else {
             // changed, all reqeust is expire
             guard _allowsInvaildContents else {
-                logger.debug?.write("\(asset.ub_localIdentifier) image is expire")
+                logger.debug?.write("\(asset.ub_identifier) image is expire")
                 return
             }
             // update invaild contents
             _imageView?.image = contents
             return
         }
-        logger.trace?.write("\(asset.ub_localIdentifier) => \(contents?.size ?? .zero)")
-        
-        // if the request status is completed or cancelled, clear the request
-        // `contents` is nil, the task need download
-        // `ub_error` not is nil, the task an error
-        // `ub_cancelled` is true, the task is canceled
-        // `ub_degraded` is false, the task is completed
-        if response.ub_error != nil || response.ub_cancelled || (contents != nil && !response.ub_degraded) {
-            _request = nil
-        }
+        logger.trace?.write("\(asset.ub_identifier) => \(contents?.size ?? .zero)")
         
         // update contents
         _imageView?.image = contents?.ub_withOrientation(_orientation)
@@ -100,6 +108,7 @@ internal class BrowserAlbumCell: UICollectionViewCell {
         // update badge icon
         _updateBadge(with: contents == nil)
     }
+    
     private func _updateBadge(with downloading: Bool) {
         
         let mediaType = _asset?.ub_mediaType ?? .unknown
@@ -158,7 +167,6 @@ internal class BrowserAlbumCell: UICollectionViewCell {
     
     private func _setup() {
         
-        
         // setup badge view
         let badgeView = BadgeView()
         badgeView.frame = .init(x: 0, y: contentView.bounds.height - 20, width: contentView.bounds.width, height: 20)
@@ -190,8 +198,41 @@ internal class BrowserAlbumCell: UICollectionViewCell {
     fileprivate var _allowsInvaildContents: Bool = false
     
     fileprivate var _imageView: UIImageView?
-    
     fileprivate var _badgeView: BadgeView?
+}
+
+/// dynamic class support
+extension BrowserAlbumCell: Templatize {
+    // with `conetntClass` generates a new class
+    dynamic class func `class`(with conetntClass: AnyClass) -> AnyClass {
+        let name = "\(NSStringFromClass(self))<\(NSStringFromClass(conetntClass))>"
+        // if the class has been registered, ignore
+        if let newClass = objc_getClass(name) as? AnyClass {
+            return newClass
+        }
+        // if you have not registered this, dynamically generate it
+        let newClass: AnyClass = objc_allocateClassPair(self, name, 0)
+        let method: Method = class_getClassMethod(self, #selector(getter: contentViewClass))
+        objc_registerClassPair(newClass)
+        // because it is a class method, it can not used class, need to use meta class
+        guard let metaClass = objc_getMetaClass(name) as? AnyClass else {
+            return newClass
+        }
+        let getter: @convention(block) () -> AnyClass = {
+            return conetntClass
+        }
+        // add class method
+        class_addMethod(metaClass, #selector(getter: contentViewClass), imp_implementationWithBlock(unsafeBitCast(getter, to: AnyObject.self)), method_getTypeEncoding(method))
+        return newClass
+    }
+    // provide content view of class
+    dynamic class var contentViewClass: AnyClass {
+        return CanvasView.self
+    }
+    // provide content view of class, iOS 8+
+    fileprivate dynamic class var _contentViewClass: AnyClass {
+        return contentViewClass
+    }
 }
 
 /// custom transition support
@@ -214,39 +255,5 @@ extension BrowserAlbumCell: TransitioningView {
     
     func ub_snapshotView(with context: TransitioningContext) -> UIView? {
         return contentView.snapshotView(afterScreenUpdates: context.ub_operation.appear)
-    }
-}
-
-/// dynamic class support
-internal extension BrowserAlbumCell {
-    // dynamically generated class
-    dynamic class func `dynamic`(with viewClass: AnyClass) -> AnyClass {
-        let name = "\(NSStringFromClass(self))<\(NSStringFromClass(viewClass))>"
-        // if the class has been registered, ignore
-        if let newClass = objc_getClass(name) as? AnyClass {
-            return newClass
-        }
-        // if you have not registered this, dynamically generate it
-        let newClass: AnyClass = objc_allocateClassPair(self, name, 0)
-        let method: Method = class_getClassMethod(self, #selector(getter: contentViewClass))
-        objc_registerClassPair(newClass)
-        // because it is a class method, it can not used class, need to use meta class
-        guard let metaClass = objc_getMetaClass(name) as? AnyClass else {
-            return newClass
-        }
-        let getter: @convention(block) () -> AnyClass = {
-            return viewClass
-        }
-        // add class method
-        class_addMethod(metaClass, #selector(getter: contentViewClass), imp_implementationWithBlock(unsafeBitCast(getter, to: AnyObject.self)), method_getTypeEncoding(method))
-        return newClass
-    }
-    // provide content view of class
-    dynamic class var contentViewClass: AnyClass {
-        return CanvasView.self
-    }
-    // provide content view of class, iOS 8+
-    fileprivate dynamic class var _contentViewClass: AnyClass {
-        return contentViewClass
     }
 }

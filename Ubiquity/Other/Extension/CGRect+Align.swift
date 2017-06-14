@@ -14,7 +14,7 @@ internal extension CGRect {
         if orientation.ub_isLandscape {
             swap(&size.width, &size.height)
         }
-        // if contentMode is scale is used in all rect
+        // if mode is scale is used in all rect
         if mode == .scaleToFill {
             return self
         }
@@ -22,14 +22,14 @@ internal extension CGRect {
         var y = self.minY
         var width = size.width
         var height = size.height
-        // if contentMode is aspect scale to fit, calculate the zoom ratio
+        // if mode is aspect scale to fit, calculate the zoom ratio
         if mode == .scaleAspectFit {
             let scale = min(self.width / max(size.width, 1), self.height / max(size.height, 1))
             
             width = size.width * scale
             height = size.height * scale
         }
-        // if contentMode is aspect scale to fill, calculate the zoom ratio
+        // if mode is aspect scale to fill, calculate the zoom ratio
         if mode == .scaleAspectFill {
             let scale = max(self.width / max(size.width, 1), self.height / max(size.height, 1))
             

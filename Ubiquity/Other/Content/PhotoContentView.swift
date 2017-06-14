@@ -8,16 +8,21 @@
 
 import UIKit
 
-///
 /// display photo resources
-///
 internal class PhotoContentView: AnimatedImageView, Displayable {
 
+    ///
+    /// the displayer delegate
+    ///
+    weak var delegate: AnyObject?
     
-    // displayer delegate
-    weak var displayerDelegate: DisplayableDelegate?
-    
-    // display asset
+    ///
+    /// Show an asset
+    ///
+    /// - parameter asset: need the display the resource
+    /// - parameter library: the asset in this library
+    /// - parameter orientation: need to display the image direction
+    ///
     func willDisplay(with asset: Asset, in library: Library, orientation: UIImageOrientation) {
         logger.trace?.write()
         
@@ -34,7 +39,7 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
         backgroundColor = .ub_init(hex: 0xf0f0f0)
         
         let thumbSize = BrowserAlbumLayout.thumbnailItemSize
-        let thumbOptions = DataSourceOptions()
+        let thumbOptions = DataSourceOptions(isSynchronous: true)
         let largeSize = CGSize(width: asset.ub_pixelWidth, height: asset.ub_pixelHeight)
         let largeOptions = DataSourceOptions(progressHandler: { [weak self, weak asset] progress, response in
             DispatchQueue.main.async {
@@ -49,18 +54,10 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
         
         _requests = [
             // request thumb iamge
-            library.ub_requestImage(for: asset, targetSize: thumbSize, contentMode: .aspectFill, options: thumbOptions) { [weak self, weak asset] contents, response in
+            library.ub_requestImage(for: asset, size: thumbSize, mode: .aspectFill, options: thumbOptions) { [weak self, weak asset] contents, response in
                 // if the asset is nil, the asset has been released
                 guard let asset = asset else {
                     return
-                }
-                // if the request status is completed or cancelled, clear the request
-                // `contents` is nil, the task need download
-                // `ub_error` not is nil, the task an error
-                // `ub_cancelled` is true, the task is canceled
-                // `ub_degraded` is false, the task is completed
-                if self?._asset === asset && response.ub_error != nil || response.ub_cancelled || (contents != nil && !response.ub_degraded) {
-                    self?._requests?[0] = nil
                 }
                 // the image is vaild?
                 guard (self?.image?.size.width ?? 0) < (contents?.size.width ?? 0) else {
@@ -70,18 +67,10 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
                 self?._updateContents(contents, response: response, asset: asset)
             },
             // request large image
-            library.ub_requestImage(for: asset, targetSize: largeSize, contentMode: .aspectFill, options: largeOptions) { [weak self, weak asset] contents, response in
+            library.ub_requestImage(for: asset, size: largeSize, mode: .aspectFill, options: largeOptions) { [weak self, weak asset] contents, response in
                 // if the asset is nil, the asset has been released
                 guard let asset = asset else {
                     return
-                }
-                // if the request status is completed or cancelled, clear the request
-                // `contents` is nil, the task need download
-                // `ub_error` not is nil, the task an error
-                // `ub_cancelled` is true, the task is canceled
-                // `ub_degraded` is false, the task is completed
-                if self?._asset === asset && response.ub_error != nil || response.ub_cancelled || (contents != nil && !response.ub_degraded) {
-                    self?._requests?[1] = nil
                 }
                 // the image is vaild?
                 guard (self?.image?.size.width ?? 0) < (contents?.size.width ?? 0) else {
@@ -92,7 +81,13 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
             }
         ]
     }
-    // end display asset
+    
+    ///
+    /// Hide an asset
+    ///
+    /// - parameter asset: current display the resource
+    /// - parameter library: the asset in this library
+    ///
     func endDisplay(with asset: Asset, in library: Library) {
         logger.trace?.write()
         
@@ -120,20 +115,20 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
         // the current asset has been changed?
         guard _asset === asset else {
             // change, all reqeust is expire
-            logger.debug?.write("\(asset.ub_localIdentifier) image is expire")
+            logger.debug?.write("\(asset.ub_identifier) image is expire")
             return
         }
-        logger.trace?.write("\(asset.ub_localIdentifier) => \(contents?.size ?? .zero)")
+        logger.trace?.write("\(asset.ub_identifier) => \(contents?.size ?? .zero)")
         
         // update contents
-        ub_setImage(contents ?? self.image, animated: true)
-        
+        self.ub_setImage(contents ?? self.image, animated: true)
     }
+    
     private func _updateContentsProgress(_ progress: Double, response: Response, asset: Asset) {
         // the current asset has been changed?
         guard _asset === asset else {
             // change, all reqeust is expire
-            logger.debug?.write("\(asset.ub_localIdentifier) progress is expire")
+            logger.debug?.write("\(asset.ub_identifier) progress is expire")
             return
         }
         // if the library required to download
@@ -141,24 +136,23 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
         if !_donwloading && progress < 1 {
             _donwloading = true
             // start downloading
-            displayerDelegate?.displayer(self, didStartRequest: asset)
+            (delegate as? DisplayableDelegate)?.displayer(self, didBeginDownload: asset)
         }
         // only in the downloading  to update progress
         if (_donwloading) {
             // update donwload progress
-            displayerDelegate?.displayer(self, didReceive: progress)
+            (delegate as? DisplayableDelegate)?.displayer(self, didReceive: asset, progress: progress)
         }
         // if the donwload completed or an error occurred, end of the download
         if (_donwloading && progress >= 1) || (response.ub_error != nil) {
             _donwloading = false
             // complate download
-            displayerDelegate?.displayer(self, didComplete: response.ub_error)
+            (delegate as? DisplayableDelegate)?.displayer(self, didEndDownload: asset, error: response.ub_error)
         }
     }
     
-    private var _asset: Asset?
-    private var _library: Library?
-    private var _requests: [Request?]?
-    private var _donwloading: Bool = false
+    fileprivate var _asset: Asset?
+    fileprivate var _library: Library?
+    fileprivate var _requests: [Request?]?
+    fileprivate var _donwloading: Bool = false
 }
-

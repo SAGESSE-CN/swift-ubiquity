@@ -8,6 +8,7 @@
 
 import UIKit
 
+/// the asset display util view
 internal class DisplayView: UIView, Displayable {
     
     override init(frame: CGRect) {
@@ -19,25 +20,30 @@ internal class DisplayView: UIView, Displayable {
         _setup()
     }
     
-    /// displayer delegate
-    weak var displayerDelegate: DisplayableDelegate?
+    ///
+    /// the displayer delegate
+    ///
+    weak var delegate: AnyObject?
     
     ///
-    /// display container content with item
+    /// Show an asset
     ///
-    /// - parameter item: need display the item
-    /// - parameter orientation: need display the orientation
+    /// - parameter asset: need the display the resource
+    /// - parameter library: the asset in this library
+    /// - parameter orientation: need to display the image direction
     ///
-    func willDisplay(with item: Asset, in library: Library, orientation: UIImageOrientation) {
+    func willDisplay(with asset: Asset, in library: Library, orientation: UIImageOrientation) {
         // update rotation
         _contentView.transform = .init(rotationAngle: orientation.ub_angle)
     }
+    
     ///
-    /// end display content with item
+    /// Hide an asset
     ///
-    /// - parameter item: need display the item
+    /// - parameter asset: current display the resource
+    /// - parameter library: the asset in this library
     ///
-    func endDisplay(with item: Asset, in library: Library) {
+    func endDisplay(with asset: Asset, in library: Library) {
         // nothing
     }
     
@@ -73,6 +79,7 @@ internal class DisplayView: UIView, Displayable {
         // ok
         return snapshotView
     }
+    
     /// update the subview layout
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -83,6 +90,7 @@ internal class DisplayView: UIView, Displayable {
         _contentView.bounds = .init(x: 0, y: 0, width: size.width, height: size.height)
         _contentView.center = .init(x: bounds.midX, y: bounds.midY)
     }
+    
     /// only added to the _contentView
     override func addSubview(_ view: UIView) {
         _contentView.addSubview(view)
@@ -97,9 +105,10 @@ internal class DisplayView: UIView, Displayable {
         super.addSubview(_contentView)
     }
     
-    private lazy var _contentView: DisplayContentView = .init()
+    fileprivate lazy var _contentView: DisplayContentView = .init()
 }
 internal class DisplayContentView: UIView {
+    
 }
 internal class DisplayReplicantView: UIView {
     
@@ -157,3 +166,4 @@ internal class DisplayReplicantView: UIView {
     // need to manage the view
     private weak var _contentView: UIView?
 }
+

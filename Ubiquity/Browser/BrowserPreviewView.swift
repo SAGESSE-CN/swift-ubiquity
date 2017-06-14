@@ -9,4 +9,5 @@
 import UIKit
 
 internal class BrowserPreviewView: UIView {
+    
 }

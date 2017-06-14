@@ -146,7 +146,7 @@ public enum RequestContentMode: Int {
 public protocol Asset: class {
     
     /// A unique string that persistently identifies the object.
-    var ub_localIdentifier: String { get }
+    var ub_identifier: String { get }
     
     /// The width, in pixels, of the asset’s image or video data.
     var ub_pixelWidth: Int { get }
@@ -170,10 +170,9 @@ public protocol Asset: class {
 public protocol Collection: class {
     
     /// The localized name of the collection.
-    var ub_localizedTitle: String? { get }
-    
+    var ub_title: String? { get }
     /// A unique string that persistently identifies the object.
-    var ub_localIdentifier: String { get }
+    var ub_identifier: String { get }
     
     /// The type of the asset collection, such as an album or a moment.
     var ub_collectionType: CollectionType { get }
@@ -184,7 +183,6 @@ public protocol Collection: class {
     var ub_assetCount: Int { get }
     /// Retrieves assets from the specified asset collection.
     func ub_asset(at index: Int) -> Asset?
-    func ub_assets(at range: Range<Int>) -> Array<Asset>
 }
 
 /// Uniquely identify a cancellable async request
@@ -231,9 +229,9 @@ public protocol Library: class {
     /// Cancels an asynchronous request
     func ub_cancelRequest(_ requestID: Request)
     
-    /// If the asset's aspect ratio does not match that of the given targetSize, contentMode determines how the image will be resized.
+    /// If the asset's aspect ratio does not match that of the given size, mode determines how the image will be resized.
     @discardableResult
-    func ub_requestImage(for asset: Asset, targetSize: CGSize, contentMode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping RequestResultHandler<UIImage>) -> Request?
+    func ub_requestImage(for asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping RequestResultHandler<UIImage>) -> Request?
     
     // Playback only. The result handler is called on an arbitrary queue.
     @discardableResult
@@ -245,9 +243,9 @@ public protocol Library: class {
     /// Prepares image representations of the specified assets for later use.
     ///
     /// When you call this method, Photos begins to fetch image data and generates thumbnail images on a background thread. 
-    /// At any time afterward, you can use the ub_requestImage(for:targetSize:contentMode:options:resultHandler:) method to request individual images from the cache. 
+    /// At any time afterward, you can use the ub_requestImage(for:size:mode:options:resultHandler:) method to request individual images from the cache. 
     /// If Photos has finished preparing a requested image, that method provides the image immediately.
-    func ub_startCachingImages(for assets: [Asset], targetSize: CGSize, contentMode: RequestContentMode, options: RequestOptions?)
+    func ub_startCachingImages(for assets: [Asset], size: CGSize, mode: RequestContentMode, options: RequestOptions?)
 
     /// Cancels image preparation for the specified assets and options.
     ///
@@ -255,79 +253,9 @@ public protocol Library: class {
     /// Use it when image preparation that might be in progress is no longer needed. 
     /// For example, if you prepare images for a collection view filled with photo thumbnails and then the user chooses a different thumbnail size for your collection view, 
     /// call this method to cancel generating thumbnail images at the old size.
-    func ub_stopCachingImages(for assets: [Asset], targetSize: CGSize, contentMode: RequestContentMode, options: RequestOptions?)
+    func ub_stopCachingImages(for assets: [Asset], size: CGSize, mode: RequestContentMode, options: RequestOptions?)
 }
 
-/// can operate abstract protocol
-internal protocol Operable: class {
-    
-    /// operate event callback delegate
-    weak var operaterDelegate: OperableDelegate? { set get }
-    
-    /// play action, what must be after prepare otherwise this will not happen
-    func play()
-    /// stop action
-    func stop()
-    
-    /// suspend action, if you go to the background or pause will automatically call the method
-    func suspend()
-    /// resume suspend
-    func resume()
-}
-/// can operate abstract delegate
-internal protocol OperableDelegate: class {
-    
-    /// if the data is prepared to do the call this method
-    func operable(didPrepare operable: Operable, asset: Asset)
-    
-    /// if you start playing the call this method
-    func operable(didStartPlay operable: Operable, asset: Asset)
-    /// if take the initiative to stop the play call this method
-    func operable(didStop operable: Operable, asset: Asset)
-    
-    /// if the interruption due to lack of enough data to invoke this method
-    func operable(didStalled operable: Operable, asset: Asset)
-    /// if play is interrupted call the method, example: pause, in background mode, in the call
-    func operable(didSuspend operable: Operable, asset: Asset)
-    /// if interrupt restored to call this method
-    /// automatically restore: in background mode to foreground mode, in call is end
-    func operable(didResume operable: Operable, asset: Asset)
-    
-    /// if play completed call this method
-    func operable(didFinish operable: Operable, asset: Asset)
-    /// if the occur error call the method
-    func operable(didOccur operable: Operable, asset: Asset, error: Error?)
-}
-
-/// displayer protocol
-internal protocol Displayable: class {
-    
-    /// displayer delegate
-    weak var displayerDelegate: DisplayableDelegate? { set get }
-    
-    /// display content with item
-    ///
-    /// - parameter item: need display the item
-    /// - parameter orientation: need display the orientation
-    func willDisplay(with asset: Asset, in library: Library, orientation: UIImageOrientation)
-    
-    /// end display content with item
-    ///
-    /// - parameter item: need display the item
-    func endDisplay(with asset: Asset, in library: Library)
-}
-/// displayer delegate
-internal protocol DisplayableDelegate: class {
-    
-    /// Tell the delegate that the remote server requested.
-    func displayer(_ displayer: Displayable, didStartRequest asset: Asset)
-    
-    /// Periodically informs the delegate of the progress.
-    func displayer(_ displayer: Displayable, didReceive progress: Double)
-    
-    /// Tells the delegate that the task finished receive image.
-    func displayer(_ displayer: Displayable, didComplete error: Error?)
-}
 
 /// Provide the container display support
 //public extension UIView {

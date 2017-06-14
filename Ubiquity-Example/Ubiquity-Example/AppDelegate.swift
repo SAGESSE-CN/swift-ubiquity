@@ -63,6 +63,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         
 //        window?.layer.speed = 0.5
+//        window?.layer.speed = 0.1
+
         
 //class A: NSObject {
 //    func xa () {

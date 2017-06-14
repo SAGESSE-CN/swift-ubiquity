@@ -69,15 +69,25 @@ internal class BrowserAlbumLayout: UICollectionViewFlowLayout {
         let edg = collectionView.contentInset
         
         // check top boundary & bottom boundary
-        return .init(x: offset.x, y: min(max(location.y - frame.midY, -edg.top),  size.height - frame.maxY + edg.bottom))
+        return .init(x: offset.x, y: max(min(location.y - frame.midY,  size.height - frame.maxY + edg.bottom), -edg.top))
     }
     
-    override func initialLayoutAttributesForAppearingItem(at itemIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
-        return super.initialLayoutAttributesForAppearingItem(at: itemIndexPath)
-    }
-    override func finalLayoutAttributesForDisappearingItem(at itemIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
-        return super.finalLayoutAttributesForDisappearingItem(at: itemIndexPath)
-    }
+//    override func initialLayoutAttributesForAppearingItem(at itemIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+////        return super.initialLayoutAttributesForAppearingItem(at: itemIndexPath)
+//        return layoutAttributesForItem(at: itemIndexPath)
+//    }
+//    override func finalLayoutAttributesForDisappearingItem(at itemIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+//        return layoutAttributesForItem(at: itemIndexPath)
+////        return super.finalLayoutAttributesForDisappearingItem(at: itemIndexPath)
+//    }
+    
+//    override func initialLayoutAttributesForAppearingSupplementaryElement(ofKind elementKind: String, at decorationIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+//        return layoutAttributesForSupplementaryView(ofKind: elementKind, at: decorationIndexPath)
+//    }
+//    override func finalLayoutAttributesForDisappearingSupplementaryElement(ofKind elementKind: String, at decorationIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+//        return layoutAttributesForSupplementaryView(ofKind: elementKind, at: decorationIndexPath)
+//    }
+    
     
     private static func _itemSize(with rect: CGRect) -> (CGSize, CGFloat) {
         

@@ -21,7 +21,7 @@ internal class DataSource {
     }
     
     var title: String? {
-        return _collections.first?.ub_localizedTitle
+        return _collections.first?.ub_title
     }
     
     var numberOfSections: Int {
@@ -40,12 +40,16 @@ internal class DataSource {
 
 internal class DataSourceOptions: RequestOptions {
     
-    init(progressHandler: RequestProgressHandler? = nil) {
+    init(isSynchronous: Bool = false, progressHandler: RequestProgressHandler? = nil) {
+        self.isSynchronous = isSynchronous
         self.progressHandler = progressHandler
     }
     
     /// if necessary will download the image from reomte
     var isNetworkAccessAllowed: Bool = true
+    
+    // return only a single result, blocking until available (or failure). Defaults to NO
+    var isSynchronous: Bool = false
     
     /// provide caller a way to be told how much progress has been made prior to delivering the data when it comes from remote.
     var progressHandler: RequestProgressHandler? = nil

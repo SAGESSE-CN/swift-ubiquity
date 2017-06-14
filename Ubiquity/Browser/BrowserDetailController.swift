@@ -30,6 +30,15 @@ internal class BrowserDetailController: UICollectionViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    /// collection view cell class provider
+    var collectionViewCellProvider: Templatize.Type {
+        return BrowserDetailCell.self
+    }
+//    /// indicator view cell class provider
+//    var indicatorViewCellProvider: Templatize.Type {
+//        return BrowserAlbumCell.self
+//    }
+    
     override func loadView() {
         super.loadView()
         // setup controller
@@ -58,8 +67,9 @@ internal class BrowserDetailController: UICollectionViewController {
         collectionView?.allowsMultipleSelection = false
         collectionView?.allowsSelection = false
         collectionView?.backgroundColor = .white
-        collectionView?.register(BrowserDetailCell.dynamic(with: PhotoContentView.self), forCellWithReuseIdentifier: _identifier(with: .image))
-        collectionView?.register(BrowserDetailCell.dynamic(with: VideoContentView.self), forCellWithReuseIdentifier: _identifier(with: .video))
+        
+        collectionView?.register(collectionViewCellProvider.class(with: PhotoContentView.self), forCellWithReuseIdentifier: _identifier(with: .image))
+        collectionView?.register(collectionViewCellProvider.class(with: VideoContentView.self), forCellWithReuseIdentifier: _identifier(with: .video))
         
 //        // setup indicator 
 //        indicatorItem.indicatorView.delegate = self
@@ -176,9 +186,9 @@ internal class BrowserDetailController: UICollectionViewController {
     fileprivate var _currentItem: UICollectionViewLayoutAttributes?
     fileprivate var _currentIndexPath: IndexPath?
     
-    fileprivate var _currentOrientationes: [String: UIImageOrientation] = [:]
+    fileprivate var _orientationes: [String: UIImageOrientation] = [:]
     
-    fileprivate var _ignoreContentOffsetChange = false
+    fileprivate var _ignoreContentOffsetChange: Bool = false
     fileprivate var _systemContentInset: UIEdgeInsets = .zero
 }
 
@@ -301,14 +311,14 @@ extension BrowserDetailController: UIGestureRecognizerDelegate {
 extension BrowserDetailController: BrowserDetailCellDelegate {
     
     func browserDetailCell(_ browserDetailCell: BrowserDetailCell, shouldBeginRotationing asset: Asset) -> Bool {
-        logger.debug?.write(asset.ub_localIdentifier)
+        logger.debug?.write(asset.ub_identifier)
         // allow
         return true
     }
     func browserDetailCell(_ browserDetailCell: BrowserDetailCell, didEndRotationing asset: Asset, at orientation: UIImageOrientation) {
-        logger.debug?.write(asset.ub_localIdentifier, "is landscape: \(orientation.ub_isLandscape)")
+        logger.debug?.write(asset.ub_identifier, "is landscape: \(orientation.ub_isLandscape)")
         // save
-        _currentOrientationes[asset.ub_localIdentifier] = orientation
+        _orientationes[asset.ub_identifier] = orientation
     }
 }
 
@@ -527,23 +537,24 @@ extension BrowserDetailController: UICollectionViewDelegateFlowLayout {
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         // try fetch cell
         // try fetch asset
-        guard let asset = _source.asset(at: indexPath), let cell = cell as? BrowserDetailCell else {
+        guard let asset = _source.asset(at: indexPath), let displayer = cell as? Displayable else {
             return
         }
-        let edg = _systemContentInset
-        let orientation = _currentOrientationes[asset.ub_localIdentifier] ?? .up
-        // update display the asset & content inset
-        cell.updateContentInset(edg, forceUpdate: false)
-        cell.willDisplay(with: asset, in: _library, orientation: orientation)
-        cell.delegate = self
+        
+        // update content inset
+        (cell as? BrowserDetailCell)?.updateContentInset(_systemContentInset, forceUpdate: false)
+        
+        // update disaply content
+        displayer.willDisplay(with: asset, in: _library, orientation: _orientationes[asset.ub_identifier] ?? .up)
+        displayer.delegate = self
     }
     override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         // try fetch cell
         // try fetch asset
-        guard let asset = _source.asset(at: indexPath), let cell = cell as? BrowserDetailCell else {
+        guard let asset = _source.asset(at: indexPath), let displayer = cell as? BrowserDetailCell else {
             return
         }
-        cell.endDisplay(with: asset, in: _library)
+        displayer.endDisplay(with: asset, in: _library)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -721,7 +732,7 @@ extension BrowserDetailController: IndicatorViewDataSource, IndicatorViewDelegat
             
             //imageView.ub_setImage(nil, animated: false)
             imageView.image = nil
-            _library.ub_requestImage(for: asset, targetSize: size, contentMode: .aspectFill, options: options) { image, info in
+            _library.ub_requestImage(for: asset, size: size, mode: .aspectFill, options: options) { image, info in
                 imageView.image = image
                 //imageView.ub_setImage(image, animated: true)
             }

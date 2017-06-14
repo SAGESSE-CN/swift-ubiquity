@@ -48,7 +48,7 @@ class Generator {
     
     
 //    // generated the target image size
-//    let targetSize: CGSize
+//    let size: CGSize
     
     private var asset: AVAsset
     private var duration: TimeInterval
@@ -385,7 +385,7 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate {
             
             let sv = UIImageView(frame: .init(x: item.width * CGFloat($0), y: 0, width: item.width, height: item.height))
             sv.backgroundColor = .random
-            sv.contentMode = .scaleAspectFill
+            sv.mode = .scaleAspectFill
             sv.clipsToBounds = true
             view2.addSubview(sv)
         }

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12118" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="nNR-sr-z16">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16E195" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="nNR-sr-z16">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12086"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -125,7 +125,7 @@
         <!--Test Layer View Controller-->
         <scene sceneID="Cz2-5S-HLc">
             <objects>
-                <viewController storyboardIdentifier="X3" automaticallyAdjustsScrollViewInsets="NO" useStoryboardIdentifierAsRestorationIdentifier="YES" id="2sn-UF-eS6" customClass="TestLayerViewController" customModule="Ubiquity_Example" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="X3" automaticallyAdjustsScrollViewInsets="NO" useStoryboardIdentifierAsRestorationIdentifier="YES" id="2sn-UF-eS6" customClass="TestLayerViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="dOH-Z4-xPZ"/>
                         <viewControllerLayoutGuide type="bottom" id="rEC-FJ-rSv"/>
@@ -233,7 +233,7 @@
         <!--Test Video Filmstrip View Controller-->
         <scene sceneID="zUz-Yr-iJN">
             <objects>
-                <viewController storyboardIdentifier="TestVideoFilmstripViewController" automaticallyAdjustsScrollViewInsets="NO" useStoryboardIdentifierAsRestorationIdentifier="YES" id="3DQ-VI-cWG" customClass="TestVideoFilmstripViewController" customModule="Ubiquity_Example" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="TestVideoFilmstripViewController" automaticallyAdjustsScrollViewInsets="NO" useStoryboardIdentifierAsRestorationIdentifier="YES" id="3DQ-VI-cWG" customClass="TestVideoFilmstripViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="qiR-z0-iKH"/>
                         <viewControllerLayoutGuide type="bottom" id="e3r-UZ-2VM"/>
@@ -303,7 +303,7 @@
         <!--CanvasView-->
         <scene sceneID="u1y-ED-pFi">
             <objects>
-                <viewController automaticallyAdjustsScrollViewInsets="NO" hidesBottomBarWhenPushed="YES" id="bCH-wR-wLF" customClass="TestCanvasViewController" customModule="Ubiquity_Example" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController automaticallyAdjustsScrollViewInsets="NO" hidesBottomBarWhenPushed="YES" id="bCH-wR-wLF" customClass="TestCanvasViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="og9-Jn-iul"/>
                         <viewControllerLayoutGuide type="bottom" id="Pk2-Wl-0Uq"/>

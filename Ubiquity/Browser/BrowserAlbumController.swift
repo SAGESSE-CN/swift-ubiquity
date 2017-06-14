@@ -8,6 +8,7 @@
 
 import UIKit
 
+/// the asset list in album
 internal class BrowserAlbumController: UICollectionViewController {
     
     init(source: DataSource, library: Library) {
@@ -22,6 +23,11 @@ internal class BrowserAlbumController: UICollectionViewController {
     deinit {
         // clear all cache request when destroyed
         _resetCachedAssets()
+    }
+    
+    /// collection view cell class provider
+    var collectionViewCellProvider: Templatize.Type {
+        return BrowserAlbumCell.self
     }
     
     func reloadData(with auth: AuthorizationStatus) {
@@ -53,9 +59,10 @@ internal class BrowserAlbumController: UICollectionViewController {
         view.backgroundColor = .white
         
         // setup colleciton view
-        collectionView?.register(BrowserAlbumCell.dynamic(with: UIImageView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
+        collectionView?.register(collectionViewCellProvider.class(with: UIImageView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
         collectionView?.backgroundColor = .white
         collectionView?.alwaysBounceVertical = true
+        collectionView?.contentInset = .init(top: 4, left: 0, bottom: 4, right: 0)
     }
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -68,9 +75,7 @@ internal class BrowserAlbumController: UICollectionViewController {
             }
         }
         
-        // config
         title = _source.title
-        
         navigationController?.isToolbarHidden = false
     }
     override func viewWillLayoutSubviews() {
@@ -87,6 +92,7 @@ internal class BrowserAlbumController: UICollectionViewController {
     
     fileprivate var _prepared: Bool = false
     fileprivate var _authorized: Bool = false
+    fileprivate var _showsFooterView: Bool = false
     
     fileprivate var _targetContentOffset: CGPoint = .zero
     
@@ -130,18 +136,18 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         // try fetch cell
         // try fetch asset
-        guard let asset = _source.asset(at: indexPath), let cell = cell as? BrowserAlbumCell, _prepared else {
+        guard let asset = _source.asset(at: indexPath), let displayer = cell as? Displayable, _prepared else {
             return
         }
-        cell.willDisplay(with: asset, in: _library, orientation: .up)
+        displayer.willDisplay(with: asset, in: _library, orientation: .up)
     }
     override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         // try fetch cell
         // try fetch asset
-        guard let asset = _source.asset(at: indexPath), let cell = cell as? BrowserAlbumCell, _prepared else {
+        guard let asset = _source.asset(at: indexPath), let displayer = cell as? Displayable, _prepared else {
             return
         }
-        cell.endDisplay(with: asset, in: _library)
+        displayer.endDisplay(with: asset, in: _library)
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -198,7 +204,7 @@ extension BrowserAlbumController: TransitioningDataSource {
             return nil
         }
         // get at current index path the cell
-        return collectionView?.cellForItem(at: indexPath) as? BrowserAlbumCell
+        return collectionView?.cellForItem(at: indexPath) as? TransitioningView
     }
     
     func ub_transitionShouldStart(using animator: Animator, for operation: Animator.Operation) -> Bool {
@@ -225,7 +231,7 @@ extension BrowserAlbumController: TransitioningDataSource {
             collectionView.layoutIfNeeded()
         }
         // fetch cell at index path, if is displayed
-        guard let cell = collectionView.cellForItem(at: indexPath) as? BrowserAlbumCell else {
+        guard let cell = collectionView.cellForItem(at: indexPath) else {
             return
         }
         // if it is to, reset cell boundary
@@ -255,7 +261,7 @@ extension BrowserAlbumController: TransitioningDataSource {
             return
         }
         // fetch cell at index path, if is displayed
-        guard let cell = collectionView?.cellForItem(at: indexPath) as? BrowserAlbumCell else {
+        guard let cell = collectionView?.cellForItem(at: indexPath) else {
             return
         }
         guard let snapshotView = context.ub_snapshotView, let newSnapshotView = snapshotView.snapshotView(afterScreenUpdates: false) else {
@@ -275,7 +281,7 @@ extension BrowserAlbumController: TransitioningDataSource {
     func ub_transitionDidEnd(using animator: Animator, transitionCompleted: Bool) {
         logger.trace?.write(transitionCompleted)
         // fetch cell at index path, if index path is nil ignore
-        guard let indexPath = animator.indexPath, let cell = collectionView?.cellForItem(at: indexPath) as? BrowserAlbumCell else {
+        guard let indexPath = animator.indexPath, let cell = collectionView?.cellForItem(at: indexPath) else {
             return
         }
         cell.isHidden = false
@@ -325,27 +331,28 @@ internal extension BrowserAlbumController {
         guard !changes.isEmpty else {
             return
         }
-
-        // Compute the assets to start caching and to stop caching.
-        let result = _different(changes.map { $0.new }, changes.map { $0.old })
         
-        let addedAssets = result.added
-            .flatMap { _indexPathsForElements(in: $0) }
-            .flatMap { _source.asset(at: $0) }
-        
-        let removedAssets = result.removed
-            .flatMap { _indexPathsForElements(in: $0) }
-            .flatMap { _source.asset(at: $0) }
-            .filter { asset in !addedAssets.contains(where: { $0 === asset } ) }
-        
-        // Update the assets the PHCachingImageManager is caching.
-        _library.ub_startCachingImages(for: addedAssets, targetSize: BrowserAlbumLayout.thumbnailItemSize, contentMode: .aspectFill, options: nil)
-        _library.ub_stopCachingImages(for: removedAssets, targetSize: BrowserAlbumLayout.thumbnailItemSize, contentMode: .aspectFill, options: nil)
-        
-        logger.debug?.write(
-            "\(preheatRect.midY)/\(_previousPreheatRect.midY) => " +
-            "\(targetPreheatRect.midY)/\(_previousTargetPreheatRect.midY) => " +
-            "\(addedAssets.count)/\(removedAssets.count)")
+        // add to util task
+//        (_library as? CacheLibrary)?.utilTask {
+            
+            // Compute the assets to start caching and to stop caching.
+            let result = self._different(changes.map { $0.new }, changes.map { $0.old })
+            
+            let addedAssets = result.added
+                .flatMap { self._indexPathsForElements(in: $0) }
+                .flatMap { self._source.asset(at: $0) }
+            
+            let removedAssets = result.removed
+                .flatMap { self._indexPathsForElements(in: $0) }
+                .flatMap { self._source.asset(at: $0) }
+                .filter { asset in !addedAssets.contains(where: { $0 === asset } ) }
+            
+            // Update the assets the PHCachingImageManager is caching.
+            self._library.ub_startCachingImages(for: addedAssets, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: nil)
+            self._library.ub_stopCachingImages(for: removedAssets, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: nil)
+            
+            //self.logger.debug?.write("\(addedAssets.count)/\(removedAssets.count)")
+//        }
     }
     
     fileprivate func _different(_ new: [CGRect], _ old: [CGRect]) -> (added: [CGRect], removed: [CGRect]) {
@@ -453,14 +460,21 @@ internal extension BrowserAlbumController {
     fileprivate func _clearError() {
         logger.trace?.write()
         
+        // config title
+        title = _source.title
+        
         // enable scroll
         collectionView?.isScrollEnabled = true
         collectionView?.reloadData()
         collectionView?.alpha = 0
         
-        if let section = collectionView?.numberOfSections, let count = collectionView?.numberOfItems(inSection: max(section - 1, 0)) {
+        if let collectionView = collectionView {
+            // collect information
+            let edg = collectionView.contentInset
+            let size = collectionViewLayout.collectionViewContentSize
             // scroll to bottom
-            collectionView?.scrollToItem(at: .init(item: count - 1, section: section - 1), at: .bottom, animated: false)
+            // if the contentOffset over boundary, reset vaild contentOffset in collectionView internal
+            collectionView.contentOffset.y = size.height - (collectionView.frame.height - edg.bottom)
         }
         
         // content is loaded

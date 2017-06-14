@@ -7,7 +7,7 @@
 
 import Foundation
 
-
+internal protocol Logport { }
 internal class Logger {
     
     internal enum Priority: Int, CustomStringConvertible, Comparable {
@@ -359,7 +359,7 @@ internal class Logger {
     fileprivate init() {
         _name = ""
     }
-    fileprivate init(class: AnyClass) {
+    fileprivate init(class: Any.Type) {
         _name = "\(`class`)"
     }
     
@@ -405,11 +405,23 @@ internal class Logger {
 }
 
 internal let logger = Logger()
-internal extension NSObjectProtocol {
-    internal var logger: Logger {
-        return type(of: self).logger
-    }
-    internal static var logger: Logger {
-        return Logger(class: self)
-    }
+
+
+
+extension NSObjectProtocol {
+    
+    // get the current class the logger
+    var logger: Logger { return type(of: self).logger }
+    
+    // get the current class the logger
+    static var logger: Logger { return Logger(class: self) }
 }
+extension Logport {
+    
+    // get the current class the logger
+    var logger: Logger { return type(of: self).logger }
+    
+    // get the current class the logger
+    static var logger: Logger { return Logger(class: self) }
+}
+

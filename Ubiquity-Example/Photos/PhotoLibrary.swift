@@ -40,18 +40,18 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library {
         _manager.cancelImageRequest(request)
     }
     
-    /// If the asset's aspect ratio does not match that of the given targetSize, contentMode determines how the image will be resized.
-    func ub_requestImage(for asset: Ubiquity.Asset, targetSize: CGSize, contentMode: Ubiquity.RequestContentMode, options: Ubiquity.RequestOptions?, resultHandler: @escaping Ubiquity.RequestResultHandler<UIImage>) -> Ubiquity.Request? {
+    /// If the asset's aspect ratio does not match that of the given size, mode determines how the image will be resized.
+    func ub_requestImage(for asset: Ubiquity.Asset, size: CGSize, mode: Ubiquity.RequestContentMode, options: Ubiquity.RequestOptions?, resultHandler: @escaping Ubiquity.RequestResultHandler<UIImage>) -> Ubiquity.Request? {
         // must with PHAsset
-        guard let asset = asset as? PHAsset else {
+        guard let asset = asset as? Asset else {
             return nil
         }
         
-        let newContentMode = PHImageContentMode(contentMode: contentMode)
+        let newMode = PHImageContentMode(mode: mode)
         let newOptions = PHImageRequestOptions(options: options)
         
         // send image request
-        return _manager.requestImage(for: asset, targetSize: targetSize, contentMode: newContentMode, options: newOptions) { image, info in
+        return _manager.requestImage(for: asset.asset, targetSize: size, contentMode: newMode, options: newOptions) { image, info in
             // convert result info to response
             let response = Response(info: info)
             // callback
@@ -60,14 +60,14 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library {
     }
     
     func ub_requestPlayerItem(forVideo asset: Ubiquity.Asset, options: Ubiquity.RequestOptions?, resultHandler: @escaping Ubiquity.RequestResultHandler<AVPlayerItem>) -> Ubiquity.Request? {
-        guard let asset = asset as? PHAsset else {
+        guard let asset = asset as? Asset else {
             return nil
         }
         
         let newOptions = PHVideoRequestOptions(options: options)
         
         // send player item request
-        return _manager.requestPlayerItem(forVideo: asset, options: newOptions) { item, info in
+        return _manager.requestPlayerItem(forVideo: asset.asset, options: newOptions) { item, info in
             // convert result info to response
             let response = Response(info: info)
             // callback
@@ -81,28 +81,28 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library {
         _manager.stopCachingImagesForAllAssets()
     }
     /// Prepares image representations of the specified assets for later use.
-    func ub_startCachingImages(for assets: [Asset], targetSize: CGSize, contentMode: RequestContentMode, options: RequestOptions?) {
-        guard let assets = assets as? [PHAsset] else {
+    func ub_startCachingImages(for assets: [Ubiquity.Asset], size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
+        guard let assets = assets as? [Asset] else {
             return
         }
-        let newContentMode = PHImageContentMode(contentMode: contentMode)
+        let newMode = PHImageContentMode(mode: mode)
         let newOptions = PHImageRequestOptions(options: options)
         
         // forward
-        _manager.startCachingImages(for: assets, targetSize: targetSize, contentMode: newContentMode, options: newOptions)
+        _manager.startCachingImages(for: assets.map { $0.asset }, targetSize: size, contentMode: newMode, options: newOptions)
     }
     /// Cancels image preparation for the specified assets and options.
-    func ub_stopCachingImages(for assets: [Asset], targetSize: CGSize, contentMode: RequestContentMode, options: RequestOptions?) {
-        guard let assets = assets as? [PHAsset] else {
+    func ub_stopCachingImages(for assets: [Ubiquity.Asset], size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
+        guard let assets = assets as? [Asset] else {
             return
         }
-        let newContentMode = PHImageContentMode(contentMode: contentMode)
+        let newMode = PHImageContentMode(mode: mode)
         let newOptions = PHImageRequestOptions(options: options)
         
         // NOTE: high speed scrolling can cause deadlock, need splite
         
         // forward
-        _manager.stopCachingImages(for: assets, targetSize: targetSize, contentMode: newContentMode, options: newOptions)
+        _manager.stopCachingImages(for: assets.map { $0.asset }, targetSize: size, contentMode: newMode, options: newOptions)
     }
     
     /// Get collections with type
@@ -186,18 +186,57 @@ internal extension PhotoLibrary {
         var ub_downloading: Bool
     }
     
+    class Asset: Ubiquity.Asset {
+        
+        init(asset: PHAsset) {
+            self.asset = asset
+        }
+        
+        let asset: PHAsset
+        
+        var ub_identifier: String {
+            if let localIdentifier = _localIdentifier {
+                return localIdentifier
+            }
+            let localIdentifier = asset.localIdentifier
+            _localIdentifier = localIdentifier
+            return localIdentifier
+        }
+        
+        var ub_pixelWidth: Int {
+            return asset.pixelWidth
+        }
+        var ub_pixelHeight: Int {
+            return asset.pixelHeight
+        }
+        
+        var ub_allowsPlay: Bool {
+            return asset.mediaType == .video
+        }
+        var ub_duration: TimeInterval {
+            return asset.duration
+        }
+        
+        var ub_mediaType: Ubiquity.AssetMediaType {
+            return Ubiquity.AssetMediaType(rawValue: asset.mediaType.rawValue) ?? .unknown
+        }
+        var ub_mediaSubtypes: Ubiquity.AssetMediaSubtype {
+            return Ubiquity.AssetMediaSubtype(rawValue: asset.mediaSubtypes.rawValue)
+        }
+        
+        private var _localIdentifier: String?
+    }
     class Collection: Ubiquity.Collection {
         
         init(collection: PHAssetCollection) {
             _collection = collection
         }
         
-        public var ub_localizedTitle: String? {
-            return _collection.localizedTitle
-        }
-        
-        public var ub_localIdentifier: String {
+        public var ub_identifier: String {
             return _collection.localIdentifier
+        }
+        public var ub_title: String? {
+            return _collection.localizedTitle
         }
         
         public var ub_collectionType: Ubiquity.CollectionType {
@@ -211,14 +250,13 @@ internal extension PhotoLibrary {
             return _result.count
         }
         public func ub_asset(at index: Int) -> Ubiquity.Asset? {
-            return _result.object(at: index)
-        }
-        public func ub_assets(at range: Range<Int>) -> Array<Ubiquity.Asset> {
-            var assets: [PHAsset] = []
-            _result.enumerateObjects(at: .init(integersIn: range), options: []) { asset, _, _ in
-                assets.append(asset)
+            
+            if let asset = _assets?[index] {
+                return asset
             }
-            return assets
+            let asset = Asset(asset: _result.object(at: index))
+            _assets?[index] = asset
+            return asset
         }
         
         private var __result: PHFetchResult<PHAsset>?
@@ -228,9 +266,11 @@ internal extension PhotoLibrary {
             }
             let result = PHAsset.fetchAssets(in: _collection, options: nil)
             __result = result
+            _assets = Array(repeating: nil, count: result.count)
             return result
         }
         
+        private var _assets: [Asset?]?
         private var _collection: PHAssetCollection
     }
 }
@@ -252,8 +292,8 @@ extension PHImageRequestID: Ubiquity.Request {
 
 extension PHImageContentMode {
     
-    init(contentMode: Ubiquity.RequestContentMode) {
-        switch contentMode {
+    init(mode: Ubiquity.RequestContentMode) {
+        switch mode {
         case .aspectFill: self = .aspectFill
         case .aspectFit: self = .aspectFit
         }
@@ -301,33 +341,3 @@ extension PHVideoRequestOptions {
     }
 }
 
-
-//
-
-extension PHAsset: Ubiquity.Asset {
-    
-    public var ub_localIdentifier: String {
-        return localIdentifier
-    }
-    
-    public var ub_pixelWidth: Int {
-        return pixelWidth
-    }
-    public var ub_pixelHeight: Int {
-        return pixelHeight
-    }
-    
-    public var ub_allowsPlay: Bool {
-        return mediaType == .video
-    }
-    public var ub_duration: TimeInterval {
-        return duration
-    }
-    
-    public var ub_mediaType: Ubiquity.AssetMediaType {
-        return Ubiquity.AssetMediaType(rawValue: mediaType.rawValue) ?? .unknown
-    }
-    public var ub_mediaSubtypes: Ubiquity.AssetMediaSubtype {
-        return Ubiquity.AssetMediaSubtype(rawValue: mediaSubtypes.rawValue) 
-    }
-}

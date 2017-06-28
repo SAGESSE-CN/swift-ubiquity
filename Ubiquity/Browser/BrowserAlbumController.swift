@@ -94,6 +94,7 @@ internal class BrowserAlbumController: UICollectionViewController {
     fileprivate var _authorized: Bool = false
     fileprivate var _showsFooterView: Bool = false
     
+    fileprivate var _transitioning: Bool = false
     fileprivate var _targetContentOffset: CGPoint = .zero
     
     fileprivate var _previousPreheatRect: CGRect = .zero
@@ -179,8 +180,8 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
     override func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
         // update target content offset
         _targetContentOffset = .init(x: -scrollView.contentInset.left, y: -scrollView.contentInset.top)
-        // can scroll to top
-        return true
+        // if transitions animation is started, can't scroll
+        return !_transitioning
     }
     override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         // update target content offset
@@ -253,6 +254,9 @@ extension BrowserAlbumController: TransitioningDataSource {
             }
         }
         cell.isHidden = true
+        
+        // current transitions animation is started
+        _transitioning = true
     }
     func ub_transitionWillEnd(using animator: Animator, context: TransitioningContext, transitionCompleted: Bool) {
         logger.trace?.write(transitionCompleted)
@@ -285,6 +289,9 @@ extension BrowserAlbumController: TransitioningDataSource {
             return
         }
         cell.isHidden = false
+        
+        // current transitions animation is end
+        _transitioning = false
     }
 }
 

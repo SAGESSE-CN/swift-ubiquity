@@ -231,6 +231,7 @@ extension BrowserDetailController: UIGestureRecognizerDelegate {
             }
             return true
         }
+        
         return false
     }
     

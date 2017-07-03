@@ -86,12 +86,43 @@ internal class Animator: NSObject {
     weak var source: TransitioningDataSource?
     weak var destination: TransitioningDataSource?
     
-    var duration: TimeInterval = 0.3
     var indexPath: IndexPath?
     
-    func ub_animate(with options: UIViewAnimationOptions, animations: @escaping () -> Swift.Void, completion: ((Bool) -> Void)? = nil) {
+    func ub_duration(with operation: Operation) -> TimeInterval {
+        
+        // display will longer
+        if operation.appear {
+            return 0.35
+        }
+        
+        // hide will shorter
+        return 0.3
+    }
+    
+    func ub_animate(with operation: Operation, animations: @escaping () -> Swift.Void, completion: ((Bool) -> Void)? = nil) {
+        
+        
+        
+        if operation.appear {
+            // show
+            UIView.animate(withDuration: ub_duration(with: operation),
+                           delay: 0,
+                           usingSpringWithDamping: 0.75,
+                           initialSpringVelocity: 15,
+                           options: .curveEaseInOut,
+                           animations: animations,
+                           completion: completion)
+        } else {
+            // hide
+            UIView.animate(withDuration: ub_duration(with: operation),
+                           delay: 0,
+                           usingSpringWithDamping: 1,
+                           initialSpringVelocity: 10,
+                           options: .curveEaseOut,
+                           animations: animations,
+                           completion: completion)
+        }
         //UIView.animate(withDuration: duration * 5, delay: 0, options: options, animations: animations, completion: completion)
-        UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 10, options: options, animations: animations, completion: completion)
     }
 }
 
@@ -301,7 +332,8 @@ extension Animator {
         }
         
         func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-            return animator.duration
+            // fetch operation the duration
+            return animator.ub_duration(with: operation)
         }
         
         func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
@@ -311,11 +343,11 @@ extension Animator {
             context.prepare(for: .from)
             
             // make animation on next runloop
-            DispatchQueue.main.async { [animator] in
+            DispatchQueue.main.async { [animator, operation] in
                 // disable all user interface
                 UIApplication.shared.beginIgnoringInteractionEvents()
                 // preform animation
-                animator.ub_animate(with: .curveEaseInOut, animations: {
+                animator.ub_animate(with: operation, animations: {
                     // apply transition context for to
                     context.apply(for: .to)
                     
@@ -585,7 +617,7 @@ extension Animator {
                 }
             }
             
-            animator.ub_animate(with: .curveEaseInOut, animations: {
+            animator.ub_animate(with: .pop, animations: {
                 self.apply(for: .from)
                 self.snapshotView.backgroundColor = self.ub_backgroundColor(for: .from)
             }, completion: { _ in
@@ -601,7 +633,7 @@ extension Animator {
                 self.context.finishInteractiveTransition()
             }
             
-            animator.ub_animate(with: .curveEaseInOut, animations: {
+            animator.ub_animate(with: .pop, animations: {
                 self.apply(for: .to)
                 self.snapshotView.backgroundColor = self.ub_backgroundColor(for: .to)
             }, completion: { _ in

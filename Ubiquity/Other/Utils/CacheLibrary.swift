@@ -156,7 +156,7 @@ internal class CacheLibrary: NSObject, Library {
         let subtasks = assets.flatMap { asset -> CacheTask? in
             
             //  in caching, ignore
-            if let subtask = cache[asset.ub_identifier] as? CacheTask {
+            if let _ = cache[asset.ub_identifier] as? CacheTask {
                 return nil
             }
             // create a cache task
@@ -681,7 +681,7 @@ internal extension CacheLibrary {
                 return
             }
             
-            body(start, stop)
+            body((start, stop))
         }
         
         var isEmpty: Bool {

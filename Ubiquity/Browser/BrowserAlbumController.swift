@@ -237,12 +237,11 @@ extension BrowserAlbumController: TransitioningDataSource {
         }
         // if it is to, reset cell boundary
         if context.ub_operation == .pop || context.ub_operation == .dismiss {
-            let edg = collectionView.contentInset
             let frame = cell.convert(cell.bounds, to: view)
             let height = view.frame.height - topLayoutGuide.length - bottomLayoutGuide.length
             
-            let y1 = -edg.top + frame.minY
-            let y2 = -edg.top + frame.maxY
+            let y1 = -topLayoutGuide.length + frame.minY
+            let y2 = -topLayoutGuide.length + frame.maxY
             
             // reset content offset if needed
             if y2 > height {

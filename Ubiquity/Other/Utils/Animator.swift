@@ -228,7 +228,7 @@ extension Animator {
             // setup transitioning
             transitioningView = view
             // setup transitioning view
-            let frame = convert(view.ub_frame, from: superview)
+            let frame = convert(view.ub_frame, from: window)
             containerView.transform = view.ub_transform
             containerView.bounds = .init(origin: .zero, size: frame.size)
             containerView.center = .init(x: frame.midX, y: frame.midY)

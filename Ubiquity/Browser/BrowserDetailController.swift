@@ -13,6 +13,7 @@ internal class BrowserDetailController: UICollectionViewController {
     init(source: DataSource, library: Library, at indexPath: IndexPath) {
         _source = source
         _library = library.ub_cache
+        _itemIndexPath = indexPath
         
         let collectionViewLayout = BrowserDetailLayout()
         
@@ -23,8 +24,6 @@ internal class BrowserDetailController: UICollectionViewController {
         collectionViewLayout.footerReferenceSize = CGSize(width: -extraContentInset.right, height: 0)
 
         super.init(collectionViewLayout: collectionViewLayout)
-        // setup some default
-        _currentIndexPath = indexPath
     }
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -52,7 +51,7 @@ internal class BrowserDetailController: UICollectionViewController {
         // setup gesture recognizer
         interactiveDismissGestureRecognizer.delegate = self
         interactiveDismissGestureRecognizer.maximumNumberOfTouches = 1
-        interactiveDismissGestureRecognizer.addTarget(self, action: #selector(handleDismiss(_:)))
+        interactiveDismissGestureRecognizer.addTarget(self, action: #selector(_handleDismiss(_:)))
         
         view.addGestureRecognizer(interactiveDismissGestureRecognizer)
         
@@ -90,12 +89,9 @@ internal class BrowserDetailController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        guard let indexPath = _currentIndexPath else {
-            return
-        }
         UIView.performWithoutAnimation {
-            collectionView?.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
-            indicatorItem.indicatorView.scrollToItem(at: indexPath, animated: false)
+            collectionView?.scrollToItem(at: _itemIndexPath, at: .centeredHorizontally, animated: false)
+            indicatorItem.indicatorView.scrollToItem(at: _itemIndexPath, animated: false)
         }
     }
     
@@ -143,9 +139,9 @@ internal class BrowserDetailController: UICollectionViewController {
         return result
     }
     
-    var currentIndexPath: IndexPath? {
-        return _currentIndexPath
-    }
+    /// the any item update delegate
+    weak var updateDelegate: DetailControllerItemUpdateDelegate?
+    
     
     fileprivate func _identifier(with mediaType: AssetMediaType) -> String {
         switch mediaType {
@@ -183,8 +179,9 @@ internal class BrowserDetailController: UICollectionViewController {
     fileprivate var _interactivingToIndex: Int?
     fileprivate var _interactivingToIndexPath: IndexPath?
     
-    fileprivate var _currentItem: UICollectionViewLayoutAttributes?
-    fileprivate var _currentIndexPath: IndexPath?
+    // the current item context
+    fileprivate var _itemIndexPath: IndexPath
+    fileprivate var _itemLayoutAttributes: UICollectionViewLayoutAttributes?
     
     fileprivate var _orientationes: [String: UIImageOrientation] = [:]
     
@@ -192,50 +189,101 @@ internal class BrowserDetailController: UICollectionViewController {
     fileprivate var _systemContentInset: UIEdgeInsets = .zero
 }
 
-/// Provide dismiss gesture recognizer support
-extension BrowserDetailController: UIGestureRecognizerDelegate {
+// private method
+extension BrowserDetailController {
     
-    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        if interactiveDismissGestureRecognizer == gestureRecognizer {
-            let velocity = interactiveDismissGestureRecognizer.velocity(in: collectionView)
-            // detect the direction of gestures => up or down
-            guard fabs(velocity.x / velocity.y) < 1.5 else {
-                return false
-            }
-            guard let cell = collectionView?.visibleCells.last as? BrowserDetailCell else {
-                return false
-            }
-            // check this gesture event can not trigger bounces
-            let point = interactiveDismissGestureRecognizer.location(in: cell.ub_contentView?.superview)
-            guard (point.y - view.frame.height) <= 0 else {
-                return false
-            }
-            return true
-        }
-        return true
-    }
-    
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        // only process dismiss gesture recognizer
-        if interactiveDismissGestureRecognizer == gestureRecognizer {
-            // if it has started to interact, it is the exclusive mode
-            guard !_transitionIsInteractiving else {
-                return false
-            }
-            guard let panGestureRecognizer = otherGestureRecognizer as? UIPanGestureRecognizer else {
-                return true
-            }
-            // only allow canvas view gestures can operate
-            guard let view = panGestureRecognizer.view, view.superview is CanvasView else {
-                return false
-            }
-            return true
+    fileprivate func _updateCurrentItem(at indexPath: IndexPath) {
+        logger.debug?.write(indexPath)
+        
+        let changed = _itemIndexPath != indexPath
+        
+        // notify user item will change
+        if changed {
+            updateDelegate?.detailController(self, willShowItem: indexPath)
         }
         
-        return false
+        // update current item context
+        _itemIndexPath = indexPath
+        _itemLayoutAttributes = collectionView?.layoutAttributesForItem(at: indexPath)
+        
+        // notify user item did change
+        if changed {
+            updateDelegate?.detailController(self, didShowItem: indexPath)
+        }
+    }
+    fileprivate func _updateCurrentItem(with contentOffset: CGPoint) {
+        
+        // must has a collection view
+        guard let collectionView = collectionView else {
+            return
+        }
+        let x = contentOffset.x + collectionView.bounds.width / 2
+        
+        // check for any changes
+        if let item = _itemLayoutAttributes, item.frame.minX <= x && x < item.frame.maxX {
+            return // hit cache
+        }
+        
+        // find item at content offset
+        guard let indexPath = collectionView.indexPathForItem(at: CGPoint(x: x, y: 0)) else {
+            return // not found, ignore
+        }
+        _updateCurrentItem(at: indexPath)
     }
     
-    dynamic func handleDismiss(_ sender: UIPanGestureRecognizer) {
+    fileprivate func _updateCurrentItemForIndicator(with contentOffset: CGPoint) {
+        // must has a collection view
+        guard let collectionView = collectionView else {
+            return
+        }
+        let value = contentOffset.x / collectionView.bounds.width
+        let to = Int(ceil(value))
+        let from = Int(floor(value))
+        let percent = modf(value + 1).1
+        // if from index is changed
+        if _interactivingFromIndex != from {
+            // get index path from collection view
+            let indexPath = collectionView.indexPathForItem(at: CGPoint(x: (CGFloat(from) + 0.5) * collectionView.bounds.width , y: 0))
+            
+            _interactivingFromIndex = from
+            _interactivingFromIndexPath = indexPath
+        }
+        // if to index is changed
+        if _interactivingToIndex != to {
+            // get index path from collection view
+            let indexPath = collectionView.indexPathForItem(at: CGPoint(x: (CGFloat(to) + 0.5) * collectionView.bounds.width , y: 0))
+            
+            _interactivingToIndex = to
+            _interactivingToIndexPath = indexPath
+        }
+        // use percentage update index
+        indicatorItem.indicatorView.updateIndexPath(from: _interactivingFromIndexPath, to: _interactivingToIndexPath, percent: percent)
+    }
+    fileprivate func _updateSystemContentInsetIfNeeded(forceUpdate: Bool = false) {
+        
+        var contentInset  = UIEdgeInsets.zero
+        
+        if !ub_isFullscreen {
+            // have navigation bar?
+            contentInset.top = topLayoutGuide.length
+            // have toolbar?
+            contentInset.bottom = bottomLayoutGuide.length + indicatorItem.height
+        }
+        // is change?
+        guard _systemContentInset != contentInset else {
+            return
+        }
+        logger.trace?.write(contentInset)
+        
+        // notice all displayed cell
+        collectionView?.visibleCells.forEach {
+            ($0 as? BrowserDetailCell)?.updateContentInset(contentInset, forceUpdate: forceUpdate)
+        }
+        // update cache
+        _systemContentInset = contentInset
+    }
+    
+    fileprivate dynamic func _handleDismiss(_ sender: UIPanGestureRecognizer) {
        
         if !_transitionIsInteractiving { // start
             // check the direction of gestures => vertical & up
@@ -308,24 +356,34 @@ extension BrowserDetailController: UIGestureRecognizerDelegate {
             _transitionIsInteractiving = false
         }
     }
-}
-extension BrowserDetailController: BrowserDetailCellDelegate {
     
-    func browserDetailCell(_ browserDetailCell: BrowserDetailCell, shouldBeginRotationing asset: Asset) -> Bool {
-        logger.debug?.write(asset.ub_identifier)
-        // allow
-        return true
-    }
-    func browserDetailCell(_ browserDetailCell: BrowserDetailCell, didEndRotationing asset: Asset, at orientation: UIImageOrientation) {
-        logger.debug?.write(asset.ub_identifier, "is landscape: \(orientation.ub_isLandscape)")
-        // save
-        _orientationes[asset.ub_identifier] = orientation
+    fileprivate func _performWithoutContentOffsetChange<T>(_ actionsWithoutAnimation: () -> T) -> T {
+        objc_sync_enter(self)
+        _ignoreContentOffsetChange = true
+        let result = actionsWithoutAnimation()
+        _ignoreContentOffsetChange = false
+        objc_sync_exit(self)
+        return result
     }
 }
 
-/// Provide full-screen display support
+// add full-screen display support
 extension BrowserDetailController {
     
+//    override var prefersStatusBarHidden: Bool {
+//        return _isFullscreen || super.prefersStatusBarHidden
+//    }
+//    override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
+//        return .none
+//    }
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+       // full screen mode shows white status bar
+        guard _isFullscreen else {
+            // default case
+            return super.preferredStatusBarStyle
+        }
+        return .lightContent
+    }
     
     override var ub_isFullscreen: Bool {
         return _isFullscreen
@@ -408,26 +466,9 @@ extension BrowserDetailController {
         
         return true
     }
-    
-//    override var prefersStatusBarHidden: Bool {
-//        return _isFullscreen || super.prefersStatusBarHidden
-//    }
-//    override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
-//        return .none
-//    }
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-       // full screen mode shows white status bar
-        guard _isFullscreen else {
-            // default case
-            return super.preferredStatusBarStyle
-        }
-        return .lightContent
-    }
 }
 
-///
-/// Provide interactivable transitioning support
-///
+// add interactivable transitioning support
 extension BrowserDetailController: TransitioningDataSource {
     
     func ub_transitionView(using animator: Animator, for operation: Animator.Operation) -> TransitioningView? {
@@ -442,7 +483,7 @@ extension BrowserDetailController: TransitioningDataSource {
     
     func ub_transitionShouldStart(using animator: Animator, for operation: Animator.Operation) -> Bool {
         logger.trace?.write()
-        animator.indexPath = currentIndexPath
+        animator.indexPath = _itemIndexPath
         return true
     }
     func ub_transitionShouldStartInteractive(using animator: Animator, for operation: Animator.Operation) -> Bool {
@@ -518,12 +559,52 @@ extension BrowserDetailController: TransitioningDataSource {
     }
 }
 
-/// Provide collection view display support
+// add collection view display support
 extension BrowserDetailController: UICollectionViewDelegateFlowLayout {
+    
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        // only process in collection view
+        // check whether to allow the change of content offset
+        guard collectionView === scrollView, !ignoreContentOffsetChange else {
+            return
+        }
+        
+        // update current item & index pathd
+        _updateCurrentItem(with: scrollView.contentOffset)
+        _updateCurrentItemForIndicator(with: scrollView.contentOffset)
+    }
+    override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        // only process in collection view
+        guard collectionView === scrollView else {
+            return
+        }
+        
+        // notify indicator interactive start
+        indicatorItem.indicatorView.beginInteractiveMovement()
+    }
+    override  func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        // only process in collection view
+        // if you do not need to decelerate, notify indicator interactive finish
+        guard collectionView === scrollView, !decelerate else {
+            return
+        }
+        
+        indicatorItem.indicatorView.endInteractiveMovement()
+    }
+    override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        // only process in collection view
+        guard collectionView === scrollView else {
+            return
+        }
+        
+        // notify indicator interactive finish
+        indicatorItem.indicatorView.endInteractiveMovement()
+    }
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return _source.numberOfSections
     }
+    
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return _source.numberOfItems(inSection: section)
     }
@@ -562,145 +643,16 @@ extension BrowserDetailController: UICollectionViewDelegateFlowLayout {
         return view.frame.size
     }
     
-    // MARK: scroll view events
-    
-    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        // only process in collection view
-        guard collectionView === scrollView else {
-            return
-        }
-        // check whether to allow the change of content offset
-        guard !ignoreContentOffsetChange else {
-            return
-        }
-        // update current item & index pathd
-        _updateCurrentItem(scrollView.contentOffset)
-        _updateCurrentIndexForIndicator(scrollView.contentOffset)
-    }
-    override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        // only process in collection view
-        guard collectionView === scrollView else {
-            return
-        }
-        // notify indicator interactive start
-        indicatorItem.indicatorView.beginInteractiveMovement()
-    }
-    override  func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        // only process in collection view
-        guard collectionView === scrollView else {
-            return
-        }
-        // if you do not need to decelerate, notify indicator interactive finish
-        guard !decelerate else {
-            return
-        }
-        indicatorItem.indicatorView.endInteractiveMovement()
-    }
-    override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        // only process in collection view
-        guard collectionView === scrollView else {
-            return
-        }
-        // notify indicator interactive finish
-        indicatorItem.indicatorView.endInteractiveMovement()
-    }
-    
-    // MARK: private method
-    
-    fileprivate func _updateCurrentItem(_ offset: CGPoint) {
-        // must has a collection view
-        guard let collectionView = collectionView else {
-            return
-        }
-        // check for any changes
-        let x = offset.x + collectionView.bounds.width / 2
-        if let item = _currentItem, item.frame.minX <= x && x < item.frame.maxX {
-            return // hit cache
-        }
-        guard let indexPath = collectionView.indexPathForItem(at: CGPoint(x: x, y: 0)) else {
-            return // not found, use old
-        }
-        logger.debug?.write("\(x) => \(indexPath)")
-        
-        let newValue = collectionView.layoutAttributesForItem(at: indexPath)
-        // update to current context
-        _currentItem = newValue
-        _currentIndexPath = newValue?.indexPath
-    }
-    fileprivate func _updateCurrentIndexForIndicator(_ offset: CGPoint) {
-        // must has a collection view
-        guard let collectionView = collectionView else {
-            return
-        }
-        let value = offset.x / collectionView.bounds.width
-        let to = Int(ceil(value))
-        let from = Int(floor(value))
-        let percent = modf(value + 1).1
-        // if from index is changed
-        if _interactivingFromIndex != from {
-            // get index path from collection view
-            let indexPath = collectionView.indexPathForItem(at: CGPoint(x: (CGFloat(from) + 0.5) * collectionView.bounds.width , y: 0))
-            
-            _interactivingFromIndex = from
-            _interactivingFromIndexPath = indexPath
-        }
-        // if to index is changed
-        if _interactivingToIndex != to {
-            // get index path from collection view
-            let indexPath = collectionView.indexPathForItem(at: CGPoint(x: (CGFloat(to) + 0.5) * collectionView.bounds.width , y: 0))
-            
-            _interactivingToIndex = to
-            _interactivingToIndexPath = indexPath
-        }
-        // use percentage update index
-        indicatorItem.indicatorView.updateIndexPath(from: _interactivingFromIndexPath, to: _interactivingToIndexPath, percent: percent)
-    }
-    fileprivate func _updateSystemContentInsetIfNeeded(forceUpdate: Bool = false) {
-        
-        var contentInset  = UIEdgeInsets.zero
-        
-        if !ub_isFullscreen {
-            // have navigation bar?
-            contentInset.top = topLayoutGuide.length
-            // have toolbar?
-            contentInset.bottom = bottomLayoutGuide.length + indicatorItem.height
-        }
-        // is change?
-        guard _systemContentInset != contentInset else {
-            return
-        }
-        logger.trace?.write(contentInset)
-        
-        // notice all displayed cell
-        collectionView?.visibleCells.forEach {
-            ($0 as? BrowserDetailCell)?.updateContentInset(contentInset, forceUpdate: forceUpdate)
-        }
-        // update cache
-        _systemContentInset = contentInset
-    }
-    
-    fileprivate func _performWithoutContentOffsetChange<T>(_ actionsWithoutAnimation: () -> T) -> T {
-        objc_sync_enter(self)
-        _ignoreContentOffsetChange = true
-        let result = actionsWithoutAnimation()
-        _ignoreContentOffsetChange = false
-        objc_sync_exit(self)
-        return result
-    }
-    
 }
 
 
-///
-/// Provide indicator view display support
-///
+// add indicator view display support
 extension BrowserDetailController: IndicatorViewDataSource, IndicatorViewDelegate {
-    
-    // MARK: IndicatorViewDataSource
     
     func numberOfSections(in indicator: IndicatorView) -> Int {
         return _source.numberOfSections
     }
+    
     func indicator(_ indicator: IndicatorView, numberOfItemsInSection section: Int) -> Int {
         return _source.numberOfItems(inSection: section)
     }
@@ -715,7 +667,6 @@ extension BrowserDetailController: IndicatorViewDataSource, IndicatorViewDelegat
         return indicator.dequeueReusableCell(withReuseIdentifier: "ASSET-IMAGE", for: indexPath)
     }
     
-    // MARK: IndicatorViewDelegate
     
     func indicator(_ indicator: IndicatorView, willDisplay cell: IndicatorViewCell, forItemAt indexPath: IndexPath) {
         logger.trace?.write(indexPath)
@@ -762,13 +713,14 @@ extension BrowserDetailController: IndicatorViewDataSource, IndicatorViewDelegat
 //        guard !isInteractiving else {
 //            return // 正在交互
 //        }
+        
         // index path is changed
-        guard indexPath != _currentIndexPath else {
+        guard indexPath != _itemIndexPath else {
             return
         }
-        // prevent possible animations
-        _currentItem = collectionView?.layoutAttributesForItem(at: indexPath)
-        _currentIndexPath = indexPath
+        
+        _updateCurrentItem(at: indexPath)
+        
         _performWithoutContentOffsetChange {
             // prevent possible animations
             UIView.performWithoutAnimation {
@@ -777,3 +729,71 @@ extension BrowserDetailController: IndicatorViewDataSource, IndicatorViewDelegat
         }
     }
 }
+
+// add item rotation support
+extension BrowserDetailController: DetailControllerItemRotationDelegate {
+    
+    /// item should rotation
+    func detailController(_ detailController: Any, shouldBeginRotationing asset: Asset) -> Bool {
+        logger.debug?.write(asset.ub_identifier)
+        // allow
+        return true
+    }
+    
+    /// item did rotation
+    func detailController(_ detailController: Any, didEndRotationing asset: Asset, at orientation: UIImageOrientation) {
+        logger.debug?.write(asset.ub_identifier, "is landscape: \(orientation.ub_isLandscape)")
+        // save
+        _orientationes[asset.ub_identifier] = orientation
+    }
+}
+
+// add dismiss gesture recognizer support
+extension BrowserDetailController: UIGestureRecognizerDelegate {
+    
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        // only processing interactive dismiss gesture recognizer
+        guard interactiveDismissGestureRecognizer == gestureRecognizer else {
+            return true // ignore
+        }
+        
+        // detect the direction of gestures => up or down
+        let velocity = interactiveDismissGestureRecognizer.velocity(in: collectionView)
+        guard fabs(velocity.x / velocity.y) < 1.5 else {
+            return false
+        }
+        guard let cell = collectionView?.visibleCells.last as? BrowserDetailCell else {
+            return false
+        }
+        
+        // check this gesture event can not trigger bounces
+        let point = interactiveDismissGestureRecognizer.location(in: cell.ub_contentView?.superview)
+        guard (point.y - view.frame.height) <= 0 else {
+            return false
+        }
+        return true
+    }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        // only processing interactive dismiss gesture recognizer
+        guard interactiveDismissGestureRecognizer == gestureRecognizer else {
+            return false // ignore
+        }
+        
+        // if it has started to interact, it is the exclusive mode
+        guard !_transitionIsInteractiving else {
+            return false
+        }
+        guard let panGestureRecognizer = otherGestureRecognizer as? UIPanGestureRecognizer else {
+            return true
+        }
+        
+        // only allow canvas view gestures can operate
+        guard let view = panGestureRecognizer.view, view.superview is CanvasView else {
+            return false
+        }
+        return true
+    }
+    
+}
+

@@ -8,12 +8,6 @@
 
 import UIKit
 
-internal protocol BrowserDetailCellDelegate: class {
-    
-    func browserDetailCell(_ browserDetailCell: BrowserDetailCell, shouldBeginRotationing asset: Asset) -> Bool
-    func browserDetailCell(_ browserDetailCell: BrowserDetailCell, didEndRotationing asset: Asset, at orientation: UIImageOrientation)
-}
-
 internal class BrowserDetailCell: UICollectionViewCell, Displayable {
     
     override init(frame: CGRect) {
@@ -199,44 +193,6 @@ internal class BrowserDetailCell: UICollectionViewCell, Displayable {
     }
 }
 
-/// dynamic class support
-extension BrowserDetailCell: Templatize {
-    // with `conetntClass` generates a new class
-    dynamic class func `class`(with conetntClass: AnyClass) -> AnyClass {
-        let name = "\(NSStringFromClass(self))<\(NSStringFromClass(conetntClass))>"
-        // if the class has been registered, ignore
-        if let newClass = objc_getClass(name) as? AnyClass {
-            return newClass
-        }
-        // if you have not registered this, dynamically generate it
-        let newClass: AnyClass = objc_allocateClassPair(self, name, 0)
-        let method: Method = class_getClassMethod(self, #selector(getter: detailViewClass))
-        objc_registerClassPair(newClass)
-        // because it is a class method, it can not used class, need to use meta class
-        guard let metaClass = objc_getMetaClass(name) as? AnyClass else {
-            return newClass
-        }
-        let getter: @convention(block) () -> AnyClass = {
-            return conetntClass
-        }
-        // add class method
-        class_addMethod(metaClass, #selector(getter: detailViewClass), imp_implementationWithBlock(unsafeBitCast(getter, to: AnyObject.self)), method_getTypeEncoding(method))
-        return newClass
-    }
-    // provide content view of class
-    dynamic class var contentViewClass: AnyClass {
-        return CanvasView.self
-    }
-    // provide detail view of class
-    dynamic class var detailViewClass: AnyClass {
-        return UIView.self
-    }
-    // provide content view of class, iOS 8+
-    fileprivate dynamic class var _contentViewClass: AnyClass {
-        return contentViewClass
-    }
-}
-
 /// event support
 extension BrowserDetailCell {
     
@@ -380,7 +336,7 @@ extension BrowserDetailCell: CanvasViewDelegate {
         _console?.setIsHidden(true, animated: true)
         
         // notice delegate
-        return (delegate as? BrowserDetailCellDelegate)?.browserDetailCell(self, shouldBeginRotationing: asset) ?? true
+        return (delegate as? DetailControllerItemRotationDelegate)?.detailController(self, shouldBeginRotationing: asset) ?? true
     }
     
     func canvasViewDidEndDecelerating(_ canvasView: CanvasView) {
@@ -439,7 +395,7 @@ extension BrowserDetailCell: CanvasViewDelegate {
         _console?.setIsHidden(false, animated: true)
         
         // notice delegate
-        (delegate as? BrowserDetailCellDelegate)?.browserDetailCell(self, didEndRotationing: asset, at: orientation)
+        (delegate as? DetailControllerItemRotationDelegate)?.detailController(self, didEndRotationing: asset, at: orientation)
     }
 }
 
@@ -663,4 +619,42 @@ extension BrowserDetailCell: PlayableDelegate {
         _console?.setState(.stop, animated: true)
     }
     
+}
+
+// add dynamic class support
+extension BrowserDetailCell: Templatize {
+    // with `conetntClass` generates a new class
+    dynamic class func `class`(with conetntClass: AnyClass) -> AnyClass {
+        let name = "\(NSStringFromClass(self))<\(NSStringFromClass(conetntClass))>"
+        // if the class has been registered, ignore
+        if let newClass = objc_getClass(name) as? AnyClass {
+            return newClass
+        }
+        // if you have not registered this, dynamically generate it
+        let newClass: AnyClass = objc_allocateClassPair(self, name, 0)
+        let method: Method = class_getClassMethod(self, #selector(getter: detailViewClass))
+        objc_registerClassPair(newClass)
+        // because it is a class method, it can not used class, need to use meta class
+        guard let metaClass = objc_getMetaClass(name) as? AnyClass else {
+            return newClass
+        }
+        let getter: @convention(block) () -> AnyClass = {
+            return conetntClass
+        }
+        // add class method
+        class_addMethod(metaClass, #selector(getter: detailViewClass), imp_implementationWithBlock(unsafeBitCast(getter, to: AnyObject.self)), method_getTypeEncoding(method))
+        return newClass
+    }
+    // provide content view of class
+    dynamic class var contentViewClass: AnyClass {
+        return CanvasView.self
+    }
+    // provide detail view of class
+    dynamic class var detailViewClass: AnyClass {
+        return UIView.self
+    }
+    // provide content view of class, iOS 8+
+    fileprivate dynamic class var _contentViewClass: AnyClass {
+        return contentViewClass
+    }
 }

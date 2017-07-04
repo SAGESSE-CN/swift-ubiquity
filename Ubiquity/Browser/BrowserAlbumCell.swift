@@ -99,7 +99,6 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
             _imageView?.image = contents
             return
         }
-        logger.trace?.write("\(asset.ub_identifier) => \(contents?.size ?? .zero)")
         
         // update contents
         _imageView?.image = contents?.ub_withOrientation(_orientation)

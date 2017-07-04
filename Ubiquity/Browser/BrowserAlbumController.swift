@@ -108,6 +108,37 @@ internal class BrowserAlbumController: UICollectionViewController {
 ///
 extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
     
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        // if there is prepared, continue to wait
+        guard _prepared else {
+            return
+        }
+        
+        // if isTracking is true, is a draging
+        if scrollView.isTracking {
+            // on draging, update target content offset
+           _targetContentOffset = scrollView.contentOffset
+        }
+        
+        // update the cache
+        _updateCachedAssets()
+    }
+    
+    override func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
+        // update target content offset
+        _targetContentOffset = .init(x: -scrollView.contentInset.left, y: -scrollView.contentInset.top)
+        // if transitions animation is started, can't scroll
+        return !_transitioning
+    }
+    override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        // update target content offset
+        _targetContentOffset = scrollView.contentOffset
+    }
+    override func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        // update target content offset
+        _targetContentOffset = targetContentOffset.move()
+    }
+    
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         // without authorization, shows blank
         guard _authorized else {
@@ -157,40 +188,12 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
         
         // make
         let controller = BrowserDetailController(source: _source, library: _library, at: indexPath)
+        
         controller.animator = Animator(source: self, destination: controller)
+        controller.updateDelegate = self
+        
         show(controller, sender: indexPath)
-    }
-    
-    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        // if there is prepared, continue to wait
-        guard _prepared else {
-            return
-        }
-        
-        // if isTracking is true, is a draging
-        if scrollView.isTracking {
-            // on draging, update target content offset
-           _targetContentOffset  = scrollView.contentOffset
-        }
-        
-        // update the cache
-        _updateCachedAssets()
-    }
-    
-    override func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
-        // update target content offset
-        _targetContentOffset = .init(x: -scrollView.contentInset.left, y: -scrollView.contentInset.top)
-        // if transitions animation is started, can't scroll
-        return !_transitioning
-    }
-    override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        // update target content offset
-        _targetContentOffset = scrollView.contentOffset
-    }
-    override func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        // update target content offset
-        _targetContentOffset = targetContentOffset.move()
-    }
+    }    
 }
 
 ///
@@ -308,6 +311,7 @@ internal extension BrowserAlbumController {
         guard let collectionView = collectionView, _prepared else {
             return
         }
+        
         // The preheat window is twice the height of the visible rect.
         let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
         let targetVisibleRect = CGRect(origin: _targetContentOffset, size: collectionView.bounds.size)
@@ -337,28 +341,23 @@ internal extension BrowserAlbumController {
         guard !changes.isEmpty else {
             return
         }
+        //logger.debug?.write("preheatRect is change: \(changes)")
         
-        // add to util task
-//        (_library as? CacheLibrary)?.utilTask {
-            
-            // Compute the assets to start caching and to stop caching.
-            let result = self._different(changes.map { $0.new }, changes.map { $0.old })
-            
-            let addedAssets = result.added
-                .flatMap { self._indexPathsForElements(in: $0) }
-                .flatMap { self._source.asset(at: $0) }
-            
-            let removedAssets = result.removed
-                .flatMap { self._indexPathsForElements(in: $0) }
-                .flatMap { self._source.asset(at: $0) }
-                .filter { asset in !addedAssets.contains(where: { $0 === asset } ) }
-            
-            // Update the assets the PHCachingImageManager is caching.
-            self._library.ub_startCachingImages(for: addedAssets, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: nil)
-            self._library.ub_stopCachingImages(for: removedAssets, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: nil)
-            
-            //self.logger.debug?.write("\(addedAssets.count)/\(removedAssets.count)")
-//        }
+        // Compute the assets to start caching and to stop caching.
+        let result = self._different(changes.map { $0.new }, changes.map { $0.old })
+        
+        let addedAssets = result.added
+            .flatMap { self._indexPathsForElements(in: $0) }
+            .flatMap { self._source.asset(at: $0) }
+        
+        let removedAssets = result.removed
+            .flatMap { self._indexPathsForElements(in: $0) }
+            .flatMap { self._source.asset(at: $0) }
+            .filter { asset in !addedAssets.contains(where: { $0 === asset } ) }
+        
+        // Update the assets the PHCachingImageManager is caching.
+        _library.ub_startCachingImages(for: addedAssets, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: nil)
+        _library.ub_stopCachingImages(for: removedAssets, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: nil)
     }
     
     fileprivate func _different(_ new: [CGRect], _ old: [CGRect]) -> (added: [CGRect], removed: [CGRect]) {
@@ -502,3 +501,24 @@ internal extension BrowserAlbumController {
         }
     }
 }
+
+// add item change support
+extension BrowserAlbumController: DetailControllerItemUpdateDelegate {
+    
+    // the item will show
+    internal func detailController(_ detailController: Any, willShowItem indexPath: IndexPath) {
+        // if is, this suggests that are displaying
+        if collectionView?.indexPathsForVisibleItems.contains(indexPath) ?? false {
+            return
+        }
+        logger.debug?.write("over screen, scroll to \(indexPath)")
+        
+        // no displaying, scroll to item
+        collectionView?.scrollToItem(at: indexPath, at: .centeredVertically, animated: false)
+        collectionView?.layoutIfNeeded()
+    }
+    // the item did show
+    internal func detailController(_ detailController: Any, didShowItem indexPath: IndexPath) {
+    }
+}
+

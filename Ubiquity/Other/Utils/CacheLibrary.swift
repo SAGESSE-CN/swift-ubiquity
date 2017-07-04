@@ -427,6 +427,7 @@ internal extension CacheLibrary {
         private(set) var semaphore: DispatchSemaphore?
         
         // the task status
+        private(set) var version: Int = 1
         private(set) var requesting: Bool = false
         
         // the task cached response contents
@@ -445,7 +446,11 @@ internal extension CacheLibrary {
             if let (contents, response) = contents {
                 // update content on main thread
                 DispatchQueue.ub_syncWithMain {
-                    subtask.notify(contents, response: response)
+                    // get contents
+                    guard let (contents, response) = self.contents else {
+                        return
+                    }
+                    subtask.notify(contents, response: response, version: self.version)
                 }
                 
                 // if the task has been completed, do not create a new subtask
@@ -502,6 +507,7 @@ internal extension CacheLibrary {
         // cache contents & response
         func cache(_ contents: UIImage?, response: Response) {
             // update cached content
+            self.version += 1
             self.contents = (contents, response)
 //            
 //            // receives notice has been cancelled or complete notification
@@ -529,10 +535,9 @@ internal extension CacheLibrary {
             }
             // notify
             requestTasks.forEach { subtask in
-                subtask.notify(contents, response: response)
+                subtask.notify(contents, response: response, version: version)
             }
         }
-        
     }
     internal class RequestTask: Request {
         
@@ -553,17 +558,25 @@ internal extension CacheLibrary {
         }
         
         // update content
-        func notify(_ contents: UIImage?, response: Response) {
+        func notify(_ contents: UIImage?, response: Response, version: Int) {
             // if the subtask has been cancelled, don't need to notify
             guard !canceled else {
                 return
             }
+            
+            // the version is change
+            guard _version != version else {
+                return
+            }
+            
             // notify
+            _version = version
             _result?(contents, response)
         }
         
-        //        private var _progress: RequestProgressHandler?
+        //private var _progress: RequestProgressHandler?
         private var _result: RequestResultHandler<UIImage>?
+        private var _version: Int = 0
     }
     internal class CacheTask: Request {
         

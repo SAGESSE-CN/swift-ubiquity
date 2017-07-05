@@ -47,17 +47,19 @@ internal class CacheLibrary: NSObject, Library {
         //logger.trace?.write(request) // the cancel request very much 
         
         // can only processing `RequestTask`
-        guard let request = request as? RequestTask else {
+        guard let subtask = request as? RequestTask else {
+            // send cancel request
+            _library.ub_cancelRequest(request)
             return
         }
         
         // cancel the request
-        request.cancel()
+        subtask.cancel()
         
         // remove subtask from main task
         _dispatch.util.async {
             // if main task no any subtask, sent cancel request
-            self._removeMainTask(with: request) { request in
+            self._removeMainTask(with: subtask) { request in
                 // send cancel request
                 self._library.ub_cancelRequest(request)
             }

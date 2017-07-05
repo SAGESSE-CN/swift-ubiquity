@@ -192,97 +192,6 @@ internal class BrowserDetailController: UICollectionViewController {
 // private method
 extension BrowserDetailController {
     
-    fileprivate func _updateCurrentItem(at indexPath: IndexPath) {
-        logger.debug?.write(indexPath)
-        
-        let changed = _itemIndexPath != indexPath
-        
-        // notify user item will change
-        if changed {
-            updateDelegate?.detailController(self, willShowItem: indexPath)
-        }
-        
-        // update current item context
-        _itemIndexPath = indexPath
-        _itemLayoutAttributes = collectionView?.layoutAttributesForItem(at: indexPath)
-        
-        // notify user item did change
-        if changed {
-            updateDelegate?.detailController(self, didShowItem: indexPath)
-        }
-    }
-    fileprivate func _updateCurrentItem(with contentOffset: CGPoint) {
-        
-        // must has a collection view
-        guard let collectionView = collectionView else {
-            return
-        }
-        let x = contentOffset.x + collectionView.bounds.width / 2
-        
-        // check for any changes
-        if let item = _itemLayoutAttributes, item.frame.minX <= x && x < item.frame.maxX {
-            return // hit cache
-        }
-        
-        // find item at content offset
-        guard let indexPath = collectionView.indexPathForItem(at: CGPoint(x: x, y: 0)) else {
-            return // not found, ignore
-        }
-        _updateCurrentItem(at: indexPath)
-    }
-    
-    fileprivate func _updateCurrentItemForIndicator(with contentOffset: CGPoint) {
-        // must has a collection view
-        guard let collectionView = collectionView else {
-            return
-        }
-        let value = contentOffset.x / collectionView.bounds.width
-        let to = Int(ceil(value))
-        let from = Int(floor(value))
-        let percent = modf(value + 1).1
-        // if from index is changed
-        if _interactivingFromIndex != from {
-            // get index path from collection view
-            let indexPath = collectionView.indexPathForItem(at: CGPoint(x: (CGFloat(from) + 0.5) * collectionView.bounds.width , y: 0))
-            
-            _interactivingFromIndex = from
-            _interactivingFromIndexPath = indexPath
-        }
-        // if to index is changed
-        if _interactivingToIndex != to {
-            // get index path from collection view
-            let indexPath = collectionView.indexPathForItem(at: CGPoint(x: (CGFloat(to) + 0.5) * collectionView.bounds.width , y: 0))
-            
-            _interactivingToIndex = to
-            _interactivingToIndexPath = indexPath
-        }
-        // use percentage update index
-        indicatorItem.indicatorView.updateIndexPath(from: _interactivingFromIndexPath, to: _interactivingToIndexPath, percent: percent)
-    }
-    fileprivate func _updateSystemContentInsetIfNeeded(forceUpdate: Bool = false) {
-        
-        var contentInset  = UIEdgeInsets.zero
-        
-        if !ub_isFullscreen {
-            // have navigation bar?
-            contentInset.top = topLayoutGuide.length
-            // have toolbar?
-            contentInset.bottom = bottomLayoutGuide.length + indicatorItem.height
-        }
-        // is change?
-        guard _systemContentInset != contentInset else {
-            return
-        }
-        logger.trace?.write(contentInset)
-        
-        // notice all displayed cell
-        collectionView?.visibleCells.forEach {
-            ($0 as? BrowserDetailCell)?.updateContentInset(contentInset, forceUpdate: forceUpdate)
-        }
-        // update cache
-        _systemContentInset = contentInset
-    }
-    
     fileprivate dynamic func _handleDismiss(_ sender: UIPanGestureRecognizer) {
        
         if !_transitionIsInteractiving { // start
@@ -355,6 +264,92 @@ extension BrowserDetailController {
             _transitionContext = nil
             _transitionIsInteractiving = false
         }
+    }
+    
+    
+    fileprivate func _updateCurrentItem(at indexPath: IndexPath) {
+        logger.debug?.write(indexPath)
+        
+        // notify user item will change
+        updateDelegate?.detailController(self, willShowItem: indexPath)
+        
+        // update current item context
+        _itemIndexPath = indexPath
+        _itemLayoutAttributes = collectionView?.layoutAttributesForItem(at: indexPath)
+        
+        // notify user item did change
+        updateDelegate?.detailController(self, didShowItem: indexPath)
+    }
+    fileprivate func _updateCurrentItem(with contentOffset: CGPoint) {
+        
+        // must has a collection view
+        guard let collectionView = collectionView else {
+            return
+        }
+        let x = contentOffset.x + collectionView.bounds.width / 2
+        
+        // check for any changes
+        if let item = _itemLayoutAttributes, item.frame.minX <= x && x < item.frame.maxX {
+            return // hit cache
+        }
+        
+        // find item at content offset
+        guard let indexPath = collectionView.indexPathForItem(at: CGPoint(x: x, y: 0)) else {
+            return // not found, ignore
+        }
+        _updateCurrentItem(at: indexPath)
+    }
+    
+    fileprivate func _updateCurrentItemForIndicator(with contentOffset: CGPoint) {
+        // must has a collection view
+        guard let collectionView = collectionView else {
+            return
+        }
+        let value = contentOffset.x / collectionView.bounds.width
+        let to = Int(ceil(value))
+        let from = Int(floor(value))
+        let percent = modf(value + 1).1
+        // if from index is changed
+        if _interactivingFromIndex != from {
+            // get index path from collection view
+            let indexPath = collectionView.indexPathForItem(at: CGPoint(x: (CGFloat(from) + 0.5) * collectionView.bounds.width , y: 0))
+            
+            _interactivingFromIndex = from
+            _interactivingFromIndexPath = indexPath
+        }
+        // if to index is changed
+        if _interactivingToIndex != to {
+            // get index path from collection view
+            let indexPath = collectionView.indexPathForItem(at: CGPoint(x: (CGFloat(to) + 0.5) * collectionView.bounds.width , y: 0))
+            
+            _interactivingToIndex = to
+            _interactivingToIndexPath = indexPath
+        }
+        // use percentage update index
+        indicatorItem.indicatorView.updateIndexPath(from: _interactivingFromIndexPath, to: _interactivingToIndexPath, percent: percent)
+    }
+    fileprivate func _updateSystemContentInsetIfNeeded(forceUpdate: Bool = false) {
+        
+        var contentInset  = UIEdgeInsets.zero
+        
+        if !ub_isFullscreen {
+            // have navigation bar?
+            contentInset.top = topLayoutGuide.length
+            // have toolbar?
+            contentInset.bottom = bottomLayoutGuide.length + indicatorItem.height
+        }
+        // is change?
+        guard _systemContentInset != contentInset else {
+            return
+        }
+        logger.trace?.write(contentInset)
+        
+        // notice all displayed cell
+        collectionView?.visibleCells.forEach {
+            ($0 as? BrowserDetailCell)?.updateContentInset(contentInset, forceUpdate: forceUpdate)
+        }
+        // update cache
+        _systemContentInset = contentInset
     }
     
     fileprivate func _performWithoutContentOffsetChange<T>(_ actionsWithoutAnimation: () -> T) -> T {

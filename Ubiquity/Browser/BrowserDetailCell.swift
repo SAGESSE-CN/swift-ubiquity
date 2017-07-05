@@ -623,6 +623,12 @@ extension BrowserDetailCell: PlayableDelegate {
 
 // add dynamic class support
 extension BrowserDetailCell: Templatize {
+    
+    // provide content view of class, iOS 8+
+    fileprivate dynamic class var _contentViewClass: AnyClass {
+        return contentViewClass
+    }
+    
     // with `conetntClass` generates a new class
     dynamic class func `class`(with conetntClass: AnyClass) -> AnyClass {
         let name = "\(NSStringFromClass(self))<\(NSStringFromClass(conetntClass))>"
@@ -645,16 +651,14 @@ extension BrowserDetailCell: Templatize {
         class_addMethod(metaClass, #selector(getter: detailViewClass), imp_implementationWithBlock(unsafeBitCast(getter, to: AnyObject.self)), method_getTypeEncoding(method))
         return newClass
     }
+    
     // provide content view of class
     dynamic class var contentViewClass: AnyClass {
         return CanvasView.self
     }
+    
     // provide detail view of class
     dynamic class var detailViewClass: AnyClass {
         return UIView.self
-    }
-    // provide content view of class, iOS 8+
-    fileprivate dynamic class var _contentViewClass: AnyClass {
-        return contentViewClass
     }
 }

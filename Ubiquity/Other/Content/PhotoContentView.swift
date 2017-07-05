@@ -118,7 +118,7 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
             logger.debug?.write("\(asset.ub_identifier) image is expire")
             return
         }
-        logger.trace?.write("\(asset.ub_identifier) => \(contents?.size ?? .zero)")
+        //logger.trace?.write("\(asset.ub_identifier) => \(contents?.size ?? .zero)")
         
         // update contents
         self.ub_setImage(contents ?? self.image, animated: true)

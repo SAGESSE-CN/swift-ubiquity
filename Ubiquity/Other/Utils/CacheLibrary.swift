@@ -230,8 +230,7 @@ internal class CacheLibrary: NSObject, Library {
                 }
                 
                 // wait for idle
-                //let status = _token.wait(timeout: .now() + .seconds(5))
-                let status = _token.wait(timeout: .now() + .seconds(500000))
+                let status = _token.wait(timeout: .now() + .seconds(5))
                 
                 // prepare to task
                 prepare([_token].filter({ _ in status != .timedOut }).first)

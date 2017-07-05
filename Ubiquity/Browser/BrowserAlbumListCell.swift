@@ -34,10 +34,13 @@ internal class BrowserAlbumListCell: UITableViewCell {
         
         let count = collection.ub_assetCount
         let assets = (max(count - 3, 0) ..< count).flatMap { collection.ub_asset(at: $0) }
+        let formatter = NumberFormatter()
+        
+        formatter.positiveFormat = "###,##0"
         
         // setup content
         _titleLabel.text = collection.ub_title
-        _subtitleLabel.text = "\(count)"
+        _subtitleLabel.text = formatter.string(for: count)
         
         // setup badge icon & background
         if let icon = BadgeView.Item.ub_init(subtype: collection.ub_collectionSubtype) {
@@ -96,7 +99,6 @@ internal class BrowserAlbumListCell: UITableViewCell {
             logger.debug?.write("\(collection.ub_identifier) image is expire")
             return
         }
-        //logger.trace?.write("\(collection.ub_identifier) at \(index)")
         // no change, update content
         var images = _thumbView.images
         images?[index] = contents

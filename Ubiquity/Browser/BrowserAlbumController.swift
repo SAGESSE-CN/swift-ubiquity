@@ -103,6 +103,7 @@ internal class BrowserAlbumController: UICollectionViewController {
     fileprivate var _infoView: ErrorInfoView?
 }
 
+
 ///
 /// Provide collection view display support
 ///

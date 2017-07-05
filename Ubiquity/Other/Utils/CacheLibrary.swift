@@ -273,26 +273,22 @@ internal class CacheLibrary: NSObject, Library {
             guard let request = request else {
                 return
             }
-            // switch to main thread
+            
+            // clear memory
+            _tasks[subtask.format]?.removeObject(forKey: subtask.asset.ub_identifier)
+            
+            // get task cached response
+            if let (_, response) = task.contents {
+                // the task is completed?
+                if !response.ub_cancelled && !response.ub_downloading && !response.ub_degraded {
+                    return // don't send cancel request
+                }
+            }
+            
+            // send cancel request in main thread
             DispatchQueue.main.async {
-                // send cancel request
                 work(request)
             }
-        }
-        
-        // clear memory
-        _tasks.values.forEach { dic in
-            dic.removeObjects(forKeys: dic.flatMap { key, task in
-                // get current task
-                guard let task = (task as? Task) else {
-                    return nil
-                }
-                // can remove?
-                guard !task.requesting else {
-                    return nil
-                }
-                return key
-            })
         }
     }
     
@@ -360,7 +356,7 @@ internal class CacheLibrary: NSObject, Library {
         
         // fetch to the main task if exists
         if let task = _taskWithoutMake(for: asset, format: format) {
-            logger.debug?.write("\(asset.ub_identifier) -> hit fast cache")
+            //logger.debug?.write("\(asset.ub_identifier) -> hit fast cache")
             return task
         }
         
@@ -386,7 +382,7 @@ internal class CacheLibrary: NSObject, Library {
         .init(label: "ubiquity-dispatch-request", qos: .userInitiated)
     )
     
-    private lazy var _started: Bool = false
+    private var _started: Bool = false
     
     private lazy var _tasks: Dictionary<Format, NSMutableDictionary> = [:]
     private lazy var _caches: Dictionary<Format, NSMutableDictionary> = [:]
@@ -446,7 +442,7 @@ internal extension CacheLibrary {
             // if there is a cache, use it
             if let (contents, response) = contents {
                 // update content on main thread
-                DispatchQueue.ub_syncWithMain {
+                DispatchQueue.ub_asyncWithMain {
                     // get contents
                     guard let (contents, response) = self.contents else {
                         return
@@ -794,6 +790,7 @@ internal extension DispatchQueue {
         if synchronous {
             // this is a synchronous request
             sync(execute: body)
+            
         } else {
             // this is a asynchronous request
             async(execute: body)

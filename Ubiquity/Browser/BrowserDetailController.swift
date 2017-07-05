@@ -70,15 +70,15 @@ internal class BrowserDetailController: UICollectionViewController {
         collectionView?.register(collectionViewCellProvider.class(with: PhotoContentView.self), forCellWithReuseIdentifier: _identifier(with: .image))
         collectionView?.register(collectionViewCellProvider.class(with: VideoContentView.self), forCellWithReuseIdentifier: _identifier(with: .video))
         
-//        // setup indicator 
-//        indicatorItem.indicatorView.delegate = self
-//        indicatorItem.indicatorView.dataSource = self
-//        indicatorItem.indicatorView.register(IndicatorViewCell.dynamic(with: UIImageView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
-//        //indicatorItem.indicatorView.register(IndicatorViewCell.dynamic(with: UIScrollView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
+        // setup indicator 
+        indicatorItem.indicatorView.delegate = self
+        indicatorItem.indicatorView.dataSource = self
+        indicatorItem.indicatorView.register(IndicatorViewCell.dynamic(with: UIImageView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
+        //indicatorItem.indicatorView.register(IndicatorViewCell.dynamic(with: UIScrollView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
         
         // setup toolbar items
         let toolbarItems = [
-//            indicatorItem,
+            indicatorItem,
             UIBarButtonItem(barButtonSystemItem: .action, target: self, action: nil),
             UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
             UIBarButtonItem(barButtonSystemItem: .trash, target: nil, action: nil)

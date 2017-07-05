@@ -369,6 +369,7 @@ extension BrowserDetailCell: CanvasViewDelegate {
         logger.trace?.write()
         // update canvas view status
         _isZooming = false
+        
         // if is rotationing, delay update
         if !_isRotationing {
             _console?.setIsHidden(false, animated: true)

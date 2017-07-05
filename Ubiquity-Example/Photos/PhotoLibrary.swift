@@ -92,7 +92,7 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library {
             return
         }
         let newMode = PHImageContentMode(mode: mode)
-        let newOptions = PHImageRequestOptions()
+        let newOptions = PHImageRequestOptions(options: options)
         
         // forward
         _manager.startCachingImages(for: assets.map { $0.asset }, targetSize: size, contentMode: newMode, options: newOptions)
@@ -103,7 +103,7 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library {
             return
         }
         let newMode = PHImageContentMode(mode: mode)
-        let newOptions = PHImageRequestOptions()
+        let newOptions = PHImageRequestOptions(options: options)
         
         // NOTE: high speed scrolling can cause deadlock, need splite
         
@@ -314,7 +314,6 @@ extension PHImageRequestOptions {
             return nil
         }
         self.init()
-        self.resizeMode = .fast
         self.isNetworkAccessAllowed = options.isNetworkAccessAllowed
         guard let progressHandler = options.progressHandler else {
             return

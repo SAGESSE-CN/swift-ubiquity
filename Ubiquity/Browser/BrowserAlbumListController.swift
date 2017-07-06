@@ -8,8 +8,8 @@
 
 import UIKit
 
-public func BrowserAlbumListControllerMake(_ library: Library) -> UIViewController {
-    return BrowserAlbumListController(library: library)
+public func BrowserAlbumListControllerMake(_ container: Container) -> UIViewController {
+    return BrowserAlbumListController(container: container)
 }
 public func NavigationControllerMake() -> UINavigationController.Type {
     return NavigationController.self
@@ -18,11 +18,11 @@ public func ToolbarMake() -> UIToolbar.Type {
     return ExtendedToolbar.self
 }
 
-/// the album list in library
+/// the album list in container
 internal class BrowserAlbumListController: UITableViewController {
     
-    init(library: Library) {
-        _library = library.ub_cache
+    init(container: Container) {
+        _container = container
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -39,7 +39,7 @@ internal class BrowserAlbumListController: UITableViewController {
             return
         }
         // get all photo albums
-        let collections = _library.ub_collections(with: .regular)
+        let collections = _container.request(forCollection: .regular)
         // check for photos albums count
         guard !collections.isEmpty else {
             // no data
@@ -66,7 +66,7 @@ internal class BrowserAlbumListController: UITableViewController {
         super.viewDidLoad()
         
         // request permission with show
-        _library.ub_requestAuthorization { status in
+        _container.requestAuthorization  { status in
             DispatchQueue.main.async {
                 self.reloadData(with: status)
             }
@@ -94,7 +94,7 @@ internal class BrowserAlbumListController: UITableViewController {
         }
     }
     
-    fileprivate var _library: Library
+    fileprivate var _container: Container
     fileprivate var _collections: Array<Collection>?
     
     fileprivate var _infoView: ErrorInfoView?
@@ -123,7 +123,7 @@ internal extension BrowserAlbumListController {
         cell.accessoryType = .disclosureIndicator
         cell.backgroundColor = .white
         // update data for displaying
-        cell.willDisplay(with: collection, in: _library)
+        cell.willDisplay(with: collection, container: _container)
     }
     override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         // try fetch cell
@@ -132,7 +132,7 @@ internal extension BrowserAlbumListController {
             return
         }
         // clear data for end display
-        cell.endDisplay(with: collection, in: _library)
+        cell.endDisplay(with: collection, container: _container)
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -142,16 +142,16 @@ internal extension BrowserAlbumListController {
         guard let collection = _collections?.ub_get(at: indexPath.row) else {
             return
         }
-        logger.debug?.write("show album with: \(collection.ub_title ?? "")")
+        logger.debug?.write("show album with: \(collection.title ?? "")")
         
-        let controller = BrowserAlbumController(source: .init(collection), library: _library)
-        //let controller = PickerAlbumController(source: .init(collection), library: _library)
+        let controller = BrowserAlbumController(source: .init(collection), container: _container)
+        //let controller = PickerAlbumController(source: .init(collection), container: _container)
         // push to next page
         show(controller, sender: indexPath)
     }
 }
 
-/// library error display support
+/// container error display support
 internal extension BrowserAlbumListController {
     
     fileprivate func _showError(with title: String, subtitle: String) {

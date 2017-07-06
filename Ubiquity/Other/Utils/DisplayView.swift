@@ -25,33 +25,18 @@ internal class DisplayView: UIView, Displayable {
     ///
     weak var delegate: AnyObject?
     
-    ///
-    /// Show an asset
-    ///
-    /// - parameter asset: need the display the resource
-    /// - parameter library: the asset in this library
-    /// - parameter orientation: need to display the image direction
-    ///
-    func willDisplay(with asset: Asset, in library: Library, orientation: UIImageOrientation) {
+    /// Will display the asset
+    func willDisplay(with asset: Asset, container: Container, orientation: UIImageOrientation) {
         // update rotation
         _contentView.transform = .init(rotationAngle: orientation.ub_angle)
     }
     
-    ///
-    /// Hide an asset
-    ///
-    /// - parameter asset: current display the resource
-    /// - parameter library: the asset in this library
-    ///
-    func endDisplay(with asset: Asset, in library: Library) {
+    /// End display the asset
+    func endDisplay(with asset: Asset, container: Container) {
         // nothing
     }
     
-    ///
-    /// generate quick snapshot, if there is time synchronous display
-    ///
-    /// - parameter afterUpdates: whether you need to update now
-    ///
+    /// Generate quick snapshot, if there is time synchronous display
     override func snapshotView(afterScreenUpdates afterUpdates: Bool) -> UIView? {
         
         let contentView = UIView(frame: .zero)

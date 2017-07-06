@@ -18,31 +18,47 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library {
         super.init()
     }
     
+    
+    // MARK: Authorization
+    
+    
     /// Returns information about your app’s authorization for accessing the library.
-    var ub_authorizationStatus: Ubiquity.AuthorizationStatus {
-        return PHPhotoLibrary.authorizationStatus().ub_authorizationStatus
+    func authorizationStatus() -> Ubiquity.AuthorizationStatus {
+        return PHPhotoLibrary.authorizationStatus().authorizationStatus
     }
     
     /// Requests the user’s permission, if needed, for accessing the library.
-    func ub_requestAuthorization(_ handler: @escaping (Ubiquity.AuthorizationStatus) -> Void) {
+    func requestAuthorization(_ handler: @escaping (Ubiquity.AuthorizationStatus) -> Swift.Void) {
+        // convert authorization status
         PHPhotoLibrary.requestAuthorization {
-            // convert authorization status
-            handler($0.ub_authorizationStatus)
+            handler($0.authorizationStatus)
         }
     }
     
-    /// Cancels an asynchronous request
-    func ub_cancelRequest(_ request: Ubiquity.Request) {
-        //
-        guard let request = request as? PHImageRequestID else {
-            return
-        }
-        _manager.cancelImageRequest(request)
+    
+    // MARK: Change
+    
+    
+    /// Registers an object to receive messages when objects in the photo library change.
+    func register(_ observer: Ubiquity.ChangeObserver) {
     }
     
-    /// If the asset's aspect ratio does not match that of the given size, mode determines how the image will be resized.
-    func ub_requestImage(for asset: Ubiquity.Asset, size: CGSize, mode: Ubiquity.RequestContentMode, options: Ubiquity.RequestOptions?, resultHandler: @escaping Ubiquity.RequestResultHandler<UIImage>) -> Ubiquity.Request? {
-        // must with PHAsset
+    /// Unregisters an object so that it no longer receives change messages.
+    func unregisterObserver(_ observer: Ubiquity.ChangeObserver) {
+    }
+    
+    
+    // MARK: Fetch
+    
+    
+    /// Get collections with type
+    func request(forCollection type: Ubiquity.CollectionType) -> Array<Ubiquity.Collection> {
+        return _fetchCollections()
+    }
+    
+    /// Requests an image representation for the specified asset.
+    func request(forImage asset: Ubiquity.Asset, size: CGSize, mode: Ubiquity.RequestContentMode, options: Ubiquity.RequestOptions?, resultHandler: @escaping (UIImage?, Ubiquity.Response) -> ()) -> Ubiquity.Request? {
+        // must with Asset
         guard let asset = asset as? Asset else {
             return nil
         }
@@ -56,8 +72,8 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library {
             let response = Response(info: info)
             
             // if the image is empty and the image is degraded, it need download
-            if response.ub_degraded && image == nil {
-                response.ub_downloading = true
+            if response.degraded && image == nil {
+                response.downloading = true
             }
             
             // callback
@@ -65,7 +81,9 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library {
         }
     }
     
-    func ub_requestPlayerItem(forVideo asset: Ubiquity.Asset, options: Ubiquity.RequestOptions?, resultHandler: @escaping Ubiquity.RequestResultHandler<AVPlayerItem>) -> Ubiquity.Request? {
+    /// Requests a representation of the video asset for playback, to be loaded asynchronously.
+    func request(forItem asset: Ubiquity.Asset, options: Ubiquity.RequestOptions?, resultHandler: @escaping (AnyObject?, Ubiquity.Response) -> ()) -> Ubiquity.Request? {
+        // must with Asset
         guard let asset = asset as? Asset else {
             return nil
         }
@@ -81,13 +99,25 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library {
         }
     }
     
-    /// Cancels all image preparation that is currently in progress.
-    func ub_stopCachingImagesForAllAssets() {
-        // forward
-        _manager.stopCachingImagesForAllAssets()
+    /// Cancels an asynchronous request
+    func cancel(with request: Ubiquity.Request) {
+        // must is PHImageRequestID
+        guard let request = request as? PHImageRequestID else {
+            return
+        }
+        _manager.cancelImageRequest(request)
     }
+    
+    
+    // MARK: Cache
+    
+    
+    ///A Boolean value that determines whether the image manager prepares high-quality images.
+    var allowsCachingHighQualityImages: Bool = false
+    
     /// Prepares image representations of the specified assets for later use.
-    func ub_startCachingImages(for assets: [Ubiquity.Asset], size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
+    func startCachingImages(for assets: Array<Ubiquity.Asset>, size: CGSize, mode: Ubiquity.RequestContentMode, options: Ubiquity.RequestOptions?) {
+        // must with Asset
         guard let assets = assets as? [Asset] else {
             return
         }
@@ -97,26 +127,28 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library {
         // forward
         _manager.startCachingImages(for: assets.map { $0.asset }, targetSize: size, contentMode: newMode, options: newOptions)
     }
+    
     /// Cancels image preparation for the specified assets and options.
-    func ub_stopCachingImages(for assets: [Ubiquity.Asset], size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
+    func stopCachingImages(for assets: Array<Ubiquity.Asset>, size: CGSize, mode: Ubiquity.RequestContentMode, options: Ubiquity.RequestOptions?) {
+        // must with Asset
         guard let assets = assets as? [Asset] else {
             return
         }
         let newMode = PHImageContentMode(mode: mode)
         let newOptions = PHImageRequestOptions(options: options)
         
-        // NOTE: high speed scrolling can cause deadlock, need splite
-        
         // forward
         _manager.stopCachingImages(for: assets.map { $0.asset }, targetSize: size, contentMode: newMode, options: newOptions)
     }
     
-    /// Get collections with type
-    func ub_collections(with type: Ubiquity.CollectionType) -> Array<Ubiquity.Collection> {
-        return _fetchCollections()
+    /// Cancels all image preparation that is currently in progress.
+    func stopCachingImagesForAllAssets() {
+        // forward
+        _manager.stopCachingImagesForAllAssets()
     }
     
-    private func _fetchCollections() -> Array<Collection> {
+    
+    private func _fetchCollections() -> Array<Ubiquity.Collection> {
         
         var types = [(PHAssetCollectionType, PHAssetCollectionSubtype, Bool)]()
 
@@ -175,21 +207,21 @@ internal extension PhotoLibrary {
     class Response: Ubiquity.Response {
         
         init(info: [AnyHashable: Any]?) {
-            ub_error = info?[PHImageErrorKey] as? NSError
-            ub_degraded = info?[PHImageResultIsDegradedKey] as? Bool ?? false
-            ub_cancelled = info?[PHImageCancelledKey] as? Bool ?? false
-            ub_downloading = info?[PHImageResultIsInCloudKey] as? Bool ?? false
+            error = info?[PHImageErrorKey] as? NSError
+            degraded = info?[PHImageResultIsDegradedKey] as? Bool ?? false
+            cancelled = info?[PHImageCancelledKey] as? Bool ?? false
+            downloading = info?[PHImageResultIsInCloudKey] as? Bool ?? false
         }
         
         /// An error that occurred when Photos attempted to load the image.
-        var ub_error: Error?
+        var error: Error?
         
         /// The result image is a low-quality substitute for the requested image.
-        var ub_degraded: Bool
+        var degraded: Bool
         /// The image request was canceled. 
-        var ub_cancelled: Bool
+        var cancelled: Bool
         /// The photo asset data is stored on the local device or must be downloaded from remote servicer
-        var ub_downloading: Bool
+        var downloading: Bool
     }
     
     class Asset: Ubiquity.Asset {
@@ -200,7 +232,7 @@ internal extension PhotoLibrary {
         
         let asset: PHAsset
         
-        var ub_identifier: String {
+        var identifier: String {
             if let localIdentifier = _localIdentifier {
                 return localIdentifier
             }
@@ -209,24 +241,24 @@ internal extension PhotoLibrary {
             return localIdentifier
         }
         
-        var ub_pixelWidth: Int {
+        var pixelWidth: Int {
             return asset.pixelWidth
         }
-        var ub_pixelHeight: Int {
+        var pixelHeight: Int {
             return asset.pixelHeight
         }
         
-        var ub_allowsPlay: Bool {
+        var allowsPlay: Bool {
             return asset.mediaType == .video
         }
-        var ub_duration: TimeInterval {
+        var duration: TimeInterval {
             return asset.duration
         }
         
-        var ub_mediaType: Ubiquity.AssetMediaType {
+        var mediaType: Ubiquity.AssetMediaType {
             return Ubiquity.AssetMediaType(rawValue: asset.mediaType.rawValue) ?? .unknown
         }
-        var ub_mediaSubtypes: Ubiquity.AssetMediaSubtype {
+        var mediaSubtypes: Ubiquity.AssetMediaSubtype {
             return Ubiquity.AssetMediaSubtype(rawValue: asset.mediaSubtypes.rawValue)
         }
         
@@ -238,24 +270,24 @@ internal extension PhotoLibrary {
             _collection = collection
         }
         
-        public var ub_identifier: String {
+        public var identifier: String {
             return _collection.localIdentifier
         }
-        public var ub_title: String? {
+        public var title: String? {
             return _collection.localizedTitle
         }
         
-        public var ub_collectionType: Ubiquity.CollectionType {
+        public var collectionType: Ubiquity.CollectionType {
             return .regular
         }
-        public var ub_collectionSubtype: Ubiquity.CollectionSubtype {
+        public var collectionSubtype: Ubiquity.CollectionSubtype {
             return Ubiquity.CollectionSubtype(rawValue: _collection.assetCollectionSubtype.rawValue) ?? .smartAlbumGeneric
         }
         
-        public var ub_assetCount: Int {
+        public var assetCount: Int {
             return _result.count
         }
-        public func ub_asset(at index: Int) -> Ubiquity.Asset? {
+        public func asset(at index: Int) -> Ubiquity.Asset? {
             
             if let asset = _assets?[index] {
                 return asset
@@ -283,7 +315,7 @@ internal extension PhotoLibrary {
 
 extension PHAuthorizationStatus {
     
-    var ub_authorizationStatus: Ubiquity.AuthorizationStatus {
+    var authorizationStatus: Ubiquity.AuthorizationStatus {
         switch self {
         case .authorized: return .authorized
         case .notDetermined: return .notDetermined

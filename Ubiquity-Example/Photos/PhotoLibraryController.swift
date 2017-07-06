@@ -24,9 +24,10 @@ class PhotoLibraryController: UITabBarController {
     private func _setup() {
         
         let library = PhotoLibrary()
+        let container = Browser(library: library)
         
         //let vc1 = Ubiquity.BrowserAlbumZoomableController(library: library)
-        let vc2 = BrowserAlbumListControllerMake(library)
+        let vc2 = BrowserAlbumListControllerMake(container)
             //Ubiquity.BrowserAlbumListController(library: library)
         
         //vc1.hidesBottomBarWhenPushed = true

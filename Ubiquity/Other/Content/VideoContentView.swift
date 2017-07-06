@@ -43,7 +43,7 @@ internal class VideoContentView: UIView {
     }
     
     fileprivate var _asset: Asset?
-    fileprivate var _library: Library?
+    fileprivate var _container: Container?
     
     fileprivate var _request: Request?
     fileprivate var _prepareing: Bool = false
@@ -55,26 +55,26 @@ internal class VideoContentView: UIView {
 
 extension VideoContentView: Displayable {
     
-    // display asset
-    func willDisplay(with asset: Asset, in library: Library, orientation: UIImageOrientation) {
+    /// Will display the asset
+    func willDisplay(with asset: Asset, container: Container, orientation: UIImageOrientation) {
         logger.debug?.write()
         
         // save context
         _asset = asset
-        _library = library
+        _container = container
         
         // update large content
-        _thumbView.willDisplay(with: asset, in: library, orientation: orientation)
+        _thumbView.willDisplay(with: asset, container: container, orientation: orientation)
     }
     
-    // end display asset
-    func endDisplay(with asset: Asset, in library: Library) {
+    /// End display the asset
+    func endDisplay(with asset: Asset, container: Container) {
         logger.trace?.write()
         
         // when are requesting an player item, please cancel it
         _request.map { request in
             // reveal cancel
-            library.ub_cancelRequest(request)
+            container.cancel(with: request)
         }
         
         // stop player if needed
@@ -83,20 +83,19 @@ extension VideoContentView: Displayable {
         // clear context
         _asset = nil
         _request = nil
-        _library = nil
+        _container = nil
         // reset status
         _prepared = false
         _prepareing = false
         
         // clear content
-        _thumbView.endDisplay(with: asset, in: library)
+        _thumbView.endDisplay(with: asset, container: container)
     }
 }
 extension VideoContentView: Playable {
     
-    
     /// Start the player or Resume the player
-    func play(with asset: Asset, in library: Library) {
+    func play(with asset: Asset, container: Container) {
         
         // if is prepared, start playing
         if _prepared {
@@ -111,24 +110,24 @@ extension VideoContentView: Playable {
     }
     
     /// Stop player
-    func stop(with asset: Asset, in library: Library) {
+    func stop(with asset: Asset, container: Container) {
         _playerView.stop()
     }
     
     /// Suspend the player
-    func suspend(with asset: Asset, in library: Library) {
+    func suspend(with asset: Asset, container: Container) {
         _playerView.suspend()
     }
     
     /// Resume the player
-    func resume(with asset: Asset, in library: Library) {
+    func resume(with asset: Asset, container: Container) {
         _playerView.resume()
     }
     
-    /// prepare the player
+    /// Prepare the player
     private func _prepare() {
         // there must be the item
-        guard let asset = _asset, let library = _library else {
+        guard let asset = _asset, let container = _container else {
             return
         }
         
@@ -138,9 +137,9 @@ extension VideoContentView: Playable {
         // request player item
         _prepareing = true
         _prepared = false
-        _request = library.ub_requestPlayerItem(forVideo: asset, options: options) { [weak self, weak asset] item, response in
+        _request = container.request(forItem: asset, options: options) { [weak self, weak asset] item, response in
             // if the asset is nil, the asset has been released
-            guard let asset = asset else {
+            guard let asset = asset, let item = item as? AVPlayerItem else {
                 return
             }
             self?._prepareing = false
@@ -156,15 +155,15 @@ extension VideoContentView: Playable {
             _prepareing = false
             _prepared = false
             // change, all reqeust is expire
-            logger.debug?.write("\(asset.ub_identifier) item is expire")
+            logger.debug?.write("\(asset.identifier) item is expire")
             return
         }
-        logger.trace?.write("\(asset.ub_identifier)")
+        logger.trace?.write("\(asset.identifier)")
         
         // if item is nil, the player preare error 
         guard let item = item else {
             // notice to delegate
-            (delegate as? PlayableDelegate)?.player(self, didOccur: asset, error: response.ub_error)
+            (delegate as? PlayableDelegate)?.player(self, didOccur: asset, error: response.error)
             return
         }
         _playerView.prepare(with: item)

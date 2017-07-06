@@ -20,11 +20,11 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
     }
     deinit {
         // on destory if not the end display, need to manually call it
-        guard let asset = _asset, let library = _library else {
+        guard let asset = _asset, let container = _container else {
             return
         }
         // call end display
-        endDisplay(with: asset, in: library)
+        endDisplay(with: asset, container: container)
     }
     
     ///
@@ -32,18 +32,12 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
     ///
     weak var delegate: AnyObject? 
     
-    ///
-    /// Show an asset
-    ///
-    /// - parameter asset: need the display the resource
-    /// - parameter library: the asset in this library
-    /// - parameter orientation: need to display the image direction
-    ///
-    func willDisplay(with asset: Asset, in library: Library, orientation: UIImageOrientation) {
+    /// Will display the asset
+    func willDisplay(with asset: Asset, container: Container, orientation: UIImageOrientation) {
         
         // save context
         _asset = asset
-        _library = library
+        _container = container
         _orientation = orientation
        
         _badgeView?.isHidden = true
@@ -53,7 +47,7 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
         
         // setup content
         _allowsInvaildContents = true
-        _request = library.ub_requestImage(for: asset, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: options) { [weak self, weak asset] contents, response in
+        _request = container.request(forImage: asset, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: options) { [weak self, weak asset] contents, response in
             // if the asset is nil, the asset has been released
             guard let asset = asset else {
                 return
@@ -63,24 +57,19 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
         }
     }
     
-    ///
-    /// Hide an asset
-    ///
-    /// - parameter asset: current display the resource
-    /// - parameter library: the asset in this library
-    ///
-    func endDisplay(with asset: Asset, in library: Library) {
+    /// End display the asset
+    func endDisplay(with asset: Asset, container: Container) {
         
         // when are requesting an image, please cancel it
         _request.map { request in
             // cancel
-            library.ub_cancelRequest(request)
+            container.cancel(with: request)
         }
         
         // clear context
         _asset = nil
         _request = nil
-        _library = nil
+        _container = nil
         
         // can't clear images, otherwise  fast scroll when will lead to generate a snapshot of the blank
         //_imageView?.image = nil
@@ -92,7 +81,7 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
         guard _asset === asset else {
             // changed, all reqeust is expire
             guard _allowsInvaildContents else {
-                logger.debug?.write("\(asset.ub_identifier) image is expire")
+                logger.debug?.write("\(asset.identifier) image is expire")
                 return
             }
             // update invaild contents
@@ -110,15 +99,15 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
     
     private func _updateBadge(with downloading: Bool) {
         
-        let mediaType = _asset?.ub_mediaType ?? .unknown
-        let mediaSubtypes = _asset?.ub_mediaSubtypes ?? []
+        let mediaType = _asset?.mediaType ?? .unknown
+        let mediaSubtypes = _asset?.mediaSubtypes ?? []
         
         // setup badge item
         switch mediaType {
         case .video:
             
             // less than 1, the display of 1
-            let duration = ceil(_asset?.ub_duration ?? 0)
+            let duration = ceil(_asset?.duration ?? 0)
             
             _badgeView?.backgroundImage = BadgeView.ub_backgroundImage
             _badgeView?.rightItem = .text(.init(format: "%d:%02d", Int(duration) / 60, Int(duration) % 60))
@@ -190,7 +179,7 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
     }
     
     fileprivate var _asset: Asset?
-    fileprivate var _library: Library?
+    fileprivate var _container: Container?
     
     fileprivate var _request: Request?
     fileprivate var _orientation: UIImageOrientation = .up
@@ -246,7 +235,7 @@ extension BrowserAlbumCell: TransitioningView {
             // can’t alignment
             return contentView.bounds
         }
-        return contentView.bounds.ub_aligned(with: .init(width: asset.ub_pixelWidth, height: asset.ub_pixelHeight))
+        return contentView.bounds.ub_aligned(with: .init(width: asset.pixelWidth, height: asset.pixelHeight))
     }
     var ub_transform: CGAffineTransform {
         return contentView.transform.rotated(by: _orientation.ub_angle)

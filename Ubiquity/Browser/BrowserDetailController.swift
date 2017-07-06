@@ -10,9 +10,9 @@ import UIKit
 
 internal class BrowserDetailController: UICollectionViewController {
     
-    init(source: DataSource, library: Library, at indexPath: IndexPath) {
+    init(source: DataSource, container: Container, at indexPath: IndexPath) {
         _source = source
-        _library = library.ub_cache
+        _container = container
         _itemIndexPath = indexPath
         
         let collectionViewLayout = BrowserDetailLayout()
@@ -160,7 +160,7 @@ internal class BrowserDetailController: UICollectionViewController {
     // MARK: private ivar
     
     fileprivate let _source: DataSource
-    fileprivate let _library: Library
+    fileprivate let _container: Container
     
     // transition
     fileprivate var _transitionIsInteractiving: Bool = false
@@ -606,7 +606,7 @@ extension BrowserDetailController: UICollectionViewDelegateFlowLayout {
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         // generate the reuse identifier
-        let type = _source.asset(at: indexPath)?.ub_mediaType ?? .unknown
+        let type = _source.asset(at: indexPath)?.mediaType ?? .unknown
         let identifier = _identifier(with: type)
         
         return collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath)
@@ -622,7 +622,7 @@ extension BrowserDetailController: UICollectionViewDelegateFlowLayout {
         (cell as? BrowserDetailCell)?.updateContentInset(_systemContentInset, forceUpdate: false)
         
         // update disaply content
-        displayer.willDisplay(with: asset, in: _library, orientation: _orientationes[asset.ub_identifier] ?? .up)
+        displayer.willDisplay(with: asset, container: _container, orientation: _orientationes[asset.identifier] ?? .up)
         displayer.delegate = self
     }
     override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
@@ -631,7 +631,7 @@ extension BrowserDetailController: UICollectionViewDelegateFlowLayout {
         guard let asset = _source.asset(at: indexPath), let displayer = cell as? BrowserDetailCell else {
             return
         }
-        displayer.endDisplay(with: asset, in: _library)
+        displayer.endDisplay(with: asset, container: _container)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -679,7 +679,7 @@ extension BrowserDetailController: UICollectionViewDelegateFlowLayout {
 //            
 //            //imageView.ub_setImage(nil, animated: false)
 //            imageView.image = nil
-//            _library.ub_requestImage(for: asset, size: size, mode: .aspectFill, options: options) { image, info in
+//            _container.ub_requestImage(for: asset, size: size, mode: .aspectFill, options: options) { image, info in
 //                imageView.image = image
 //                //imageView.ub_setImage(image, animated: true)
 //            }
@@ -730,16 +730,16 @@ extension BrowserDetailController: DetailControllerItemRotationDelegate {
     
     /// item should rotation
     func detailController(_ detailController: Any, shouldBeginRotationing asset: Asset) -> Bool {
-        logger.debug?.write(asset.ub_identifier)
+        logger.debug?.write(asset.identifier)
         // allow
         return true
     }
     
     /// item did rotation
     func detailController(_ detailController: Any, didEndRotationing asset: Asset, at orientation: UIImageOrientation) {
-        logger.debug?.write(asset.ub_identifier, "is landscape: \(orientation.ub_isLandscape)")
+        logger.debug?.write(asset.identifier, "is landscape: \(orientation.ub_isLandscape)")
         // save
-        _orientationes[asset.ub_identifier] = orientation
+        _orientationes[asset.identifier] = orientation
     }
 }
 

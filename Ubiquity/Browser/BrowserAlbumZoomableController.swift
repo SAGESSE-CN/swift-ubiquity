@@ -10,8 +10,8 @@ import UIKit
 
 internal class BrowserAlbumZoomableController: UICollectionViewController {
     
-    init(library: Library) {
-        _library = library.ub_cache
+    init(container: Container) {
+        _container = container
         
         super.init(collectionViewLayout: .init())
     }
@@ -106,5 +106,5 @@ internal class BrowserAlbumZoomableController: UICollectionViewController {
 //    }
 //    */
 
-    fileprivate let _library: Library
+    fileprivate let _container: Container
 }

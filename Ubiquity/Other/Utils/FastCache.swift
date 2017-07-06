@@ -1,8 +1,8 @@
 //
-//  CacheLibrary.swift
+//  Cache.swift
 //  Ubiquity
 //
-//  Created by SAGESSE on 5/25/17.
+//  Created by sagesse on 06/07/2017.
 //  Copyright © 2017 SAGESSE. All rights reserved.
 //
 
@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 
 
-internal class CacheLibrary: NSObject, Library {
+internal class Cache: NSObject {
     
     init(library: Library) {
         _library = library
@@ -18,57 +18,9 @@ internal class CacheLibrary: NSObject, Library {
         super.init()
     }
     
-    /// Returns information about your app’s authorization for accessing the library.
-    var ub_authorizationStatus: AuthorizationStatus {
-        logger.trace?.write()
-        
-        // forward
-        return _library.ub_authorizationStatus
-    }
-    
-    /// Requests the user’s permission, if needed, for accessing the library.
-    func ub_requestAuthorization(_ handler: @escaping (AuthorizationStatus) -> Void) {
-        logger.trace?.write()
-        
-        // forward
-        return _library.ub_requestAuthorization(handler)
-    }
-    
-    /// Get collections with type
-    func ub_collections(with type: CollectionType) -> Array<Collection> {
-        logger.trace?.write(type)
-        
-        // forward
-        return _library.ub_collections(with: type)
-    }
-    
-    /// Cancels an asynchronous request
-    func ub_cancelRequest(_ request: Request) {
-        //logger.trace?.write(request) // the cancel request very much 
-        
-        // can only processing `RequestTask`
-        guard let subtask = request as? RequestTask else {
-            // send cancel request
-            _library.ub_cancelRequest(request)
-            return
-        }
-        
-        // cancel the request
-        subtask.cancel()
-        
-        // remove subtask from main task
-        _dispatch.util.async {
-            // if main task no any subtask, sent cancel request
-            self._removeMainTask(with: subtask) { request in
-                // send cancel request
-                self._library.ub_cancelRequest(request)
-            }
-        }
-    }
-    
-    /// If the asset's aspect ratio does not match that of the given size, mode determines how the image will be resized.
-    func ub_requestImage(for asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping RequestResultHandler<UIImage>) -> Request? {
-        //logger.trace?.write(asset.ub_identifier, size) // the request very much 
+    /// Requests an image representation for the specified asset.
+    func request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
+        //logger.trace?.write(asset.identifier, size) // the request very much 
         
         // because the performance issue, make a temporary subtask
         let request = RequestTask(for: asset, size: size, mode: mode, result: resultHandler)
@@ -78,7 +30,7 @@ internal class CacheLibrary: NSObject, Library {
         _dispatch.util.ub_map(synchronous) {
             self._addMainTask(with: request) { task in
                 // forward send request
-                self._library.ub_requestImage(for: asset, size: size, mode: mode, options: options) { contents, response in
+                self._library.request(forImage: asset, size: size, mode: mode, options: options) { contents, response in
                     // cache the result
                     task.cache(contents, response: response)
                     
@@ -93,7 +45,7 @@ internal class CacheLibrary: NSObject, Library {
                     //   `ub_downloading` is true, task required a download
                     //   `ub_cancelled` is true, task is canceled(system canceled)
                     //   `ub_degraded` is false, task is completed
-                    if response.ub_cancelled || response.ub_error != nil || response.ub_downloading || !response.ub_degraded {
+                    if response.cancelled || response.error != nil || response.downloading || !response.degraded {
                         task.next()
                     }
                     
@@ -108,18 +60,108 @@ internal class CacheLibrary: NSObject, Library {
         return request
     }
     
-    /// Playback only. The result handler is called on an arbitrary queue.
-    func ub_requestPlayerItem(forVideo asset: Asset, options: RequestOptions?, resultHandler: @escaping RequestResultHandler<AVPlayerItem>) -> Request? {
-        //logger.debug?.write(asset.ub_identifier)
+    /// Cancels an asynchronous request
+    func cancel(with request: Request) {
+        //logger.trace?.write(request) // the cancel request very much
         
-        // forward
-        return _library.ub_requestPlayerItem(forVideo:asset, options:options, resultHandler:resultHandler)
+        // can only processing `RequestTask`
+        guard let subtask = request as? RequestTask else {
+            // send cancel request
+            _library.cancel(with: request)
+            return
+        }
+        
+        // cancel the request
+        subtask.cancel()
+        
+        // remove subtask from main task
+        _dispatch.util.async {
+            // if main task no any subtask, sent cancel request
+            self._removeMainTask(with: subtask) { request in
+                // send cancel request
+                self._library.cancel(with: request)
+            }
+        }
+    }
+    
+    
+    /// Prepares image representations of the specified assets for later use.
+    func startCachingImages(for assets: Array<Asset>, size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
+        //logger.trace?.write(assets)
+        
+        // make progressing format task
+        let format = Format(size: size, mode: mode)
+        let cache = _caches[format] ?? {
+            let cache = NSMutableDictionary()
+            _caches[format] = cache
+            return cache
+        }()
+        
+        // fetch require process tasks
+        let subtasks = assets.flatMap { asset -> CacheTask? in
+            
+            //  in caching, ignore
+            if let _ = cache[asset.identifier] as? CacheTask {
+                return nil
+            }
+            // create a cache task
+            let subtask = CacheTask(for: asset, size: size, mode: mode)
+            
+            // prepare cache
+            cache[asset.identifier] = subtask
+            subtask.prepare()
+            
+            // the task need start
+            return subtask
+        }
+        
+        // dispatch task
+        _dispatch.util.async {
+            // the task needs to start
+            self._caching.start(contentsOf: subtasks)
+            
+            // start cache thread
+            self._startCachingIfNeeded()
+        }
+    }
+    
+    /// Cancels image preparation for the specified assets and options.
+    func stopCachingImages(for assets: Array<Asset>, size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
+        //logger.trace?.write(assets)
+        
+        // make progressing format task
+        let format = Format(size: size, mode: mode)
+        let cache = _caches[format]
+        
+        // fetch require process tasks
+        let subtasks = assets.flatMap { asset -> CacheTask? in
+            
+            //  no in caching, ignore
+            guard let subtask = cache?[asset.identifier] as? CacheTask else {
+                return nil
+            }
+            
+            // cancel cache
+            cache?.removeObject(forKey: asset.identifier)
+            subtask.cancel()
+            
+            // the task need stop
+            return subtask
+        }
+        
+        // dispatch task
+        _dispatch.util.async {
+            // the task needs to stop
+            self._caching.stop(contentsOf: subtasks)
+            
+            // start cache thread
+            self._startCachingIfNeeded()
+        }
     }
     
     /// Cancels all image preparation that is currently in progress.
-    func ub_stopCachingImagesForAllAssets() {
+    func stopCachingImagesForAllAssets() {
         //logger.trace?.write()
-
         
         // clear all task
         let subtasks: [CacheTask] = _caches.values.flatMap { cache in
@@ -142,81 +184,27 @@ internal class CacheLibrary: NSObject, Library {
         }
     }
     
-    /// Prepares image representations of the specified assets for later use.
-    func ub_startCachingImages(for assets: [Asset], size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
-        //logger.trace?.write(assets)
-        
-        // make progressing format task
-        let format = Format(size: size, mode: mode)
-        let cache = _caches[format] ?? {
-            let cache = NSMutableDictionary()
-            _caches[format] = cache
-            return cache
-        }()
-        
-        // fetch require process tasks
-        let subtasks = assets.flatMap { asset -> CacheTask? in
-            
-            //  in caching, ignore
-            if let _ = cache[asset.ub_identifier] as? CacheTask {
-                return nil
-            }
-            // create a cache task
-            let subtask = CacheTask(for: asset, size: size, mode: mode)
-            
-            // prepare cache
-            cache[asset.ub_identifier] = subtask
-            subtask.prepare()
-            
-            // the task need start
-            return subtask
-        }
-        
-        // dispatch task
-        _dispatch.util.async {
-            // the task needs to start
-            self._caching.start(contentsOf: subtasks)
-            
-            // start cache thread
-            self._startCachingIfNeeded()
-        }
-    }
-    /// Cancels image preparation for the specified assets and options.
-    func ub_stopCachingImages(for assets: [Asset], size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
-        //logger.trace?.write(assets)
-        
-        // make progressing format task
-        let format = Format(size: size, mode: mode)
-        let cache = _caches[format]
-        
-        // fetch require process tasks
-        let subtasks = assets.flatMap { asset -> CacheTask? in
-            
-            //  no in caching, ignore
-            guard let subtask = cache?[asset.ub_identifier] as? CacheTask else {
-                return nil
-            }
-            
-            // cancel cache
-            cache?.removeObject(forKey: asset.ub_identifier)
-            subtask.cancel()
-            
-            // the task need stop
-            return subtask
-        }
-        
-        // dispatch task
-        _dispatch.util.async {
-            // the task needs to stop
-            self._caching.stop(contentsOf: subtasks)
-            
-            // start cache thread
-            self._startCachingIfNeeded()
-        }
-    }
+    fileprivate let _library: Library
     
+    // must limit the number of threads
+    fileprivate let _token: DispatchSemaphore = .init(value: 4)
+    fileprivate let _dispatch: (util: DispatchQueue, cache: DispatchQueue, request: DispatchQueue) = (
+        .init(label: "ubiquity-dispatch-util", qos: .userInteractive),
+        .init(label: "ubiquity-dispatch-cache", qos: .background),
+        .init(label: "ubiquity-dispatch-request", qos: .userInitiated)
+    )
     
-    private func _addMainTask(with subtask: RequestTask, execute work: @escaping (Task) -> Request?) {
+    fileprivate var _started: Bool = false
+    
+    fileprivate lazy var _tasks: Dictionary<Format, NSMutableDictionary> = [:]
+    fileprivate lazy var _caches: Dictionary<Format, NSMutableDictionary> = [:]
+    
+    fileprivate lazy var _caching: Queue = .init()
+}
+
+internal extension Cache {
+    
+    fileprivate func _addMainTask(with subtask: RequestTask, execute work: @escaping (Task) -> Request?) {
         // the subtask is canceled?
         guard !subtask.canceled else {
             return
@@ -266,7 +254,7 @@ internal class CacheLibrary: NSObject, Library {
             }
         }
     }
-    private func _removeMainTask(with subtask: RequestTask, execute work: @escaping (Request) -> Void) {
+    fileprivate func _removeMainTask(with subtask: RequestTask, execute work: @escaping (Request) -> Void) {
         // cancel image request
         _taskWithoutMake(for: subtask.asset, format: subtask.format)?.cancel(with: subtask) { task, request in
             // really need to cancel?
@@ -275,12 +263,12 @@ internal class CacheLibrary: NSObject, Library {
             }
             
             // clear memory
-            _tasks[subtask.format]?.removeObject(forKey: subtask.asset.ub_identifier)
+            _tasks[subtask.format]?.removeObject(forKey: subtask.asset.identifier)
             
             // get task cached response
             if let (_, response) = task.contents {
                 // the task is completed?
-                if !response.ub_cancelled && !response.ub_downloading && !response.ub_degraded {
+                if !response.cancelled && !response.downloading && !response.degraded {
                     return // don't send cancel request
                 }
             }
@@ -292,7 +280,7 @@ internal class CacheLibrary: NSObject, Library {
         }
     }
     
-    private func _startCachingIfNeeded() {
+    fileprivate func _startCachingIfNeeded() {
         // if is started, ignore
         guard !_started else {
             return
@@ -324,13 +312,13 @@ internal class CacheLibrary: NSObject, Library {
             self._started = false
         }
     }
-    private func _startCaching(with start: [CacheTask]?, with stop: [CacheTask]?) {
+    fileprivate func _startCaching(with start: [CacheTask]?, with stop: [CacheTask]?) {
         // must switch to main thread
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [_library] in
             // has stop task?
             if let subtask = stop?.first, let assets = stop?.map({ $0.asset }) {
                 // send to stop
-                self._library.ub_stopCachingImages(for: assets, size: subtask.size, mode: subtask.mode, options: nil)
+                _library.stopCachingImages(for: assets, size: subtask.size, mode: subtask.mode, options: nil)
                 // reset stop flag
                 stop?.forEach {
                     $0.stop()
@@ -339,7 +327,7 @@ internal class CacheLibrary: NSObject, Library {
             // has start task?
             if let subtask = start?.first, let assets = start?.map({ $0.asset }) {
                 // send to start
-                self._library.ub_startCachingImages(for: assets, size: subtask.size, mode: subtask.mode, options: nil)
+                _library.startCachingImages(for: assets, size: subtask.size, mode: subtask.mode, options: nil)
                 // reset stop flag
                 start?.forEach {
                     $0.start()
@@ -348,15 +336,11 @@ internal class CacheLibrary: NSObject, Library {
         }
     }
     
-    private func _taskWithoutMake(for asset: Asset, format: Format) -> Task? {
-        // fetch to the main task if exists
-        return _tasks[format]?[asset.ub_identifier] as? Task
-    }
-    private func _task(for asset: Asset, format: Format) -> Task {
+    fileprivate func _task(for asset: Asset, format: Format) -> Task {
         
         // fetch to the main task if exists
         if let task = _taskWithoutMake(for: asset, format: format) {
-            //logger.debug?.write("\(asset.ub_identifier) -> hit fast cache")
+            //logger.debug?.write("\(asset.identifier) -> hit fast cache")
             return task
         }
         
@@ -367,44 +351,18 @@ internal class CacheLibrary: NSObject, Library {
         
         // make a main task
         let task = Task(asset: asset, format: format)
-        _tasks[format]?[asset.ub_identifier] = task
-        //logger.debug?.write("\(asset.ub_identifier) -> create a task, count: \(_tasks[format]?.count ?? 0)")
+        _tasks[format]?[asset.identifier] = task
+        //logger.debug?.write("\(asset.identifier) -> create a task, count: \(_tasks[format]?.count ?? 0)")
         return task
     }
     
-    private let _library: Library
-    
-    // must limit the number of threads
-    private let _token: DispatchSemaphore = .init(value: 4)
-    private let _dispatch: (util: DispatchQueue, cache: DispatchQueue, request: DispatchQueue) = (
-        .init(label: "ubiquity-dispatch-util", qos: .userInteractive),
-        .init(label: "ubiquity-dispatch-cache", qos: .background),
-        .init(label: "ubiquity-dispatch-request", qos: .userInitiated)
-    )
-    
-    private var _started: Bool = false
-    
-    private lazy var _tasks: Dictionary<Format, NSMutableDictionary> = [:]
-    private lazy var _caches: Dictionary<Format, NSMutableDictionary> = [:]
-    
-    private lazy var _caching: Queue = .init()
-}
-
-// cache util
-internal extension Library {
-    /// generate support cache the library
-    internal var ub_cache: Library {
-        // if already support, to return
-        if let library  = self as? CacheLibrary {
-            return library
-        }
-        // add a cache layer
-        return CacheLibrary(library: self)
+    fileprivate func _taskWithoutMake(for asset: Asset, format: Format) -> Task? {
+        // fetch to the main task if exists
+        return _tasks[format]?[asset.identifier] as? Task
     }
 }
 
-// util
-internal extension CacheLibrary {
+internal extension Cache {
     
     // request task
     internal class Task: Request, Logport {
@@ -451,11 +409,11 @@ internal extension CacheLibrary {
                 }
                 
                 // if the task has been completed, do not create a new subtask
-                if !response.ub_cancelled && !response.ub_downloading && !response.ub_degraded {
-                    logger.debug?.write("\(asset.ub_identifier) - response[completed] hit cache")
+                if !response.cancelled && !response.downloading && !response.degraded {
+                    logger.debug?.write("\(asset.identifier) - response[completed] hit cache")
                     return
                 }
-                logger.debug?.write("\(asset.ub_identifier) - response hit cache")
+                logger.debug?.write("\(asset.identifier) - response hit cache")
             }
             
             // add to task queue
@@ -506,11 +464,6 @@ internal extension CacheLibrary {
             // update cached content
             self.version += 1
             self.contents = (contents, response)
-//            
-//            // receives notice has been cancelled or complete notification
-//            if response.ub_cancelled || response.ub_error != nil || !response.ub_degraded {
-//                request = nil
-//            }
         }
         
         // move to next task
@@ -538,7 +491,7 @@ internal extension CacheLibrary {
     }
     internal class RequestTask: Request {
         
-        init(for asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions? = nil, result: RequestResultHandler<UIImage>?) {
+        init(for asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions? = nil, result: ((UIImage?, Response) -> ())?) {
             self.asset = asset
             self.format = .init(size: size, mode: mode)
             
@@ -571,8 +524,7 @@ internal extension CacheLibrary {
             _result?(contents, response)
         }
         
-        //private var _progress: RequestProgressHandler?
-        private var _result: RequestResultHandler<UIImage>?
+        private var _result: ((UIImage?, Response) -> ())?
         private var _version: Int = 0
     }
     internal class CacheTask: Request {
@@ -625,7 +577,7 @@ internal extension CacheLibrary {
     
     internal class Format: Hashable {
         
-        static func ==(lhs: CacheLibrary.Format, rhs: CacheLibrary.Format) -> Bool {
+        static func ==(lhs: Format, rhs: Format) -> Bool {
             // if the memory is the same, the results will be the same
             guard lhs !== rhs else {
                 return true
@@ -729,7 +681,7 @@ internal extension CacheLibrary {
                 
                 // the task is vaild?
                 guard isVaild(item) else {
-                    //logger.debug?.write("\(task.asset.ub_identifier): no started")
+                    //logger.debug?.write("\(task.asset.identifier): no started")
                     continue // task is invaild
                 }
                 results.append(item)
@@ -768,7 +720,7 @@ internal extension CacheLibrary {
                 
                 // the task is vaild?
                 guard isVaild(item) else {
-                    //logger.debug?.write("\(task.asset.ub_identifier): no started")
+                    //logger.debug?.write("\(task.asset.identifier): no started")
                     continue // task is invaild
                 }
                 results.append(item)
@@ -780,8 +732,6 @@ internal extension CacheLibrary {
         private lazy var _startContainer: Array<CacheTask> = []
         private lazy var _stopContainer: Array<CacheTask> = []
     }
-    
-    
 }
 
 internal extension DispatchQueue {

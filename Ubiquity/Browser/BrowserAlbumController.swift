@@ -11,9 +11,9 @@ import UIKit
 /// the asset list in album
 internal class BrowserAlbumController: UICollectionViewController {
     
-    init(source: DataSource, library: Library) {
+    init(source: DataSource, container: Container) {
         _source = source
-        _library = library.ub_cache
+        _container = container
         
         super.init(collectionViewLayout: BrowserAlbumLayout())
     }
@@ -69,7 +69,7 @@ internal class BrowserAlbumController: UICollectionViewController {
         
         // update with authorization status
         _authorized = false
-        _library.ub_requestAuthorization { status in
+        _container.requestAuthorization { status in
             DispatchQueue.main.async {
                 self.reloadData(with: status)
             }
@@ -88,7 +88,7 @@ internal class BrowserAlbumController: UICollectionViewController {
     }
     
     fileprivate let _source: DataSource
-    fileprivate let _library: Library
+    fileprivate let _container: Container
     
     fileprivate var _prepared: Bool = false
     fileprivate var _authorized: Bool = false
@@ -172,7 +172,7 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
         guard let asset = _source.asset(at: indexPath), let displayer = cell as? Displayable, _prepared else {
             return
         }
-        displayer.willDisplay(with: asset, in: _library, orientation: .up)
+        displayer.willDisplay(with: asset, container: _container, orientation: .up)
     }
     override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         // try fetch cell
@@ -180,7 +180,7 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
         guard let asset = _source.asset(at: indexPath), let displayer = cell as? Displayable, _prepared else {
             return
         }
-        displayer.endDisplay(with: asset, in: _library)
+        displayer.endDisplay(with: asset, container: _container)
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -188,7 +188,7 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
         logger.debug?.write("show detail with: \(indexPath)")
         
         // make
-        let controller = BrowserDetailController(source: _source, library: _library, at: indexPath)
+        let controller = BrowserDetailController(source: _source, container: _container, at: indexPath)
         
         controller.animator = Animator(source: self, destination: controller)
         controller.updateDelegate = self
@@ -298,12 +298,12 @@ extension BrowserAlbumController: TransitioningDataSource {
     }
 }
 
-/// library asset cache support
+/// container asset cache support
 internal extension BrowserAlbumController {
     
     fileprivate func _resetCachedAssets() {
         // clean all cache
-        _library.ub_stopCachingImagesForAllAssets()
+        _container.stopCachingImagesForAllAssets()
         _previousPreheatRect = .zero
     }
 
@@ -357,8 +357,8 @@ internal extension BrowserAlbumController {
             .filter { asset in !addedAssets.contains(where: { $0 === asset } ) }
         
         // Update the assets the PHCachingImageManager is caching.
-        _library.ub_startCachingImages(for: addedAssets, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: nil)
-        _library.ub_stopCachingImages(for: removedAssets, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: nil)
+        _container.startCachingImages(for: addedAssets, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: nil)
+        _container.stopCachingImages(for: removedAssets, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: nil)
     }
     
     fileprivate func _different(_ new: [CGRect], _ old: [CGRect]) -> (added: [CGRect], removed: [CGRect]) {
@@ -437,7 +437,7 @@ internal extension BrowserAlbumController {
     }
 }
 
-/// library error display support
+/// container error display support
 internal extension BrowserAlbumController {
     
     fileprivate func _showError(with title: String, subtitle: String) {

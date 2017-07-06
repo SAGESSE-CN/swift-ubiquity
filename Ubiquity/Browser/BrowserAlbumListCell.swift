@@ -19,9 +19,9 @@ internal class BrowserAlbumListCell: UITableViewCell {
         _setup()
     }
     
-    // display asset
-    func willDisplay(with collection: Collection, in library: Library) {
-        //logger.trace?.write(collection.ub_identifier)
+    /// Will display the collection
+    func willDisplay(with collection: Collection, container: Container) {
+        //logger.trace?.write(collection.identifier)
         
         // have any change?
         guard _collection !== collection else {
@@ -29,21 +29,21 @@ internal class BrowserAlbumListCell: UITableViewCell {
         }
         
         // save context
-        _library = library
+        _container = container
         _collection = collection
         
-        let count = collection.ub_assetCount
-        let assets = (max(count - 3, 0) ..< count).flatMap { collection.ub_asset(at: $0) }
+        let count = collection.assetCount
+        let assets = (max(count - 3, 0) ..< count).flatMap { collection.asset(at: $0) }
         let formatter = NumberFormatter()
         
         formatter.positiveFormat = "###,##0"
         
         // setup content
-        _titleLabel.text = collection.ub_title
+        _titleLabel.text = collection.title
         _subtitleLabel.text = formatter.string(for: count)
         
         // setup badge icon & background
-        if let icon = BadgeView.Item.ub_init(subtype: collection.ub_collectionSubtype) {
+        if let icon = BadgeView.Item.ub_init(subtype: collection.collectionSubtype) {
             // show icon
             _badgeView.leftItem = icon
             _badgeView.backgroundImage = BadgeView.ub_backgroundImage
@@ -62,7 +62,7 @@ internal class BrowserAlbumListCell: UITableViewCell {
         _thumbView.images = assets.map { _ in nil }
         _requests = assets.reversed().enumerated().flatMap { offset, asset in
             // request thumbnail image
-            library.ub_requestImage(for: asset, size: size, mode: .aspectFill, options: options) { [weak self, weak collection] contents, response in
+            container.request(forImage: asset, size: size, mode: .aspectFill, options: options) { [weak self, weak collection] contents, response in
                 // if the asset is nil, the asset has been released
                 guard let collection = collection else {
                     return
@@ -72,18 +72,18 @@ internal class BrowserAlbumListCell: UITableViewCell {
             }
         }
     }
-    // end display asset
-    func endDisplay(with collection: Collection, in library: Library) {
-        //logger.trace?.write(collection.ub_identifier)
+    /// End display the collection
+    func endDisplay(with collection: Collection, container: Container) {
+        //logger.trace?.write(collection.identifier)
         
         // when are requesting an image, please cancel it
         _requests?.forEach { request in
             // cancel
-            library.ub_cancelRequest(request)
+            container.cancel(with: request)
         }
         
         // clear context
-        _library = nil
+        _container = nil
         _requests = nil
         _collection = nil
         
@@ -96,7 +96,7 @@ internal class BrowserAlbumListCell: UITableViewCell {
         // the current collection has been changed?
         guard _collection === collection else {
             // change, all reqeust is expire
-            logger.debug?.write("\(collection.ub_identifier) image is expire")
+            logger.debug?.write("\(collection.identifier) image is expire")
             return
         }
         // no change, update content
@@ -149,7 +149,7 @@ internal class BrowserAlbumListCell: UITableViewCell {
         ])
     }
     
-    private var _library: Library?
+    private var _container: Container?
     private var _collection: Collection?
     
     private var _requests: Array<Request>?

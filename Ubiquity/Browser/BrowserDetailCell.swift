@@ -20,31 +20,23 @@ internal class BrowserDetailCell: UICollectionViewCell, Displayable {
     }
     deinit {
         // on destory if not the end display, need to manually call it
-        guard let asset = _asset, let library = _library else {
+        guard let asset = _asset, let container = _container else {
             return
         }
         // call end display
-        endDisplay(with: asset, in: library)
+        endDisplay(with: asset, container: container)
     }
     
-    ///
-    /// the displayer delegate & event delegate
-    ///
+    /// The displayer delegate & event delegate
     weak var delegate: AnyObject?
     
-    ///
-    /// Show an asset
-    ///
-    /// - parameter asset: need the display the resource
-    /// - parameter library: the asset in this library
-    /// - parameter orientation: need to display the image direction
-    ///
-    func willDisplay(with asset: Asset, in library: Library, orientation: UIImageOrientation) {
-        logger.trace?.write(asset.ub_identifier)
+    /// Will display the asset
+    func willDisplay(with asset: Asset, container: Container, orientation: UIImageOrientation) {
+        logger.trace?.write(asset.identifier)
         
         // update ata
         _asset = asset
-        _library = library
+        _container = container
         _orientation = orientation
         
         // update util
@@ -52,33 +44,28 @@ internal class BrowserDetailCell: UICollectionViewCell, Displayable {
             // default is 1(auto hidden)
             progress.setValue(1, animated: false)
         }
-        if let console = _console, asset.ub_allowsPlay {
+        if let console = _console, asset.allowsPlay {
             // if the asset allows play, display console
             // defaults is stop
             console.setState(.stop, animated: false)
         }
         
         // update canvas
-        _containerView?.contentSize = .init(width: asset.ub_pixelWidth, height: asset.ub_pixelHeight)
+        _containerView?.contentSize = .init(width: asset.pixelWidth, height: asset.pixelHeight)
         _containerView?.zoom(to: bounds , with: orientation, animated: false)
         
         // update content
-        (_contentView as? Displayable)?.willDisplay(with: asset, in: library, orientation: orientation)
-        (_detailView as? Displayable)?.willDisplay(with: asset, in: library, orientation: orientation)
+        (_contentView as? Displayable)?.willDisplay(with: asset, container: container, orientation: orientation)
+        (_detailView as? Displayable)?.willDisplay(with: asset, container: container, orientation: orientation)
     }
     
-    ///
-    /// Hide an asset
-    ///
-    /// - parameter asset: current display the resource
-    /// - parameter library: the asset in this library
-    ///
-    func endDisplay(with asset: Asset, in library: Library) {
-        logger.trace?.write(asset.ub_identifier)
+    /// End display the asset
+    func endDisplay(with asset: Asset, container: Container) {
+        logger.trace?.write(asset.identifier)
         
         // update content
-        (_contentView as? Displayable)?.endDisplay(with: asset, in: library)
-        (_detailView as? Displayable)?.endDisplay(with: asset, in: library)
+        (_contentView as? Displayable)?.endDisplay(with: asset, container: container)
+        (_detailView as? Displayable)?.endDisplay(with: asset, container: container)
     }
     
     /// update content inset
@@ -150,7 +137,7 @@ internal class BrowserDetailCell: UICollectionViewCell, Displayable {
     
     // data
     fileprivate var _asset: Asset?
-    fileprivate var _library: Library?
+    fileprivate var _container: Container?
     fileprivate var _orientation: UIImageOrientation = .up
     
     // config
@@ -200,11 +187,11 @@ extension BrowserDetailCell {
         logger.trace?.write()
         
         // check the state of the data
-        guard let asset = _asset, let library = _library else {
+        guard let asset = _asset, let container = _container else {
             return
         }
         // recall display, to refresh the data
-        (_detailView as? Displayable)?.willDisplay(with: asset, in: library, orientation: _orientation)
+        (_detailView as? Displayable)?.willDisplay(with: asset, container: container, orientation: _orientation)
     }
     fileprivate dynamic func _handleCommand(_ sender: Any) {
         logger.trace?.write()
@@ -243,7 +230,7 @@ extension BrowserDetailCell {
     
     fileprivate func _play() {
         // must provide the context
-        guard let asset = _asset, let library = _library, let console = _console, let player = _detailView as? Playable  else {
+        guard let asset = _asset, let container = _container, let console = _console, let player = _detailView as? Playable  else {
             return
         }
         // if is stopped, click goto prepare
@@ -260,12 +247,12 @@ extension BrowserDetailCell {
         
         // prepare player
         DispatchQueue.main.async {
-            player.play(with: asset, in: library)
+            player.play(with: asset, container: container)
         }
     }
     fileprivate func _stop() {
         // must provide the context
-        guard let asset = _asset, let library = _library, let console = _console, let player = _detailView as? Playable  else {
+        guard let asset = _asset, let container = _container, let console = _console, let player = _detailView as? Playable  else {
             return
         }
         // if is playing or waiting, click goto stop
@@ -276,7 +263,7 @@ extension BrowserDetailCell {
         // update the status for stop
         console.setState(.stop, animated: true)
         // stop player
-        player.stop(with: asset, in: library)
+        player.stop(with: asset, container: container)
     }
 }
 
@@ -378,7 +365,7 @@ extension BrowserDetailCell: CanvasViewDelegate {
     func canvasViewDidEndRotationing(_ canvasView: CanvasView, with view: UIView?, atOrientation orientation: UIImageOrientation) {
         logger.trace?.write()
         // if the item is nil, are not allowed to rotate
-        guard let asset = _asset, let library = _library else {
+        guard let asset = _asset, let container = _container else {
             return
         }
         // update canvas view status
@@ -386,8 +373,8 @@ extension BrowserDetailCell: CanvasViewDelegate {
         // update content orientation
         _orientation = orientation
         // update display
-        (_contentView as? Displayable)?.willDisplay(with: asset, in: library, orientation: orientation)
-        (_detailView as? Displayable)?.willDisplay(with: asset, in: library, orientation: orientation)
+        (_contentView as? Displayable)?.willDisplay(with: asset, container: container, orientation: orientation)
+        (_detailView as? Displayable)?.willDisplay(with: asset, container: container, orientation: orientation)
         // update progress
         _progress?.center = _progressCenter
         _progress?.setIsHidden(false, animated: true)
@@ -470,12 +457,7 @@ extension BrowserDetailCell: TransitioningView {
 /// operation support
 extension BrowserDetailCell: DisplayableDelegate {
     
-    ///
     /// Tell the delegate that begin download from the remote server
-    ///
-    /// - parameter displayer: current the displayer
-    /// - parameter asset: current displaying the resouce
-    ///
     func displayer(_ displayer: Displayable, didBeginDownload asset: Asset) {
         logger.trace?.write()
         
@@ -483,13 +465,7 @@ extension BrowserDetailCell: DisplayableDelegate {
         _progress?.setValue(0, animated: false)
     }
     
-    ///
     /// Tell the delegate that to receive new data from the remote server
-    ///
-    /// - parameter displayer: current the displayer
-    /// - parameter asset: current displaying the resouce
-    /// - parameter progress: current donwlading the progress, value is 0~1
-    ///
     func displayer(_ displayer: Displayable, didReceive asset: Asset, progress: Double) {
         logger.trace?.write(progress)
         
@@ -497,13 +473,7 @@ extension BrowserDetailCell: DisplayableDelegate {
         _progress?.setValue(progress, animated: true)
     }
     
-    ///
     /// Tell the delegate that end download from the remote server
-    ///
-    /// - parameter displayer: current the displayer
-    /// - parameter asset: current displaying the resouce
-    /// - parameter error: if error is nil, download finish, if error is not nil, download fail
-    ///
     func displayer(_ displayer: Displayable, didEndDownload asset: Asset, error: Error?) {
         logger.trace?.write()
         
@@ -520,106 +490,64 @@ extension BrowserDetailCell: DisplayableDelegate {
 /// operation support
 extension BrowserDetailCell: PlayableDelegate {
     
-    ///
     /// Tell the delegate that the player is prepared
-    ///
-    /// - parameter player: current player
-    /// - parameter asset: current play the asset
-    ///
     func player(_ player: Playable, didPrepared asset: Asset) {
         logger.trace?.write()
         // must provide the context
-        guard let asset = _asset, let library = _library else {
+        guard let asset = _asset, let container = _container else {
             return
         }
-        player.play(with: asset, in: library)
+        player.play(with: asset, container: container)
     }
     
-    ///
-    /// Tell the delegate that player start play
-    ///
-    /// - parameter player: current player
-    /// - parameter asset: current play the asset
-    ///
+    // Tell the delegate that player start play
     func player(_ player: Playable, didStartPlay asset: Asset) {
         logger.trace?.write()
         
         _console?.setState(.playing, animated: true)
     }
     
-    ///
-    /// Tell the delegate that player stop
-    ///
-    /// - parameter player: current player
-    /// - parameter asset: current play the asset
-    ///
+    // Tell the delegate that player stop
     func player(_ player: Playable, didStop asset: Asset) {
         logger.trace?.write()
         
         _console?.setState(.stop, animated: true)
     }
     
-    ///
-    /// Tell the delegate that player interruption due to lack of enough data
-    ///
-    /// - parameter player: current player
-    /// - parameter asset: current play the asset
-    ///
+    // Tell the delegate that player interruption due to lack of enough data
     func player(_ player: Playable, didStalled asset: Asset) {
         logger.trace?.write()
         
         _console?.setState(.waiting, animated: true)
     }
     
-    ///
-    /// Tell the delegate that player interrupte play, automatic: background/foreground mode switch
-    ///
-    /// - parameter player: current player
-    /// - parameter asset: current play the asset
-    ///
+    // Tell the delegate that player interrupte play, automatic: background/foreground mode switch
     func player(_ player: Playable, didSuspend asset: Asset) {
         logger.trace?.write()
         
         _console?.setState(.stop, animated: true)
     }
     
-    ///
-    /// Tell the delegate that player restore play , automatic: background/foreground mode switch
-    ///
-    /// - parameter player: current player
-    /// - parameter asset: current play the asset
-    ///
+    // Tell the delegate that player restore play , automatic: background/foreground mode switch
     func player(_ player: Playable, didResume asset: Asset) {
         logger.trace?.write()
         
         _console?.setState(.playing, animated: true)
     }
     
-    ///
-    /// Tell the delegate that player play finish
-    ///
-    /// - parameter player: current player
-    /// - parameter asset: current play the asset
-    ///
+    // Tell the delegate that player play finish
     func player(_ player: Playable, didFinish asset: Asset) {
         logger.trace?.write()
         
         _console?.setState(.stop, animated: true)
     }
     
-    ///
-    /// Tell the delegate that player play occur error
-    ///
-    /// - parameter player: current player
-    /// - parameter asset: current play the asset
-    /// - parameter error: error info
-    ///
+    // Tell the delegate that player play occur error
     func player(_ player: Playable, didOccur asset: Asset, error: Error?) {
         logger.trace?.write()
         
         _console?.setState(.stop, animated: true)
     }
-    
 }
 
 // add dynamic class support

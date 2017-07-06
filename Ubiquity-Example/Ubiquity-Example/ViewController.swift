@@ -43,6 +43,8 @@ class ViewController: UITableViewController, UIActionSheetDelegate {
 //        let wv  = WKWebView(frame: .init(x: 0, y: 0, width: view.bounds.width, height: 480))
 //        wv.loadHTMLString(html, baseURL: nil)
 //        tableView.tableHeaderView = wv
+        let vc = PhotoLibraryController()
+        present(vc, animated: true, completion: nil)
     }
     
     func actionSheet(_ actionSheet: UIActionSheet, clickedButtonAt buttonIndex: Int) {

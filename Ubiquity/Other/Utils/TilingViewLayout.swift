@@ -20,7 +20,7 @@ internal class TilingViewLayout: NSObject {
     }
     
     var estimatedItemSize: CGSize = CGSize(width: 20, height: 40)
-    var minimumInteritemSpacing: CGFloat = 1
+    var minimumInteritemSpacing: CGFloat = 0
     
     func prepare() {
         

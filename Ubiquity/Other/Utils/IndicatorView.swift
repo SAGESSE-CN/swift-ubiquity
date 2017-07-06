@@ -124,94 +124,93 @@ import UIKit
     
     
     func updateIndexPath(from indexPath1: IndexPath?, to indexPath2: IndexPath?, percent: CGFloat) {
-        
-        let ds = estimatedItemSize // default size
-        let cil = _tilingView.contentInset.left + ds.width / 2 // content inset left
-        
-        guard _isInteractiving else {
-            // 交互己经中断了, 如果可以的话提供index跟随
-            guard let nfidx = indexPath1, let ntidx = indexPath2, _tilingView.isDragging else {
-                return
-            }
-            guard let fa = _tilingView.layoutAttributesForItem(at: nfidx), let ta = _tilingView.layoutAttributesForItem(at: ntidx) else {
-                return
-            }
-            _performWithoutContentOffsetChange {
-                let x1 = fa.frame.midX * (1 - percent)
-                let x2 = ta.frame.midX * (0 + percent)
-                
-                _tilingView.contentOffset.x = x1 + x2 - cil
-                _updateCurrentItem(_tilingView.contentOffset)
-            }
-            return //
-        }
-//        _logger.debug("\(indexPath1) => \(indexPath2) => \(percent)")
-        
-        let ocidx = _currentIndexPath
-        let ofidx = _interactivingFromIndexPath
-        let otidx = _interactivingToIndexPath
-        let nfidx = indexPath1
-        let ntidx = indexPath2
-        
-        _interactivingFromIndexPath = nfidx
-        _interactivingToIndexPath = ntidx
-        _currentIndexPath = ntidx ?? nfidx
-        
-        let nfs = _sizeForItem(nfidx) ?? ds // new from size
-        let nts = _sizeForItem(ntidx) ?? ds // new to size
-        
-        var fw = ds.width + (nfs.width - ds.width) * (1 - percent) // display from width
-        var tw = ds.width + (nts.width - ds.width) * (0 + percent) // display to width
-        
-        // if left over boundary, can't change width
-        if nfidx == nil {
-            tw = nts.width 
-        }
-        // if right over boundary, can't change width
-        if ntidx == nil {
-            fw = nfs.width 
-        }
-        
-        //logger.debug("\(nfidx) - \(ntidx): \(fw) => \(tw) | \(percent)")
-        
-        _performWithoutContentOffsetChange {
-            // 生成需要变更的元素
-            let ops = Set([ofidx, otidx, nfidx, ntidx, ocidx].flatMap({ $0 })).sorted()
-            
-            _tilingView.reloadItems(at: ops) { attr in
-                if attr.indexPath == nfidx {
-                    return CGSize(width: fw, height: ds.height)
-                }
-                if attr.indexPath == ntidx {
-                    return CGSize(width: tw, height: ds.height)
-                }
-                return ds
-            }
-            _tilingView.contentOffset.x = { origin -> CGFloat in
-                // is left over boundary?
-                if let tidx = ntidx, let ta = _tilingView.layoutAttributesForItem(at: tidx), nfidx == nil {
-                    return ta.frame.midX - ds.width * (1 - percent)
-                }
-                // is right over boundary?
-                if let fidx = nfidx, let fa = _tilingView.layoutAttributesForItem(at: fidx), ntidx == nil {
-                    return fa.frame.midX + ds.width * (0 + percent)
-                }
-                // is center?
-                guard let fidx = nfidx, let tidx = ntidx else {
-                    return origin
-                }
-                // can found?
-                guard let fa = _tilingView.layoutAttributesForItem(at: fidx),
-                    let ta = _tilingView.layoutAttributesForItem(at: tidx) else {
-                        return origin
-                }
-                let x1 = fa.frame.midX * (1 - percent)
-                let x2 = ta.frame.midX * (0 + percent)
-                
-                return x1 + x2
-                
-            }(_tilingView.contentOffset.x + cil) - cil
-        }
+//        let ds = estimatedItemSize // default size
+//        let cil = _tilingView.contentInset.left + ds.width / 2 // content inset left
+//        
+//        guard _isInteractiving else {
+//            // 交互己经中断了, 如果可以的话提供index跟随
+//            guard let nfidx = indexPath1, let ntidx = indexPath2, _tilingView.isDragging else {
+//                return
+//            }
+//            guard let fa = _tilingView.layoutAttributesForItem(at: nfidx), let ta = _tilingView.layoutAttributesForItem(at: ntidx) else {
+//                return
+//            }
+//            _performWithoutContentOffsetChange {
+//                let x1 = fa.frame.midX * (1 - percent)
+//                let x2 = ta.frame.midX * (0 + percent)
+//                
+//                _tilingView.contentOffset.x = x1 + x2 - cil
+//                _updateCurrentItem(_tilingView.contentOffset)
+//            }
+//            return //
+//        }
+////        _logger.debug("\(indexPath1) => \(indexPath2) => \(percent)")
+//        
+//        let ocidx = _currentIndexPath
+//        let ofidx = _interactivingFromIndexPath
+//        let otidx = _interactivingToIndexPath
+//        let nfidx = indexPath1
+//        let ntidx = indexPath2
+//        
+//        _interactivingFromIndexPath = nfidx
+//        _interactivingToIndexPath = ntidx
+//        _currentIndexPath = ntidx ?? nfidx
+//        
+//        let nfs = _sizeForItem(nfidx) ?? ds // new from size
+//        let nts = _sizeForItem(ntidx) ?? ds // new to size
+//        
+//        var fw = ds.width + (nfs.width - ds.width) * (1 - percent) // display from width
+//        var tw = ds.width + (nts.width - ds.width) * (0 + percent) // display to width
+//        
+//        // if left over boundary, can't change width
+//        if nfidx == nil {
+//            tw = nts.width 
+//        }
+//        // if right over boundary, can't change width
+//        if ntidx == nil {
+//            fw = nfs.width 
+//        }
+//        
+//        //logger.debug("\(nfidx) - \(ntidx): \(fw) => \(tw) | \(percent)")
+//        
+//        _performWithoutContentOffsetChange {
+//            // 生成需要变更的元素
+//            let ops = Set([ofidx, otidx, nfidx, ntidx, ocidx].flatMap({ $0 })).sorted()
+//            
+//            _tilingView.reloadItems(at: ops) { attr in
+//                if attr.indexPath == nfidx {
+//                    return CGSize(width: fw, height: ds.height)
+//                }
+//                if attr.indexPath == ntidx {
+//                    return CGSize(width: tw, height: ds.height)
+//                }
+//                return ds
+//            }
+//            _tilingView.contentOffset.x = { origin -> CGFloat in
+//                // is left over boundary?
+//                if let tidx = ntidx, let ta = _tilingView.layoutAttributesForItem(at: tidx), nfidx == nil {
+//                    return ta.frame.midX - ds.width * (1 - percent)
+//                }
+//                // is right over boundary?
+//                if let fidx = nfidx, let fa = _tilingView.layoutAttributesForItem(at: fidx), ntidx == nil {
+//                    return fa.frame.midX + ds.width * (0 + percent)
+//                }
+//                // is center?
+//                guard let fidx = nfidx, let tidx = ntidx else {
+//                    return origin
+//                }
+//                // can found?
+//                guard let fa = _tilingView.layoutAttributesForItem(at: fidx),
+//                    let ta = _tilingView.layoutAttributesForItem(at: tidx) else {
+//                        return origin
+//                }
+//                let x1 = fa.frame.midX * (1 - percent)
+//                let x2 = ta.frame.midX * (0 + percent)
+//                
+//                return x1 + x2
+//                
+//            }(_tilingView.contentOffset.x + cil) - cil
+//        }
     }
     
     override func layoutSubviews() {

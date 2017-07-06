@@ -31,6 +31,7 @@ class PhotoLibraryController: UITabBarController {
         
         //vc1.hidesBottomBarWhenPushed = true
         vc2.hidesBottomBarWhenPushed = true
+        vc2.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Dismiss", style: .plain, target: self, action: #selector(dismiss(_:)))
         
 //        let nav = NavigationController(navigationBarClass: nil, toolbarClass: ExtendedToolbar.self)
 //        nav.viewControllers = [container.viewController]
@@ -51,4 +52,7 @@ class PhotoLibraryController: UITabBarController {
         tabBar.isHidden = true
     }
     
+    func dismiss(_ sender: AnyObject) {
+        dismiss(animated: true, completion: nil)
+    }
 }

@@ -10,32 +10,44 @@ import UIKit
 
 internal class DataSource {
     
-    init(_ collection: Collection) {
-        _collections = [collection]
+    init(collection: Collection) {
+        self.collections = [collection]
 //        _collections = (0 ..< 30).map { _ in
 //            collection
 //        }
     }
-    init(_ collections: Array<Collection>) {
-        _collections = collections
+    init(collections: Array<Collection>) {
+        self.collections = collections
     }
     
     var title: String? {
-        return _collections.first?.title
+        return collections.first?.title
     }
     
+    var count: Int {
+        return collections.reduce(0) {
+            $0 + $1.assetCount
+        }
+    }
+    func count(with type: AssetMediaType) -> Int {
+        return collections.reduce(0) {
+            $0 + $1.assetCount(with: type)
+        }
+    }
+    
+    
     var numberOfSections: Int {
-        return _collections.count
+        return collections.count
     }
     func numberOfItems(inSection section: Int) -> Int {
-        return _collections.ub_get(at: section)?.assetCount ?? 0
+        return collections.ub_get(at: section)?.assetCount ?? 0
     }
     
     func asset(at indexPath: IndexPath) -> Asset? {
-        return _collections.ub_get(at: indexPath.section)?.asset(at: indexPath.item)
+        return collections.ub_get(at: indexPath.section)?.asset(at: indexPath.item)
     }
     
-    private var _collections: Array<Collection>
+    var collections: Array<Collection>
 }
 
 internal class DataSourceOptions: RequestOptions {

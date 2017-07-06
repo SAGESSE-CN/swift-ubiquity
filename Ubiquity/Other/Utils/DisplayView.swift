@@ -32,7 +32,7 @@ internal class DisplayView: UIView, Displayable {
     }
     
     /// End display the asset
-    func endDisplay(with asset: Asset, container: Container) {
+    func endDisplay(with container: Container) {
         // nothing
     }
     

@@ -17,7 +17,6 @@
 		0C220F6C1F0DF5ED00A13786 /* Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F6B1F0DF5ED00A13786 /* Asset.swift */; };
 		0C220F6E1F0DF5FC00A13786 /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F6D1F0DF5FC00A13786 /* Collection.swift */; };
 		0C220F701F0E147200A13786 /* Displayable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F6F1F0E147200A13786 /* Displayable.swift */; };
-		0C220F721F0E161C00A13786 /* Container.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F711F0E161C00A13786 /* Container.swift */; };
 		0C220F741F0E21D100A13786 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F731F0E21D100A13786 /* Request.swift */; };
 		0C220F761F0E220400A13786 /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F751F0E220400A13786 /* Response.swift */; };
 		0C220F781F0E25E000A13786 /* Playable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F771F0E25E000A13786 /* Playable.swift */; };
@@ -53,6 +52,7 @@
 		0C983BC81EBC552300A5A932 /* PhotoContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C983BC61EBC552300A5A932 /* PhotoContentView.swift */; };
 		0C983BC91EBC552300A5A932 /* VideoContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C983BC71EBC552300A5A932 /* VideoContentView.swift */; };
 		0CB00FAC1ED6E453003B0596 /* UIImageView+Animation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB00FAB1ED6E453003B0596 /* UIImageView+Animation.swift */; };
+		0CB91E731F0EB8F000741F48 /* Container.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB91E721F0EB8F000741F48 /* Container.swift */; };
 		0CBDA6021ECAE54F0016675C /* AnimatedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CBDA6011ECAE54F0016675C /* AnimatedImage.swift */; };
 		0CBDA60A1ECAF7350016675C /* DisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CBDA6091ECAF7350016675C /* DisplayView.swift */; };
 		0CBDA60C1ECB3E330016675C /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CBDA60B1ECB3E330016675C /* NavigationController.swift */; };
@@ -96,7 +96,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		0CE49E3D1E7A3FE50058F5F8 /* PBXContainerItemProxy */ = {
+		0C8EBA4B1F0F943600D686FB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0CE49D6F1E7A3DAA0058F5F8 /* Project object */;
 			proxyType = 1;
@@ -116,7 +116,6 @@
 		0C220F6B1F0DF5ED00A13786 /* Asset.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Asset.swift; sourceTree = "<group>"; };
 		0C220F6D1F0DF5FC00A13786 /* Collection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
 		0C220F6F1F0E147200A13786 /* Displayable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Displayable.swift; sourceTree = "<group>"; };
-		0C220F711F0E161C00A13786 /* Container.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Container.swift; sourceTree = "<group>"; };
 		0C220F731F0E21D100A13786 /* Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		0C220F751F0E220400A13786 /* Response.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
 		0C220F771F0E25E000A13786 /* Playable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Playable.swift; sourceTree = "<group>"; };
@@ -153,6 +152,7 @@
 		0C983BC71EBC552300A5A932 /* VideoContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoContentView.swift; sourceTree = "<group>"; };
 		0CB00FAB1ED6E453003B0596 /* UIImageView+Animation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImageView+Animation.swift"; sourceTree = "<group>"; };
 		0CB00FAE1ED7B09B003B0596 /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
+		0CB91E721F0EB8F000741F48 /* Container.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Container.swift; sourceTree = "<group>"; };
 		0CBDA6011ECAE54F0016675C /* AnimatedImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatedImage.swift; sourceTree = "<group>"; };
 		0CBDA6091ECAF7350016675C /* DisplayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DisplayView.swift; sourceTree = "<group>"; };
 		0CBDA60B1ECB3E330016675C /* NavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NavigationController.swift; sourceTree = "<group>"; };
@@ -224,7 +224,6 @@
 				0C220F6B1F0DF5ED00A13786 /* Asset.swift */,
 				0C220F691F0DF5D600A13786 /* Change.swift */,
 				0C220F6D1F0DF5FC00A13786 /* Collection.swift */,
-				0C220F711F0E161C00A13786 /* Container.swift */,
 				0C220F6F1F0E147200A13786 /* Displayable.swift */,
 				0C220F651F0DF4B100A13786 /* Library.swift */,
 				0C220F771F0E25E000A13786 /* Playable.swift */,
@@ -243,6 +242,7 @@
 				0C7D45071EAB7AE800D56AB5 /* BadgeView.swift */,
 				0C7D45081EAB7AE800D56AB5 /* CanvasView.swift */,
 				0C7D45091EAB7AE800D56AB5 /* ConsoleView.swift */,
+				0CB91E721F0EB8F000741F48 /* Container.swift */,
 				0C013AAF1ED5A023002617AE /* DataSource.swift */,
 				0CBDA6091ECAF7350016675C /* DisplayView.swift */,
 				0C013AA91ED52C47002617AE /* ErrorInfoView.swift */,
@@ -256,12 +256,12 @@
 				0CBDA60B1ECB3E330016675C /* NavigationController.swift */,
 				0CC5FABF1EE571E500821D0A /* PlayerView.swift */,
 				0C7D45101EAB7AE800D56AB5 /* ProgressView.swift */,
+				0C24977A1EEA95BC00CDD68C /* Protocol.swift */,
 				0C983BBD1EBB90BE00A5A932 /* ThumbView.swift */,
 				0C7D45111EAB7AE800D56AB5 /* TilingView.swift */,
 				0C7D45121EAB7AE800D56AB5 /* TilingViewCell.swift */,
 				0C7D45131EAB7AE800D56AB5 /* TilingViewLayout.swift */,
 				0C7D45141EAB7AE800D56AB5 /* TilingViewLayoutAttributes.swift */,
-				0C24977A1EEA95BC00CDD68C /* Protocol.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -478,7 +478,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				0CE49E3E1E7A3FE50058F5F8 /* PBXTargetDependency */,
+				0C8EBA4C1F0F943600D686FB /* PBXTargetDependency */,
 			);
 			name = Ubiquity.Tests;
 			productName = "Ubiquity-Tests";
@@ -607,7 +607,6 @@
 				0C7D45191EAB7AE800D56AB5 /* EventCenter.swift in Sources */,
 				0C2497771EEA940500CDD68C /* PickerAlbumController.swift in Sources */,
 				0C220F741F0E21D100A13786 /* Request.swift in Sources */,
-				0C220F721F0E161C00A13786 /* Container.swift in Sources */,
 				0C7D451B1EAB7AE800D56AB5 /* ExtendedToolbar.swift in Sources */,
 				0C7D45211EAB7AE800D56AB5 /* TilingViewCell.swift in Sources */,
 				0C983BBE1EBB90BE00A5A932 /* ThumbView.swift in Sources */,
@@ -630,6 +629,7 @@
 				0CE49E141E7A3F0B0058F5F8 /* Picker.swift in Sources */,
 				0CBDA6021ECAE54F0016675C /* AnimatedImage.swift in Sources */,
 				0C220F7A1F0E26BF00A13786 /* FastCache.swift in Sources */,
+				0CB91E731F0EB8F000741F48 /* Container.swift in Sources */,
 				0CB00FAC1ED6E453003B0596 /* UIImageView+Animation.swift in Sources */,
 				0CE49DC11E7A3E570058F5F8 /* Browser.swift in Sources */,
 			);
@@ -646,10 +646,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		0CE49E3E1E7A3FE50058F5F8 /* PBXTargetDependency */ = {
+		0C8EBA4C1F0F943600D686FB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 0CE49D771E7A3DAA0058F5F8 /* Ubiquity */;
-			targetProxy = 0CE49E3D1E7A3FE50058F5F8 /* PBXContainerItemProxy */;
+			targetProxy = 0C8EBA4B1F0F943600D686FB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

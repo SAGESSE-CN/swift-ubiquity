@@ -7,8 +7,8 @@
 //
 
 import UIKit
-
 import Ubiquity
+
 
 class PhotoLibraryController: UITabBarController {
     
@@ -24,7 +24,7 @@ class PhotoLibraryController: UITabBarController {
     private func _setup() {
         
         let library = PhotoLibrary()
-        let container = Browser(library: library)
+        let container = Ubiquity.Browser(library: library)
         
         //let vc1 = Ubiquity.BrowserAlbumZoomableController(library: library)
         let vc2 = BrowserAlbumListControllerMake(container)

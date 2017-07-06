@@ -29,10 +29,9 @@ public protocol Displayable: class {
     ///
     /// Hide an asset
     ///
-    /// - parameter asset: current display the resource
     /// - parameter container: the current the container
     ///
-    func endDisplay(with asset: Asset, container: Container)
+    func endDisplay(with container: Container)
 }
 
 /// The displayer delegate

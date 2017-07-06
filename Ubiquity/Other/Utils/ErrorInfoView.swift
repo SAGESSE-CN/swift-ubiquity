@@ -46,7 +46,7 @@ internal class ErrorInfoView: UIView {
         _titleLabel.setContentHuggingPriority(UILayoutPriorityRequired, for: .vertical)
         _titleLabel.setContentCompressionResistancePriority(UILayoutPriorityRequired, for: .vertical)
         
-        _subtitleLabel.font = UIFont.systemFont(ofSize: 16)
+        _subtitleLabel.font = UIFont.systemFont(ofSize: 17)
         _subtitleLabel.textColor = .lightGray
         _subtitleLabel.textAlignment = .center
         _subtitleLabel.numberOfLines = 0

@@ -19,12 +19,13 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
         _setup()
     }
     deinit {
-        // on destory if not the end display, need to manually call it
-        guard let asset = _asset, let container = _container else {
+        // if the cell is displaying, hidden after then destroyed
+        guard let container = _container else {
             return
         }
+        
         // call end display
-        endDisplay(with: asset, container: container)
+        endDisplay(with: container)
     }
     
     ///
@@ -58,7 +59,7 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
     }
     
     /// End display the asset
-    func endDisplay(with asset: Asset, container: Container) {
+    func endDisplay(with container: Container) {
         
         // when are requesting an image, please cancel it
         _request.map { request in

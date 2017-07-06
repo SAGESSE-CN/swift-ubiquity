@@ -398,7 +398,7 @@ internal extension Cache {
         
         func request(for subtask: RequestTask, transform: (Task, (@escaping (DispatchSemaphore?) -> Void), (@escaping (Request?) -> Void )) -> Void) {
             // if there is a cache, use it
-            if let (contents, response) = contents {
+            if let (_, response) = contents {
                 // update content on main thread
                 DispatchQueue.ub_asyncWithMain {
                     // get contents

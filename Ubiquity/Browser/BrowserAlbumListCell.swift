@@ -73,7 +73,7 @@ internal class BrowserAlbumListCell: UITableViewCell {
         }
     }
     /// End display the collection
-    func endDisplay(with collection: Collection, container: Container) {
+    func endDisplay(with container: Container) {
         //logger.trace?.write(collection.identifier)
         
         // when are requesting an image, please cancel it

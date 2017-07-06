@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0C220F631F0DDB9B00A13786 /* TestIndicatorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C224C411EAC55F7001ABB47 /* TestIndicatorViewController.swift */; };
 		0C2B78161ED4508E00925D18 /* PhotoLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2B78151ED4508E00925D18 /* PhotoLibrary.swift */; };
 		0C2B78181ED4513300925D18 /* PhotoLibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2B78171ED4513300925D18 /* PhotoLibraryController.swift */; };
 		0CB104C61EEFF589002CB7FA /* Ubiquity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CE49E4C1E7A411D0058F5F8 /* Ubiquity.framework */; };
@@ -191,7 +190,6 @@
 			files = (
 				0CE49EA71E7B978E0058F5F8 /* ViewController.swift in Sources */,
 				0CE49E221E7A3F690058F5F8 /* AppDelegate.swift in Sources */,
-				0C220F631F0DDB9B00A13786 /* TestIndicatorViewController.swift in Sources */,
 				0C2B78161ED4508E00925D18 /* PhotoLibrary.swift in Sources */,
 				0C2B78181ED4513300925D18 /* PhotoLibraryController.swift in Sources */,
 			);

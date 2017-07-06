@@ -47,17 +47,15 @@ internal class BrowserAlbumListController: UITableViewController {
             return
         }
         // get all photo albums
-        let collections = _container.request(forCollection: .regular)
-        // check for photos albums count
-        guard !collections.isEmpty else {
+        let collectionList = _container.request(forCollection: .regular)
+        guard collectionList.collectionCount != 0 else {
             // no data
             showError(with: "No Photos or Videos", subtitle: "")
             return
         }
-        // clear error info & display album
-        _collections = collections
+        _collectionList = collectionList
         
-        // clear all error info 
+        // clear error info & display album
         clearError()
     }
     
@@ -107,7 +105,7 @@ internal class BrowserAlbumListController: UITableViewController {
     }
     
     fileprivate var _container: Container
-    fileprivate var _collections: Array<Collection>?
+    fileprivate var _collectionList: CollectionList?
     
     fileprivate var _infoView: ErrorInfoView?
 }
@@ -116,7 +114,7 @@ internal class BrowserAlbumListController: UITableViewController {
 internal extension BrowserAlbumListController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return _collections?.count ?? 0
+        return _collectionList?.collectionCount ?? 0
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -128,36 +126,37 @@ internal extension BrowserAlbumListController {
     }
     
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        // try fetch cell
-        // try fetch collection
-        guard let collection = _collections?.ub_get(at: indexPath.row), let cell = cell as? BrowserAlbumListCell else {
+        // cell must king of `BrowserAlbumListCell`
+        guard let cell = cell as? BrowserAlbumListCell, let collection = _collectionList?.collection(at: indexPath.row) else {
             return
         }
+        
         cell.accessoryType = .disclosureIndicator
         cell.backgroundColor = .white
+        
         // update data for displaying
         cell.willDisplay(with: collection, container: _container)
     }
     override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        // try fetch cell
-        // try fetch collection
-        guard let collection = _collections?.ub_get(at: indexPath.row), let cell = cell as? BrowserAlbumListCell else {
+        // cell must king of `BrowserAlbumListCell`
+        guard let cell = cell as? BrowserAlbumListCell else {
             return
         }
+        
         // clear data for end display
-        cell.endDisplay(with: collection, container: _container)
+        cell.endDisplay(with: _container)
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         logger.trace?.write(indexPath)
         
         // try fetch collection
-        guard let collection = _collections?.ub_get(at: indexPath.row) else {
+        guard let collection = _collectionList?.collection(at: indexPath.row) else {
             return
         }
         logger.debug?.write("show album with: \(collection.title ?? "")")
         
-        let controller = BrowserAlbumController(source: .init(collection), container: _container)
+        let controller = BrowserAlbumController(source: .init(collection: collection), container: _container)
         //let controller = PickerAlbumController(source: .init(collection), container: _container)
         // push to next page
         show(controller, sender: indexPath)
@@ -168,7 +167,54 @@ internal extension BrowserAlbumListController {
 extension BrowserAlbumListController: ChangeObserver {
     /// Tells your observer that a set of changes has occurred in the Photos library.
     func library(_ library: Library, didChange change: Change) {
-        logger.debug?.write()
+        logger.trace?.write()
+        
+        // get current table view & data source
+        guard let tableView = self.tableView, let collectionList = _collectionList else {
+            return
+        }
+        
+        // albums is change?
+        guard let details = change.changeDetails(for: collectionList), let newCollectionList = details.after as? CollectionList else {
+            return
+        }
+        
+        // change notifications may be made on a background queue.
+        // re-dispatch to the main queue to update the UI.
+        DispatchQueue.main.async {
+            // keep the new fetch result for future use.
+            self._collectionList = newCollectionList
+            
+            // if there are incremental diffs, animate them in the table view.
+            guard details.hasIncrementalChanges else {
+                // reload the table view if incremental diffs are not available.
+                tableView.reloadData()
+                return
+            }
+            
+            tableView.beginUpdates()
+            
+            // For indexes to make sense, updates must be in this order:
+            // delete, insert, reload, move
+            if let rms = details.removedIndexes?.map({ IndexPath(item: $0, section:0) }) {
+                tableView.deleteRows(at: rms, with: .automatic)
+            }
+            
+            if let ins = details.insertedIndexes?.map({ IndexPath(item: $0, section:0) }) {
+                tableView.insertRows(at: ins, with: .automatic)
+            }
+            
+            if let rds = details.changedIndexes?.map({ IndexPath(item: $0, section:0) }) {
+                tableView.reloadRows(at: rds, with: .automatic)
+            }
+            
+            details.enumerateMoves { from, to in
+                tableView.moveRow(at: .init(row: from, section: 0),
+                                  to: .init(row: to, section: 0))
+            }
+            
+            tableView.endUpdates()
+        }
     }
 }
 

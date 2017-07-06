@@ -620,9 +620,8 @@ extension BrowserDetailController: UICollectionViewDelegateFlowLayout {
         return collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath)
     }
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        // try fetch cell
-        // try fetch asset
-        guard let asset = _source.asset(at: indexPath), let displayer = cell as? Displayable else {
+        // cell must king of `Displayable`
+        guard let displayer = cell as? Displayable, let asset = _source.asset(at: indexPath) else {
             return
         }
         
@@ -634,12 +633,12 @@ extension BrowserDetailController: UICollectionViewDelegateFlowLayout {
         displayer.delegate = self
     }
     override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        // try fetch cell
-        // try fetch asset
-        guard let asset = _source.asset(at: indexPath), let displayer = cell as? BrowserDetailCell else {
+        // cell must king of `Displayable`
+        guard let displayer = cell as? BrowserDetailCell else {
             return
         }
-        displayer.endDisplay(with: asset, container: _container)
+        
+        displayer.endDisplay(with: _container)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {

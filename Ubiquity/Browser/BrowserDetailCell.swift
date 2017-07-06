@@ -19,12 +19,13 @@ internal class BrowserDetailCell: UICollectionViewCell, Displayable {
         _setup()
     }
     deinit {
-        // on destory if not the end display, need to manually call it
-        guard let asset = _asset, let container = _container else {
+        // if the cell is displaying, hidden after then destroyed
+        guard let container = _container else {
             return
         }
+        
         // call end display
-        endDisplay(with: asset, container: container)
+        endDisplay(with: container)
     }
     
     /// The displayer delegate & event delegate
@@ -60,12 +61,12 @@ internal class BrowserDetailCell: UICollectionViewCell, Displayable {
     }
     
     /// End display the asset
-    func endDisplay(with asset: Asset, container: Container) {
-        logger.trace?.write(asset.identifier)
+    func endDisplay(with container: Container) {
+        logger.trace?.write()
         
         // update content
-        (_contentView as? Displayable)?.endDisplay(with: asset, container: container)
-        (_detailView as? Displayable)?.endDisplay(with: asset, container: container)
+        (_contentView as? Displayable)?.endDisplay(with: container)
+        (_detailView as? Displayable)?.endDisplay(with: container)
     }
     
     /// update content inset

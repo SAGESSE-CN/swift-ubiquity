@@ -68,7 +68,7 @@ extension VideoContentView: Displayable {
     }
     
     /// End display the asset
-    func endDisplay(with asset: Asset, container: Container) {
+    func endDisplay(with container: Container) {
         logger.trace?.write()
         
         // when are requesting an player item, please cancel it
@@ -89,7 +89,7 @@ extension VideoContentView: Displayable {
         _prepareing = false
         
         // clear content
-        _thumbView.endDisplay(with: asset, container: container)
+        _thumbView.endDisplay(with: container)
     }
 }
 extension VideoContentView: Playable {

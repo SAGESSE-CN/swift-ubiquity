@@ -37,6 +37,7 @@ internal class BrowserAlbumController: UICollectionViewController {
         return BrowserAlbumCell.self
     }
     
+    /// Reload data with authorization info
     func reloadData(with auth: AuthorizationStatus) {
         
         // check for authorization status
@@ -45,20 +46,49 @@ internal class BrowserAlbumController: UICollectionViewController {
             showError(with: "No Access Permissions", subtitle: "") // 此应用程序没有权限访问您的照片\n在\"设置-隐私-图片\"中开启后即可查看
             return
         }
-        let count = (0 ..< _source.numberOfSections).reduce(0) {
-            $0 + _source.numberOfItems(inSection: $1)
-        }
-        // check for assets count
-        guard count != 0 else {
-            // no data
-            showError(with: "No Photos or Videos", subtitle: "")
-            return
-        }
-        // clear error info & display asset
         _authorized = true
         
-        // clear all error info 
+        // check for assets count
+        guard _source.count != 0 else {
+            // count is zero, no data
+            showError(with: "No Photos or Videos", subtitle: "You can sync photos and videos onto your iPhone using iTunes.")
+            return
+        }
+        
+        // config title
+        title = _source.title
+        
+        // clear all error info
         clearError()
+        
+        // reload all data
+        reloadData()
+    }
+    /// Reload data data and scroll to init position
+    func reloadData() {
+        
+        // reload data
+        collectionView?.reloadData()
+        
+        // scroll to init position if needed
+        if let collectionView = collectionView {
+            // collect information
+            let edg = collectionView.contentInset
+            let size = collectionViewLayout.collectionViewContentSize
+            // scroll to bottom
+            // if the contentOffset over boundary, reset vaild contentOffset in collectionView internal
+            collectionView.contentOffset.y = size.height - (collectionView.frame.height - edg.bottom)
+        }
+        
+        // content is loaded
+        _prepared = true
+        _targetContentOffset = collectionView?.contentOffset ?? .zero
+        
+        
+        // update content offset
+        if let scrollView = collectionView {
+            scrollViewDidScroll(scrollView)
+        }
     }
     
     override func loadView() {
@@ -282,31 +312,9 @@ internal extension BrowserAlbumController {
     func clearError() {
         logger.trace?.write()
         
-        // config title
-        title = _source.title
-        
         // enable scroll
         collectionView?.isScrollEnabled = true
-        collectionView?.reloadData()
         collectionView?.alpha = 0
-        
-        if let collectionView = collectionView {
-            // collect information
-            let edg = collectionView.contentInset
-            let size = collectionViewLayout.collectionViewContentSize
-            // scroll to bottom
-            // if the contentOffset over boundary, reset vaild contentOffset in collectionView internal
-            collectionView.contentOffset.y = size.height - (collectionView.frame.height - edg.bottom)
-        }
-        
-        // content is loaded
-        _prepared = true
-        _targetContentOffset = collectionView?.contentOffset ?? .zero
-        
-        // update content offset
-        if let scrollView = collectionView {
-            scrollViewDidScroll(scrollView)
-        }
         
         // clear view
         _infoView?.removeFromSuperview()
@@ -380,20 +388,21 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
     }
     
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        // try fetch cell
-        // try fetch asset
-        guard let asset = _source.asset(at: indexPath), let displayer = cell as? Displayable, _prepared else {
+        // cell must king of `Displayable`
+        guard let displayer = cell as? Displayable, let asset = _source.asset(at: indexPath), _prepared else {
             return
         }
+        
+        // show asset with container and orientation
         displayer.willDisplay(with: asset, container: _container, orientation: .up)
     }
     override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        // try fetch cell
-        // try fetch asset
-        guard let asset = _source.asset(at: indexPath), let displayer = cell as? Displayable, _prepared else {
+        // cell must king of `Displayable`
+        guard let displayer = cell as? Displayable, _prepared else {
             return
         }
-        displayer.endDisplay(with: asset, container: _container)
+        
+        displayer.endDisplay(with: _container)
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -510,7 +519,7 @@ extension BrowserAlbumController: TransitioningDataSource {
 }
 
 /// Add change update support
-extension BrowserAlbumController: DetailControllerItemUpdateDelegate, ChangeObserver {
+extension BrowserAlbumController: DetailControllerItemUpdateDelegate {
     
     // the item will show
     internal func detailController(_ detailController: Any, willShowItem indexPath: IndexPath) {
@@ -529,10 +538,142 @@ extension BrowserAlbumController: DetailControllerItemUpdateDelegate, ChangeObse
     internal func detailController(_ detailController: Any, didShowItem indexPath: IndexPath) {
     }
     
+}
+
+/// Add change update support
+extension BrowserAlbumController: ChangeObserver {
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
     internal func library(_ library: Library, didChange change: Change) {
-        logger.debug?.write()
+        logger.trace?.write()
+        
+        // if the view controller no authorized, ignore all change
+        guard _authorized else {
+            return
+        }
+        
+        // get data source change
+        let changes = _source.collections.enumerated().flatMap { offset, collection -> (Int, ChangeDetails)? in
+            // the collection has any change?
+            guard let details = change.changeDetails(for: collection) else {
+                return nil
+            }
+            return (offset, details)
+        }
+        
+        // if changes is empty, the page no any change
+        guard !changes.isEmpty else {
+            return
+        }
+        
+        // change notifications may be made on a background queue.
+        // re-dispatch to the main queue to update the UI.
+        DispatchQueue.main.async {
+            // progressing
+            self.library(library, didChange: change, changes: changes)
+        }
     }
+    
+    /// Tells your observer that a set of changes has occurred in the Photos library.
+    internal func library(_ library: Library, didChange change: Change, changes: [(Int, ChangeDetails)]) {
+        
+        // get current table view
+        guard let collectionView = self.collectionView else {
+            return
+        }
+        
+        var hasCollectionDeleted = false
+        var hasAssetChanged = false
+        
+        var movedItems = Array<(IndexPath, IndexPath)>()
+        
+        var deleteItems = Array<IndexPath>()
+        var insertItems = Array<IndexPath>()
+        var reloadItems = Array<IndexPath>()
+        
+        var reloadSections = IndexSet()
+        
+        changes.reversed().forEach { section, details in
+            
+            // update data source
+            if let collection = details.after as? Collection {
+                // keep the new fetch result for future use.
+                _source.collections[section] = collection
+            } else {
+                // the collection is deleted
+                hasCollectionDeleted = true
+                _source.collections.remove(at: section)
+            }
+            
+            // has asset changes?
+            guard details.hasAssetChanges else {
+                return
+            }
+            hasAssetChanged = true
+            
+            // if there are incremental diffs, animate them in the table view.
+            guard details.hasIncrementalChanges else {
+                // reload the table view if incremental diffs are not available.
+                reloadSections.update(with: section)
+                return
+            }
+            
+            deleteItems.append(contentsOf: details.removedIndexes?.map({ .init(item: $0, section:0) }) ?? [])
+            insertItems.append(contentsOf: details.insertedIndexes?.map({ .init(item: $0, section:0) }) ?? [])
+            reloadItems.append(contentsOf: details.changedIndexes?.map({ .init(item: $0, section:0) }) ?? [])
+            
+            details.enumerateMoves { from, to in
+                movedItems.append((.init(row: from, section: section), .init(row: to, section: section)))
+            }
+        }
+        
+        // update collection change
+        title = _source.title
+        
+        // update collection asset count change
+        guard _source.count != 0 else {
+            // count is zero, no data
+            showError(with: "No Photos or Videos", subtitle: "You can sync photos and videos onto your iPhone using iTunes.")
+            reloadData()
+            return
+        }
+        
+        // clear error info if needed
+        clearError()
+        
+        // the content is prepared
+        _prepared = true
+        
+        // the collection is deleted?
+        guard !hasCollectionDeleted else {
+            // has any delete, must reload
+            reloadData()
+            return
+        }
+        
+        // the aset has any change?
+        guard hasAssetChanged else {
+            return
+        }
+        
+        // update collection
+        collectionView.performBatchUpdates({
+            
+            // reload the table view if incremental diffs are not available.
+            collectionView.reloadSections(reloadSections)
+            
+            // For indexes to make sense, updates must be in this order:
+            // delete, insert, reload, move
+            collectionView.deleteItems(at: deleteItems)
+            collectionView.insertItems(at: insertItems)
+            collectionView.reloadItems(at: reloadItems)
+            
+            // move
+            movedItems.forEach { from, to in
+                collectionView.moveItem(at: from, to: to)
+            }
+            
+        }, completion: nil)
+    }
+    
 }
-

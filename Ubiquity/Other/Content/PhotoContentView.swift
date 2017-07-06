@@ -75,7 +75,7 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
     }
     
     /// End display the asset
-    func endDisplay(with asset: Asset, container: Container) {
+    func endDisplay(with container: Container) {
         logger.trace?.write()
         
         // when are requesting an image, please cancel it

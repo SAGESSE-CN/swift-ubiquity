@@ -13,10 +13,11 @@ import Ubiquity
 internal class PhotoLibrary: NSObject, Ubiquity.Library {
     
     override init() {
+        _library = PHPhotoLibrary.shared()
         _manager = PHCachingImageManager.default() as! PHCachingImageManager
-//        _manager.allowsCachingHighQualityImages = false
         super.init()
     }
+    
     
     
     // MARK: Authorization
@@ -41,10 +42,37 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library {
     
     /// Registers an object to receive messages when objects in the photo library change.
     func register(_ observer: Ubiquity.ChangeObserver) {
+        
+        // the observer is added?
+        guard !_observers.contains(where: { $0.observer === observer }) else {
+            return
+        }
+        // no, add a observer
+        _observers.append(.init(observer: observer))
+        
+        // if count is 1, need to listen for system notifications
+        guard _observers.count == 1 else {
+            return
+        }
+        // no, add to system
+        _library.register(self)
     }
     
     /// Unregisters an object so that it no longer receives change messages.
     func unregisterObserver(_ observer: Ubiquity.ChangeObserver) {
+        
+        // clear all invaild observers
+        _observers = _observers.filter {
+            return $0.observer != nil
+                && $0.observer !== observer
+        }
+        
+        // if count is 0, need remove
+        guard _observers.count == 0 else {
+            return
+        }
+        // no, cancel listen
+        _library.unregisterChangeObserver(self)
     }
     
     
@@ -113,7 +141,11 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library {
     
     
     ///A Boolean value that determines whether the image manager prepares high-quality images.
-    var allowsCachingHighQualityImages: Bool = false
+    var allowsCachingHighQualityImages: Bool {
+        set { return _manager.allowsCachingHighQualityImages = newValue }
+        get { return _manager.allowsCachingHighQualityImages }
+    }
+    
     
     /// Prepares image representations of the specified assets for later use.
     func startCachingImages(for assets: Array<Ubiquity.Asset>, size: CGSize, mode: Ubiquity.RequestContentMode, options: Ubiquity.RequestOptions?) {
@@ -198,11 +230,20 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library {
         return albums
     }
     
+    fileprivate var _manager: PHCachingImageManager
+    fileprivate var _library: PHPhotoLibrary
     
-    private var _manager: PHCachingImageManager
+    fileprivate var _observers: Array<ChangeObserver> = []
 }
 
 internal extension PhotoLibrary {
+    
+    class ChangeObserver {
+        init(observer: Ubiquity.ChangeObserver) {
+            self.observer = observer
+        }
+        weak var observer: Ubiquity.ChangeObserver?
+    }
     
     class Response: Ubiquity.Response {
         
@@ -378,4 +419,15 @@ extension PHVideoRequestOptions {
         }
     }
 }
+extension PHChange: Ubiquity.Change {
+}
 
+extension PhotoLibrary: PHPhotoLibraryChangeObserver {
+
+    // This callback is invoked on an arbitrary serial queue. If you need this to be handled on a specific queue, you should redispatch appropriately
+    func photoLibraryDidChange(_ changeInstance: PHChange) {
+        _observers.forEach {
+            $0.observer?.library(self, didChange: changeInstance)
+        }
+    }
+}

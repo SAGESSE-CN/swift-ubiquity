@@ -24,10 +24,18 @@ internal class BrowserAlbumListController: UITableViewController {
     init(container: Container) {
         _container = container
         
+        // continue init the UI
         super.init(nibName: nil, bundle: nil)
+        
+        // listen albums any change
+        _container.register(self)
     }
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    deinit {
+        // cancel listen change
+        _container.unregisterObserver(self)
     }
     
     func reloadData(with auth: AuthorizationStatus) {
@@ -35,7 +43,7 @@ internal class BrowserAlbumListController: UITableViewController {
         // check for authorization status
         guard auth == .authorized else {
             // no permission
-            _showError(with: "No Access Permissions", subtitle: "") // 此应用程序没有权限访问您的照片\n在\"设置-隐私-图片\"中开启后即可查看
+            showError(with: "No Access Permissions", subtitle: "") // 此应用程序没有权限访问您的照片\n在\"设置-隐私-图片\"中开启后即可查看
             return
         }
         // get all photo albums
@@ -43,12 +51,14 @@ internal class BrowserAlbumListController: UITableViewController {
         // check for photos albums count
         guard !collections.isEmpty else {
             // no data
-            _showError(with: "No Photos or Videos", subtitle: "")
+            showError(with: "No Photos or Videos", subtitle: "")
             return
         }
         // clear error info & display album
         _collections = collections
-        _clearError()
+        
+        // clear all error info 
+        clearError()
     }
     
     override func loadView() {
@@ -72,6 +82,7 @@ internal class BrowserAlbumListController: UITableViewController {
             }
         }
     }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
@@ -85,6 +96,7 @@ internal class BrowserAlbumListController: UITableViewController {
         view.window?.showsFPS = true
         view.window?.backgroundColor = .white
     }
+    
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         
@@ -100,6 +112,7 @@ internal class BrowserAlbumListController: UITableViewController {
     fileprivate var _infoView: ErrorInfoView?
 }
 
+/// Add data source
 internal extension BrowserAlbumListController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -151,10 +164,20 @@ internal extension BrowserAlbumListController {
     }
 }
 
-/// container error display support
+/// Add change update support
+extension BrowserAlbumListController: ChangeObserver {
+    /// Tells your observer that a set of changes has occurred in the Photos library.
+    func library(_ library: Library, didChange change: Change) {
+        logger.debug?.write()
+    }
+}
+
+/// Add library error info display support
 internal extension BrowserAlbumListController {
     
-    fileprivate func _showError(with title: String, subtitle: String) {
+    /// Show error info in view controller
+    func showError(with title: String, subtitle: String) {
+        
         logger.trace?.write(title, subtitle)
         
         // clear view
@@ -177,7 +200,8 @@ internal extension BrowserAlbumListController {
         tableView.reloadData()
     }
     
-    fileprivate func _clearError() {
+    /// Hiden all error info
+    func clearError() {
         logger.trace?.write()
         
         // enable scroll

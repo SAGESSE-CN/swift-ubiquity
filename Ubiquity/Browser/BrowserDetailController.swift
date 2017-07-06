@@ -23,10 +23,18 @@ internal class BrowserDetailController: UICollectionViewController {
         collectionViewLayout.headerReferenceSize = CGSize(width: -extraContentInset.left, height: 0)
         collectionViewLayout.footerReferenceSize = CGSize(width: -extraContentInset.right, height: 0)
 
+        // continue init the UI
         super.init(collectionViewLayout: collectionViewLayout)
+        
+        // listen albums any change
+        _container.register(self)
     }
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    deinit {
+        // cancel listen change
+        _container.unregisterObserver(self)
     }
     
     /// collection view cell class provider
@@ -725,8 +733,8 @@ extension BrowserDetailController: UICollectionViewDelegateFlowLayout {
 //    }
 //}
 
-// add item rotation support
-extension BrowserDetailController: DetailControllerItemRotationDelegate {
+/// Add change update support
+extension BrowserDetailController: DetailControllerItemRotationDelegate, ChangeObserver {
     
     /// item should rotation
     func detailController(_ detailController: Any, shouldBeginRotationing asset: Asset) -> Bool {
@@ -740,6 +748,12 @@ extension BrowserDetailController: DetailControllerItemRotationDelegate {
         logger.debug?.write(asset.identifier, "is landscape: \(orientation.ub_isLandscape)")
         // save
         _orientationes[asset.identifier] = orientation
+    }
+    
+    
+    /// Tells your observer that a set of changes has occurred in the Photos library.
+    internal func library(_ library: Library, didChange change: Change) {
+        logger.debug?.write()
     }
 }
 

@@ -15,7 +15,11 @@ internal class BrowserAlbumController: UICollectionViewController {
         _source = source
         _container = container
         
+        // continue init the UI
         super.init(collectionViewLayout: BrowserAlbumLayout())
+        
+        // listen albums any change
+        _container.register(self)
     }
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -23,6 +27,9 @@ internal class BrowserAlbumController: UICollectionViewController {
     deinit {
         // clear all cache request when destroyed
         _resetCachedAssets()
+        
+        // cancel listen change
+        _container.unregisterObserver(self)
     }
     
     /// collection view cell class provider
@@ -35,7 +42,7 @@ internal class BrowserAlbumController: UICollectionViewController {
         // check for authorization status
         guard auth == .authorized else {
             // no permission
-            _showError(with: "No Access Permissions", subtitle: "") // 此应用程序没有权限访问您的照片\n在\"设置-隐私-图片\"中开启后即可查看
+            showError(with: "No Access Permissions", subtitle: "") // 此应用程序没有权限访问您的照片\n在\"设置-隐私-图片\"中开启后即可查看
             return
         }
         let count = (0 ..< _source.numberOfSections).reduce(0) {
@@ -44,12 +51,14 @@ internal class BrowserAlbumController: UICollectionViewController {
         // check for assets count
         guard count != 0 else {
             // no data
-            _showError(with: "No Photos or Videos", subtitle: "")
+            showError(with: "No Photos or Videos", subtitle: "")
             return
         }
         // clear error info & display asset
         _authorized = true
-        _clearError()
+        
+        // clear all error info 
+        clearError()
     }
     
     override func loadView() {
@@ -103,202 +112,7 @@ internal class BrowserAlbumController: UICollectionViewController {
     fileprivate var _infoView: ErrorInfoView?
 }
 
-
-///
-/// Provide collection view display support
-///
-extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
-    
-    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        // if there is prepared, continue to wait
-        guard _prepared else {
-            return
-        }
-        
-        // if isTracking is true, is a draging
-        if scrollView.isTracking {
-            // on draging, update target content offset
-           _targetContentOffset = scrollView.contentOffset
-        }
-        
-        // update the cache
-        _updateCachedAssets()
-    }
-    
-    override func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
-        // update target content offset
-        _targetContentOffset = .init(x: -scrollView.contentInset.left, y: -scrollView.contentInset.top)
-        // if transitions animation is started, can't scroll
-        return !_transitioning
-    }
-    override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        // update target content offset
-        _targetContentOffset = scrollView.contentOffset
-    }
-    override func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        // update target content offset
-        _targetContentOffset = targetContentOffset.move()
-    }
-    
-    override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        // without authorization, shows blank
-        guard _authorized else {
-            return 0
-        }
-        return _source.numberOfSections
-    }
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // without authorization, shows blank
-        guard _authorized else {
-            return 0
-        }
-        return _source.numberOfItems(inSection: section)
-    }
-    
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        return collectionView.dequeueReusableCell(withReuseIdentifier: "ASSET-IMAGE", for: indexPath)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        guard let layout = collectionViewLayout as? UICollectionViewFlowLayout else {
-            return .zero
-        }
-        return layout.itemSize
-    }
-    
-    override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        // try fetch cell
-        // try fetch asset
-        guard let asset = _source.asset(at: indexPath), let displayer = cell as? Displayable, _prepared else {
-            return
-        }
-        displayer.willDisplay(with: asset, container: _container, orientation: .up)
-    }
-    override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        // try fetch cell
-        // try fetch asset
-        guard let asset = _source.asset(at: indexPath), let displayer = cell as? Displayable, _prepared else {
-            return
-        }
-        displayer.endDisplay(with: asset, container: _container)
-    }
-    
-    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        logger.trace?.write(indexPath)
-        logger.debug?.write("show detail with: \(indexPath)")
-        
-        // make
-        let controller = BrowserDetailController(source: _source, container: _container, at: indexPath)
-        
-        controller.animator = Animator(source: self, destination: controller)
-        controller.updateDelegate = self
-        
-        show(controller, sender: indexPath)
-    }    
-}
-
-///
-/// Provide animatable transitioning support
-///
-extension BrowserAlbumController: TransitioningDataSource {
-    
-    func ub_transitionView(using animator: Animator, for operation: Animator.Operation) -> TransitioningView? {
-        logger.trace?.write()
-        
-        guard let indexPath = animator.indexPath else {
-            return nil
-        }
-        // get at current index path the cell
-        return collectionView?.cellForItem(at: indexPath) as? TransitioningView
-    }
-    
-    func ub_transitionShouldStart(using animator: Animator, for operation: Animator.Operation) -> Bool {
-        logger.trace?.write()
-        return true
-    }
-    func ub_transitionShouldStartInteractive(using animator: Animator, for operation: Animator.Operation) -> Bool {
-        logger.trace?.write()
-        return false
-    }
-    
-    func ub_transitionDidPrepare(using animator: Animator, context: TransitioningContext) {
-        logger.trace?.write()
-        
-        // must be attached to the collection view
-        guard let collectionView = collectionView, let indexPath = animator.indexPath  else {
-            return
-        }
-        // check the index path is displaying
-        if !collectionView.indexPathsForVisibleItems.contains(indexPath) {
-            // no, scroll to the cell at index path
-            collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: false)
-            // must call the layoutIfNeeded method, otherwise cell may not create
-            collectionView.layoutIfNeeded()
-        }
-        // fetch cell at index path, if is displayed
-        guard let cell = collectionView.cellForItem(at: indexPath) else {
-            return
-        }
-        // if it is to, reset cell boundary
-        if context.ub_operation == .pop || context.ub_operation == .dismiss {
-            let frame = cell.convert(cell.bounds, to: view)
-            let height = view.frame.height - topLayoutGuide.length - bottomLayoutGuide.length
-            
-            let y1 = -topLayoutGuide.length + frame.minY
-            let y2 = -topLayoutGuide.length + frame.maxY
-            
-            // reset content offset if needed
-            if y2 > height {
-                // bottom over boundary, reset to y2(bottom)
-                collectionView.contentOffset.y += y2 - height
-            } else if y1 < 0 {
-                // top over boundary, rest to y1(top)
-                collectionView.contentOffset.y += y1
-            }
-        }
-        cell.isHidden = true
-        
-        // current transitions animation is started
-        _transitioning = true
-    }
-    func ub_transitionWillEnd(using animator: Animator, context: TransitioningContext, transitionCompleted: Bool) {
-        logger.trace?.write(transitionCompleted)
-        // if the disappear operation and indexPath is exists
-        guard let indexPath = animator.indexPath, context.ub_operation.disappear else {
-            return
-        }
-        // fetch cell at index path, if is displayed
-        guard let cell = collectionView?.cellForItem(at: indexPath) else {
-            return
-        }
-        guard let snapshotView = context.ub_snapshotView, let newSnapshotView = snapshotView.snapshotView(afterScreenUpdates: false) else {
-            return
-        }
-        newSnapshotView.transform = snapshotView.transform
-        newSnapshotView.bounds = .init(origin: .zero, size: snapshotView.bounds.size)
-        newSnapshotView.center = .init(x: snapshotView.bounds.midX, y: snapshotView.bounds.midY)
-        cell.addSubview(newSnapshotView)
-        
-        UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseInOut, .allowUserInteraction], animations: {
-            newSnapshotView.alpha = 0
-        }, completion: { finished in
-            newSnapshotView.removeFromSuperview()
-        })
-    }
-    func ub_transitionDidEnd(using animator: Animator, transitionCompleted: Bool) {
-        logger.trace?.write(transitionCompleted)
-        // fetch cell at index path, if index path is nil ignore
-        guard let indexPath = animator.indexPath, let cell = collectionView?.cellForItem(at: indexPath) else {
-            return
-        }
-        cell.isHidden = false
-        
-        // current transitions animation is end
-        _transitioning = false
-    }
-}
-
-/// container asset cache support
+/// Add asset cache support
 internal extension BrowserAlbumController {
     
     fileprivate func _resetCachedAssets() {
@@ -437,10 +251,11 @@ internal extension BrowserAlbumController {
     }
 }
 
-/// container error display support
+/// Add library error info display support
 internal extension BrowserAlbumController {
     
-    fileprivate func _showError(with title: String, subtitle: String) {
+    /// Show error info in view controller
+    func showError(with title: String, subtitle: String) {
         logger.trace?.write(title, subtitle)
         
         // clear view
@@ -463,7 +278,8 @@ internal extension BrowserAlbumController {
         collectionView?.reloadData()
     }
     
-    fileprivate func _clearError() {
+    /// Hiden all error info
+    func clearError() {
         logger.trace?.write()
         
         // config title
@@ -503,8 +319,198 @@ internal extension BrowserAlbumController {
     }
 }
 
-// add item change support
-extension BrowserAlbumController: DetailControllerItemUpdateDelegate {
+/// Add collection view display support
+extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
+    
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        // if there is prepared, continue to wait
+        guard _prepared else {
+            return
+        }
+        
+        // if isTracking is true, is a draging
+        if scrollView.isTracking {
+            // on draging, update target content offset
+           _targetContentOffset = scrollView.contentOffset
+        }
+        
+        // update the cache
+        _updateCachedAssets()
+    }
+    
+    override func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
+        // update target content offset
+        _targetContentOffset = .init(x: -scrollView.contentInset.left, y: -scrollView.contentInset.top)
+        // if transitions animation is started, can't scroll
+        return !_transitioning
+    }
+    override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        // update target content offset
+        _targetContentOffset = scrollView.contentOffset
+    }
+    override func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        // update target content offset
+        _targetContentOffset = targetContentOffset.move()
+    }
+    
+    override func numberOfSections(in collectionView: UICollectionView) -> Int {
+        // without authorization, shows blank
+        guard _authorized else {
+            return 0
+        }
+        return _source.numberOfSections
+    }
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        // without authorization, shows blank
+        guard _authorized else {
+            return 0
+        }
+        return _source.numberOfItems(inSection: section)
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        return collectionView.dequeueReusableCell(withReuseIdentifier: "ASSET-IMAGE", for: indexPath)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        guard let layout = collectionViewLayout as? UICollectionViewFlowLayout else {
+            return .zero
+        }
+        return layout.itemSize
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        // try fetch cell
+        // try fetch asset
+        guard let asset = _source.asset(at: indexPath), let displayer = cell as? Displayable, _prepared else {
+            return
+        }
+        displayer.willDisplay(with: asset, container: _container, orientation: .up)
+    }
+    override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        // try fetch cell
+        // try fetch asset
+        guard let asset = _source.asset(at: indexPath), let displayer = cell as? Displayable, _prepared else {
+            return
+        }
+        displayer.endDisplay(with: asset, container: _container)
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        logger.trace?.write(indexPath)
+        logger.debug?.write("show detail with: \(indexPath)")
+        
+        // make
+        let controller = BrowserDetailController(source: _source, container: _container, at: indexPath)
+        
+        controller.animator = Animator(source: self, destination: controller)
+        controller.updateDelegate = self
+        
+        show(controller, sender: indexPath)
+    }    
+}
+
+/// Add animatable transitioning support
+extension BrowserAlbumController: TransitioningDataSource {
+    
+    func ub_transitionView(using animator: Animator, for operation: Animator.Operation) -> TransitioningView? {
+        logger.trace?.write()
+        
+        guard let indexPath = animator.indexPath else {
+            return nil
+        }
+        // get at current index path the cell
+        return collectionView?.cellForItem(at: indexPath) as? TransitioningView
+    }
+    
+    func ub_transitionShouldStart(using animator: Animator, for operation: Animator.Operation) -> Bool {
+        logger.trace?.write()
+        return true
+    }
+    func ub_transitionShouldStartInteractive(using animator: Animator, for operation: Animator.Operation) -> Bool {
+        logger.trace?.write()
+        return false
+    }
+    
+    func ub_transitionDidPrepare(using animator: Animator, context: TransitioningContext) {
+        logger.trace?.write()
+        
+        // must be attached to the collection view
+        guard let collectionView = collectionView, let indexPath = animator.indexPath  else {
+            return
+        }
+        // check the index path is displaying
+        if !collectionView.indexPathsForVisibleItems.contains(indexPath) {
+            // no, scroll to the cell at index path
+            collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: false)
+            // must call the layoutIfNeeded method, otherwise cell may not create
+            collectionView.layoutIfNeeded()
+        }
+        // fetch cell at index path, if is displayed
+        guard let cell = collectionView.cellForItem(at: indexPath) else {
+            return
+        }
+        // if it is to, reset cell boundary
+        if context.ub_operation == .pop || context.ub_operation == .dismiss {
+            let frame = cell.convert(cell.bounds, to: view)
+            let height = view.frame.height - topLayoutGuide.length - bottomLayoutGuide.length
+            
+            let y1 = -topLayoutGuide.length + frame.minY
+            let y2 = -topLayoutGuide.length + frame.maxY
+            
+            // reset content offset if needed
+            if y2 > height {
+                // bottom over boundary, reset to y2(bottom)
+                collectionView.contentOffset.y += y2 - height
+            } else if y1 < 0 {
+                // top over boundary, rest to y1(top)
+                collectionView.contentOffset.y += y1
+            }
+        }
+        cell.isHidden = true
+        
+        // current transitions animation is started
+        _transitioning = true
+    }
+    func ub_transitionWillEnd(using animator: Animator, context: TransitioningContext, transitionCompleted: Bool) {
+        logger.trace?.write(transitionCompleted)
+        // if the disappear operation and indexPath is exists
+        guard let indexPath = animator.indexPath, context.ub_operation.disappear else {
+            return
+        }
+        // fetch cell at index path, if is displayed
+        guard let cell = collectionView?.cellForItem(at: indexPath) else {
+            return
+        }
+        guard let snapshotView = context.ub_snapshotView, let newSnapshotView = snapshotView.snapshotView(afterScreenUpdates: false) else {
+            return
+        }
+        newSnapshotView.transform = snapshotView.transform
+        newSnapshotView.bounds = .init(origin: .zero, size: snapshotView.bounds.size)
+        newSnapshotView.center = .init(x: snapshotView.bounds.midX, y: snapshotView.bounds.midY)
+        cell.addSubview(newSnapshotView)
+        
+        UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseInOut, .allowUserInteraction], animations: {
+            newSnapshotView.alpha = 0
+        }, completion: { finished in
+            newSnapshotView.removeFromSuperview()
+        })
+    }
+    func ub_transitionDidEnd(using animator: Animator, transitionCompleted: Bool) {
+        logger.trace?.write(transitionCompleted)
+        // fetch cell at index path, if index path is nil ignore
+        guard let indexPath = animator.indexPath, let cell = collectionView?.cellForItem(at: indexPath) else {
+            return
+        }
+        cell.isHidden = false
+        
+        // current transitions animation is end
+        _transitioning = false
+    }
+}
+
+/// Add change update support
+extension BrowserAlbumController: DetailControllerItemUpdateDelegate, ChangeObserver {
     
     // the item will show
     internal func detailController(_ detailController: Any, willShowItem indexPath: IndexPath) {
@@ -518,8 +524,15 @@ extension BrowserAlbumController: DetailControllerItemUpdateDelegate {
         collectionView?.scrollToItem(at: indexPath, at: .centeredVertically, animated: false)
         collectionView?.layoutIfNeeded()
     }
+    
     // the item did show
     internal func detailController(_ detailController: Any, didShowItem indexPath: IndexPath) {
+    }
+    
+    
+    /// Tells your observer that a set of changes has occurred in the Photos library.
+    internal func library(_ library: Library, didChange change: Change) {
+        logger.debug?.write()
     }
 }
 

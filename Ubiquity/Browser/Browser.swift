@@ -27,11 +27,15 @@ open class Browser: NSObject, Container {
     
     /// Returns information about your app’s authorization for accessing the library.
     open func authorizationStatus() -> AuthorizationStatus {
+        logger.trace?.write()
+        
         return library.authorizationStatus()
     }
     
     /// Requests the user’s permission, if needed, for accessing the library.
     open func requestAuthorization(_ handler: @escaping (AuthorizationStatus) -> Swift.Void) {
+        logger.trace?.write()
+        
         return library.requestAuthorization(handler)
     }
     
@@ -41,11 +45,15 @@ open class Browser: NSObject, Container {
     
     /// Registers an object to receive messages when objects in the photo library change.
     open func register(_ observer: ChangeObserver) {
+        logger.trace?.write(observer)
+        
         return library.register(observer)
     }
     
     /// Unregisters an object so that it no longer receives change messages.
     open func unregisterObserver(_ observer: ChangeObserver) {
+        logger.trace?.write(observer)
+        
         return library.unregisterObserver(observer)
     }
     

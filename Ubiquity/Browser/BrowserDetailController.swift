@@ -825,7 +825,10 @@ extension BrowserDetailController: ChangeObserver {
                 collectionView.moveItem(at: from, to: to)
             }
             
-        }, completion: nil)
+        }, completion: { _ in
+            // cell animation perform finished, update index path
+            self.scrollViewDidScroll(collectionView)
+        })
     }
 }
 

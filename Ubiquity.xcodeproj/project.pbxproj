@@ -20,7 +20,7 @@
 		0C220F741F0E21D100A13786 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F731F0E21D100A13786 /* Request.swift */; };
 		0C220F761F0E220400A13786 /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F751F0E220400A13786 /* Response.swift */; };
 		0C220F781F0E25E000A13786 /* Playable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F771F0E25E000A13786 /* Playable.swift */; };
-		0C220F7A1F0E26BF00A13786 /* FastCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F791F0E26BF00A13786 /* FastCache.swift */; };
+		0C220F7A1F0E26BF00A13786 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F791F0E26BF00A13786 /* Cache.swift */; };
 		0C220F7C1F0E569E00A13786 /* Templatize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F7B1F0E569E00A13786 /* Templatize.swift */; };
 		0C2497771EEA940500CDD68C /* PickerAlbumController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2497761EEA940500CDD68C /* PickerAlbumController.swift */; };
 		0C2497791EEA942300CDD68C /* PickerAlbumCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2497781EEA942300CDD68C /* PickerAlbumCell.swift */; };
@@ -119,7 +119,7 @@
 		0C220F731F0E21D100A13786 /* Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		0C220F751F0E220400A13786 /* Response.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
 		0C220F771F0E25E000A13786 /* Playable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Playable.swift; sourceTree = "<group>"; };
-		0C220F791F0E26BF00A13786 /* FastCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FastCache.swift; sourceTree = "<group>"; };
+		0C220F791F0E26BF00A13786 /* Cache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		0C220F7B1F0E569E00A13786 /* Templatize.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Templatize.swift; sourceTree = "<group>"; };
 		0C2497761EEA940500CDD68C /* PickerAlbumController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PickerAlbumController.swift; sourceTree = "<group>"; };
 		0C2497781EEA942300CDD68C /* PickerAlbumCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PickerAlbumCell.swift; sourceTree = "<group>"; };
@@ -249,7 +249,7 @@
 				0C7D450A1EAB7AE800D56AB5 /* EventCenter.swift */,
 				0C7D450B1EAB7AE800D56AB5 /* ExtendedItem.swift */,
 				0C7D450C1EAB7AE800D56AB5 /* ExtendedToolbar.swift */,
-				0C220F791F0E26BF00A13786 /* FastCache.swift */,
+				0C220F791F0E26BF00A13786 /* Cache.swift */,
 				0C7D450D1EAB7AE800D56AB5 /* IndicatorItem.swift */,
 				0C7D450E1EAB7AE800D56AB5 /* IndicatorView.swift */,
 				0C7D450F1EAB7AE800D56AB5 /* IndicatorViewCell.swift */,
@@ -628,7 +628,7 @@
 				0C2B781C1ED451DD00925D18 /* BrowserAlbumZoomableController.swift in Sources */,
 				0CE49E141E7A3F0B0058F5F8 /* Picker.swift in Sources */,
 				0CBDA6021ECAE54F0016675C /* AnimatedImage.swift in Sources */,
-				0C220F7A1F0E26BF00A13786 /* FastCache.swift in Sources */,
+				0C220F7A1F0E26BF00A13786 /* Cache.swift in Sources */,
 				0CB91E731F0EB8F000741F48 /* Container.swift in Sources */,
 				0CB00FAC1ED6E453003B0596 /* UIImageView+Animation.swift in Sources */,
 				0CE49DC11E7A3E570058F5F8 /* Browser.swift in Sources */,

@@ -407,13 +407,12 @@ internal extension Cache {
                     }
                     subtask.notify(contents, response: response, version: self.version)
                 }
+                logger.debug?.write("hit cache: \(asset.identifier) - \(subtask.format)")
                 
                 // if the task has been completed, do not create a new subtask
                 if !response.cancelled && !response.downloading && !response.degraded {
-                    logger.debug?.write("\(asset.identifier) - response[completed] hit cache")
                     return
                 }
-                logger.debug?.write("\(asset.identifier) - response hit cache")
             }
             
             // add to task queue
@@ -575,22 +574,7 @@ internal extension Cache {
         }
     }
     
-    internal class Format: Hashable {
-        
-        static func ==(lhs: Format, rhs: Format) -> Bool {
-            // if the memory is the same, the results will be the same
-            guard lhs !== rhs else {
-                return true
-            }
-            // if the hash value is different, the results will be different
-            guard lhs._hashValue == rhs._hashValue else {
-                return false
-            }
-            // complute result
-            return lhs._mode == rhs._mode
-                && lhs._width == rhs._width
-                && lhs._height == rhs._height
-        }
+    internal class Format: Hashable, CustomStringConvertible {
         
         init(size: CGSize, mode: RequestContentMode) {
             _mode = mode.rawValue
@@ -608,6 +592,25 @@ internal extension Cache {
         
         var hashValue: Int {
             return _hashValue
+        }
+        
+        var description: String {
+            return .init(format: "%zx(%zd, %zd)", _hashValue, _width * _width, _height * _height)
+        }
+        
+        static func ==(lhs: Format, rhs: Format) -> Bool {
+            // if the memory is the same, the results will be the same
+            guard lhs !== rhs else {
+                return true
+            }
+            // if the hash value is different, the results will be different
+            guard lhs._hashValue == rhs._hashValue else {
+                return false
+            }
+            // complute result
+            return lhs._mode == rhs._mode
+                && lhs._width == rhs._width
+                && lhs._height == rhs._height
         }
         
         private var _mode: Int

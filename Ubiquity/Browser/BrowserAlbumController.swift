@@ -115,6 +115,7 @@ internal class BrowserAlbumController: UICollectionViewController {
         }
         
         title = _source.title
+        collectionView?.alpha = 0
         navigationController?.isToolbarHidden = false
     }
     override func viewWillLayoutSubviews() {
@@ -312,17 +313,24 @@ internal extension BrowserAlbumController {
     func clearError() {
         logger.trace?.write()
         
-        // enable scroll
-        collectionView?.isScrollEnabled = true
-        collectionView?.alpha = 0
-        
         // clear view
         _infoView?.removeFromSuperview()
         _infoView = nil
         
-        // show animation
-        UIView.animate(withDuration: 0.25) {  [weak collectionView] in
-            collectionView?.alpha = 1
+        // get current collectio nview
+        guard let collectionView = collectionView else {
+            return
+        }
+        
+        // enable scroll
+        collectionView.isScrollEnabled = true
+        
+        // need appear animation?
+        guard collectionView.alpha <= 0 else {
+            return
+        }
+        UIView.animate(withDuration: 0.25) {
+            collectionView.alpha = 1
         }
     }
 }

@@ -529,6 +529,12 @@ extension BrowserAlbumController: DetailControllerItemUpdateDelegate {
         }
         logger.debug?.write("over screen, scroll to \(indexPath)")
         
+        
+        guard indexPath.section < _source.numberOfSections
+            && indexPath.item < _source.numberOfItems(inSection: indexPath.section) else {
+            return
+        }
+        
         // no displaying, scroll to item
         collectionView?.scrollToItem(at: indexPath, at: .centeredVertically, animated: false)
         collectionView?.layoutIfNeeded()
@@ -655,6 +661,8 @@ extension BrowserAlbumController: ChangeObserver {
         guard hasAssetChanged else {
             return
         }
+        
+        logger.debug?.write(insertItems, deleteItems, reloadItems, movedItems, reloadSections)
         
         // update collection
         collectionView.performBatchUpdates({

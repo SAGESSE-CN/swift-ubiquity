@@ -63,6 +63,7 @@ internal class BrowserAlbumListController: UITableViewController {
         super.loadView()
         // setup controller
         title = "Albums"
+        clearsSelectionOnViewWillAppear = false
         
         // setup table view
         tableView.register(BrowserAlbumListCell.self, forCellReuseIdentifier: "ASSET")
@@ -81,15 +82,26 @@ internal class BrowserAlbumListController: UITableViewController {
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // start clear
+        _selectedItem.map {
+            tableView?.deselectRow(at: $0, animated: animated)
+        }
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        // cancel clear
+        _selectedItem.map {
+            tableView?.selectRow(at: $0, animated: animated, scrollPosition: .none)
+        }
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        // if the selected cell, need to deselect
-        tableView.visibleCells.forEach { cell in
-            cell.setSelected(false, animated: animated)
-            cell.setHighlighted(false, animated: animated)
-        }
-        
+       
         // show fps
         view.window?.showsFPS = true
         view.window?.backgroundColor = .white
@@ -105,6 +117,7 @@ internal class BrowserAlbumListController: UITableViewController {
     }
     
     fileprivate var _container: Container
+    fileprivate var _selectedItem: IndexPath?
     fileprivate var _collectionList: CollectionList?
     
     fileprivate var _infoView: ErrorInfoView?
@@ -154,6 +167,8 @@ internal extension BrowserAlbumListController {
         guard let collection = _collectionList?.collection(at: indexPath.row) else {
             return
         }
+        _selectedItem = indexPath
+        
         logger.debug?.write("show album with: \(collection.title ?? "")")
         
         let controller = BrowserAlbumController(source: .init(collection: collection), container: _container)

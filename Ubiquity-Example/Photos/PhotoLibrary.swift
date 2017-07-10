@@ -166,13 +166,17 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
             return nil
         }
         
+        
+        // merge collection and result
+        let newCollection = content?.objectAfterChanges as? PHAssetCollection ?? collection
+        let newResult = assets?.fetchResultAfterChanges ?? result
+        
         // generate new chagne details for collection
-        let details = PhotoChangeDetails(before: self, after: nil)
+        let details = PhotoChangeDetails(before: self, after: PhotoCollection(collection: newCollection, result: newResult))
         
         // if after is nil, the collection is deleted
-        if let newCollection = content?.objectAfterChanges as? PHAssetCollection {
-            // merge collection and result
-            details.after = PhotoCollection(collection: newCollection, result: assets?.fetchResultAfterChanges ?? result)
+        if let content = content, content.objectAfterChanges == nil {
+            details.after = nil
         }
         
         // update option info

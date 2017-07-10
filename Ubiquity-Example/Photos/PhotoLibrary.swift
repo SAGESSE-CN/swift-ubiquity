@@ -127,8 +127,16 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
         return _assets?.count ?? result.count
     }
     /// The number of assets in the asset collection.
-    func assetCount(with type: AssetMediaType) -> Int {
-        return _assets?.count ?? result.count
+    func assetCount(with type: Ubiquity.AssetMediaType) -> Int {
+        // hit cache?
+        if let count = _cachedCount[type] {
+            return count
+        }
+        let options = PHFetchOptions()
+        options.predicate = NSPredicate(format: "mediaType = \(type.rawValue)")
+        let count = PHAsset.fetchAssets(in: collection, options: options).count
+        _cachedCount[type] = count
+        return count
     }
     
     /// Retrieves assets from the specified asset collection.
@@ -220,6 +228,7 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
     private var _result: PHFetchResult<PHAsset>?
     private var _collection: PHAssetCollection
     private var _localIdentifier: String?
+    private var _cachedCount: Dictionary<Ubiquity.AssetMediaType, Int> = [:]
 }
 private class PhotoCollectionList: Ubiquity.CollectionList {
     
@@ -528,7 +537,6 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library, Photos.PHPhotoLibraryCh
     /// Create a library
     override init() {
         _library = PHPhotoLibrary.shared()
-        _cache = PHCachingImageManager.default() as! PHCachingImageManager
         super.init()
     }
     
@@ -543,6 +551,9 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library, Photos.PHPhotoLibraryCh
     func requestAuthorization(_ handler: @escaping (Ubiquity.AuthorizationStatus) -> Swift.Void) {
         // convert authorization status
         PHPhotoLibrary.requestAuthorization {
+            // load image manager
+            self._cache.allowsCachingHighQualityImages = true
+            // authorization complete
             handler(_convert(forStatus: $0))
         }
     }
@@ -715,9 +726,9 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library, Photos.PHPhotoLibraryCh
         }
     }
     
-    private var _cache: PHCachingImageManager
     private var _library: PHPhotoLibrary
     
+    private lazy var _cache: PHCachingImageManager = PHCachingImageManager.default() as! PHCachingImageManager
     private lazy var _observers: Array<PhotoChangeForwarder> = []
     private lazy var _collectionLists: Dictionary<Ubiquity.CollectionType, PhotoCollectionList> = [:]
 }

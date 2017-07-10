@@ -167,8 +167,8 @@ internal class BrowserDetailController: UICollectionViewController {
     
     // MARK: private ivar
     
-    fileprivate let _source: DataSource
-    fileprivate let _container: Container
+    fileprivate var _source: DataSource
+    fileprivate var _container: Container
     
     // transition
     fileprivate var _transitionIsInteractiving: Bool = false
@@ -487,6 +487,12 @@ extension BrowserDetailController: TransitioningDataSource {
     func ub_transitionShouldStart(using animator: Animator, for operation: Animator.Operation) -> Bool {
         logger.trace?.write()
         animator.indexPath = _itemIndexPath
+        
+        // check the boundary
+        guard _itemIndexPath.section < _source.numberOfSections && _itemIndexPath.item < _source.numberOfItems(inSection: _itemIndexPath.section) else {
+            return false
+        }
+        
         return true
     }
     func ub_transitionShouldStartInteractive(using animator: Animator, for operation: Animator.Operation) -> Bool {
@@ -733,7 +739,7 @@ extension BrowserDetailController: UICollectionViewDelegateFlowLayout {
 //}
 
 /// Add change update support
-extension BrowserDetailController: DetailControllerItemRotationDelegate, ChangeObserver {
+extension BrowserDetailController: DetailControllerItemRotationDelegate {
     
     /// item should rotation
     func detailController(_ detailController: Any, shouldBeginRotationing asset: Asset) -> Bool {
@@ -748,15 +754,82 @@ extension BrowserDetailController: DetailControllerItemRotationDelegate, ChangeO
         // save
         _orientationes[asset.identifier] = orientation
     }
-    
+}
+
+/// Add change update support
+extension BrowserDetailController: ChangeObserver {
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
     internal func library(_ library: Library, didChange change: Change) {
-        logger.debug?.write()
+        logger.trace?.write()
+        
+        // get data source change
+        guard let details = _source.changeDetails(for: change) else {
+            return // no change
+        }
+        
+        // change notifications may be made on a background queue.
+        // re-dispatch to the main queue to update the UI.
+        DispatchQueue.main.async {
+            // progressing
+            self.library(library, didChange: change, details: details)
+        }
+    }
+    
+    /// Tells your observer that a set of changes has occurred in the Photos library.
+    internal func library(_ library: Library, didChange change: Change, details: DataSourceChangeDetails) {
+        
+        // get collection view and new data source
+        guard let collectionView = collectionView, let source = details.after else {
+            return
+        }
+        // keep the new fetch result for future use.
+        _source = source
+        
+        // update collection asset count change
+        guard source.count != 0 else {
+            // count is zero, no data
+            collectionView.reloadData()
+            navigationController?.popViewController(animated: true)
+            return
+        }
+        
+        // the collection is deleted?
+        guard !details.wasDeleted else {
+            // has any delete, must reload
+            collectionView.reloadData()
+            return
+        }
+        
+        // the aset has any change?
+        guard details.hasAssetChanges else {
+            return
+        }
+        
+        // update collection
+        collectionView.performBatchUpdates({
+            
+            // reload the table view if incremental diffs are not available.
+            details.reloadSections.map {
+                collectionView.reloadSections($0)
+            }
+            
+            // For indexes to make sense, updates must be in this order:
+            // delete, insert, reload, move
+            details.removeItems.map { collectionView.deleteItems(at: $0) }
+            details.insertItems.map { collectionView.insertItems(at: $0) }
+            details.reloadItems.map { collectionView.reloadItems(at: $0) }
+            
+            // move
+            details.enumerateMoves { from, to in
+                collectionView.moveItem(at: from, to: to)
+            }
+            
+        }, completion: nil)
     }
 }
 
-// add dismiss gesture recognizer support
+// Add dismiss gesture recognizer support
 extension BrowserDetailController: UIGestureRecognizerDelegate {
     
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {

@@ -126,8 +126,8 @@ internal class BrowserAlbumController: UICollectionViewController {
         }
     }
     
-    fileprivate let _source: DataSource
-    fileprivate let _container: Container
+    fileprivate var _source: DataSource
+    fileprivate var _container: Container
     
     fileprivate var _prepared: Bool = false
     fileprivate var _authorized: Bool = false
@@ -434,6 +434,7 @@ extension BrowserAlbumController: TransitioningDataSource {
     
     func ub_transitionShouldStart(using animator: Animator, for operation: Animator.Operation) -> Bool {
         logger.trace?.write()
+        
         return true
     }
     func ub_transitionShouldStartInteractive(using animator: Animator, for operation: Animator.Operation) -> Bool {
@@ -559,85 +560,34 @@ extension BrowserAlbumController: ChangeObserver {
         }
         
         // get data source change
-        let changes = _source.collections.enumerated().flatMap { offset, collection -> (Int, ChangeDetails)? in
-            // the collection has any change?
-            guard let details = change.changeDetails(for: collection) else {
-                return nil
-            }
-            return (offset, details)
-        }
-        
-        // if changes is empty, the page no any change
-        guard !changes.isEmpty else {
-            return
+        guard let details = _source.changeDetails(for: change) else {
+            return // no change
         }
         
         // change notifications may be made on a background queue.
         // re-dispatch to the main queue to update the UI.
         DispatchQueue.main.async {
             // progressing
-            self.library(library, didChange: change, changes: changes)
+            self.library(library, didChange: change, details: details)
         }
     }
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
-    internal func library(_ library: Library, didChange change: Change, changes: [(Int, ChangeDetails)]) {
+    internal func library(_ library: Library, didChange change: Change, details: DataSourceChangeDetails) {
         
-        // get current table view
-        guard let collectionView = self.collectionView else {
+        // get collection view and new data source
+        guard let collectionView = collectionView, let source = details.after else {
             return
         }
         
-        var hasCollectionDeleted = false
-        var hasAssetChanged = false
-        
-        var movedItems = Array<(IndexPath, IndexPath)>()
-        
-        var deleteItems = Array<IndexPath>()
-        var insertItems = Array<IndexPath>()
-        var reloadItems = Array<IndexPath>()
-        
-        var reloadSections = IndexSet()
-        
-        changes.reversed().forEach { section, details in
-            
-            // update data source
-            if let collection = details.after as? Collection {
-                // keep the new fetch result for future use.
-                _source.collections[section] = collection
-            } else {
-                // the collection is deleted
-                hasCollectionDeleted = true
-                _source.collections.remove(at: section)
-            }
-            
-            // has asset changes?
-            guard details.hasAssetChanges else {
-                return
-            }
-            hasAssetChanged = true
-            
-            // if there are incremental diffs, animate them in the table view.
-            guard details.hasIncrementalChanges else {
-                // reload the table view if incremental diffs are not available.
-                reloadSections.update(with: section)
-                return
-            }
-            
-            deleteItems.append(contentsOf: details.removedIndexes?.map({ .init(item: $0, section:0) }) ?? [])
-            insertItems.append(contentsOf: details.insertedIndexes?.map({ .init(item: $0, section:0) }) ?? [])
-            reloadItems.append(contentsOf: details.changedIndexes?.map({ .init(item: $0, section:0) }) ?? [])
-            
-            details.enumerateMoves { from, to in
-                movedItems.append((.init(row: from, section: section), .init(row: to, section: section)))
-            }
-        }
+        // keep the new fetch result for future use.
+        _source = source
         
         // update collection change
-        title = _source.title
+        title = source.title
         
         // update collection asset count change
-        guard _source.count != 0 else {
+        guard source.count != 0 else {
             // count is zero, no data
             showError(with: "No Photos or Videos", subtitle: "You can sync photos and videos onto your iPhone using iTunes.")
             reloadData()
@@ -651,33 +601,33 @@ extension BrowserAlbumController: ChangeObserver {
         _prepared = true
         
         // the collection is deleted?
-        guard !hasCollectionDeleted else {
+        guard !details.wasDeleted else {
             // has any delete, must reload
             reloadData()
             return
         }
         
         // the aset has any change?
-        guard hasAssetChanged else {
+        guard details.hasAssetChanges else {
             return
         }
-        
-        logger.debug?.write(insertItems, deleteItems, reloadItems, movedItems, reloadSections)
         
         // update collection
         collectionView.performBatchUpdates({
             
             // reload the table view if incremental diffs are not available.
-            collectionView.reloadSections(reloadSections)
+            details.reloadSections.map {
+                collectionView.reloadSections($0)
+            }
             
             // For indexes to make sense, updates must be in this order:
             // delete, insert, reload, move
-            collectionView.deleteItems(at: deleteItems)
-            collectionView.insertItems(at: insertItems)
-            collectionView.reloadItems(at: reloadItems)
+            details.removeItems.map { collectionView.deleteItems(at: $0) }
+            details.insertItems.map { collectionView.insertItems(at: $0) }
+            details.reloadItems.map { collectionView.reloadItems(at: $0) }
             
             // move
-            movedItems.forEach { from, to in
+            details.enumerateMoves { from, to in
                 collectionView.moveItem(at: from, to: to)
             }
             

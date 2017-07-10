@@ -53,7 +53,7 @@ internal class BrowserAlbumListCell: UITableViewCell {
             _badgeView.leftItem = nil
             _badgeView.backgroundImage = nil
         }
-        
+
         // make options
         let size = _thumbView.bounds.size.ub_fitWithScreen
         let options = DataSourceOptions()

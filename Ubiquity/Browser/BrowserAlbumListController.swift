@@ -182,8 +182,6 @@ internal extension BrowserAlbumListController {
 extension BrowserAlbumListController: ChangeObserver {
     /// Tells your observer that a set of changes has occurred in the Photos library.
     func library(_ library: Library, didChange change: Change) {
-        logger.trace?.write()
-        
         // get current table view & data source
         guard let tableView = self.tableView, let collectionList = _collectionList else {
             return
@@ -193,6 +191,7 @@ extension BrowserAlbumListController: ChangeObserver {
         guard let details = change.changeDetails(for: collectionList), let newCollectionList = details.after as? CollectionList else {
             return
         }
+        logger.trace?.write()
         
         // change notifications may be made on a background queue.
         // re-dispatch to the main queue to update the UI.
@@ -220,6 +219,7 @@ extension BrowserAlbumListController: ChangeObserver {
             }
             
             if let rds = details.changedIndexes?.map({ IndexPath(item: $0, section:0) }) {
+                
                 tableView.reloadRows(at: rds, with: .automatic)
             }
             

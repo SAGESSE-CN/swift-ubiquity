@@ -761,12 +761,11 @@ extension BrowserDetailController: ChangeObserver {
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
     internal func library(_ library: Library, didChange change: Change) {
-        logger.trace?.write()
-        
         // get data source change
         guard let details = _source.changeDetails(for: change) else {
             return // no change
         }
+        logger.trace?.write()
         
         // change notifications may be made on a background queue.
         // re-dispatch to the main queue to update the UI.

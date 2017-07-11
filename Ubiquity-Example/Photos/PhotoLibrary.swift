@@ -176,11 +176,11 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
         
         
         // merge collection and result
-        let newCollection = content?.objectAfterChanges as? PHAssetCollection ?? collection
         let newResult = assets?.fetchResultAfterChanges ?? result
+        let newCollection = PhotoCollection(collection: content?.objectAfterChanges as? PHAssetCollection ?? collection, result: newResult)
         
         // generate new chagne details for collection
-        let details = PhotoChangeDetails(before: self, after: PhotoCollection(collection: newCollection, result: newResult))
+        let details = PhotoChangeDetails(before: self, after: newCollection)
         
         // if after is nil, the collection is deleted
         if let content = content, content.objectAfterChanges == nil {
@@ -192,8 +192,12 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
         details.hasIncrementalChanges = assets?.hasIncrementalChanges ?? false
         details.hasMoves = assets?.hasMoves ?? false
         
+//        (lldb) po assets!.changedObjects.first!
+//        <PHAsset: 0x1578d8b00> 48F511E5-8838-4F09-A913-01F9D858DB04/L0/001 mediaType=1/0, sourceType=1, (1440x900), creationDate=2014-10-21 20:01:02 +0000, location=0, hidden=0, favorite=0
+//        (lldb) po (self.asset(at: 1501) as! PhotoAsset).asset
+//        <PHAsset: 0x157c01330> 48F511E5-8838-4F09-A913-01F9D858DB04/L0/001 mediaType=1/0, sourceType=1, (1440x900), creationDate=2014-10-21 20:01:02 +0000, location=0, hidden=0, favorite=0
+        
         // update change indexes info
-        details.changedIndexes = assets?.changedIndexes
         details.removedIndexes = assets?.removedIndexes
         details.insertedIndexes = assets?.insertedIndexes
         details.enumerateMoves { from, to in
@@ -202,6 +206,28 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
                 details.movedIndexes = []
             }
             details.movedIndexes?.append((from, to))
+        }
+        
+        // filter preloading
+        details.changedIndexes = assets?.changedIndexes?.enumerated().reduce(IndexSet()) {
+            // fetch asset
+            guard let lhs = assets?.changedObjects[$1.offset], let rhs = (asset(at: $1.element) as? PhotoAsset)?.asset else {
+                return $0
+            }
+            
+            // has any change?
+            guard lhs.localIdentifier != rhs.localIdentifier || lhs.modificationDate != rhs.modificationDate else {
+                return $0
+            }
+            
+            // merge
+            return $0.union(.init(integer: $1.element))
+        }
+        
+        // if all is empty, ignore the event
+        let allIsEmpty = ![details.removedIndexes?.isEmpty, details.insertedIndexes?.isEmpty, details.changedIndexes?.isEmpty, details.movedIndexes?.isEmpty].contains { !($0 ?? true) }
+        if allIsEmpty && content == nil && assetCount == newCollection.assetCount {
+            return nil
         }
         
         return details

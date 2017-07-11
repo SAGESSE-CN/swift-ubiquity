@@ -263,7 +263,7 @@ internal extension Cache {
             }
             
             // clear memory
-            _tasks[subtask.format]?.removeObject(forKey: subtask.asset.identifier)
+            self._tasks[subtask.format]?.removeObject(forKey: subtask.asset.identifier)
             
             // get task cached response
             if let (_, response) = task.contents {

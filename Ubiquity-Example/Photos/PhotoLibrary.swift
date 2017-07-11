@@ -135,9 +135,7 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
         if let count = _cachedCount[type] {
             return count
         }
-        let options = PHFetchOptions()
-        options.predicate = NSPredicate(format: "mediaType = \(type.rawValue)")
-        let count = PHAsset.fetchAssets(in: collection, options: options).count
+        let count = result.countOfAssets(with: PHAssetMediaType(rawValue: type.rawValue) ?? .unknown)
         _cachedCount[type] = count
         return count
     }
@@ -195,11 +193,6 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
         details.hasIncrementalChanges = assets?.hasIncrementalChanges ?? false
         details.hasMoves = assets?.hasMoves ?? false
         
-//        (lldb) po assets!.changedObjects.first!
-//        <PHAsset: 0x1578d8b00> 48F511E5-8838-4F09-A913-01F9D858DB04/L0/001 mediaType=1/0, sourceType=1, (1440x900), creationDate=2014-10-21 20:01:02 +0000, location=0, hidden=0, favorite=0
-//        (lldb) po (self.asset(at: 1501) as! PhotoAsset).asset
-//        <PHAsset: 0x157c01330> 48F511E5-8838-4F09-A913-01F9D858DB04/L0/001 mediaType=1/0, sourceType=1, (1440x900), creationDate=2014-10-21 20:01:02 +0000, location=0, hidden=0, favorite=0
-        
         // update change indexes info
         details.removedIndexes = assets?.removedIndexes
         details.insertedIndexes = assets?.insertedIndexes
@@ -212,19 +205,21 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
         }
         
         // filter preloading
-        details.changedIndexes = assets?.changedIndexes?.enumerated().reduce(IndexSet()) {
-            // fetch asset
-            guard let lhs = assets?.changedObjects[$1.offset], let rhs = (asset(at: $1.element) as? PhotoAsset)?.asset else {
+        details.changedIndexes = assets?.changedObjects.reduce(IndexSet()) {
+            // fetch asset index
+            let index = result.index(of: $1)
+            guard index != NSNotFound else {
                 return $0
             }
-            
+            let rhs = $1
+            let lhs = result.object(at: index)
             // has any change?
             guard lhs.localIdentifier != rhs.localIdentifier || lhs.modificationDate != rhs.modificationDate else {
                 return $0
             }
             
             // merge
-            return $0.union(.init(integer: $1.element))
+            return $0.union(.init(integer: index))
         }
         
         // if all is empty, ignore the event

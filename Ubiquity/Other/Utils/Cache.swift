@@ -256,14 +256,16 @@ internal extension Cache {
     }
     fileprivate func _removeMainTask(with subtask: RequestTask, execute work: @escaping (Request) -> Void) {
         // cancel image request
-        _taskWithoutMake(for: subtask.asset, format: subtask.format)?.cancel(with: subtask) { task, request in
-            // really need to cancel?
+        subtask.cancel { task, request in
+            // clear memory
+            if let tasks = _tasks[subtask.format], (tasks[subtask.asset.identifier] as? Task) === task {
+                tasks.removeObject(forKey: subtask.asset.identifier)
+            }
+            
+            // need sent to cancel request?
             guard let request = request else {
                 return
             }
-            
-            // clear memory
-            self._tasks[subtask.format]?.removeObject(forKey: subtask.asset.identifier)
             
             // get task cached response
             if let (_, response) = task.contents {
@@ -339,7 +341,7 @@ internal extension Cache {
     fileprivate func _task(for asset: Asset, format: Format) -> Task {
         
         // fetch to the main task if exists
-        if let task = _taskWithoutMake(for: asset, format: format) {
+        if let task = _taskWithoutMake(for: asset, format: format), task.asset.version == asset.version {
             //logger.debug?.write("\(asset.identifier) -> hit fast cache")
             return task
         }
@@ -417,6 +419,7 @@ internal extension Cache {
             
             // add to task queue
             requestTasks.append(subtask)
+            subtask.task = self
             
             // if the task is not start, start the task
             guard !requesting else {
@@ -432,12 +435,9 @@ internal extension Cache {
         
         // cancel this request task
         func cancel(with subtask: RequestTask, handler: (Task, Request?) -> Void) {
-            // if the index is not found, the subtask has been cancelled
-            guard let index = requestTasks.index(where: { $0 === subtask }) else {
-                return
-            }
-            // context
-            requestTasks.remove(at: index)
+            
+            // filter all cancelled items
+            requestTasks = requestTasks.filter { !$0.canceled }
             
             // when the last request, cancel the task
             guard requestTasks.isEmpty else {
@@ -500,10 +500,18 @@ internal extension Cache {
         let asset: Asset
         let format: Format
         
+        weak var task: Task?
+        
         var canceled: Bool = false
         
         func cancel() {
             canceled = true
+        }
+        
+        func cancel(_ handler: (Task, Request?) -> Void) {
+            // send cancel request
+            task?.cancel(with: self, handler: handler)
+            task = nil
         }
         
         // update content

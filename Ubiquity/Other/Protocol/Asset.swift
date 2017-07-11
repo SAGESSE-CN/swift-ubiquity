@@ -13,6 +13,8 @@ public protocol Asset: class {
     
     /// A unique string that persistently identifies the object.
     var identifier: String { get }
+    /// The version of the asset, identifying asset change.
+    var version: Int { get }
     
     /// The width, in pixels, of the asset’s image or video data.
     var pixelWidth: Int { get }

@@ -15,6 +15,7 @@ private class PhotoAsset: Ubiquity.Asset {
     /// Create a asset for Photos
     init(asset: PHAsset) {
         self.asset = asset
+        self.version = Int(asset.modificationDate?.timeIntervalSince1970 ?? 0 * 1000)
     }
     
     /// The associated photots asset
@@ -32,6 +33,8 @@ private class PhotoAsset: Ubiquity.Asset {
         _localIdentifier = localIdentifier
         return localIdentifier
     }
+    /// The version of the asset, identifying asset change.
+    var version: Int 
     
     /// The width, in pixels, of the asset’s image or video data.
     var pixelWidth: Int {

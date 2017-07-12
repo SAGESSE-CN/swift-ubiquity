@@ -98,12 +98,12 @@ internal class IndicatorViewCell: TilingViewCell {
     private var _contentView: UIView
 }
 
-/// dynamic class support
-internal extension IndicatorViewCell {
-    // dynamically generated class
-    dynamic class func `dynamic`(with viewClass: AnyClass) -> AnyClass {
-        let name = "\(NSStringFromClass(self))<\(NSStringFromClass(viewClass))>"
+/// Add dynamic class support
+extension IndicatorViewCell: Templatize {
+    // with `conetntClass` generates a new class
+    dynamic class func `class`(with conetntClass: AnyClass) -> AnyClass {
         // if the class has been registered, ignore
+        let name = "\(NSStringFromClass(self))<\(NSStringFromClass(conetntClass))>"
         if let newClass = objc_getClass(name) as? AnyClass {
             return newClass
         }
@@ -116,7 +116,7 @@ internal extension IndicatorViewCell {
             return newClass
         }
         let getter: @convention(block) () -> AnyClass = {
-            return viewClass
+            return conetntClass
         }
         // add class method
         class_addMethod(metaClass, #selector(getter: contentViewClass), imp_implementationWithBlock(unsafeBitCast(getter, to: AnyObject.self)), method_getTypeEncoding(method))

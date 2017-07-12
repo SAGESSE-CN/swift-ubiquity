@@ -120,11 +120,11 @@ internal class BrowserAlbumListController: UITableViewController {
     fileprivate var _selectedItem: IndexPath?
     fileprivate var _collectionList: CollectionList?
     
-    fileprivate var _infoView: ErrorInfoView?
+    fileprivate var _infoView: ErrorView?
 }
 
 /// Add data source
-internal extension BrowserAlbumListController {
+extension BrowserAlbumListController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return _collectionList?.collectionCount ?? 0
@@ -182,13 +182,8 @@ internal extension BrowserAlbumListController {
 extension BrowserAlbumListController: ChangeObserver {
     /// Tells your observer that a set of changes has occurred in the Photos library.
     func library(_ library: Library, didChange change: Change) {
-        // get current table view & data source
-        guard let tableView = self.tableView, let collectionList = _collectionList else {
-            return
-        }
-        
         // albums is change?
-        guard let details = change.changeDetails(for: collectionList), let newCollectionList = details.after as? CollectionList else {
+        guard let collectionList = _collectionList, let details = change.changeDetails(for: collectionList) else {
             return
         }
         logger.trace?.write()
@@ -196,45 +191,54 @@ extension BrowserAlbumListController: ChangeObserver {
         // change notifications may be made on a background queue.
         // re-dispatch to the main queue to update the UI.
         DispatchQueue.main.async {
-            // keep the new fetch result for future use.
-            self._collectionList = newCollectionList
-            
-            // if there are incremental diffs, animate them in the table view.
-            guard details.hasIncrementalChanges else {
-                // reload the table view if incremental diffs are not available.
-                tableView.reloadData()
-                return
-            }
-            
-            tableView.beginUpdates()
-            
-            // For indexes to make sense, updates must be in this order:
-            // delete, insert, reload, move
-            if let rms = details.removedIndexes?.map({ IndexPath(item: $0, section:0) }) {
-                tableView.deleteRows(at: rms, with: .automatic)
-            }
-            
-            if let ins = details.insertedIndexes?.map({ IndexPath(item: $0, section:0) }) {
-                tableView.insertRows(at: ins, with: .automatic)
-            }
-            
-            if let rds = details.changedIndexes?.map({ IndexPath(item: $0, section:0) }) {
-                
-                tableView.reloadRows(at: rds, with: .automatic)
-            }
-            
-            details.enumerateMoves { from, to in
-                tableView.moveRow(at: .init(row: from, section: 0),
-                                  to: .init(row: to, section: 0))
-            }
-            
-            tableView.endUpdates()
+            self.library(library, didChange: change, details: details)
         }
+    }
+    /// Tells your observer that a set of changes has occurred in the Photos library.
+    internal func library(_ library: Library, didChange change: Change, details: ChangeDetails) {
+        // get table view and new data source
+        guard let tableView = tableView, let newCollectionList = details.after as? CollectionList else {
+            return
+        }
+        // keep the new fetch result for future use.
+        _collectionList = newCollectionList
+        
+        // if there are incremental diffs, animate them in the table view.
+        guard details.hasIncrementalChanges else {
+            // reload the table view if incremental diffs are not available.
+            tableView.reloadData()
+            return
+        }
+        
+        
+        tableView.beginUpdates()
+        
+        // For indexes to make sense, updates must be in this order:
+        // delete, insert, reload, move
+        if let rms = details.removedIndexes?.map({ IndexPath(item: $0, section:0) }) {
+            tableView.deleteRows(at: rms, with: .automatic)
+        }
+        
+        if let ins = details.insertedIndexes?.map({ IndexPath(item: $0, section:0) }) {
+            tableView.insertRows(at: ins, with: .automatic)
+        }
+        
+        if let rds = details.changedIndexes?.map({ IndexPath(item: $0, section:0) }) {
+            
+            tableView.reloadRows(at: rds, with: .automatic)
+        }
+        
+        details.enumerateMoves { from, to in
+            tableView.moveRow(at: .init(row: from, section: 0),
+                              to: .init(row: to, section: 0))
+        }
+        
+        tableView.endUpdates()
     }
 }
 
 /// Add library error info display support
-internal extension BrowserAlbumListController {
+extension BrowserAlbumListController {
     
     /// Show error info in view controller
     func showError(with title: String, subtitle: String) {
@@ -245,7 +249,7 @@ internal extension BrowserAlbumListController {
         _infoView?.removeFromSuperview()
         _infoView = nil
         
-        let infoView = ErrorInfoView(frame: view.bounds)
+        let infoView = ErrorView(frame: view.bounds)
         
         infoView.title = title
         infoView.subtitle = subtitle

@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 /// the request response
 public protocol Response {
     

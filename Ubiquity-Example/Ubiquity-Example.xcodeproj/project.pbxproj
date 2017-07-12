@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0C1C05F81F15CC000024EAD2 /* TestXXXXViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1C05F71F15CC000024EAD2 /* TestXXXXViewController.swift */; };
 		0C2B78161ED4508E00925D18 /* PhotoLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2B78151ED4508E00925D18 /* PhotoLibrary.swift */; };
 		0C2B78181ED4513300925D18 /* PhotoLibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2B78171ED4513300925D18 /* PhotoLibraryController.swift */; };
 		0CB104C61EEFF589002CB7FA /* Ubiquity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CE49E4C1E7A411D0058F5F8 /* Ubiquity.framework */; };
@@ -34,6 +35,7 @@
 
 /* Begin PBXFileReference section */
 		0C16F87A1EA663E700C788C5 /* TestLayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestLayerViewController.swift; sourceTree = "<group>"; };
+		0C1C05F71F15CC000024EAD2 /* TestXXXXViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestXXXXViewController.swift; sourceTree = "<group>"; };
 		0C224C411EAC55F7001ABB47 /* TestIndicatorViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestIndicatorViewController.swift; sourceTree = "<group>"; };
 		0C2B78151ED4508E00925D18 /* PhotoLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoLibrary.swift; sourceTree = "<group>"; };
 		0C2B78171ED4513300925D18 /* PhotoLibraryController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoLibraryController.swift; sourceTree = "<group>"; };
@@ -101,6 +103,7 @@
 				0CE49E2D1E7A3F690058F5F8 /* Info.plist */,
 				0CE49EA61E7B978E0058F5F8 /* ViewController.swift */,
 				0C5DCB7B1EC0C45F009FA343 /* TestVideoFilmstripViewController.swift */,
+				0C1C05F71F15CC000024EAD2 /* TestXXXXViewController.swift */,
 			);
 			name = Example;
 			path = "Ubiquity-Example";
@@ -192,6 +195,7 @@
 				0CE49E221E7A3F690058F5F8 /* AppDelegate.swift in Sources */,
 				0C2B78161ED4508E00925D18 /* PhotoLibrary.swift in Sources */,
 				0C2B78181ED4513300925D18 /* PhotoLibraryController.swift in Sources */,
+				0C1C05F81F15CC000024EAD2 /* TestXXXXViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

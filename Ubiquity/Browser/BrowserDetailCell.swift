@@ -181,7 +181,7 @@ internal class BrowserDetailCell: UICollectionViewCell, Displayable {
     }
 }
 
-/// event support
+/// Add event support
 extension BrowserDetailCell {
     
     fileprivate dynamic func _handleRetry(_ sender: Any) {
@@ -268,7 +268,7 @@ extension BrowserDetailCell {
     }
 }
 
-/// canvas view support
+/// Add canvas view support
 extension BrowserDetailCell: CanvasViewDelegate {
     
     func viewForZooming(in canvasView: CanvasView) -> UIView? {
@@ -388,7 +388,7 @@ extension BrowserDetailCell: CanvasViewDelegate {
     }
 }
 
-/// provide public accessor support
+/// Add public accessor support
 extension BrowserDetailCell {
     
     var ub_detailView: UIView? {
@@ -405,7 +405,7 @@ extension BrowserDetailCell {
     }
 }
 
-/// custom transition support
+/// Add custom transition support
 extension BrowserDetailCell: TransitioningView {
     
     var ub_frame: CGRect {
@@ -455,7 +455,7 @@ extension BrowserDetailCell: TransitioningView {
     }
 }
 
-/// operation support
+/// Add display support
 extension BrowserDetailCell: DisplayableDelegate {
     
     /// Tell the delegate that begin download from the remote server
@@ -488,7 +488,7 @@ extension BrowserDetailCell: DisplayableDelegate {
     }
 }
 
-/// operation support
+/// Add operation support
 extension BrowserDetailCell: PlayableDelegate {
     
     /// Tell the delegate that the player is prepared
@@ -551,7 +551,7 @@ extension BrowserDetailCell: PlayableDelegate {
     }
 }
 
-// add dynamic class support
+// Add dynamic class support
 extension BrowserDetailCell: Templatize {
     
     // provide content view of class, iOS 8+
@@ -561,8 +561,8 @@ extension BrowserDetailCell: Templatize {
     
     // with `conetntClass` generates a new class
     dynamic class func `class`(with conetntClass: AnyClass) -> AnyClass {
-        let name = "\(NSStringFromClass(self))<\(NSStringFromClass(conetntClass))>"
         // if the class has been registered, ignore
+        let name = "\(NSStringFromClass(self))<\(NSStringFromClass(conetntClass))>"
         if let newClass = objc_getClass(name) as? AnyClass {
             return newClass
         }

@@ -9,10 +9,12 @@
 import UIKit
 
 internal class IndicatorItem: ExtendedItem {
+    
     internal init() {
         _indicatorView = IndicatorView(frame: .init(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 40))
         super.init(customView: _indicatorView)
     }
+    
     internal required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

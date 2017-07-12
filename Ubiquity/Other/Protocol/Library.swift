@@ -8,7 +8,6 @@
 
 import UIKit
 
-
 /// information about your app’s authorization to access the user’s library
 public enum AuthorizationStatus : Int {
     

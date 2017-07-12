@@ -197,7 +197,7 @@ internal class BrowserDetailController: UICollectionViewController {
     fileprivate var _systemContentInset: UIEdgeInsets = .zero
 }
 
-// private method
+// Add event method
 extension BrowserDetailController {
     
     fileprivate dynamic func _handleDismiss(_ sender: UIPanGestureRecognizer) {
@@ -370,15 +370,9 @@ extension BrowserDetailController {
     }
 }
 
-// add full-screen display support
+/// Add full-screen display support
 extension BrowserDetailController {
     
-//    override var prefersStatusBarHidden: Bool {
-//        return _isFullscreen || super.prefersStatusBarHidden
-//    }
-//    override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
-//        return .none
-//    }
     override var preferredStatusBarStyle: UIStatusBarStyle {
        // full screen mode shows white status bar
         guard _isFullscreen else {
@@ -471,7 +465,7 @@ extension BrowserDetailController {
     }
 }
 
-// add interactivable transitioning support
+/// Add interactivable transitioning support
 extension BrowserDetailController: TransitioningDataSource {
     
     func ub_transitionView(using animator: Animator, for operation: Animator.Operation) -> TransitioningView? {
@@ -568,7 +562,7 @@ extension BrowserDetailController: TransitioningDataSource {
     }
 }
 
-// add collection view display support
+/// Add collection view display support
 extension BrowserDetailController: UICollectionViewDelegateFlowLayout {
     
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -831,7 +825,7 @@ extension BrowserDetailController: ChangeObserver {
     }
 }
 
-// Add dismiss gesture recognizer support
+/// Add dismiss gesture recognizer support
 extension BrowserDetailController: UIGestureRecognizerDelegate {
     
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {

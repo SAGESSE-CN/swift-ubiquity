@@ -37,65 +37,17 @@ internal class BrowserAlbumController: UICollectionViewController {
         return BrowserAlbumCell.self
     }
     
-    /// Reload data with authorization info
-    func reloadData(with auth: AuthorizationStatus) {
-        
-        // check for authorization status
-        guard auth == .authorized else {
-            // no permission
-            showError(with: "No Access Permissions", subtitle: "") // 此应用程序没有权限访问您的照片\n在\"设置-隐私-图片\"中开启后即可查看
-            return
-        }
-        _authorized = true
-        
-        // check for assets count
-        guard _source.count != 0 else {
-            // count is zero, no data
-            showError(with: "No Photos or Videos", subtitle: "You can sync photos and videos onto your iPhone using iTunes.")
-            return
-        }
-        
-        // config title
-        title = _source.title
-        
-        // clear all error info
-        clearError()
-        
-        // reload all data
-        reloadData()
-    }
-    /// Reload data data and scroll to init position
-    func reloadData() {
-        
-        // reload data
-        collectionView?.reloadData()
-        
-        // scroll to init position if needed
-        if let collectionView = collectionView {
-            // collect information
-            let edg = collectionView.contentInset
-            let size = collectionViewLayout.collectionViewContentSize
-            // scroll to bottom
-            // if the contentOffset over boundary, reset vaild contentOffset in collectionView internal
-            collectionView.contentOffset.y = size.height - (collectionView.frame.height - edg.bottom)
-        }
-        
-        // content is loaded
-        _prepared = true
-        _targetContentOffset = collectionView?.contentOffset ?? .zero
-        
-        
-        // update content offset
-        if let scrollView = collectionView {
-            scrollViewDidScroll(scrollView)
-        }
-    }
-    
     override func loadView() {
         super.loadView()
         // setup controller
-        title = "Collection"
+        title = _source.title
         view.backgroundColor = .white
+        
+        // setup footer view
+        _footerView.source = _source
+        _footerView.frame = .init(x: 0, y: 0, width: collectionView?.frame.width ?? 0, height: 48)
+        _footerView.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
+        collectionView?.addSubview(_footerView)
         
         // setup colleciton view
         collectionView?.register(collectionViewCellProvider.class(with: UIImageView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
@@ -114,25 +66,28 @@ internal class BrowserAlbumController: UICollectionViewController {
             }
         }
         
-        title = _source.title
         collectionView?.alpha = 0
         navigationController?.isToolbarHidden = false
     }
+    
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         
-        // if the info view is show, update the layout
-        if let infoView = _infoView {
-            infoView.frame = view.bounds
+        // update footer view if needed
+        _updateFooterView()
+    }
+    
+    fileprivate var _container: Container
+    fileprivate var _source: DataSource {
+        willSet {
+            title = newValue.title
         }
     }
     
-    fileprivate var _source: DataSource
-    fileprivate var _container: Container
-    
     fileprivate var _prepared: Bool = false
     fileprivate var _authorized: Bool = false
-    fileprivate var _showsFooterView: Bool = false
+    
+    fileprivate var _cachedSize: CGSize?
     
     fileprivate var _transitioning: Bool = false
     fileprivate var _targetContentOffset: CGPoint = .zero
@@ -140,11 +95,29 @@ internal class BrowserAlbumController: UICollectionViewController {
     fileprivate var _previousPreheatRect: CGRect = .zero
     fileprivate var _previousTargetPreheatRect: CGRect = .zero
     
-    fileprivate var _infoView: ErrorInfoView?
+    fileprivate var _infoView: ErrorView?
+    
+    fileprivate var _footerView: BrowserAlbumFooter = BrowserAlbumFooter()
+    fileprivate var _footerContentInsets: UIEdgeInsets = .zero {
+        willSet {
+            // get current collection view
+            let oldValue = _footerContentInsets
+            guard let collectionView = collectionView, newValue != oldValue else {
+                return
+            }
+            
+            var edg = collectionView.contentInset
+            edg.top += newValue.top - oldValue.top
+            edg.left += newValue.left - oldValue.left
+            edg.right += newValue.right - oldValue.right
+            edg.bottom += newValue.bottom - oldValue.bottom
+            collectionView.contentInset = edg
+        }
+    }
 }
 
 /// Add asset cache support
-internal extension BrowserAlbumController {
+extension BrowserAlbumController {
     
     fileprivate func _resetCachedAssets() {
         // clean all cache
@@ -152,6 +125,39 @@ internal extension BrowserAlbumController {
         _previousPreheatRect = .zero
     }
 
+    fileprivate func _updateFooterView() {
+        
+        // the content size is change?
+        let contentSize = collectionViewLayout.collectionViewContentSize
+        guard let collectionView = collectionView, contentSize != _cachedSize else {
+            return
+        }
+        _cachedSize = contentSize
+        
+        var nframe = _footerView.frame
+        nframe.origin.y = contentSize.height + 4
+        nframe.size.width = view.bounds.width
+        _footerView.frame = nframe
+        
+        // calculates the height of the current minimum display
+        let top = collectionView.contentInset.top - _footerContentInsets.top
+        let bottom = collectionView.contentInset.bottom - _footerContentInsets.bottom
+        let visableHeight = view.frame.height - top - bottom
+        guard visableHeight < contentSize.height else {
+            // too small to hide footer view
+            _footerView.alpha = 0
+            _footerContentInsets.bottom = 0
+            return
+        }
+        
+        // if status has change
+        if _footerView.alpha != 1 {
+            // too large to show footer view & update content insets
+            _footerView.alpha = 1
+            _footerContentInsets.bottom = _footerView.frame.height
+        }
+    }
+    
     fileprivate func _updateCachedAssets() {
         // Update only if the view is visible.
         guard let collectionView = collectionView, _prepared else {
@@ -283,7 +289,7 @@ internal extension BrowserAlbumController {
 }
 
 /// Add library error info display support
-internal extension BrowserAlbumController {
+extension BrowserAlbumController {
     
     /// Show error info in view controller
     func showError(with title: String, subtitle: String) {
@@ -293,7 +299,7 @@ internal extension BrowserAlbumController {
         _infoView?.removeFromSuperview()
         _infoView = nil
         
-        let infoView = ErrorInfoView(frame: view.bounds)
+        let infoView = ErrorView(frame: view.bounds)
         
         infoView.title = title
         infoView.subtitle = subtitle
@@ -333,6 +339,56 @@ internal extension BrowserAlbumController {
             collectionView.alpha = 1
         }
     }
+    
+    /// Reload data with authorization info
+    func reloadData(with auth: AuthorizationStatus) {
+        
+        // check for authorization status
+        guard auth == .authorized else {
+            // no permission
+            showError(with: "No Access Permissions", subtitle: "") // 此应用程序没有权限访问您的照片\n在\"设置-隐私-图片\"中开启后即可查看
+            return
+        }
+        _authorized = true
+        
+        // check for assets count
+        guard _source.count != 0 else {
+            // count is zero, no data
+            showError(with: "No Photos or Videos", subtitle: "You can sync photos and videos onto your iPhone using iTunes.")
+            return
+        }
+        // clear all error info
+        clearError()
+        
+        // reload all data
+        reloadData()
+    }
+    /// Reload data data and scroll to init position
+    func reloadData() {
+        
+        // reload data
+        collectionView?.reloadData()
+        
+        // scroll to init position if needed
+        if let collectionView = collectionView {
+            // scroll after update footer
+            _updateFooterView()
+            // if the contentOffset over boundary, reset vaild contentOffset in collectionView internal
+            let size = collectionViewLayout.collectionViewContentSize
+            let bottom = collectionView.contentInset.bottom - _footerContentInsets.bottom
+            collectionView.contentOffset.y = size.height - (collectionView.frame.height - bottom)
+        }
+        
+        // content is loaded
+        _prepared = true
+        _targetContentOffset = collectionView?.contentOffset ?? .zero
+        
+        // update content offset
+        if let scrollView = collectionView {
+            scrollViewDidScroll(scrollView)
+        }
+    }
+    
 }
 
 /// Add collection view display support
@@ -581,17 +637,13 @@ extension BrowserAlbumController: ChangeObserver {
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
     internal func library(_ library: Library, didChange change: Change, details: DataSourceChangeDetails) {
-        
         // get collection view and new data source
         guard let collectionView = collectionView, let source = details.after else {
             return
         }
-        
         // keep the new fetch result for future use.
         _source = source
-        
-        // update collection change
-        title = source.title
+        _footerView.source = source
         
         // update collection asset count change
         guard source.count != 0 else {

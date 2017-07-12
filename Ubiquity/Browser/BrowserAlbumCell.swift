@@ -190,12 +190,12 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
     fileprivate var _badgeView: BadgeView?
 }
 
-/// dynamic class support
+/// Add dynamic class support
 extension BrowserAlbumCell: Templatize {
     // with `conetntClass` generates a new class
     dynamic class func `class`(with conetntClass: AnyClass) -> AnyClass {
-        let name = "\(NSStringFromClass(self))<\(NSStringFromClass(conetntClass))>"
         // if the class has been registered, ignore
+        let name = "\(NSStringFromClass(self))<\(NSStringFromClass(conetntClass))>"
         if let newClass = objc_getClass(name) as? AnyClass {
             return newClass
         }
@@ -224,7 +224,7 @@ extension BrowserAlbumCell: Templatize {
     }
 }
 
-/// custom transition support
+/// Add custom transition support
 extension BrowserAlbumCell: TransitioningView {
     
     var ub_frame: CGRect {

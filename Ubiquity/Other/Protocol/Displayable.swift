@@ -8,7 +8,6 @@
 
 import UIKit
 
-
 /// The display protocol
 public protocol Displayable: class {
     

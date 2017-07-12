@@ -1,5 +1,5 @@
 //
-//  ErrorInfoView.swift
+//  ErrorView.swift
 //  Ubiquity
 //
 //  Created by SAGESSE on 5/24/17.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class ErrorInfoView: UIView {
+internal class ErrorView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -28,7 +28,6 @@ internal class ErrorInfoView: UIView {
         set { return _subtitleLabel.text = newValue }
         get { return _subtitleLabel.text }
     }
-    
     
     private func _setup() {
         
@@ -57,8 +56,8 @@ internal class ErrorInfoView: UIView {
         view.addSubview(_subtitleLabel)
         view.addConstraints([
             .ub_make(_titleLabel, .top, .equal, view, .top),
-            .ub_make(_titleLabel, .left, .equal, view, .left),
-            .ub_make(_titleLabel, .right, .equal, view, .right),
+            .ub_make(_titleLabel, .width, .lessThanOrEqual, view, .width),
+            .ub_make(_titleLabel, .centerX, .equal, view, .centerX),
             
             .ub_make(_subtitleLabel, .top, .equal, _titleLabel, .bottom, 16),
             

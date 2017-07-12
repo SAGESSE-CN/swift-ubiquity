@@ -34,13 +34,10 @@ internal class BrowserAlbumListCell: UITableViewCell {
         
         let count = collection.assetCount
         let assets = (max(count - 3, 0) ..< count).flatMap { collection.asset(at: $0) }
-        let formatter = NumberFormatter()
-        
-        formatter.positiveFormat = "###,##0"
         
         // setup content
         _titleLabel.text = collection.title
-        _subtitleLabel.text = formatter.string(for: count)
+        _subtitleLabel.text = ub_string(for: count)
         
         // setup badge icon & background
         if let icon = BadgeView.Item.ub_init(subtype: collection.collectionSubtype) {

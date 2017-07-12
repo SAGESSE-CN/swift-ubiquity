@@ -20,6 +20,7 @@ internal protocol TransitioningView: class {
     func ub_transitionDidStart(_ context: TransitioningContext)
     func ub_transitionDidEnd(_ didComplete: Bool)
 }
+
 internal protocol TransitioningContext: class {
     
     var ub_isAnimated: Bool { get }
@@ -40,6 +41,7 @@ internal protocol TransitioningContext: class {
     func ub_complete(_ didComplete: Bool)
     
 }
+
 internal protocol TransitioningDataSource: class {
     
     func ub_transitionView(using animator: Animator, for operation: Animator.Operation) -> TransitioningView?
@@ -126,6 +128,7 @@ internal class Animator: NSObject {
     }
 }
 
+/// Add navigation transitioning delegate
 extension Animator: UINavigationControllerTransitioningDelegate {
     
     func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
@@ -187,6 +190,8 @@ extension Animator: UINavigationControllerTransitioningDelegate {
         return nil
     }
 }
+
+/// Add screen-shot
 extension Animator {
     /// 快照
     internal class SnapshotView: UIView {
@@ -322,6 +327,7 @@ extension Animator {
     }
 }
 
+/// Add animated transitioning
 extension Animator {
     /// 动画转场
     internal class AnimatedTransitioning: NSObject, UIViewControllerAnimatedTransitioning {
@@ -542,6 +548,8 @@ extension Animator {
         private var _destinationView: TransitioningView??
     }
 }
+
+/// Add interactived transitioning
 extension Animator {
     /// 交互转场
     internal class InteractivedTransitioning: NSObject, UIViewControllerInteractiveTransitioning {
@@ -645,7 +653,8 @@ extension Animator {
     }
 }
 
-internal extension TransitioningView {
+/// Add default implementation
+extension TransitioningView {
     
     func ub_transitionWillStart(_ context: TransitioningContext) {
         // the default implementation is empty
@@ -657,7 +666,9 @@ internal extension TransitioningView {
         // the default implementation is empty
     }
 }
-internal extension TransitioningDataSource {
+
+/// Add default implementation
+extension TransitioningDataSource {
     
     func ub_transitionShouldStartInteractive(using animator: Animator, for key: Animator.Operation) -> Bool {
         return false

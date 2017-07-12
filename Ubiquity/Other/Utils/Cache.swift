@@ -364,7 +364,7 @@ internal extension Cache {
     }
 }
 
-internal extension Cache {
+extension Cache {
     
     // request task
     internal class Task: Request, Logport {
@@ -745,7 +745,7 @@ internal extension Cache {
     }
 }
 
-internal extension DispatchQueue {
+extension DispatchQueue {
     
     internal func ub_map(_ synchronous: Bool, invoking body: @escaping () -> Void) {
         if synchronous {

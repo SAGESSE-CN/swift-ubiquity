@@ -23,10 +23,5 @@ internal extension UIImage {
         }
         return nil
     }
-    
-    static func ub_init(named: String) -> UIImage? {
-        return UIImage(named: named, in: _bundle, compatibleWith: nil)
-    }
 }
 
-private weak var _bundle: Bundle? = Bundle(identifier: "SA.Ubiquity")

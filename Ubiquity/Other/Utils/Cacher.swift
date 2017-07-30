@@ -1,5 +1,5 @@
 //
-//  Cache.swift
+//  Cacher.swift
 //  Ubiquity
 //
 //  Created by sagesse on 06/07/2017.
@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 
 
-internal class Cache: NSObject {
+internal class Cacher: NSObject {
     
     init(library: Library) {
         _library = library
@@ -83,7 +83,6 @@ internal class Cache: NSObject {
             }
         }
     }
-    
     
     /// Prepares image representations of the specified assets for later use.
     func startCachingImages(for assets: Array<Asset>, size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
@@ -184,9 +183,10 @@ internal class Cache: NSObject {
         }
     }
     
+    /// internal using the library
     fileprivate let _library: Library
     
-    // must limit the number of threads
+    /// must limit the number of threads
     fileprivate let _token: DispatchSemaphore = .init(value: 4)
     fileprivate let _dispatch: (util: DispatchQueue, cache: DispatchQueue, request: DispatchQueue) = (
         .init(label: "ubiquity-dispatch-util", qos: .userInteractive),
@@ -202,7 +202,7 @@ internal class Cache: NSObject {
     fileprivate lazy var _caching: Queue = .init()
 }
 
-internal extension Cache {
+internal extension Cacher {
     
     fileprivate func _addMainTask(with subtask: RequestTask, execute work: @escaping (Task) -> Request?) {
         // the subtask is canceled?
@@ -364,7 +364,7 @@ internal extension Cache {
     }
 }
 
-extension Cache {
+extension Cacher {
     
     // request task
     internal class Task: Request, Logport {

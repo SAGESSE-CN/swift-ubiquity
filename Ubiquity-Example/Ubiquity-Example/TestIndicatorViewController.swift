@@ -7,7 +7,7 @@
 //
 
 import UIKit
-@testable import Ubiquity
+//@testable import Ubiquity
 
 
 //class MYCollectionViewFlowLayout: UICollectionViewFlowLayout {
@@ -559,35 +559,37 @@ class TestIndicatorViewController: UIViewController {
 //    
 }
 
-class AD: NSObject, Ubiquity.IndicatorViewDataSource, Ubiquity.IndicatorViewDelegate {
-    
-    lazy var colors: [UIColor] = (0 ..< 1024).map { _ in
-        return .random
-    }
-    
-    dynamic func indicator(_ indicator: Ubiquity.IndicatorView, numberOfItemsInSection section: Int) -> Int {
-        return colors.count
-    }
-    dynamic func indicator(_ indicator: Ubiquity.IndicatorView, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 1136, height: 640)
-    }
-    
-    dynamic func indicator(_ indicator: Ubiquity.IndicatorView, cellForItemAt indexPath: IndexPath) -> Ubiquity.IndicatorViewCell {
-        return indicator.dequeueReusableCell(withReuseIdentifier: "ASSET", for: indexPath)
-    }
-    
-    func indicator(_ indicator: Ubiquity.IndicatorView, willDisplay cell: Ubiquity.IndicatorViewCell, forItemAt indexPath: IndexPath) {
-        cell.backgroundColor = colors[indexPath.item]
-    }
+//class AD: NSObject, Ubiquity.IndicatorViewDataSource, Ubiquity.IndicatorViewDelegate {
+//    
+//    lazy var colors: [UIColor] = (0 ..< 1024).map { _ in
+//        return .random
+//    }
+//    
+//    dynamic func indicator(_ indicator: Ubiquity.IndicatorView, numberOfItemsInSection section: Int) -> Int {
+//        return colors.count
+//    }
+//    dynamic func indicator(_ indicator: Ubiquity.IndicatorView, sizeForItemAt indexPath: IndexPath) -> CGSize {
+//        return CGSize(width: 1136, height: 640)
+//    }
+//    
+//    dynamic func indicator(_ indicator: Ubiquity.IndicatorView, cellForItemAt indexPath: IndexPath) -> Ubiquity.IndicatorViewCell {
+//        return indicator.dequeueReusableCell(withReuseIdentifier: "ASSET", for: indexPath)
+//    }
+//    
+//    func indicator(_ indicator: Ubiquity.IndicatorView, willDisplay cell: Ubiquity.IndicatorViewCell, forItemAt indexPath: IndexPath) {
+//        cell.backgroundColor = colors[indexPath.item]
+//    }
+//}
+class IndicatorView: UIView {
 }
-class IndicatorView: Ubiquity.IndicatorView {
-    
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        self.register(Ubiquity.IndicatorViewCell.self, forCellWithReuseIdentifier: "ASSET")
-        self.dataSource = self.ad
-        self.delegate = self.ad
-    }
-    
-    var ad: AD = AD()
-}
+//class IndicatorView: Ubiquity.IndicatorView {
+//    
+//    required init?(coder aDecoder: NSCoder) {
+//        super.init(coder: aDecoder)
+//        self.register(Ubiquity.IndicatorViewCell.self, forCellWithReuseIdentifier: "ASSET")
+//        self.dataSource = self.ad
+//        self.delegate = self.ad
+//    }
+//    
+//    var ad: AD = AD()
+//}

@@ -110,7 +110,7 @@ internal class ThumbView: UIView {
             backgroundColor.setFill()
             context.fill(rect)
             // draw icon
-            if let image = UIImage.ub_init(named: "ubiquity_icon_empty_album") {
+            if let image = ub_image(named: "ubiquity_icon_empty_album") {
                 // generate tint image with tint color
                 UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
                 let context = UIGraphicsGetCurrentContext()

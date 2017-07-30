@@ -44,7 +44,7 @@ internal class BadgeView: UIView {
             super.init()
         }
         private convenience init(named: String, render: UIImageRenderingMode = .alwaysTemplate) {
-            let icon = UIImage.ub_init(named: named)?.withRenderingMode(render)
+            let icon = ub_image(named: named)?.withRenderingMode(render)
             self.init(image: icon)
         }
         
@@ -319,7 +319,7 @@ extension BadgeView {
             return image
         }
         logger.debug?.write("load `ubiquity_background_gradient`")
-        let image = UIImage.ub_init(named: "ubiquity_background_gradient")
+        let image = ub_image(named: "ubiquity_background_gradient")
         __backgroundImage = image
         return image
     }

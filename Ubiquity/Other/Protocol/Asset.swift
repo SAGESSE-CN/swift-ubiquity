@@ -39,10 +39,13 @@ public enum AssetMediaType: Int {
     
     /// The asset’s type is unknown.
     case unknown = 0
+    
     /// The asset is a photo or other static image.
     case image = 1
+    
     /// The asset is a video file.
     case video = 2
+    
     /// The asset is an audio file.
     case audio = 3
 }

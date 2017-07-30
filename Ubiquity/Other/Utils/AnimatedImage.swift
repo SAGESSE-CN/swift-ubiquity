@@ -219,17 +219,6 @@ internal class AnimatedImage: UIImage {
     private lazy var _queue: DispatchQueue = .init(label: "ubiquity.custom-image.decode")
 }
 internal class AnimatedImageView: UIImageView {
-    // forward helper
-    internal class AnimatedImageViewHelper: NSObject {
-        init(target: AnimatedImageView) {
-            self.target = target
-            super.init()
-        }
-        dynamic func update(_ sender: CADisplayLink) {
-            target.update(sender)
-        }
-        unowned(unsafe) var target: AnimatedImageView
-    }
     
     deinit {
         // clear
@@ -287,7 +276,7 @@ internal class AnimatedImageView: UIImageView {
             // will retain its target until it is invalidated. We use a weak proxy so that the image view will get deallocated
             // independent of the display link's lifetime. Upon image view deallocation, we invalidate the display
             // link which will lead to the deallocation of both the display link and the weak proxy.
-            _link = CADisplayLink(target: AnimatedImageViewHelper(target: self), selector: #selector(update(_:)))
+            _link = CADisplayLink(block: { [weak self] in self?.update($0) })
             
             // Note: The display link's `.frameInterval` value of 1 (default) means getting callbacks at the refresh rate of the display (~60Hz).
             _link?.add(to: .main, forMode: .commonModes)

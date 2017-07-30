@@ -19,14 +19,14 @@ class ViewController: UITableViewController, UIActionSheetDelegate {
     }
 
     @IBAction func show(_ sender: Any) {
-//        let sheet = UIActionSheet(title: nil, delegate: self, cancelButtonTitle: "Cancel", destructiveButtonTitle: nil)
-////        
-////        sheet.addButton(withTitle: "Browser")
-////        sheet.addButton(withTitle: "Picker")
-////        sheet.addButton(withTitle: "Editor")
-////        
-////        sheet.show(in: self.view)
-//        
+        let sheet = UIActionSheet(title: nil, delegate: self, cancelButtonTitle: "Cancel", destructiveButtonTitle: nil)
+        
+        sheet.addButton(withTitle: "Browser")
+        sheet.addButton(withTitle: "Picker")
+        //sheet.addButton(withTitle: "Editor")
+        
+        sheet.show(in: self.view)
+        
 //        // skip
 //        actionSheet(sheet, clickedButtonAt: 1)
         
@@ -43,30 +43,69 @@ class ViewController: UITableViewController, UIActionSheetDelegate {
 //        let wv  = WKWebView(frame: .init(x: 0, y: 0, width: view.bounds.width, height: 480))
 //        wv.loadHTMLString(html, baseURL: nil)
 //        tableView.tableHeaderView = wv
-        let vc = PhotoLibraryController()
-        present(vc, animated: true, completion: nil)
+//        let vc = PhotoLibraryController()
+//        present(vc, animated: true, completion: nil)
     }
     
     func actionSheet(_ actionSheet: UIActionSheet, clickedButtonAt buttonIndex: Int) {
         guard buttonIndex != actionSheet.cancelButtonIndex else {
             return
         }
-//        switch buttonIndex {
-//        case 1:
-//            let browser = Ubiquity.Browser()
-//            ub_present(browser, animated: true, completion: nil)
-//            
-////        case 2:
-////            let browser = Ubiquity.Picker()
-////            present(browser, animated: true, completion: nil)
-////            
-////        case 3:
-////            let browser = Ubiquity.Picker()
-////            present(browser, animated: true, completion: nil)
-////            
-//        default:
-//            break
-//        }
+        let vc = PhotoLibraryController()
+        present(vc, animated: true, completion: nil)
+        
+        
+        switch buttonIndex {
+        case 1:
+            let library = PhotoLibrary()
+            let container = Ubiquity.Browser(library: library)
+            //let container = Ubiquity.Picker(library: library)
+            
+            //let vc1 = Ubiquity.BrowserAlbumZoomableController(library: library)
+            let vc2 = BrowserAlbumListControllerMake(container)
+            //Ubiquity.BrowserAlbumListController(library: library)
+            
+            //vc1.hidesBottomBarWhenPushed = true
+            vc2.hidesBottomBarWhenPushed = true
+            vc2.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Dismiss", style: .plain, target: vc, action: #selector(PhotoLibraryController.dismiss(_:)))
+            
+            //        let nav = NavigationController(navigationBarClass: nil, toolbarClass: ExtendedToolbar.self)
+            //        nav.viewControllers = [container.viewController]
+            
+            let nav1  =  NavigationControllerMake().init(navigationBarClass: nil, toolbarClass: ToolbarMake())
+            nav1.viewControllers = [vc2]
+            nav1.isNavigationBarHidden = false
+            
+            vc.viewControllers = [
+                nav1
+            ]
+            
+        case 2:
+            let library = PhotoLibrary()
+            let container = Ubiquity.Picker(library: library)
+            
+            //let vc1 = Ubiquity.BrowserAlbumZoomableController(library: library)
+            let vc2 = BrowserAlbumListControllerMake(container)
+            //Ubiquity.BrowserAlbumListController(library: library)
+            
+            //vc1.hidesBottomBarWhenPushed = true
+            vc2.hidesBottomBarWhenPushed = true
+            vc2.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Dismiss", style: .plain, target: vc, action: #selector(PhotoLibraryController.dismiss(_:)))
+            
+            //        let nav = NavigationController(navigationBarClass: nil, toolbarClass: ExtendedToolbar.self)
+            //        nav.viewControllers = [container.viewController]
+            
+            let nav1  =  NavigationControllerMake().init(navigationBarClass: nil, toolbarClass: ToolbarMake())
+            nav1.viewControllers = [vc2]
+            nav1.isNavigationBarHidden = false
+            
+            vc.viewControllers = [
+                nav1
+            ]
+            
+        default:
+            break
+        }
     }
 }
 

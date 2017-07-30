@@ -99,7 +99,7 @@ internal class IndicatorViewCell: TilingViewCell {
 }
 
 /// Add dynamic class support
-extension IndicatorViewCell: Templatize {
+extension IndicatorViewCell {
     // with `conetntClass` generates a new class
     dynamic class func `class`(with conetntClass: AnyClass) -> AnyClass {
         // if the class has been registered, ignore

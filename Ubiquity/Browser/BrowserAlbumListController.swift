@@ -28,14 +28,14 @@ internal class BrowserAlbumListController: UITableViewController {
         super.init(nibName: nil, bundle: nil)
         
         // listen albums any change
-        _container.register(self)
+        _container.library.addChangeObserver(self)
     }
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     deinit {
         // cancel listen change
-        _container.unregisterObserver(self)
+        _container.library.removeChangeObserver(self)
     }
     
     func reloadData(with auth: AuthorizationStatus) {
@@ -75,7 +75,7 @@ internal class BrowserAlbumListController: UITableViewController {
         super.viewDidLoad()
         
         // request permission with show
-        _container.requestAuthorization  { status in
+        _container.library.requestAuthorization  { status in
             DispatchQueue.main.async {
                 self.reloadData(with: status)
             }
@@ -163,18 +163,19 @@ extension BrowserAlbumListController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         logger.trace?.write(indexPath)
         
-        // try fetch collection
+        // fetch collection
         guard let collection = _collectionList?.collection(at: indexPath.row) else {
             return
         }
-        _selectedItem = indexPath
+        logger.debug?.write("show album with: \(collection.title ?? ""), at: \(indexPath)")
         
-        logger.debug?.write("show album with: \(collection.title ?? "")")
-        
-        let controller = BrowserAlbumController(source: .init(collection: collection), container: _container)
-        //let controller = PickerAlbumController(source: .init(collection), container: _container)
-        // push to next page
+        // create album controller
+        guard let controller = _container.viewController(wit: .album, source: .init(collection: collection), sender: indexPath) else {
+            return
+        }
         show(controller, sender: indexPath)
+        
+        _selectedItem = indexPath
     }
 }
 

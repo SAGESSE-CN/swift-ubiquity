@@ -6,7 +6,6 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -102,26 +101,6 @@
                                             <segue destination="2TO-kW-hP1" kind="show" id="HE8-we-uds"/>
                                         </connections>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" textLabel="ylL-hC-C4m" style="IBUITableViewCellStyleDefault" id="ayB-Jh-2hg">
-                                        <rect key="frame" x="0.0" y="176" width="375" height="44"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="ayB-Jh-2hg" id="v1w-ih-VO0">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="xx" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ylL-hC-C4m">
-                                                    <rect key="frame" x="15" y="0.0" width="345" height="43.5"/>
-                                                    <autoresizingMask key="autoresizingMask"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                            </subviews>
-                                        </tableViewCellContentView>
-                                        <connections>
-                                            <segue destination="xTd-vR-URe" kind="show" id="QgG-Vb-Hmf"/>
-                                        </connections>
-                                    </tableViewCell>
                                 </cells>
                             </tableViewSection>
                         </sections>
@@ -203,38 +182,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="y3T-w1-y0Y" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2512.8000000000002" y="796.55172413793105"/>
-        </scene>
-        <!--TestXXXX View Controller-->
-        <scene sceneID="QIf-jr-ka0">
-            <objects>
-                <viewController id="xTd-vR-URe" customClass="TestXXXXViewController" customModule="Ubiquity_Example" customModuleProvider="target" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="xrZ-CG-kla"/>
-                        <viewControllerLayoutGuide type="bottom" id="nrX-eZ-tKR"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="8PC-1L-sYf">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="In a storyboard-based application, you will often want to do a little preparation before navigation" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XoR-Z8-9AX">
-                                <rect key="frame" x="49" y="84" width="277" height="50.5"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <constraints>
-                            <constraint firstAttribute="trailingMargin" relation="greaterThanOrEqual" secondItem="XoR-Z8-9AX" secondAttribute="trailing" constant="20" id="GiF-fr-cie"/>
-                            <constraint firstItem="XoR-Z8-9AX" firstAttribute="centerX" secondItem="8PC-1L-sYf" secondAttribute="centerX" id="a59-xJ-w4Z"/>
-                            <constraint firstItem="XoR-Z8-9AX" firstAttribute="top" secondItem="xrZ-CG-kla" secondAttribute="bottom" constant="20" id="cIA-ar-GSp"/>
-                            <constraint firstItem="XoR-Z8-9AX" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="8PC-1L-sYf" secondAttribute="leadingMargin" constant="20" id="eQp-tG-ih4"/>
-                        </constraints>
-                    </view>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="7dA-iG-aKz" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="3192.8000000000002" y="796.55172413793105"/>
         </scene>
         <!--Test Indicator View Controller-->
         <scene sceneID="nd9-fs-0d9">

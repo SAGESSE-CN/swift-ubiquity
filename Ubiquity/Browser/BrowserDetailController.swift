@@ -8,12 +8,13 @@
 
 import UIKit
 
-internal class BrowserDetailController: UICollectionViewController {
+internal class BrowserDetailController: UICollectionViewController, Controller {
     
-    init(source: DataSource, container: Container, at indexPath: IndexPath) {
+    required init(container: Container, factory: Factory, source: DataSource, sender: Any) {
         _source = source
+        _factory = factory
         _container = container
-        _itemIndexPath = indexPath
+        _itemIndexPath = sender as? IndexPath ?? .init(item: 0, section: 0)
         
         let collectionViewLayout = BrowserDetailLayout()
         
@@ -27,24 +28,30 @@ internal class BrowserDetailController: UICollectionViewController {
         super.init(collectionViewLayout: collectionViewLayout)
         
         // listen albums any change
-        _container.register(self)
+        _container.library.addChangeObserver(self)
     }
+    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
     deinit {
         // cancel listen change
-        _container.unregisterObserver(self)
+        _container.library.removeChangeObserver(self)
     }
     
-    /// collection view cell class provider
-    var collectionViewCellProvider: Templatize.Type {
-        return BrowserDetailCell.self
+    var container: Container {
+        return _container
     }
-//    /// indicator view cell class provider
-//    var indicatorViewCellProvider: Templatize.Type {
-//        return BrowserAlbumCell.self
-//    }
+    
+    var factory: Factory {
+        return _factory
+    }
+    
+    var source: DataSource {
+        return _source
+    }
+    
     
     override func loadView() {
         super.loadView()
@@ -75,8 +82,10 @@ internal class BrowserDetailController: UICollectionViewController {
         collectionView?.allowsSelection = false
         collectionView?.backgroundColor = .white
         
-        collectionView?.register(collectionViewCellProvider.class(with: PhotoContentView.self), forCellWithReuseIdentifier: _identifier(with: .image))
-        collectionView?.register(collectionViewCellProvider.class(with: VideoContentView.self), forCellWithReuseIdentifier: _identifier(with: .video))
+        // register colleciton cell
+        _factory.contents.forEach {
+            collectionView?.register($1, forCellWithReuseIdentifier: $0)
+        }
         
 //        // setup indicator 
 //        indicatorItem.indicatorView.delegate = self
@@ -132,7 +141,7 @@ internal class BrowserDetailController: UICollectionViewController {
         }
     }
     
-    let indicatorItem = IndicatorItem()
+//    let indicatorItem = IndicatorItem()
     let interactiveDismissGestureRecognizer = UIPanGestureRecognizer()
     let tapGestureRecognizer = UITapGestureRecognizer()
     
@@ -150,16 +159,6 @@ internal class BrowserDetailController: UICollectionViewController {
     /// the any item update delegate
     weak var updateDelegate: DetailControllerItemUpdateDelegate?
     
-    
-    fileprivate func _identifier(with mediaType: AssetMediaType) -> String {
-        switch mediaType {
-        case .image: return "ASSET-DETAIL-IMAGE"
-        case .video: return "ASSET-DETAIL-VIDEO"
-        case .audio: return "ASSET-DETAIL-IMAGE"
-        case .unknown: return "ASSET-DETAIL-IMAGE"
-        }
-    }
-    
     fileprivate func _animate(with duration: TimeInterval, options: UIViewAnimationOptions, animations: @escaping () -> Swift.Void, completion: ((Bool) -> Void)? = nil) {
         //UIView.animate(withDuration: duration * 5, delay: 0, options: options, animations: animations, completion: completion)
         UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 10, options: options, animations: animations, completion: completion)
@@ -168,6 +167,7 @@ internal class BrowserDetailController: UICollectionViewController {
     // MARK: private ivar
     
     fileprivate var _source: DataSource
+    fileprivate var _factory: Factory
     fileprivate var _container: Container
     
     // transition
@@ -615,9 +615,9 @@ extension BrowserDetailController: UICollectionViewDelegateFlowLayout {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         // generate the reuse identifier
         let type = _source.asset(at: indexPath)?.mediaType ?? .unknown
-        let identifier = _identifier(with: type)
         
-        return collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath)
+        // generate cell for media type
+        return collectionView.dequeueReusableCell(withReuseIdentifier: ub_identifier(with: type), for: indexPath)
     }
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         // cell must king of `Displayable`

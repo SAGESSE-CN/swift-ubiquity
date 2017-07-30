@@ -64,7 +64,23 @@ private class PhotoAsset: Ubiquity.Asset {
     
     /// The subtypes of the asset, identifying special kinds of assets such as panoramic photo or high-framerate video.
     var mediaSubtypes: Ubiquity.AssetMediaSubtype {
+//        // the media is gif?
+//        if filename?.hasSuffix("GIF") ?? false {
+//            print("it is gif")
+//        }
+//        
         return Ubiquity.AssetMediaSubtype(rawValue: asset.mediaSubtypes.rawValue)
+    }
+    
+    /// The asset filename
+    dynamic var filename: String? {
+        // the `PHAsset` support filename?
+        guard asset.responds(to: #selector(getter: self.filename)) else {
+            return nil
+        }
+        
+        // get filename for `PHAsset`
+        return asset.value(forKey: #keyPath(filename)) as? String
     }
     
     private var _localIdentifier: String?
@@ -585,7 +601,7 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library, Photos.PHPhotoLibraryCh
     // MARK: Change
     
     /// Registers an object to receive messages when objects in the photo library change.
-    func register(_ observer: Ubiquity.ChangeObserver) {
+    func addChangeObserver(_ observer: Ubiquity.ChangeObserver) {
         
         // the observer is added?
         guard !_observers.contains(where: { $0.observer === observer }) else {
@@ -603,7 +619,7 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library, Photos.PHPhotoLibraryCh
     }
     
     /// Unregisters an object so that it no longer receives change messages.
-    func unregisterObserver(_ observer: Ubiquity.ChangeObserver) {
+    func removeChangeObserver(_ observer: Ubiquity.ChangeObserver) {
         
         // clear all invaild observers
         _observers = _observers.filter {
@@ -687,7 +703,7 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library, Photos.PHPhotoLibraryCh
         _cache.cancelImageRequest(request)
     }
     
-    // MARK: Cache
+    // MARK: Cacher
     
     ///A Boolean value that determines whether the image manager prepares high-quality images.
     var allowsCachingHighQualityImages: Bool {

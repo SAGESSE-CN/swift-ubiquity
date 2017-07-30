@@ -10,10 +10,22 @@ import UIKit
 
 /// A media browser
 open class Browser: Container {
+    
+    /// Create a media browser
+    public override init(library: Library) {
+        super.init(library: library)
+        
+        // update factory
+        self.factorys = [
+            .edit: .init(controller: BrowserDetailController.self, cell: BrowserDetailCell.self, contents: ub_defaultContentClasses(with: .edit)),
+            .album: .init(controller: BrowserAlbumController.self, cell: BrowserAlbumCell.self, contents: ub_defaultContentClasses(with: .album)),
+            .detail: .init(controller: BrowserDetailController.self, cell: BrowserDetailCell.self, contents: ub_defaultContentClasses(with: .detail)),
+        ]
+    }
 }
 
 //internal class BrowserItem {
-//    
+//
 //    init(_ index: Int) {
 //        
 //        //let url = URL(string: "http://192.168.2.3/a.mp4")!

@@ -34,9 +34,9 @@ public protocol Library {
     // MARK: Change
     
     /// Registers an object to receive messages when objects in the photo library change.
-    func register(_ observer: ChangeObserver)
+    func addChangeObserver(_ observer: ChangeObserver)
     /// Unregisters an object so that it no longer receives change messages.
-    func unregisterObserver(_ observer: ChangeObserver)
+    func removeChangeObserver(_ observer: ChangeObserver)
     
     // MARK: Fetch
     
@@ -50,7 +50,7 @@ public protocol Library {
     /// Cancels an asynchronous request
     func cancel(with request: Request)
     
-    // MARK: Cache
+    // MARK: Cacher
     
     ///A Boolean value that determines whether the image manager prepares high-quality images.
     var allowsCachingHighQualityImages: Bool { set get }

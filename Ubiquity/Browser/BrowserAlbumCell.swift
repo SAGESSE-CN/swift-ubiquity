@@ -28,9 +28,7 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
         endDisplay(with: container)
     }
     
-    ///
     /// the displayer delegate
-    ///
     weak var delegate: AnyObject? 
     
     /// Will display the asset
@@ -72,7 +70,7 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
         _request = nil
         _container = nil
         
-        // can't clear images, otherwise  fast scroll when will lead to generate a snapshot of the blank
+        // NOTE: can't clear images, otherwise  fast scroll when will lead to generate a snapshot of the blank
         //_imageView?.image = nil
     }
     
@@ -191,32 +189,11 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
 }
 
 /// Add dynamic class support
-extension BrowserAlbumCell: Templatize {
-    // with `conetntClass` generates a new class
-    dynamic class func `class`(with conetntClass: AnyClass) -> AnyClass {
-        // if the class has been registered, ignore
-        let name = "\(NSStringFromClass(self))<\(NSStringFromClass(conetntClass))>"
-        if let newClass = objc_getClass(name) as? AnyClass {
-            return newClass
-        }
-        // if you have not registered this, dynamically generate it
-        let newClass: AnyClass = objc_allocateClassPair(self, name, 0)
-        let method: Method = class_getClassMethod(self, #selector(getter: contentViewClass))
-        objc_registerClassPair(newClass)
-        // because it is a class method, it can not used class, need to use meta class
-        guard let metaClass = objc_getMetaClass(name) as? AnyClass else {
-            return newClass
-        }
-        let getter: @convention(block) () -> AnyClass = {
-            return conetntClass
-        }
-        // add class method
-        class_addMethod(metaClass, #selector(getter: contentViewClass), imp_implementationWithBlock(unsafeBitCast(getter, to: AnyObject.self)), method_getTypeEncoding(method))
-        return newClass
-    }
+extension BrowserAlbumCell {
+    
     // provide content view of class
     dynamic class var contentViewClass: AnyClass {
-        return CanvasView.self
+        return UIImageView.self
     }
     // provide content view of class, iOS 8+
     fileprivate dynamic class var _contentViewClass: AnyClass {

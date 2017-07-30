@@ -9,36 +9,47 @@
 import UIKit
 
 /// the asset list in album
-internal class BrowserAlbumController: UICollectionViewController {
+internal class BrowserAlbumController: UICollectionViewController, Controller {
     
-    init(source: DataSource, container: Container) {
+    required init(container: Container, factory: Factory, source: DataSource, sender: Any) {
         _source = source
+        _factory = factory
         _container = container
         
         // continue init the UI
         super.init(collectionViewLayout: BrowserAlbumLayout())
         
         // listen albums any change
-        _container.register(self)
+        _container.library.addChangeObserver(self)
     }
+    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
     deinit {
         // clear all cache request when destroyed
         _resetCachedAssets()
         
         // cancel listen change
-        _container.unregisterObserver(self)
+        _container.library.removeChangeObserver(self)
     }
     
-    /// collection view cell class provider
-    var collectionViewCellProvider: Templatize.Type {
-        return BrowserAlbumCell.self
+    var container: Container {
+        return _container
+    }
+    
+    var factory: Factory {
+        return _factory
+    }
+    
+    var source: DataSource {
+        return _source
     }
     
     override func loadView() {
         super.loadView()
+        
         // setup controller
         title = _source.title
         view.backgroundColor = .white
@@ -50,17 +61,21 @@ internal class BrowserAlbumController: UICollectionViewController {
         collectionView?.addSubview(_footerView)
         
         // setup colleciton view
-        collectionView?.register(collectionViewCellProvider.class(with: UIImageView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
         collectionView?.backgroundColor = .white
         collectionView?.alwaysBounceVertical = true
         collectionView?.contentInset = .init(top: 4, left: 0, bottom: 4, right: 0)
+        
+        // register colleciton cell
+        _factory.contents.forEach {
+            collectionView?.register($1, forCellWithReuseIdentifier: $0)
+        }
     }
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // update with authorization status
         _authorized = false
-        _container.requestAuthorization { status in
+        _container.library.requestAuthorization { status in
             DispatchQueue.main.async {
                 self.reloadData(with: status)
             }
@@ -78,6 +93,7 @@ internal class BrowserAlbumController: UICollectionViewController {
     }
     
     fileprivate var _container: Container
+    fileprivate var _factory: Factory
     fileprivate var _source: DataSource {
         willSet {
             title = newValue.title
@@ -88,6 +104,7 @@ internal class BrowserAlbumController: UICollectionViewController {
     fileprivate var _authorized: Bool = false
     
     fileprivate var _cachedSize: CGSize?
+    fileprivate var _cachedCellClass: Set<AssetMediaType> = []
     
     fileprivate var _transitioning: Bool = false
     fileprivate var _targetContentOffset: CGPoint = .zero
@@ -281,7 +298,7 @@ extension BrowserAlbumController {
             }
         )
     }
-
+    
     fileprivate func _indexPathsForElements(in rect: CGRect) -> [IndexPath] {
         let allLayoutAttributes = collectionViewLayout.layoutAttributesForElements(in: rect)!
         return allLayoutAttributes.map { $0.indexPath }
@@ -413,6 +430,7 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
     override func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
         // update target content offset
         _targetContentOffset = .init(x: -scrollView.contentInset.left, y: -scrollView.contentInset.top)
+        
         // if transitions animation is started, can't scroll
         return !_transitioning
     }
@@ -441,7 +459,11 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        return collectionView.dequeueReusableCell(withReuseIdentifier: "ASSET-IMAGE", for: indexPath)
+        // generate the reuse identifier
+        let type = _source.asset(at: indexPath)?.mediaType ?? .unknown
+        
+        // generate cell for media type
+        return collectionView.dequeueReusableCell(withReuseIdentifier: ub_identifier(with: type), for: indexPath)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -473,14 +495,20 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
         logger.trace?.write(indexPath)
         logger.debug?.write("show detail with: \(indexPath)")
         
-        // make
-        let controller = BrowserDetailController(source: _source, container: _container, at: indexPath)
+        // create detail controller
+        guard let controller = _container.viewController(wit: .detail, source: _source, sender: indexPath) else {
+            return
+        }
         
-        controller.animator = Animator(source: self, destination: controller)
-        controller.updateDelegate = self
+        // can't use animator
+        if let controller = controller as? BrowserDetailController {
+            
+            controller.animator = Animator(source: self, destination: controller)
+            controller.updateDelegate = self
+        }
         
         show(controller, sender: indexPath)
-    }    
+    }
 }
 
 /// Add animatable transitioning support

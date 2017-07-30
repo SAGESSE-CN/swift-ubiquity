@@ -96,7 +96,7 @@ internal class BrowserDetailCell: UICollectionViewCell, Displayable {
     private func _setup() {
         
         // make detail & container view
-        _detailView = (type(of: self).detailViewClass as? UIView.Type)?.init()
+        _detailView = (type(of: self).contentViewClass as? UIView.Type)?.init()
         _containerView = contentView as? CanvasView
         
         // setup container view if needed
@@ -551,44 +551,15 @@ extension BrowserDetailCell: PlayableDelegate {
     }
 }
 
-// Add dynamic class support
-extension BrowserDetailCell: Templatize {
-    
-    // provide content view of class, iOS 8+
-    fileprivate dynamic class var _contentViewClass: AnyClass {
-        return contentViewClass
-    }
-    
-    // with `conetntClass` generates a new class
-    dynamic class func `class`(with conetntClass: AnyClass) -> AnyClass {
-        // if the class has been registered, ignore
-        let name = "\(NSStringFromClass(self))<\(NSStringFromClass(conetntClass))>"
-        if let newClass = objc_getClass(name) as? AnyClass {
-            return newClass
-        }
-        // if you have not registered this, dynamically generate it
-        let newClass: AnyClass = objc_allocateClassPair(self, name, 0)
-        let method: Method = class_getClassMethod(self, #selector(getter: detailViewClass))
-        objc_registerClassPair(newClass)
-        // because it is a class method, it can not used class, need to use meta class
-        guard let metaClass = objc_getMetaClass(name) as? AnyClass else {
-            return newClass
-        }
-        let getter: @convention(block) () -> AnyClass = {
-            return conetntClass
-        }
-        // add class method
-        class_addMethod(metaClass, #selector(getter: detailViewClass), imp_implementationWithBlock(unsafeBitCast(getter, to: AnyObject.self)), method_getTypeEncoding(method))
-        return newClass
-    }
+/// Add dynamic class support
+extension BrowserDetailCell {
     
     // provide content view of class
     dynamic class var contentViewClass: AnyClass {
-        return CanvasView.self
+        return PhotoContentView.self
     }
-    
-    // provide detail view of class
-    dynamic class var detailViewClass: AnyClass {
-        return UIView.self
+    // provide content view of class, iOS 8+
+    fileprivate dynamic class var _contentViewClass: AnyClass {
+        return CanvasView.self
     }
 }

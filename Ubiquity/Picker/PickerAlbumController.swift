@@ -14,8 +14,8 @@ internal class PickerAlbumController: BrowserAlbumController {
         super.loadView()
         
         // setup block selection
-        _selectionRegion.delegate = self
-        _selectionRegion.collectionView = collectionView
+        _selectionRect.delegate = self
+        _selectionRect.collectionView = collectionView
         _selectionSelectScroller.delegate = self
         _selectionSelectScroller.scrollView = collectionView
         _selectionGestureRecognizer.addTarget(self, action: #selector(_selection(_:)))
@@ -27,25 +27,24 @@ internal class PickerAlbumController: BrowserAlbumController {
     }
     
     // block selection
-    fileprivate lazy var _selectionRegion: SelectRect = .init()
-    fileprivate lazy var _selectionReversed: Bool = false
+    fileprivate lazy var _selectionRect: SelectRect = .init()
     fileprivate lazy var _selectionSelectScroller: SelectScroller = .init()
     fileprivate lazy var _selectionGestureRecognizer: UIPanGestureRecognizer = .init()
-    fileprivate lazy var _selectionLastUpdateTimestamp: CFTimeInterval? = nil
+    
+    fileprivate var _selectionReversed: Bool = false
+    fileprivate var _selectionFastCaches: Set<IndexPath>?
+    fileprivate var _selectionLastUpdateTimestamp: CFTimeInterval?
 }
 
 /// Add selection support
 extension PickerAlbumController: UIGestureRecognizerDelegate, SelectScrollerDelegate, SelectRectDelegate {
     
+    
     // start select
     func selectRect(_ selectRect: SelectRect, shouldBeginSelection indexPath: IndexPath) -> Bool {
-        // try fetch asset at index path
-        guard let asset = source.asset(at: indexPath) else {
-            return false
-        }
-
         // if the first item is selected, it is necessary to reverse selection rect
-        _selectionReversed = _isSelected(with: asset, at: indexPath)
+        _selectionReversed = _isSelected(at: indexPath)
+        _selectionFastCaches = []
        
         // allows selection rect
         return true
@@ -55,6 +54,7 @@ extension PickerAlbumController: UIGestureRecognizerDelegate, SelectScrollerDele
     func selectRect(didEndSelection selectRect: SelectRect) {
         // reset selection flag
         _selectionReversed = false
+        _selectionFastCaches = nil
     }
     
     // update select item
@@ -64,12 +64,19 @@ extension PickerAlbumController: UIGestureRecognizerDelegate, SelectScrollerDele
             return
         }
         
+        // get select status at index path
+        let selected = _isSelected(at: indexPath)
+        if selected {
+            // cache select status at index path
+            _selectionFastCaches?.insert(indexPath)
+        }
+        
         // check whether need to reverse
         guard _selectionReversed else {
-            _select(with: asset, at: indexPath) // normal
+            _select(with: asset, at: indexPath, status: selected) // normal
             return
         }
-        _deselect(with: asset, at: indexPath) // reversed
+        _deselect(with: asset, at: indexPath, status: selected) // reversed
     }
     
     // update deselect item
@@ -79,12 +86,15 @@ extension PickerAlbumController: UIGestureRecognizerDelegate, SelectScrollerDele
             return 
         }
         
+        // get cached select status at index path
+        let selected = _selectionFastCaches?.contains(indexPath) ?? false
+        
         // check whether need to reverse
         guard _selectionReversed else {
-            _deselect(with: asset, at: indexPath) // normal
+            _deselect(with: asset, at: indexPath, status: !selected) // normal
             return
         }
-        _select(with: asset, at: indexPath) // reversed
+        _select(with: asset, at: indexPath, status: !selected) // reversed
     }
     
     // did auto scroll
@@ -102,7 +112,7 @@ extension PickerAlbumController: UIGestureRecognizerDelegate, SelectScrollerDele
         
         // update selected items with current content offset
         _selectionLastUpdateTimestamp = timestamp
-        _selectionRegion.update(at: _selectionGestureRecognizer.location(in: collectionView))
+        _selectionRect.update(at: _selectionGestureRecognizer.location(in: collectionView))
     }
     
     // check block selection gesture recognizer can begin
@@ -121,28 +131,10 @@ extension PickerAlbumController: UIGestureRecognizerDelegate, SelectScrollerDele
         return true
     }
     
-    // select item
-    fileprivate func _select(with asset: Asset, at indexPath: IndexPath) {
-        //logger.debug?.write()
-        //(container as? Picker)?.select(with: asset)
-        
-        (collectionView?.cellForItem(at: indexPath) as? PickerAlbumCell)?.setIsSelected(true, animated: false)
-    }
-    
-    // deselect item
-    fileprivate func _deselect(with asset: Asset, at indexPath: IndexPath) {
-        //logger.debug?.write(asset)
-        
-        //(container as? Picker)?.deselect(with: asset)
-        (collectionView?.cellForItem(at: indexPath) as? PickerAlbumCell)?.setIsSelected(false, animated: false)
-    }
-    
-    // check select status
-    fileprivate func _isSelected(with asset: Asset, at indexPath: IndexPath) -> Bool {
-        // forward
-        return (collectionView?.cellForItem(at: indexPath) as? PickerAlbumCell)?.isSelected ?? false
-        //return (container as? Picker)?.isSelected(with: asset) ?? false
-        //return false
+    // check block selection
+    override func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
+        // if rect selection is start, disable scroll to top
+        return super.scrollViewShouldScrollToTop(scrollView) && !_selectionRect.isSelectable
     }
     
     // selection hanlder
@@ -150,20 +142,20 @@ extension PickerAlbumController: UIGestureRecognizerDelegate, SelectScrollerDele
         //logger.debug?.write(sender.location(in: collectionView))
         
         // if selection region can select, try to prepare region
-        guard _selectionRegion.isSelectable
-            || _selectionRegion.begin(at: sender.location(in: collectionView)) else {
+        guard _selectionRect.isSelectable
+            || _selectionRect.begin(at: sender.location(in: collectionView)) else {
             return
         }
         
         // update the selected items
         _selectionLastUpdateTimestamp = nil
-        _selectionRegion.update(at: sender.location(in: collectionView))
+        _selectionRect.update(at: sender.location(in: collectionView))
         
         // if the gesture recognizer is ended?
         if sender.state == .cancelled || sender.state == .failed || sender.state == .ended {
             // yes, stop auto scroll
             _selectionSelectScroller.speed = 0
-            _selectionRegion.end()
+            _selectionRect.end()
             return
         }
         
@@ -191,6 +183,34 @@ extension PickerAlbumController: UIGestureRecognizerDelegate, SelectScrollerDele
         
         // stop auto scroll
         _selectionSelectScroller.speed = 0
+    }
+    
+    
+    // select item
+    private func _select(with asset: Asset, at indexPath: IndexPath, status: Bool) {
+        // if status is true, status no change ignore
+        guard !status else {
+            return
+        }
+        
+        (collectionView?.cellForItem(at: indexPath) as? PickerAlbumCell)?.setIsSelected(true, animated: false)
+    }
+    
+    // deselect item
+    private func _deselect(with asset: Asset, at indexPath: IndexPath, status: Bool) {
+        // if status is false, status no change ignore
+        guard status else {
+            return
+        }
+        
+        //(container as? Picker)?.deselect(with: asset)
+        (collectionView?.cellForItem(at: indexPath) as? PickerAlbumCell)?.setIsSelected(false, animated: false)
+    }
+    
+    // check select status
+    private func _isSelected(at indexPath: IndexPath) -> Bool {
+        // fetch select status at index path
+        return (collectionView?.cellForItem(at: indexPath) as? PickerAlbumCell)?.isSelected ?? false
     }
     
 //    @objc private func panHandler(_ sender: UIPanGestureRecognizer) {

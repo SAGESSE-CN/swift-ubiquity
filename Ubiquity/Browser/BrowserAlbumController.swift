@@ -58,12 +58,17 @@ internal class BrowserAlbumController: UICollectionViewController, Controller {
         _footerView.source = _source
         _footerView.frame = .init(x: 0, y: 0, width: collectionView?.frame.width ?? 0, height: 48)
         _footerView.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
+        _footerView.backgroundColor = .random
         collectionView?.addSubview(_footerView)
+        
+        // setup header view
+        _headerView.layer.contents = UIImage(named: "t1")?.cgImage
+        collectionView?.addSubview(_headerView)
         
         // setup colleciton view
         collectionView?.backgroundColor = .white
         collectionView?.alwaysBounceVertical = true
-        collectionView?.contentInset = .init(top: 4, left: 0, bottom: 4, right: 0)
+        collectionView?.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "HEADER")
         
         // register colleciton cell
         _factory.contents.forEach {
@@ -88,8 +93,16 @@ internal class BrowserAlbumController: UICollectionViewController, Controller {
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         
-        // update footer view if needed
+        
+        guard collectionViewLayout.collectionViewContentSize != _cachedSize else {
+            return
+        }
+        _cachedSize = collectionViewLayout.collectionViewContentSize
+        
+        // update 
+        _updateHeaderCaches()
         _updateFooterView()
+        _updateHeaderView()
     }
     
     fileprivate var _container: Container
@@ -104,7 +117,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller {
     fileprivate var _authorized: Bool = false
     
     fileprivate var _cachedSize: CGSize?
-    fileprivate var _cachedCellClass: Set<AssetMediaType> = []
+    fileprivate var _cachedHeaderes: Dictionary<Int, CGRect> = [:]
     
     fileprivate var _transitioning: Bool = false
     fileprivate var _targetContentOffset: CGPoint = .zero
@@ -114,7 +127,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller {
     
     fileprivate var _infoView: ErrorView?
     
-    fileprivate var _footerView: BrowserAlbumFooter = BrowserAlbumFooter()
+    fileprivate var _footerView: BrowserAlbumFooter = .init()
     fileprivate var _footerContentInsets: UIEdgeInsets = .zero {
         willSet {
             // get current collection view
@@ -131,28 +144,55 @@ internal class BrowserAlbumController: UICollectionViewController, Controller {
             collectionView.contentInset = edg
         }
     }
+    
+    // header
+    fileprivate var _headerView: UIView = .init()
+    fileprivate var _headerInSection: Int = 0
+    fileprivate var _headerAllLayoutAttributes: [UICollectionViewLayoutAttributes?]?
 }
 
-/// Add asset cache support
+/// Add header & footer support
 extension BrowserAlbumController {
     
-    fileprivate func _resetCachedAssets() {
-        // clean all cache
-        _container.stopCachingImagesForAllAssets()
-        _previousPreheatRect = .zero
+    fileprivate func _updateHeaderView() {
+        // collection view must be set
+        guard let collectionView = collectionView else {
+            return
+        }
+        // fetch current section
+        let offset = collectionView.contentOffset.y + collectionView.contentInset.top
+        guard let (section, distance) = _indexForHeader(at: offset) else {
+            _headerView.isHidden = true
+            return
+        }
+        
+        //logger.debug?write(section, distance)
+        //logger.debug?.write(_indexForHeader(at: collectionView.contentOffset))
+        
+        if let layoutAttributes = _headerAllLayoutAttributes?[section] {
+            
+            var frame = layoutAttributes.frame
+            
+            frame.origin.y = offset + min(distance - frame.height, 0)
+            
+            _headerView.frame = frame
+            _headerView.isHidden = false
+            
+        }
+        
     }
-
+    
     fileprivate func _updateFooterView() {
+        // collection view must be set
+        guard let collectionView = collectionView else {
+            return
+        }
         
         // the content size is change?
         let contentSize = collectionViewLayout.collectionViewContentSize
-        guard let collectionView = collectionView, contentSize != _cachedSize else {
-            return
-        }
-        _cachedSize = contentSize
         
         var nframe = _footerView.frame
-        nframe.origin.y = contentSize.height + 4
+        nframe.origin.y = contentSize.height + 0
         nframe.size.width = view.bounds.width
         _footerView.frame = nframe
         
@@ -175,6 +215,83 @@ extension BrowserAlbumController {
         }
     }
     
+    fileprivate func _indexForHeader(at offset: CGFloat) -> (Int, CGFloat)? {
+        // header layout attributes must be set
+        guard let allLayoutAttributes = _headerAllLayoutAttributes, !allLayoutAttributes.isEmpty else {
+            return nil
+        }
+        
+        // the distance from the next setion
+        var distance = CGFloat.greatestFiniteMagnitude
+        
+        // backward: fetch first -n or 0
+        var start = min(_headerInSection, allLayoutAttributes.count - 1)
+        while start > 0 {
+            // the section has header view?
+            guard let layoutAttributes = allLayoutAttributes[start] else {
+                start -= 1
+                continue
+            }
+            // is -n or 0?
+            guard (layoutAttributes.frame.minY - offset) < 0 else {
+                start -= 1
+                continue
+            }
+            break
+        }
+        
+        // forward: fetch first +n or inf
+        var end = start
+        while end < allLayoutAttributes.count {
+            // the section has header view?
+            guard let layoutAttributes = allLayoutAttributes[end] else {
+                end += 1
+                continue
+            }
+            // is +n
+            guard (layoutAttributes.frame.minY - offset) > 0 else {
+                start = end
+                end += 1
+                continue
+            }
+            distance = (layoutAttributes.frame.minY - offset)
+            break
+        }
+        
+        // if start equal to end, no header
+        guard start != end else {
+            return nil//(-1, distance)
+        }
+        
+        // optimize search speed
+        _headerInSection = start
+        
+        // success
+        return (start, distance)
+    }
+    
+    fileprivate func _updateHeaderCaches() {
+        // collection view must be set
+        guard let collectionView = collectionView else {
+            return
+        }
+        
+        // fetch all header layout attributes
+        _headerAllLayoutAttributes = (0 ..< collectionView.numberOfSections).map {
+            collectionView.layoutAttributesForSupplementaryElement(ofKind: UICollectionElementKindSectionHeader, at: .init(item: 0, section: $0))
+        }
+    }
+}
+
+/// Add asset cache support
+extension BrowserAlbumController {
+    
+    fileprivate func _resetCachedAssets() {
+        // clean all cache
+        _container.stopCachingImagesForAllAssets()
+        _previousPreheatRect = .zero
+    }
+
     fileprivate func _updateCachedAssets() {
         // Update only if the view is visible.
         guard let collectionView = collectionView, _prepared else {
@@ -213,15 +330,15 @@ extension BrowserAlbumController {
         //logger.debug?.write("preheatRect is change: \(changes)")
         
         // Compute the assets to start caching and to stop caching.
-        let result = self._different(changes.map { $0.new }, changes.map { $0.old })
+        let result = _different(changes.map { $0.new }, changes.map { $0.old })
         
         let addedAssets = result.added
-            .flatMap { self._indexPathsForElements(in: $0) }
-            .flatMap { self._source.asset(at: $0) }
+            .flatMap { _indexPathsForElements(in: $0) }
+            .flatMap { _source.asset(at: $0) }
         
         let removedAssets = result.removed
-            .flatMap { self._indexPathsForElements(in: $0) }
-            .flatMap { self._source.asset(at: $0) }
+            .flatMap { _indexPathsForElements(in: $0) }
+            .flatMap { _source.asset(at: $0) }
             .filter { asset in !addedAssets.contains(where: { $0 === asset } ) }
         
         // Update the assets the PHCachingImageManager is caching.
@@ -300,8 +417,9 @@ extension BrowserAlbumController {
     }
     
     fileprivate func _indexPathsForElements(in rect: CGRect) -> [IndexPath] {
-        let allLayoutAttributes = collectionViewLayout.layoutAttributesForElements(in: rect)!
-        return allLayoutAttributes.map { $0.indexPath }
+        return collectionViewLayout.layoutAttributesForElements(in: rect)?.map {
+            $0.indexPath
+        } ?? []
     }
 }
 
@@ -390,10 +508,12 @@ extension BrowserAlbumController {
         if let collectionView = collectionView {
             // scroll after update footer
             _updateFooterView()
+            _updateHeaderCaches()
+            
             // if the contentOffset over boundary, reset vaild contentOffset in collectionView internal
             let size = collectionViewLayout.collectionViewContentSize
             let bottom = collectionView.contentInset.bottom - _footerContentInsets.bottom
-            collectionView.contentOffset.y = size.height - (collectionView.frame.height - bottom)
+            collectionView.contentOffset.y = size.height - (collectionView.frame.height - bottom) + 4
         }
         
         // content is loaded
@@ -423,7 +543,8 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
            _targetContentOffset = scrollView.contentOffset
         }
         
-        // update the cache
+        // update all for content offset did change
+        _updateHeaderView()
         _updateCachedAssets()
     }
     
@@ -466,6 +587,10 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
         return collectionView.dequeueReusableCell(withReuseIdentifier: ub_identifier(with: type), for: indexPath)
     }
     
+    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        return collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "HEADER", for: indexPath)
+    }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         guard let layout = collectionViewLayout as? UICollectionViewFlowLayout else {
             return .zero
@@ -482,6 +607,7 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
         // show asset with container and orientation
         displayer.willDisplay(with: asset, container: _container, orientation: .up)
     }
+    
     override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         // cell must king of `Displayable`
         guard let displayer = cell as? Displayable, _prepared else {
@@ -489,6 +615,16 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
         }
         
         displayer.endDisplay(with: _container)
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
+        logger.trace?.write(indexPath)
+        
+        view.layer.contents = UIImage(named: "t1")?.cgImage
+        //view.backgroundColor = .random
+    }
+    override func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
+        logger.trace?.write(indexPath)
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

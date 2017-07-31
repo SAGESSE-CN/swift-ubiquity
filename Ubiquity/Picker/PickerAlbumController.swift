@@ -39,11 +39,15 @@ internal class PickerAlbumController: BrowserAlbumController {
 /// Add selection support
 extension PickerAlbumController: UIGestureRecognizerDelegate, SelectScrollerDelegate, SelectRectDelegate {
     
+    // rect selecting, disable scroll to top
+    override func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
+        return super.scrollViewShouldScrollToTop(scrollView) && !_selectionRect.isSelectable
+    }
     
     // start select
     func selectRect(_ selectRect: SelectRect, shouldBeginSelection indexPath: IndexPath) -> Bool {
         // if the first item is selected, it is necessary to reverse selection rect
-        _selectionReversed = _isSelected(at: indexPath)
+        _selectionReversed = _statusForItem(at: indexPath)
         _selectionFastCaches = []
        
         // allows selection rect
@@ -59,13 +63,8 @@ extension PickerAlbumController: UIGestureRecognizerDelegate, SelectScrollerDele
     
     // update select item
     func selectRect(_ selectRect: SelectRect, didSelectItem indexPath: IndexPath) {
-        // try fetch asset at index path
-        guard let asset = source.asset(at: indexPath) else {
-            return
-        }
-        
         // get select status at index path
-        let selected = _isSelected(at: indexPath)
+        let selected = _statusForItem(at: indexPath)
         if selected {
             // cache select status at index path
             _selectionFastCaches?.insert(indexPath)
@@ -73,28 +72,23 @@ extension PickerAlbumController: UIGestureRecognizerDelegate, SelectScrollerDele
         
         // check whether need to reverse
         guard _selectionReversed else {
-            _select(with: asset, at: indexPath, status: selected) // normal
+            _selectItem(at: indexPath, status: selected) // normal
             return
         }
-        _deselect(with: asset, at: indexPath, status: selected) // reversed
+        _deselectItem(at: indexPath, status: selected) // reversed
     }
     
     // update deselect item
     func selectRect(_ selectRect: SelectRect, didDeselectItem indexPath: IndexPath) {
-        // try fetch asset at index path
-        guard let asset = source.asset(at: indexPath) else {
-            return 
-        }
-        
         // get cached select status at index path
         let selected = _selectionFastCaches?.contains(indexPath) ?? false
         
         // check whether need to reverse
         guard _selectionReversed else {
-            _deselect(with: asset, at: indexPath, status: !selected) // normal
+            _deselectItem(at: indexPath, status: !selected) // normal
             return
         }
-        _select(with: asset, at: indexPath, status: !selected) // reversed
+        _selectItem(at: indexPath, status: !selected) // reversed
     }
     
     // did auto scroll
@@ -129,12 +123,6 @@ extension PickerAlbumController: UIGestureRecognizerDelegate, SelectScrollerDele
         }
         
         return true
-    }
-    
-    // check block selection
-    override func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
-        // if rect selection is start, disable scroll to top
-        return super.scrollViewShouldScrollToTop(scrollView) && !_selectionRect.isSelectable
     }
     
     // selection hanlder
@@ -187,7 +175,7 @@ extension PickerAlbumController: UIGestureRecognizerDelegate, SelectScrollerDele
     
     
     // select item
-    private func _select(with asset: Asset, at indexPath: IndexPath, status: Bool) {
+    private func _selectItem(at indexPath: IndexPath, status: Bool) {
         // if status is true, status no change ignore
         guard !status else {
             return
@@ -197,7 +185,7 @@ extension PickerAlbumController: UIGestureRecognizerDelegate, SelectScrollerDele
     }
     
     // deselect item
-    private func _deselect(with asset: Asset, at indexPath: IndexPath, status: Bool) {
+    private func _deselectItem(at indexPath: IndexPath, status: Bool) {
         // if status is false, status no change ignore
         guard status else {
             return
@@ -208,90 +196,19 @@ extension PickerAlbumController: UIGestureRecognizerDelegate, SelectScrollerDele
     }
     
     // check select status
-    private func _isSelected(at indexPath: IndexPath) -> Bool {
-        // fetch select status at index path
-        return (collectionView?.cellForItem(at: indexPath) as? PickerAlbumCell)?.isSelected ?? false
+    private func _statusForItem(at indexPath: IndexPath) -> Bool {
+        // if can fetch cell at index path, use the cell select status
+        if let cell = collectionView?.cellForItem(at: indexPath) {
+            return cell.isSelected
+        }
+        
+        // fetch asset at index path
+        guard let asset = source.asset(at: indexPath) else {
+            return false
+        }
+        
+        // fetch select status for asset
+        return (container as? Picker)?.isSelected(with: asset) ?? false
     }
-    
-//    @objc private func panHandler(_ sender: UIPanGestureRecognizer) {
-//        guard let start = _batchStartIndex else {
-//            return
-//        }
-//        // step0: 计算选按下的位置所在的index, 这样子就会形成一个区域(start ~ end)
-//        let end = _index(at: sender.location(in: collectionView)) ?? 0
-//        let count = collectionView?.numberOfItems(inSection: 0) ?? 0
-//        
-//        // step1: 获取区域的第一个有效的元素为操作类型
-//        let operatorType = _batchIsSelectOperator ?? {
-//            let nidx = min(max(start, 0), count - 1)
-//            guard let cell = collectionView?.cellForItem(at: IndexPath(item: nidx, section: 0)) as? SAPPickerAssetsCell else {
-//                return false
-//            }
-//            _batchIsSelectOperator = !cell.photoView.isSelected
-//            return !cell.photoView.isSelected
-//        }()
-//        
-//        let sl = min(max(start, 0), count - 1)
-//        let nel = min(max(end, 0), count - 1)
-//        
-//        let ts = sl <= nel ? 1 : -1
-//        let tnsl = min(sl, nel)
-//        let tnel = max(sl, nel)
-//        let tosl = min(sl, _batchEndIndex ?? sl)
-//        let toel = max(sl, _batchEndIndex ?? sl)
-//        
-//        // step2: 对区域内的元素正向进行操作, 保存在_batchSelectedItems
-//        
-//        (tnsl ... tnel).enumerated().forEach {
-//            let idx = sl + $0.offset * ts
-//            guard !_batchOperatorItems.contains(idx) else {
-//                return // 己经添加
-//            }
-//            if _updateSelection(operatorType, at: idx) {
-//                _batchOperatorItems.insert(idx)
-//            }
-//        }
-//        // step3: 对区域外的元素进行反向操作, 针对在_batchSelectedItems
-//        (tosl ... toel).forEach { idx in
-//            if idx >= tnsl && idx <= tnel {
-//                return
-//            }
-//            guard _batchOperatorItems.contains(idx) else {
-//                return // 并没有添加
-//            }
-//            if _updateSelection(!operatorType, at: idx) {
-//                _batchOperatorItems.remove(idx)
-//            }
-//        }
-//        // step4: 更新结束点
-//        _batchEndIndex = nel
-//        
-//        
-//        // 如果结束了, 重置
-//        guard sender.state == .cancelled || sender.state == .ended || sender.state == .failed else {
-//            return
-//        }
-//        _batchIsSelectOperator = nil
-//        _batchOperatorItems.removeAll()
-//    }
-//
-//    
-//    private func _index(at point: CGPoint) -> Int? {
-//        let x = point.x
-//        let y = point.y
-//        // 超出响应范围
-//        guard point.y > 10 && _itemSize.width > 0 && _itemSize.height > 0 else {
-//            return nil
-//        }
-//        let column = Int(x / (_itemSize.width + _minimumInteritemSpacing))
-//        let row = Int(y / (_itemSize.height + _minimumLineSpacing))
-//        // 超出响应范围
-//        guard row >= 0 else {
-//            return nil
-//        }
-//        
-//        return row * _columnCount + column
-//    }
-//    
 }
 

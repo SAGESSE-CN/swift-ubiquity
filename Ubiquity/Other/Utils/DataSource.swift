@@ -11,10 +11,10 @@ import UIKit
 internal class DataSource {
     
     init(collection: Collection) {
-        _collections = [collection]
-//        _collections = (0 ..< 30).map { _ in
-//            collection
-//        }
+        //_collections = [collection]
+        _collections = (0 ..< 30).map { _ in
+            collection
+        }
     }
     init(collections: Array<Collection>) {
         _collections = collections

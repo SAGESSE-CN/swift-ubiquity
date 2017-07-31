@@ -131,6 +131,6 @@ open class Container: NSObject {
     internal var factorys: Dictionary<Page, Factory>
     
     #if DEBUG
-    internal var debug: Bool = false
+    internal var debug: Bool = true
     #endif
 }

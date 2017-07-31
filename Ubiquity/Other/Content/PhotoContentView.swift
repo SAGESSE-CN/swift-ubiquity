@@ -31,9 +31,9 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
         backgroundColor = .ub_init(hex: 0xf0f0f0)
         
         let thumbSize = BrowserAlbumLayout.thumbnailItemSize
-        let thumbOptions = DataSourceOptions(isSynchronous: true)
+        let thumbOptions = SourceOptions(isSynchronous: true)
         let largeSize = CGSize(width: asset.pixelWidth, height: asset.pixelHeight)
-        let largeOptions = DataSourceOptions(progressHandler: { [weak self, weak asset] progress, response in
+        let largeOptions = SourceOptions(progressHandler: { [weak self, weak asset] progress, response in
             DispatchQueue.main.async {
                 // if the asset is nil, the asset has been released
                 guard let asset = asset else {

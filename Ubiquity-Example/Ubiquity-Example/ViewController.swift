@@ -51,10 +51,11 @@ class ViewController: UITableViewController, UIActionSheetDelegate {
         guard buttonIndex != actionSheet.cancelButtonIndex else {
             return
         }
-        let vc = PhotoLibraryController()
-        present(vc, animated: true, completion: nil)
+//        let vc = PhotoLibraryController()
+//        present(vc, animated: true, completion: nil)
         
         
+
         switch buttonIndex {
         case 1:
             let library = PhotoLibrary()
@@ -65,20 +66,21 @@ class ViewController: UITableViewController, UIActionSheetDelegate {
             let vc2 = BrowserAlbumListControllerMake(container)
             //Ubiquity.BrowserAlbumListController(library: library)
             
+            present(vc2, animated: true, completion: nil)
             //vc1.hidesBottomBarWhenPushed = true
-            vc2.hidesBottomBarWhenPushed = true
-            vc2.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Dismiss", style: .plain, target: vc, action: #selector(PhotoLibraryController.dismiss(_:)))
-            
-            //        let nav = NavigationController(navigationBarClass: nil, toolbarClass: ExtendedToolbar.self)
-            //        nav.viewControllers = [container.viewController]
-            
-            let nav1  =  NavigationControllerMake().init(navigationBarClass: nil, toolbarClass: ToolbarMake())
-            nav1.viewControllers = [vc2]
-            nav1.isNavigationBarHidden = false
-            
-            vc.viewControllers = [
-                nav1
-            ]
+//            vc2.hidesBottomBarWhenPushed = true
+//            vc2.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Dismiss", style: .plain, target: vc, action: #selector(PhotoLibraryController.dismiss(_:)))
+//            
+//            //        let nav = NavigationController(navigationBarClass: nil, toolbarClass: ExtendedToolbar.self)
+//            //        nav.viewControllers = [container.viewController]
+//            
+//            let nav1  =  NavigationControllerMake().init(navigationBarClass: nil, toolbarClass: ToolbarMake())
+//            nav1.viewControllers = [vc2]
+//            nav1.isNavigationBarHidden = false
+//            
+//            vc.viewControllers = [
+//                nav1
+//            ]
             
         case 2:
             let library = PhotoLibrary()
@@ -88,20 +90,21 @@ class ViewController: UITableViewController, UIActionSheetDelegate {
             let vc2 = BrowserAlbumListControllerMake(container)
             //Ubiquity.BrowserAlbumListController(library: library)
             
-            //vc1.hidesBottomBarWhenPushed = true
-            vc2.hidesBottomBarWhenPushed = true
-            vc2.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Dismiss", style: .plain, target: vc, action: #selector(PhotoLibraryController.dismiss(_:)))
-            
-            //        let nav = NavigationController(navigationBarClass: nil, toolbarClass: ExtendedToolbar.self)
-            //        nav.viewControllers = [container.viewController]
-            
-            let nav1  =  NavigationControllerMake().init(navigationBarClass: nil, toolbarClass: ToolbarMake())
-            nav1.viewControllers = [vc2]
-            nav1.isNavigationBarHidden = false
-            
-            vc.viewControllers = [
-                nav1
-            ]
+            present(vc2, animated: true, completion: nil)
+//            //vc1.hidesBottomBarWhenPushed = true
+//            vc2.hidesBottomBarWhenPushed = true
+//            vc2.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Dismiss", style: .plain, target: vc, action: #selector(PhotoLibraryController.dismiss(_:)))
+//            
+//            //        let nav = NavigationController(navigationBarClass: nil, toolbarClass: ExtendedToolbar.self)
+//            //        nav.viewControllers = [container.viewController]
+//            
+//            let nav1  =  NavigationControllerMake().init(navigationBarClass: nil, toolbarClass: ToolbarMake())
+//            nav1.viewControllers = [vc2]
+//            nav1.isNavigationBarHidden = false
+//            
+//            vc.viewControllers = [
+//                nav1
+//            ]
             
         default:
             break

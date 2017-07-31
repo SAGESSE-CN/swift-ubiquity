@@ -24,7 +24,7 @@ internal class Cacher: NSObject {
         
         // because the performance issue, make a temporary subtask
         let request = RequestTask(for: asset, size: size, mode: mode, result: resultHandler)
-        let synchronous = (options as? DataSourceOptions)?.isSynchronous ?? false
+        let synchronous = (options as? SourceOptions)?.isSynchronous ?? false
         
         // add subtask to main task
         _dispatch.util.ub_map(synchronous) {

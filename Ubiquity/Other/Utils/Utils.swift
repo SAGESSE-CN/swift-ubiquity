@@ -24,28 +24,6 @@ internal func ub_identifier(with media: AssetMediaType) -> String {
     }
 }
 
-internal func ub_defaultContentClasses(with page: Page) -> Dictionary<AssetMediaType, AnyClass> {
-    switch page {
-    case .album:
-        return [.image: UIImageView.self,
-                .audio: UIImageView.self,
-                .video: UIImageView.self,
-                .unknown: UIImageView.self]
-        
-    case .detail:
-        return [.image: PhotoContentView.self,
-                .audio: PhotoContentView.self,
-                .video: VideoContentView.self,
-                .unknown: PhotoContentView.self]
-        
-    case .edit:
-        return [.image: PhotoContentView.self,
-                .audio: PhotoContentView.self,
-                .video: VideoContentView.self,
-                .unknown: PhotoContentView.self]
-    }
-}
-
 internal func ub_image(named: String) -> UIImage? {
     return UIImage(named: named, in: _bundle, compatibleWith: nil)
 }

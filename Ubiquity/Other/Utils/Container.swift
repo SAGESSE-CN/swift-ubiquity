@@ -13,8 +13,6 @@ public enum Position {
     case detail
 }
 
-
-
 /// The base container
 open class Container: NSObject {
     
@@ -22,7 +20,6 @@ open class Container: NSObject {
     internal init(library: Library) {
         self.cacher = .init(library: library)
         self.library = library
-        self.factorys = [:]
         super.init()
     }
     
@@ -100,27 +97,48 @@ open class Container: NSObject {
     
     // MARK: Content
     
-    func register(_ cellClass: AnyClass?, in position: Position) {
+    func factory(with page: Page) -> Factory? {
+        // hit cache?
+        if let factory = _factorys[page] {
+            return factory
+        }
+        
+        // create factory
+        switch page {
+        case .albums:
+            let factory = FactoryAlbums()
+            _factorys[page] = factory
+            return factory
+            
+        case .albumsList:
+            let factory = FactoryAlbumsList()
+            _factorys[page] = factory
+            return factory
+            
+        case .detail:
+            let factory = FactoryDetail()
+            _factorys[page] = factory
+            return factory
+        }
     }
     
-    func register(_ contentClass: AnyClass?, in posistion: Position, mediaType: AssetMediaType) {
-    }
+//    func register(_ cellClass: AnyClass?, in position: Position) {
+//    }
+//    
+//    func register(_ contentClass: AnyClass?, in posistion: Position, mediaType: AssetMediaType) {
+//    }
     
-    
-    func view(with page: Page, source: DataSource, sender: Any) -> UIView? {
+    func view(with page: Page, source: Source, sender: Any) -> UIView? {
         return nil
     }
-    func viewController(wit page: Page, source: DataSource, sender: Any) -> UIViewController? {
+    func viewController(wit page: Page, source: Source, sender: Any) -> UIViewController? {
         // if factory is nil, no provider
-        guard let factory = factorys[page] else {
+        guard let factory = factory(with: page) else {
             return nil
         }
         
         // create controller for page
-        let controller = factory.controller.init(container: self, factory: factory, source: source, sender: sender)
-        
-        // can't convert to `UIViewController`?
-        return controller as? UIViewController
+        return factory.controller.init(container: self, factory: factory, source: source, sender: sender) as? UIViewController
     }
     
     /// The current the library
@@ -128,9 +146,10 @@ open class Container: NSObject {
     
     /// The current cache
     internal var cacher: Cacher
-    internal var factorys: Dictionary<Page, Factory>
     
     #if DEBUG
-    internal var debug: Bool = true
+    internal var debug: Bool = false
     #endif
+    
+    private lazy var _factorys: Dictionary<Page, Factory> = [:]
 }

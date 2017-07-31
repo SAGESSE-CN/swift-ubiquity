@@ -15,12 +15,12 @@ open class Browser: Container {
     public override init(library: Library) {
         super.init(library: library)
         
-        // update factory
-        self.factorys = [
-            .edit: .init(controller: BrowserDetailController.self, cell: BrowserDetailCell.self, contents: ub_defaultContentClasses(with: .edit)),
-            .album: .init(controller: BrowserAlbumController.self, cell: BrowserAlbumCell.self, contents: ub_defaultContentClasses(with: .album)),
-            .detail: .init(controller: BrowserDetailController.self, cell: BrowserDetailCell.self, contents: ub_defaultContentClasses(with: .detail)),
-        ]
+//        // update factory
+//        self.factorys = [
+//            .edit: .init(controller: BrowserDetailController.self, cell: BrowserDetailCell.self, contents: ub_defaultContentClasses(with: .edit)),
+//            .albums: .init(controller: BrowserAlbumController.self, cell: BrowserAlbumCell.self, contents: ub_defaultContentClasses(with: .albums)),
+//            .detail: .init(controller: BrowserDetailController.self, cell: BrowserDetailCell.self, contents: ub_defaultContentClasses(with: .detail)),
+//        ]
     }
 }
 

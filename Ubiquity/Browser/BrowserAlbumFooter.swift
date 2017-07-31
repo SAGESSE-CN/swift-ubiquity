@@ -19,7 +19,7 @@ internal class BrowserAlbumFooter: UIView {
         _setup()
     }
     
-    var source: DataSource? {
+    var source: Source? {
         willSet {
             guard let source = newValue else {
                 return

@@ -42,7 +42,7 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
         _badgeView?.isHidden = true
         
         // make options
-        let options = DataSourceOptions()
+        let options = SourceOptions()
         
         // setup content
         _allowsInvaildContents = true

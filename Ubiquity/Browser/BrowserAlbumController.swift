@@ -11,13 +11,17 @@ import UIKit
 /// the asset list in album
 internal class BrowserAlbumController: UICollectionViewController, Controller {
     
-    required init(container: Container, factory: Factory, source: DataSource, sender: Any) {
+    required init(container: Container, factory: Factory, source: Source, sender: Any) {
+        // setup init data
         _source = source
         _factory = factory
         _container = container
         
         // continue init the UI
         super.init(collectionViewLayout: BrowserAlbumLayout())
+        
+        // config other
+        title = _source.title
         
         // listen albums any change
         _container.library.addChangeObserver(self)
@@ -43,7 +47,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller {
         return _factory
     }
     
-    var source: DataSource {
+    var source: Source {
         return _source
     }
     
@@ -51,24 +55,42 @@ internal class BrowserAlbumController: UICollectionViewController, Controller {
         super.loadView()
         
         // setup controller
-        title = _source.title
         view.backgroundColor = .white
         
-        // setup footer view
-        _footerView.source = _source
-        _footerView.frame = .init(x: 0, y: 0, width: collectionView?.frame.width ?? 0, height: 48)
-        _footerView.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
-        _footerView.backgroundColor = .random
-        collectionView?.addSubview(_footerView)
+        // generate header view
+        _headerView = {
+            // display header only in moment
+            guard _source.collectionType == .moment else {
+                return nil
+            }
+            
+            let headerView = BrowserAlbumHeader(frame: .init(x: 0, y: 0, width: view.frame.width, height: 48))
+            
+            // config
+            headerView.effect = UIBlurEffect(style: .extraLight)
+            headerView.layer.zPosition = -0.5
+            
+            return headerView
+        }()
         
-        // setup header view
-        _headerView.layer.contents = UIImage(named: "t1")?.cgImage
-        collectionView?.addSubview(_headerView)
+        // generate footer view
+        _footerView = {
+            let footerView = BrowserAlbumFooter()
+            
+            // config
+            footerView.frame = .init(x: 0, y: 0, width: collectionView?.frame.width ?? 0, height: 48)
+            footerView.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
+            
+            // add to view
+            collectionView?.addSubview(footerView)
+            
+            return footerView
+        }()
         
         // setup colleciton view
         collectionView?.backgroundColor = .white
         collectionView?.alwaysBounceVertical = true
-        collectionView?.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "HEADER")
+        collectionView?.register(BrowserAlbumHeader.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "HEADER")
         
         // register colleciton cell
         _factory.contents.forEach {
@@ -86,28 +108,35 @@ internal class BrowserAlbumController: UICollectionViewController, Controller {
             }
         }
         
+        // hi
         collectionView?.alpha = 0
-        navigationController?.isToolbarHidden = false
     }
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         
-        
-        guard collectionViewLayout.collectionViewContentSize != _cachedSize else {
+        // check
+        let size = collectionViewLayout.collectionViewContentSize
+        guard size != _cachedSize else {
             return
         }
-        _cachedSize = collectionViewLayout.collectionViewContentSize
         
-        // update 
-        _updateHeaderCaches()
+        // bounds is change?
+        if _cachedSize?.width != size.width {
+            _updateHeaderCaches()
+        }
+        
+        // update view
         _updateFooterView()
         _updateHeaderView()
+        
+        // update cache
+        _cachedSize = size
     }
     
     fileprivate var _container: Container
     fileprivate var _factory: Factory
-    fileprivate var _source: DataSource {
+    fileprivate var _source: Source {
         willSet {
             title = newValue.title
         }
@@ -127,7 +156,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller {
     
     fileprivate var _infoView: ErrorView?
     
-    fileprivate var _footerView: BrowserAlbumFooter = .init()
+    fileprivate var _footerView: BrowserAlbumFooter?
     fileprivate var _footerContentInsets: UIEdgeInsets = .zero {
         willSet {
             // get current collection view
@@ -146,7 +175,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller {
     }
     
     // header
-    fileprivate var _headerView: UIView = .init()
+    fileprivate var _headerView: BrowserAlbumHeader?
     fileprivate var _headerInSection: Int = 0
     fileprivate var _headerAllLayoutAttributes: [UICollectionViewLayoutAttributes?]?
 }
@@ -156,45 +185,56 @@ extension BrowserAlbumController {
     
     fileprivate func _updateHeaderView() {
         // collection view must be set
-        guard let collectionView = collectionView else {
+        guard let collectionView = collectionView, let headerView = _headerView else {
             return
         }
         // fetch current section
         let offset = collectionView.contentOffset.y + collectionView.contentInset.top
         guard let (section, distance) = _indexForHeader(at: offset) else {
-            _headerView.isHidden = true
+            headerView.section = nil
+            headerView.removeFromSuperview()
+            return
+        }
+        // if layout attributes is nil, no header view
+        guard let layoutAttributes = _headerAllLayoutAttributes?[section] else {
+            headerView.section = nil
+            headerView.removeFromSuperview()
             return
         }
         
-        //logger.debug?write(section, distance)
-        //logger.debug?.write(_indexForHeader(at: collectionView.contentOffset))
+        // update position
+        var frame = layoutAttributes.frame
+        frame.origin.y = offset + min(distance - frame.height, 0)
+        headerView.frame = frame
         
-        if let layoutAttributes = _headerAllLayoutAttributes?[section] {
-            
-            var frame = layoutAttributes.frame
-            
-            frame.origin.y = offset + min(distance - frame.height, 0)
-            
-            _headerView.frame = frame
-            _headerView.isHidden = false
-            
+        // show header view
+        if headerView.superview == nil {
+            collectionView.insertSubview(headerView, at: 0)
         }
         
+        // section is change?
+        guard section != headerView.section else {
+            return
+        }
+        
+        // update data
+        headerView.section = section
+        //headerView.contents = _source.collection(at: section)
     }
     
     fileprivate func _updateFooterView() {
         // collection view must be set
-        guard let collectionView = collectionView else {
+        guard let collectionView = collectionView, let footerView = _footerView else {
             return
         }
         
         // the content size is change?
         let contentSize = collectionViewLayout.collectionViewContentSize
         
-        var nframe = _footerView.frame
+        var nframe = footerView.frame
         nframe.origin.y = contentSize.height + 0
         nframe.size.width = view.bounds.width
-        _footerView.frame = nframe
+        footerView.frame = nframe
         
         // calculates the height of the current minimum display
         let top = collectionView.contentInset.top - _footerContentInsets.top
@@ -202,16 +242,16 @@ extension BrowserAlbumController {
         let visableHeight = view.frame.height - top - bottom
         guard visableHeight < contentSize.height else {
             // too small to hide footer view
-            _footerView.alpha = 0
+            _footerView?.alpha = 0
             _footerContentInsets.bottom = 0
             return
         }
         
         // if status has change
-        if _footerView.alpha != 1 {
+        if footerView.alpha != 1 {
             // too large to show footer view & update content insets
-            _footerView.alpha = 1
-            _footerContentInsets.bottom = _footerView.frame.height
+            _footerView?.alpha = 1
+            _footerContentInsets.bottom = footerView.frame.height
         }
     }
     
@@ -226,7 +266,7 @@ extension BrowserAlbumController {
         
         // backward: fetch first -n or 0
         var start = min(_headerInSection, allLayoutAttributes.count - 1)
-        while start > 0 {
+        while start >= 0 {
             // the section has header view?
             guard let layoutAttributes = allLayoutAttributes[start] else {
                 start -= 1
@@ -238,6 +278,11 @@ extension BrowserAlbumController {
                 continue
             }
             break
+        }
+        
+        // is over hide
+        guard start >= 0 else {
+            return nil
         }
         
         // forward: fetch first +n or inf
@@ -258,11 +303,6 @@ extension BrowserAlbumController {
             break
         }
         
-        // if start equal to end, no header
-        guard start != end else {
-            return nil//(-1, distance)
-        }
-        
         // optimize search speed
         _headerInSection = start
         
@@ -272,9 +312,11 @@ extension BrowserAlbumController {
     
     fileprivate func _updateHeaderCaches() {
         // collection view must be set
-        guard let collectionView = collectionView else {
+        guard let collectionView = collectionView, _headerView != nil else {
             return
         }
+        
+        logger.debug?.write()
         
         // fetch all header layout attributes
         _headerAllLayoutAttributes = (0 ..< collectionView.numberOfSections).map {
@@ -486,6 +528,10 @@ extension BrowserAlbumController {
         }
         _authorized = true
         
+        // load source with container
+        _source.load(with: _container)
+        _footerView?.source = _source
+        
         // check for assets count
         guard _source.count != 0 else {
             // count is zero, no data
@@ -504,26 +550,29 @@ extension BrowserAlbumController {
         // reload data
         collectionView?.reloadData()
         
+        guard let collectionView = collectionView else {
+            return
+        }
+        
+        // scroll after update footer
+        _updateFooterView()
+        _updateHeaderCaches()
+        
         // scroll to init position if needed
-        if let collectionView = collectionView {
-            // scroll after update footer
-            _updateFooterView()
-            _updateHeaderCaches()
-            
-            // if the contentOffset over boundary, reset vaild contentOffset in collectionView internal
+        if _source.collectionSubtype == .smartAlbumUserLibrary {
+            // if the contentOffset over boundary
+            // reset vaild contentOffset in collectionView internal
             let size = collectionViewLayout.collectionViewContentSize
             let bottom = collectionView.contentInset.bottom - _footerContentInsets.bottom
-            collectionView.contentOffset.y = size.height - (collectionView.frame.height - bottom) + 4
+            collectionView.contentOffset.y = size.height - (collectionView.frame.height - bottom)
         }
         
         // content is loaded
         _prepared = true
-        _targetContentOffset = collectionView?.contentOffset ?? .zero
+        _targetContentOffset = collectionView.contentOffset 
         
         // update content offset
-        if let scrollView = collectionView {
-            scrollViewDidScroll(scrollView)
-        }
+        scrollViewDidScroll(collectionView)
     }
     
 }
@@ -592,10 +641,20 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        guard let layout = collectionViewLayout as? UICollectionViewFlowLayout else {
+        // collectionViewLayout must king of `UICollectionViewFlowLayout`
+        guard let collectionViewLayout = collectionViewLayout as? UICollectionViewFlowLayout else {
             return .zero
         }
-        return layout.itemSize
+        
+        return collectionViewLayout.itemSize
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        // show header view?
+        guard _headerView != nil else {
+            return .zero
+        }
+        return .init(width: 0, height: 48)
     }
     
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
@@ -605,6 +664,7 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
         }
         
         // show asset with container and orientation
+        cell.layer.zPosition = -1
         displayer.willDisplay(with: asset, container: _container, orientation: .up)
     }
     
@@ -618,13 +678,26 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
     }
     
     override func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
-        logger.trace?.write(indexPath)
+        // view must king of `BrowserAlbumHeader`
+        guard let view = view as? BrowserAlbumHeader else {
+            return
+        }
         
-        view.layer.contents = UIImage(named: "t1")?.cgImage
-        //view.backgroundColor = .random
+        // update data
+        view.parent = _headerView
+        view.section = indexPath.section
+        view.contents = _source.collection(at: indexPath.section)
     }
     override func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
-        logger.trace?.write(indexPath)
+        // view must king of `BrowserAlbumHeader`
+        guard let view = view as? BrowserAlbumHeader else {
+            return
+        }
+        
+        // clear data
+        view.contents = nil
+        view.section = nil
+        view.parent = nil
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -693,7 +766,7 @@ extension BrowserAlbumController: TransitioningDataSource {
             let frame = cell.convert(cell.bounds, to: view)
             let height = view.frame.height - topLayoutGuide.length - bottomLayoutGuide.length
             
-            let y1 = -topLayoutGuide.length + frame.minY
+            let y1 = -topLayoutGuide.length + frame.minY - (_headerView?.frame.height ?? 0)
             let y2 = -topLayoutGuide.length + frame.maxY
             
             // reset content offset if needed
@@ -800,14 +873,14 @@ extension BrowserAlbumController: ChangeObserver {
     }
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
-    internal func library(_ library: Library, didChange change: Change, details: DataSourceChangeDetails) {
+    internal func library(_ library: Library, didChange change: Change, details: SourceChangeDetails) {
         // get collection view and new data source
         guard let collectionView = collectionView, let source = details.after else {
             return
         }
         // keep the new fetch result for future use.
         _source = source
-        _footerView.source = source
+        _footerView?.source = source
         
         // update collection asset count change
         guard source.count != 0 else {

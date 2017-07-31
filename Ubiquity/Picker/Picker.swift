@@ -9,25 +9,27 @@
 import UIKit
 
 /// A media picker
-public class Picker: Container {
+public class Picker: Browser {
     
     /// Create a media picker
     public override init(library: Library) {
         super.init(library: library)
         
-        // update factory
-        self.factorys = [
-            .edit: .init(controller: BrowserDetailController.self, cell: BrowserDetailCell.self, contents: ub_defaultContentClasses(with: .edit)),
-            .album: .init(controller: PickerAlbumController.self, cell: PickerAlbumCell.self, contents: ub_defaultContentClasses(with: .album)),
-            .detail: .init(controller: BrowserDetailController.self, cell: BrowserDetailCell.self, contents: ub_defaultContentClasses(with: .detail)),
-        ]
+        // setup albums
+        factory(with: .albums).flatMap {
+            $0.cell = PickerAlbumCell.self
+            $0.controller = PickerAlbumController.self
+        }
     }
     
     func select(with asset: Asset) {
     }
+    
     func deselect(with asset: Asset) {
     }
+    
     func isSelected(with asset: Asset) -> Bool {
         return false
     }
+    
 }

@@ -32,8 +32,8 @@ internal class BrowserAlbumListCell: UITableViewCell {
         _container = container
         _collection = collection
         
-        let count = collection.assetCount
-        let assets = (max(count - 3, 0) ..< count).flatMap { collection.asset(at: $0) }
+        let count = collection.count
+        let assets = (max(count - 3, 0) ..< count).flatMap { collection[$0] }
         
         // setup content
         _titleLabel.text = collection.title
@@ -53,7 +53,7 @@ internal class BrowserAlbumListCell: UITableViewCell {
 
         // make options
         let size = _thumbView.bounds.size.ub_fitWithScreen
-        let options = DataSourceOptions()
+        let options = SourceOptions()
         
         // setup thumbnail image
         _thumbView.images = assets.map { _ in nil }

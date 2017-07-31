@@ -132,7 +132,7 @@ extension VideoContentView: Playable {
         }
         
         // prepare data
-        let options = DataSourceOptions()
+        let options = SourceOptions()
         
         // request player item
         _prepareing = true

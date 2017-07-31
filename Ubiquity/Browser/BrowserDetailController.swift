@@ -10,7 +10,7 @@ import UIKit
 
 internal class BrowserDetailController: UICollectionViewController, Controller {
     
-    required init(container: Container, factory: Factory, source: DataSource, sender: Any) {
+    required init(container: Container, factory: Factory, source: Source, sender: Any) {
         _source = source
         _factory = factory
         _container = container
@@ -48,7 +48,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller {
         return _factory
     }
     
-    var source: DataSource {
+    var source: Source {
         return _source
     }
     
@@ -166,7 +166,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller {
     
     // MARK: private ivar
     
-    fileprivate var _source: DataSource
+    fileprivate var _source: Source
     fileprivate var _factory: Factory
     fileprivate var _container: Container
     
@@ -678,7 +678,7 @@ extension BrowserDetailController: UICollectionViewDelegateFlowLayout {
 //        }
 //        
 //        let size = CGSize(width: 20, height: 38).ub_fitWithScreen
-//        let options = DataSourceOptions()
+//        let options = SourceOptions()
 //        
 //        if let imageView = cell.contentView as? UIImageView {
 //            imageView.contentMode = .scaleAspectFill
@@ -770,7 +770,7 @@ extension BrowserDetailController: ChangeObserver {
     }
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
-    internal func library(_ library: Library, didChange change: Change, details: DataSourceChangeDetails) {
+    internal func library(_ library: Library, didChange change: Change, details: SourceChangeDetails) {
         
         // get collection view and new data source
         guard let collectionView = collectionView, let source = details.after else {

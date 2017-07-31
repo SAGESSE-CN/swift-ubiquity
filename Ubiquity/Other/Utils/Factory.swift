@@ -9,42 +9,79 @@
 import UIKit
 
 enum Page {
-    case edit
-    case album
+    
+    case albums
+    case albumsList
+    
     case detail
-}
-
-internal class Factory {
-    
-    init(controller: Controller.Type, cell: UIView.Type, contents: Dictionary<AssetMediaType, AnyClass> = [:]) {
-        self.controller = controller
-        self.contents = [:]
-        self.cell = cell
-        
-        // register default
-        [AssetMediaType.audio, .image, .video, .unknown].forEach {
-            register(nil, for: $0)
-        }
-        // register init
-        contents.forEach {
-            register($1, for: $0)
-        }
-    }
-    
-    private(set) var cell: UIView.Type
-    private(set) var contents: Dictionary<String, AnyClass>
-    private(set) var controller: Controller.Type
-    
-    func register(_ contentClass: AnyClass?, for media: AssetMediaType) {
-        // update content class
-        contents[ub_identifier(with: media)] = _makeClass(cell, contentClass)
-    }
 }
 
 internal protocol Controller {
     
     /// Base controller craete method
-    init(container: Container, factory: Factory, source: DataSource, sender: Any)
+    init(container: Container, factory: Factory, source: Source, sender: Any)
+}
+
+
+internal class Factory {
+    
+    init(controller: Controller.Type, cell: UIView.Type) {
+        self.controller = controller
+        self.cell = cell
+    }
+    
+    var cell: UIView.Type
+    
+    var contents: Dictionary<String, AnyClass> {
+        var result = Dictionary<String, AnyClass>()
+        _contents.forEach {
+            result[$0] = _makeClass(cell, $1)
+        }
+        return result
+    }
+    
+    var controller: Controller.Type
+    
+    
+    func register(_ contentClass: AnyClass?, for media: AssetMediaType) {
+        // update content class
+        _contents[ub_identifier(with: media)] = contentClass
+    }
+
+    private var _contents: Dictionary<String, AnyClass?> = [:]
+}
+
+internal class FactoryAlbums: Factory {
+    
+    override init(controller: Controller.Type = BrowserAlbumController.self, cell: UIView.Type = BrowserAlbumCell.self) {
+        super.init(controller: controller, cell: cell)
+        
+        // setup default
+        register(UIImageView.self, for: .audio)
+        register(UIImageView.self, for: .image)
+        register(UIImageView.self, for: .video)
+        register(UIImageView.self, for: .unknown)
+    }
+}
+
+internal class FactoryAlbumsList: Factory {
+    
+    override init(controller: Controller.Type = BrowserAlbumListController.self, cell: UIView.Type = BrowserAlbumListCell.self) {
+        super.init(controller: controller, cell: cell)
+    }
+}
+
+internal class FactoryDetail: Factory {
+    
+    override init(controller: Controller.Type = BrowserDetailController.self, cell: UIView.Type = BrowserDetailCell.self) {
+        super.init(controller: controller, cell: cell)
+        
+        // setup default
+        register(PhotoContentView.self, for: .audio)
+        register(PhotoContentView.self, for: .image)
+        register(VideoContentView.self, for: .video)
+        register(PhotoContentView.self, for: .unknown)
+    }
 }
 
 

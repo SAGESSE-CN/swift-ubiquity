@@ -142,11 +142,11 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
     }
     
     /// The number of assets in the asset collection.
-    var assetCount: Int {
+    var count: Int {
         return _assets?.count ?? result.count
     }
     /// The number of assets in the asset collection.
-    func assetCount(with type: Ubiquity.AssetMediaType) -> Int {
+    func count(with type: Ubiquity.AssetMediaType) -> Int {
         // hit cache?
         if let count = _cachedCount[type] {
             return count
@@ -157,14 +157,30 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
     }
     
     /// Retrieves assets from the specified asset collection.
-    func asset(at index: Int) -> Ubiquity.Asset {
+    subscript(index: Int) -> Asset {
         
         if let asset = _assets?[index] {
             return asset
         }
+        
         let asset = PhotoAsset(asset: result.object(at: index))
         _assets?[index] = asset
         return asset
+    }
+    
+    /// The earliest creation date among all assets in the asset collection.
+    var startDate: Date? {
+        return _collection.startDate
+    }
+    
+    /// The latest creation date among all assets in the asset collection.
+    var endDate: Date? {
+        return _collection.endDate
+    }
+    
+    /// The names of locations grouped by the collection (an array of NSString objects).
+    var locationNames: [String] {
+        return _collection.localizedLocationNames
     }
     
     /// Compare the change
@@ -240,7 +256,7 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
         
         // if all is empty, ignore the event
         let allIsEmpty = ![details.removedIndexes?.isEmpty, details.insertedIndexes?.isEmpty, details.changedIndexes?.isEmpty, details.movedIndexes?.isEmpty].contains { !($0 ?? true) }
-        if allIsEmpty && content == nil && assetCount == newCollection.assetCount {
+        if allIsEmpty && content == nil && count == newCollection.count {
             return nil
         }
         
@@ -286,12 +302,12 @@ private class PhotoCollectionList: Ubiquity.CollectionList {
     }
     
     /// The number of collection in the collection list.
-    var collectionCount: Int {
+    var count: Int {
         return _collections.count
     }
     
     /// Retrieves collection from the specified collection list.
-    func collection(at index: Int) -> Ubiquity.Collection {
+    subscript(index: Int) -> Ubiquity.Collection {
         return _collections[index]
     }
     
@@ -304,7 +320,7 @@ private class PhotoCollectionList: Ubiquity.CollectionList {
         var diffs = _diff(_collections, dest: collectionList._collections)
         
         // check collection the change
-        (0 ..< collectionList.collectionCount).forEach {
+        (0 ..< collectionList.count).forEach {
             // find the elements of change
             guard let index = _collections.index(of: collectionList._collections[$0]) else {
                 return

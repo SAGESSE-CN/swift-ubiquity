@@ -19,17 +19,22 @@ public protocol Collection: class {
     
     /// The type of the asset collection, such as an album or a moment.
     var collectionType: CollectionType { get }
+    
     /// The subtype of the asset collection.
     var collectionSubtype: CollectionSubtype { get }
     
-    /// The number of assets in the asset collection.
-    var assetCount: Int { get }
-    
-    /// The number of assets in the asset collection.
-    func assetCount(with type: AssetMediaType) -> Int
-    
     /// Retrieves assets from the specified asset collection.
-    func asset(at index: Int) -> Asset
+    subscript(index: Int) -> Asset { get }
+    
+    /// The number of assets in the asset collection.
+    var count: Int { get }
+    /// The number of assets in the asset collection.
+    func count(with type: AssetMediaType) -> Int
+    
+    /// The earliest creation date among all assets in the asset collection.
+    var startDate: Date? { get }
+    /// The latest creation date among all assets in the asset collection.
+    var endDate: Date? { get }
 }
 
 /// The abstract superclass for Photos asset collection lists.
@@ -39,10 +44,10 @@ public protocol CollectionList: class {
     var collectionType: CollectionType { get }
     
     /// The number of collection in the collection list.
-    var collectionCount: Int { get }
+    var count: Int { get }
     
     /// Retrieves collection from the specified collection list.
-    func collection(at index: Int) -> Collection
+    subscript(index: Int) -> Collection { get }
 }
 
 /// Major distinctions between kinds of asset collections

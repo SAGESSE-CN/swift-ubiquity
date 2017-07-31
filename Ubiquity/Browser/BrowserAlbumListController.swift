@@ -9,19 +9,16 @@
 import UIKit
 
 public func BrowserAlbumListControllerMake(_ container: Container) -> UIViewController {
-    return BrowserAlbumListController(container: container)
-}
-public func NavigationControllerMake() -> UINavigationController.Type {
-    return NavigationController.self
-}
-public func ToolbarMake() -> UIToolbar.Type {
-    return ExtendedToolbar.self
+    //return BrowserAlbumListController(container: container)
+    return TabBarController(container: container)
 }
 
 /// the album list in container
-internal class BrowserAlbumListController: UITableViewController {
+internal class BrowserAlbumListController: UITableViewController, Controller {
     
-    init(container: Container) {
+    required init(container: Container, factory: Factory, source: Source, sender: Any) {
+        // setup init data
+        _source = source
         _container = container
         
         // continue init the UI
@@ -30,30 +27,35 @@ internal class BrowserAlbumListController: UITableViewController {
         // listen albums any change
         _container.library.addChangeObserver(self)
     }
+    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
     deinit {
         // cancel listen change
         _container.library.removeChangeObserver(self)
     }
     
+    /// Reload all data on authorization status did change
     func reloadData(with auth: AuthorizationStatus) {
-        
         // check for authorization status
         guard auth == .authorized else {
             // no permission
             showError(with: "No Access Permissions", subtitle: "") // 此应用程序没有权限访问您的照片\n在\"设置-隐私-图片\"中开启后即可查看
             return
         }
-        // get all photo albums
-        let collectionList = _container.request(forCollection: .regular)
-        guard collectionList.collectionCount != 0 else {
+        
+        // fet collection list with container
+        let newCollectionList = _container.request(forCollection: _source.collectionType)
+        _collectionList = newCollectionList
+        
+        // check albums count
+        guard newCollectionList.count != 0 else {
             // no data
             showError(with: "No Photos or Videos", subtitle: "")
             return
         }
-        _collectionList = collectionList
         
         // clear error info & display album
         clearError()
@@ -80,6 +82,9 @@ internal class BrowserAlbumListController: UITableViewController {
                 self.reloadData(with: status)
             }
         }
+        
+        // hi
+        tableView.alpha = 0
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -101,10 +106,6 @@ internal class BrowserAlbumListController: UITableViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-       
-        // show fps
-        view.window?.showsFPS = true
-        view.window?.backgroundColor = .white
     }
     
     override func viewWillLayoutSubviews() {
@@ -116,9 +117,11 @@ internal class BrowserAlbumListController: UITableViewController {
         }
     }
     
+    fileprivate var _source: Source
     fileprivate var _container: Container
-    fileprivate var _selectedItem: IndexPath?
     fileprivate var _collectionList: CollectionList?
+    
+    fileprivate var _selectedItem: IndexPath?
     
     fileprivate var _infoView: ErrorView?
 }
@@ -127,7 +130,7 @@ internal class BrowserAlbumListController: UITableViewController {
 extension BrowserAlbumListController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return _collectionList?.collectionCount ?? 0
+        return _collectionList?.count ?? 0
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -140,7 +143,7 @@ extension BrowserAlbumListController {
     
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         // cell must king of `BrowserAlbumListCell`
-        guard let cell = cell as? BrowserAlbumListCell, let collection = _collectionList?.collection(at: indexPath.row) else {
+        guard let cell = cell as? BrowserAlbumListCell, let collection = _collectionList?[indexPath.row] else {
             return
         }
         
@@ -164,13 +167,13 @@ extension BrowserAlbumListController {
         logger.trace?.write(indexPath)
         
         // fetch collection
-        guard let collection = _collectionList?.collection(at: indexPath.row) else {
+        guard let collection = _collectionList?[indexPath.row] else {
             return
         }
         logger.debug?.write("show album with: \(collection.title ?? ""), at: \(indexPath)")
         
         // create album controller
-        guard let controller = _container.viewController(wit: .album, source: .init(collection: collection), sender: indexPath) else {
+        guard let controller = _container.viewController(wit: .albums, source: .init(collection: collection), sender: indexPath) else {
             return
         }
         show(controller, sender: indexPath)
@@ -196,7 +199,7 @@ extension BrowserAlbumListController: ChangeObserver {
         }
     }
     /// Tells your observer that a set of changes has occurred in the Photos library.
-    internal func library(_ library: Library, didChange change: Change, details: ChangeDetails) {
+    func library(_ library: Library, didChange change: Change, details: ChangeDetails) {
         // get table view and new data source
         guard let tableView = tableView, let newCollectionList = details.after as? CollectionList else {
             return
@@ -277,5 +280,9 @@ extension BrowserAlbumListController {
         // clear view
         _infoView?.removeFromSuperview()
         _infoView = nil
+        
+        UIView.animate(withDuration: 0.25) {
+            self.tableView.alpha = 1
+        }
     }
 }

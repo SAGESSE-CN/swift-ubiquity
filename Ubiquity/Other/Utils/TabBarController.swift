@@ -46,7 +46,7 @@ internal class TabBarController: UITabBarController {
             controllers.append(navigation)
         }
         
-        // ggenerate album list
+        // generate album list
         if let controller = _container.viewController(wit: .albumsList, source: .init(collectionType: .regular), sender: self) {
             // must show in navigation controller
             let navigation = NavigationController(navigationBarClass: nil, toolbarClass: nil)

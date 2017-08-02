@@ -34,7 +34,7 @@ internal class BrowserAlbumListCell: UITableViewCell {
         
         let count = collection.count
         let assets = (max(count - 3, 0) ..< count).flatMap { collection[$0] }
-        
+
         // setup content
         _titleLabel.text = collection.title
         _subtitleLabel.text = ub_string(for: count)

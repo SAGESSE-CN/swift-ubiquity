@@ -456,6 +456,17 @@ private class PhotoCollectionList: Ubiquity.CollectionList {
         return types
     }
     private func _collections(with collectionType: Ubiquity.CollectionType) -> Array<PhotoCollection> {
+        
+        if collectionType == .moment {
+            // fetch collection with type
+            let result = PHAssetCollection.fetchMoments(with: nil)
+            
+            // merge
+            return (0 ..< result.count).flatMap { index in
+                return PhotoCollection(collection: result.object(at: index))
+            }
+        }
+        
         return _types(with: collectionType).flatMap { type, subtype, allowsEmpty -> Array<PhotoCollection> in
             // fetch collection with type
             let result = PHAssetCollection.fetchAssetCollections(with: type, subtype: subtype, options: nil)

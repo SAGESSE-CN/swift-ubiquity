@@ -82,9 +82,6 @@ internal class BrowserAlbumListController: UITableViewController, Controller {
                 self.reloadData(with: status)
             }
         }
-        
-        // hi
-        tableView.alpha = 0
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -281,6 +278,7 @@ extension BrowserAlbumListController {
         _infoView?.removeFromSuperview()
         _infoView = nil
         
+        self.tableView.alpha = 0
         UIView.animate(withDuration: 0.25) {
             self.tableView.alpha = 1
         }

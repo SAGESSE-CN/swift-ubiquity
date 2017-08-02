@@ -786,14 +786,7 @@ extension BrowserDetailController: ChangeObserver {
             navigationController?.popViewController(animated: true)
             return
         }
-        
-        // the collection is deleted?
-        guard !details.wasDeleted else {
-            // has any delete, must reload
-            collectionView.reloadData()
-            return
-        }
-        
+
         // the aset has any change?
         guard details.hasAssetChanges else {
             return
@@ -802,13 +795,13 @@ extension BrowserDetailController: ChangeObserver {
         // update collection
         collectionView.performBatchUpdates({
             
-            // reload the table view if incremental diffs are not available.
-            details.reloadSections.map {
-                collectionView.reloadSections($0)
-            }
-            
             // For indexes to make sense, updates must be in this order:
             // delete, insert, reload, move
+            
+            details.deleteSections.map { collectionView.deleteSections($0) }
+            details.insertSections.map { collectionView.insertSections($0) }
+            details.reloadSections.map { collectionView.reloadSections($0) }
+            
             details.removeItems.map { collectionView.deleteItems(at: $0) }
             details.insertItems.map { collectionView.insertItems(at: $0) }
             details.reloadItems.map { collectionView.reloadItems(at: $0) }

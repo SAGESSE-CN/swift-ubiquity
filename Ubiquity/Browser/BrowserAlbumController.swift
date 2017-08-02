@@ -112,6 +112,12 @@ internal class BrowserAlbumController: UICollectionViewController, Controller {
         collectionView?.alpha = 0
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.t_viewWillAppear(animated)
+    }
+    
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         
@@ -716,6 +722,7 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
             controller.updateDelegate = self
         }
         
+        // show next page
         show(controller, sender: indexPath)
     }
 }

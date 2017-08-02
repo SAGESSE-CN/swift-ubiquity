@@ -8,6 +8,107 @@
 
 import UIKit
 
+public extension UIViewController {
+    
+    public var prefersTabBarHidden: Bool {
+        return false
+    }
+    public var preferredTabBarUpdateAnimation: UIStatusBarAnimation {
+        return .fade
+    }
+    
+    public var prefersToolbarHidden: Bool {
+        return true
+    }
+    public var preferredToolbarUpdateAnimation: UIStatusBarAnimation {
+        return .fade
+    }
+    
+    public var prefersNavigationBarHidden: Bool {
+        return false
+    }
+    public var preferredNavigationBarUpdateAnimation: UIStatusBarAnimation {
+        return .fade
+    }
+    
+    func t_viewWillAppear(_ animated: Bool) {
+        
+        print(#function, animated)
+        
+        if let navigationController = self.navigationController {
+            if prefersToolbarHidden {
+                
+                UIView.animate(withDuration: TimeInterval(UINavigationControllerHideShowBarDuration), animations: {
+                    UIView.setAnimationBeginsFromCurrentState(true)
+                    
+                    navigationController.toolbar.setItems(self.toolbarItems, animated: true)
+                    //navigationController.toolbar.alpha = 0
+                    
+                }, completion: { success in
+                    
+                    guard success else {
+                        return
+                    }
+                    
+                    UIView.performWithoutAnimation {
+                        navigationController.setToolbarHidden(true, animated: false)
+                        //navigationController.toolbar.isHidden = true
+                        navigationController.toolbar.alpha = 1
+                    }
+                })
+            } else {
+                
+                
+//                UIView.performWithoutAnimation {
+                
+                    navigationController.setToolbarHidden(false, animated: false)
+//                    navigationController.toolbar.frame.origin = .init(x: 0, y: navigationController.view.frame.height - navigationController.toolbar.frame.height)
+//                    navigationController.toolbar.alpha = 0
+//                }
+                
+//                if let tabbar = tabBarController?.tabBar {
+//                    var nframe = tabbar.convert(tabbar.bounds, to: navigationController.view)
+//                    //nframe.origin.x = 0
+//                    //nframe.origin.y = navigationController.view.frame.height - nframe.height
+//                    navigationController.toolbar.frame = nframe
+//                }
+                
+//                UIView.animate(withDuration: TimeInterval(UINavigationControllerHideShowBarDuration), animations: {
+//                    UIView.setAnimationBeginsFromCurrentState(true)
+//                    
+//                    navigationController.toolbar.setItems(self.toolbarItems, animated: true)
+//                    
+//                }, completion: { _ in
+//                })
+            }
+        }
+        if let tabBarController = self.tabBarController {
+            if prefersTabBarHidden {
+                
+                tabBarController.perform("hideBarWithTransition:", with: 0)
+                tabBarController.tabBar.isHidden = false
+                tabBarController.tabBar.alpha = 1
+                
+                UIView.animate(withDuration: TimeInterval(UINavigationControllerHideShowBarDuration), animations: {
+                    tabBarController.tabBar.alpha = 0
+                }, completion: { _ in
+                    //tabBarController.tabBar.alpha = 0
+                })
+            } else {
+                
+                tabBarController.perform("showBarWithTransition:", with: 0)
+                tabBarController.tabBar.alpha = 0
+                
+                UIView.animate(withDuration: TimeInterval(UINavigationControllerHideShowBarDuration), animations: {
+                    tabBarController.tabBar.alpha = 1
+                }, completion: { _ in
+                    tabBarController.tabBar.alpha = 1
+                })
+            }
+        }
+    }
+}
+
 internal class TabBarController: UITabBarController {
     
     init(container: Container) {
@@ -72,6 +173,23 @@ internal class TabBarController: UITabBarController {
         
         // show fps
         UIApplication.shared.delegate?.window??.showsFPS = true
+    }
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        
+        self.tabBar.frame.origin.x = 0
+    }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        self.tabBar.frame.origin.x = 0
+    }
+    
+    
+    
+    override var tabBar: UITabBar {
+        return super.tabBar
     }
     
     private dynamic func _cancel(_ sender: Any) {

@@ -173,9 +173,10 @@ extension BrowserAlbumListController {
         guard let controller = _container.viewController(wit: .albums, source: .init(collection: collection), sender: indexPath) else {
             return
         }
-        show(controller, sender: indexPath)
-        
         _selectedItem = indexPath
+       
+        // show next page
+        show(controller, sender: indexPath)
     }
 }
 

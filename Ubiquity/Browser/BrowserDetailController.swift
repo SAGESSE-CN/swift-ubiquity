@@ -27,6 +27,18 @@ internal class BrowserDetailController: UICollectionViewController, Controller {
         // continue init the UI
         super.init(collectionViewLayout: collectionViewLayout)
         
+//        // the page must hide the bottom bar
+//        self.hidesBottomBarWhenPushed = true
+        
+        // setup toolbar items
+        let toolbarItems = [
+            indicatorItem,
+            UIBarButtonItem(barButtonSystemItem: .action, target: self, action: nil),
+            UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
+            UIBarButtonItem(barButtonSystemItem: .trash, target: nil, action: nil)
+        ]
+        setToolbarItems(toolbarItems, animated: false)
+        
         // listen albums any change
         _container.library.addChangeObserver(self)
     }
@@ -92,15 +104,6 @@ internal class BrowserDetailController: UICollectionViewController, Controller {
 //        indicatorItem.indicatorView.dataSource = self
 //        indicatorItem.indicatorView.register(IndicatorViewCell.dynamic(with: UIImageView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
 //        //indicatorItem.indicatorView.register(IndicatorViewCell.dynamic(with: UIScrollView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
-        
-        // setup toolbar items
-        let toolbarItems = [
-//            indicatorItem,
-            UIBarButtonItem(barButtonSystemItem: .action, target: self, action: nil),
-            UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
-            UIBarButtonItem(barButtonSystemItem: .trash, target: nil, action: nil)
-        ]
-        setToolbarItems(toolbarItems, animated: true)
     }
     
     override func viewDidLoad() {
@@ -114,11 +117,24 @@ internal class BrowserDetailController: UICollectionViewController, Controller {
     
     override func viewWillAppear(_ animated: Bool) {
         navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+        
         super.viewWillAppear(animated)
+        self.t_viewWillAppear(animated)
+        
+        
+//        UIView.animate(withDuration: 0.25) {
+////            self.tabBarController?.tabBar.alpha = 0
+//            self.navigationController?.setToolbarHidden(false, animated: animated)
+//        }
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+        
+//        UIView.animate(withDuration: 0.25) {
+//            self.navigationController?.setToolbarHidden(true, animated: animated)
+////            self.tabBarController?.tabBar.alpha = 1
+//        }
     }
     
     override func viewWillLayoutSubviews() {
@@ -141,7 +157,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller {
         }
     }
     
-//    let indicatorItem = IndicatorItem()
+    let indicatorItem = IndicatorItem()
     let interactiveDismissGestureRecognizer = UIPanGestureRecognizer()
     let tapGestureRecognizer = UITapGestureRecognizer()
     
@@ -309,30 +325,30 @@ extension BrowserDetailController {
     }
     
     fileprivate func _updateCurrentItemForIndicator(with contentOffset: CGPoint) {
-        // must has a collection view
-        guard let collectionView = collectionView else {
-            return
-        }
-        let value = contentOffset.x / collectionView.bounds.width
-        let to = Int(ceil(value))
-        let from = Int(floor(value))
-        let percent = modf(value + 1).1
-        // if from index is changed
-        if _interactivingFromIndex != from {
-            // get index path from collection view
-            let indexPath = collectionView.indexPathForItem(at: CGPoint(x: (CGFloat(from) + 0.5) * collectionView.bounds.width , y: 0))
-            
-            _interactivingFromIndex = from
-            _interactivingFromIndexPath = indexPath
-        }
-        // if to index is changed
-        if _interactivingToIndex != to {
-            // get index path from collection view
-            let indexPath = collectionView.indexPathForItem(at: CGPoint(x: (CGFloat(to) + 0.5) * collectionView.bounds.width , y: 0))
-            
-            _interactivingToIndex = to
-            _interactivingToIndexPath = indexPath
-        }
+//        // must has a collection view
+//        guard let collectionView = collectionView else {
+//            return
+//        }
+//        let value = contentOffset.x / collectionView.bounds.width
+//        let to = Int(ceil(value))
+//        let from = Int(floor(value))
+//        let percent = modf(value + 1).1
+//        // if from index is changed
+//        if _interactivingFromIndex != from {
+//            // get index path from collection view
+//            let indexPath = collectionView.indexPathForItem(at: CGPoint(x: (CGFloat(from) + 0.5) * collectionView.bounds.width , y: 0))
+//            
+//            _interactivingFromIndex = from
+//            _interactivingFromIndexPath = indexPath
+//        }
+//        // if to index is changed
+//        if _interactivingToIndex != to {
+//            // get index path from collection view
+//            let indexPath = collectionView.indexPathForItem(at: CGPoint(x: (CGFloat(to) + 0.5) * collectionView.bounds.width , y: 0))
+//            
+//            _interactivingToIndex = to
+//            _interactivingToIndexPath = indexPath
+//        }
 //        // use percentage update index
 //        indicatorItem.indicatorView.updateIndexPath(from: _interactivingFromIndexPath, to: _interactivingToIndexPath, percent: percent)
     }
@@ -373,6 +389,14 @@ extension BrowserDetailController {
 /// Add full-screen display support
 extension BrowserDetailController {
     
+    override var prefersTabBarHidden: Bool {
+        return true
+    }
+    override var prefersToolbarHidden: Bool {
+        return true
+    }
+    
+    
     override var preferredStatusBarStyle: UIStatusBarStyle {
        // full screen mode shows white status bar
         guard _isFullscreen else {
@@ -402,8 +426,12 @@ extension BrowserDetailController {
             self.view.backgroundColor = .black
             self.collectionView?.backgroundColor = .black
             
-            self.navigationController?.toolbar?.alpha = 0
-            self.navigationController?.navigationBar.alpha = 0
+            if !self.prefersToolbarHidden {
+                self.navigationController?.toolbar?.alpha = 0
+            }
+            if !self.prefersNavigationBarHidden {
+                self.navigationController?.navigationBar.alpha = 0
+            }
             
             self._updateSystemContentInsetIfNeeded(forceUpdate: true)
             
@@ -414,10 +442,14 @@ extension BrowserDetailController {
             self.view.backgroundColor = .black
             self.collectionView?.backgroundColor = .black
             
-            self.navigationController?.toolbar?.alpha = 1
-            self.navigationController?.toolbar.isHidden =  true
-            self.navigationController?.navigationBar.alpha = 1
-            self.navigationController?.navigationBar.isHidden =  true
+            if !self.prefersToolbarHidden {
+                self.navigationController?.toolbar?.alpha = 1
+                self.navigationController?.toolbar.isHidden =  true
+            }
+            if !self.prefersNavigationBarHidden {
+                self.navigationController?.navigationBar.alpha = 1
+                self.navigationController?.navigationBar.isHidden =  true
+            }
             
             self._updateSystemContentInsetIfNeeded()
         })
@@ -437,10 +469,14 @@ extension BrowserDetailController {
             }
             UIView.performWithoutAnimation {
                 
-                self.navigationController?.toolbar?.alpha = 0
-                self.navigationController?.toolbar.isHidden = false
-                self.navigationController?.navigationBar.alpha = 0
-                self.navigationController?.navigationBar.isHidden = false
+                if !self.prefersToolbarHidden {
+                    self.navigationController?.toolbar?.alpha = 0
+                    self.navigationController?.toolbar.isHidden = false
+                }
+                if !self.prefersNavigationBarHidden {
+                    self.navigationController?.navigationBar.alpha = 0
+                    self.navigationController?.navigationBar.isHidden = false
+                }
             }
             
             self.setNeedsStatusBarAppearanceUpdate()
@@ -448,8 +484,12 @@ extension BrowserDetailController {
             self.view.backgroundColor = .white
             self.collectionView?.backgroundColor = .white
             
-            self.navigationController?.toolbar?.alpha = 1
-            self.navigationController?.navigationBar.alpha = 1
+            if !self.prefersToolbarHidden {
+                self.navigationController?.toolbar?.alpha = 1
+            }
+            if !self.prefersNavigationBarHidden {
+                self.navigationController?.navigationBar.alpha = 1
+            }
             
             self._updateSystemContentInsetIfNeeded(forceUpdate: true)
             
@@ -504,15 +544,23 @@ extension BrowserDetailController: TransitioningDataSource {
             
             self.setNeedsStatusBarAppearanceUpdate()
             
-            self.navigationController?.toolbar?.alpha = 0
-            self.navigationController?.toolbar?.isHidden = false
-            self.navigationController?.navigationBar.alpha = 0
-            self.navigationController?.navigationBar.isHidden = false
+            if !self.prefersToolbarHidden {
+                self.navigationController?.toolbar?.alpha = 0
+                self.navigationController?.toolbar?.isHidden = false
+            }
+            if !self.prefersNavigationBarHidden {
+                self.navigationController?.navigationBar.alpha = 0
+                self.navigationController?.navigationBar.isHidden = false
+            }
         }
         UIView.animate(withDuration: 0.25) {
             
-            self.navigationController?.toolbar?.alpha = 1
-            self.navigationController?.navigationBar.alpha = 1
+            if !self.prefersToolbarHidden {
+                self.navigationController?.toolbar?.alpha = 1
+            }
+            if !self.prefersNavigationBarHidden {
+                self.navigationController?.navigationBar.alpha = 1
+            }
             
             self.setNeedsStatusBarAppearanceUpdate()
         }

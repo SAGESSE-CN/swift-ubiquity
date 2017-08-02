@@ -11,7 +11,7 @@ import UIKit
 internal class IndicatorItem: ExtendedItem {
     
     internal init() {
-        _indicatorView = IndicatorView(frame: .init(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 40))
+        _indicatorView =  IndicatorView(frame: .init(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 40))
         super.init(customView: _indicatorView)
     }
     
@@ -19,9 +19,9 @@ internal class IndicatorItem: ExtendedItem {
         fatalError("init(coder:) has not been implemented")
     }
     
-    internal var indicatorView: IndicatorView {
-        return _indicatorView
-    }
-    
+//    internal var indicatorView: IndicatorView {
+//        return _indicatorView
+//    }
+//    
     private var _indicatorView: IndicatorView
 }

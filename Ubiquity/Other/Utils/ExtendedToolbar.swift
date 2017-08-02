@@ -105,6 +105,7 @@ internal class ExtendedToolbar: UIToolbar {
         
         let token = _token
         let block: () -> Void = {
+            UIView.setAnimationBeginsFromCurrentState(true)
             // 更新frame
             var nframe = self.frame
             nframe.origin.y -= height - self.frame.height 

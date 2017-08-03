@@ -85,19 +85,26 @@ public extension UIViewController {
         if let tabBarController = self.tabBarController {
             if prefersTabBarHidden {
                 
+//                guard tabBarController.tabBar.isHidden else {
+//                    return
+//                }
+                
                 tabBarController.perform("hideBarWithTransition:", with: 0)
                 tabBarController.tabBar.isHidden = false
-                tabBarController.tabBar.alpha = 1
                 
                 UIView.animate(withDuration: TimeInterval(UINavigationControllerHideShowBarDuration), animations: {
                     tabBarController.tabBar.alpha = 0
                 }, completion: { _ in
-                    //tabBarController.tabBar.alpha = 0
+                    tabBarController.tabBar.isHidden = true
                 })
             } else {
                 
+//                guard !tabBarController.tabBar.isHidden else {
+//                    return
+//                }
+                
                 tabBarController.perform("showBarWithTransition:", with: 0)
-                tabBarController.tabBar.alpha = 0
+                tabBarController.tabBar.isHidden = false
                 
                 UIView.animate(withDuration: TimeInterval(UINavigationControllerHideShowBarDuration), animations: {
                     tabBarController.tabBar.alpha = 1
@@ -109,7 +116,7 @@ public extension UIViewController {
     }
 }
 
-internal class TabBarController: UITabBarController {
+internal class TabBarController: UITabBarController, UITabBarControllerDelegate {
     
     init(container: Container) {
         _container = container
@@ -121,11 +128,15 @@ internal class TabBarController: UITabBarController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    
     override func loadView() {
         super.loadView()
         
         // must set the background color
         view.backgroundColor = .white
+        
+        // set delegate
+        delegate = self
         
         // all controllers
         var controllers: Array<UIViewController> = []
@@ -147,6 +158,7 @@ internal class TabBarController: UITabBarController {
             controllers.append(navigation)
         }
         
+        /*
         // generate album list
         if let controller = _container.viewController(wit: .albumsList, source: .init(collectionType: .regular), sender: self) {
             // must show in navigation controller
@@ -163,6 +175,7 @@ internal class TabBarController: UITabBarController {
             // add to tabbar controller
             controllers.append(navigation)
         }
+ */
         
         // setup controller
         viewControllers = controllers
@@ -187,10 +200,35 @@ internal class TabBarController: UITabBarController {
     }
     
     
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        
+        // if multiple click, scroll to the bottom
+        guard viewController === selectedViewController else {
+            return true
+        }
+        
+        // fetch top view controller
+        let topViewController = (viewController as? UINavigationController)?.topViewController ?? viewController
+        
+        // fetch scroll view
+        guard let scrollView = ((topViewController as? UITableViewController)?.tableView ?? (topViewController as? UICollectionViewController)?.collectionView) else {
+            return true
+        }
+        // can scroll?
+        let height = scrollView.frame.height - scrollView.contentInset.bottom
+        guard scrollView.contentSize.height >= height else {
+            return false
+        }
+        
+        // scroll to bottom
+        scrollView.setContentOffset(.init(x: 0, y: max(scrollView.contentSize.height - height, 0)), animated: true)
+        return false
+    }
     
     override var tabBar: UITabBar {
         return super.tabBar
     }
+    
     
     private dynamic func _cancel(_ sender: Any) {
         logger.trace?.write()

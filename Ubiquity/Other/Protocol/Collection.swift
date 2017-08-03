@@ -13,6 +13,8 @@ public protocol Collection: class {
     
     /// The localized name of the collection.
     var title: String? { get }
+    /// The localized info of the collection.
+    var subtitle: String? { get }
     
     /// A unique string that persistently identifies the object.
     var identifier: String { get }
@@ -30,11 +32,6 @@ public protocol Collection: class {
     var count: Int { get }
     /// The number of assets in the asset collection.
     func count(with type: AssetMediaType) -> Int
-    
-    /// The earliest creation date among all assets in the asset collection.
-    var startDate: Date? { get }
-    /// The latest creation date among all assets in the asset collection.
-    var endDate: Date? { get }
 }
 
 /// The abstract superclass for Photos asset collection lists.

@@ -117,7 +117,22 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
     
     /// The localized name of the collection.
     var title: String? {
-        return collection.localizedTitle
+        // hit cache?
+        if let title = _localizedTitle {
+            return title
+        }
+        // generate title
+        let title = collection.localizedTitle ?? _string(for: collection.startDate ?? .init())
+        _localizedTitle = title
+        return title
+    }
+    /// The localized info of the collection.
+    var subtitle: String? {
+        // hit cache?
+        if let subtitle = _localizedSubtitle {
+            return subtitle
+        }
+        return nil
     }
     
     /// A unique string that persistently identifies the object.
@@ -168,20 +183,20 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
         return asset
     }
     
-    /// The earliest creation date among all assets in the asset collection.
-    var startDate: Date? {
-        return _collection.startDate
-    }
-    
-    /// The latest creation date among all assets in the asset collection.
-    var endDate: Date? {
-        return _collection.endDate
-    }
-    
-    /// The names of locations grouped by the collection (an array of NSString objects).
-    var locationNames: [String] {
-        return _collection.localizedLocationNames
-    }
+//    /// The earliest creation date among all assets in the asset collection.
+//    var startDate: Date? {
+//        return _collection.startDate
+//    }
+//    
+//    /// The latest creation date among all assets in the asset collection.
+//    var endDate: Date? {
+//        return _collection.endDate
+//    }
+//    
+//    /// The names of locations grouped by the collection (an array of NSString objects).
+//    var locationNames: [String] {
+//        return _collection.localizedLocationNames
+//    }
     
     /// Compare the change
     func changeDetails(for change: Ubiquity.Change) -> PhotoChangeDetails? {
@@ -283,8 +298,12 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
     /// Cached associated Photots object
     private var _result: PHFetchResult<PHAsset>?
     private var _collection: PHAssetCollection
-    private var _localIdentifier: String?
     private var _cachedCount: Dictionary<Ubiquity.AssetMediaType, Int> = [:]
+    
+    private var _localIdentifier: String?
+    
+    private var _localizedTitle: String??
+    private var _localizedSubtitle: String??
 }
 private class PhotoCollectionList: Ubiquity.CollectionList {
     
@@ -1005,5 +1024,13 @@ private func _diff<Element: Hashable>(_ src: Array<Element>, dest: Array<Element
     
     // sort
     return results.sorted { $0.from < $1.from }
+}
+
+/// generate string for date
+private func _string(for date: Date) -> String {
+    let formatter = DateFormatter()
+    formatter.dateStyle = .long
+    formatter.timeStyle = .none
+    return formatter.string(from: date)
 }
 

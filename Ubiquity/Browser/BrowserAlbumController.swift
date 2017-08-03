@@ -646,6 +646,7 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
     }
     
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        // generate the view for kind
         return collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "HEADER", for: indexPath)
     }
     
@@ -695,6 +696,7 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
         // update data
         view.parent = _headerView
         view.section = indexPath.section
+        view.layer.zPosition = -0.75
     }
     override func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
         // view must king of `BrowserAlbumHeader`
@@ -703,8 +705,8 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
         }
         
         // clear data
-        view.section = nil
         view.parent = nil
+        view.section = nil
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -888,6 +890,9 @@ extension BrowserAlbumController: ChangeObserver {
         }
         // keep the new fetch result for future use.
         _source = source
+        
+        // source did change, must update header cache
+        _updateHeaderCaches()
         
         // update header view & footer view
         _headerView?.source = source

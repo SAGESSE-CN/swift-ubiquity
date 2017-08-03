@@ -14,12 +14,7 @@ internal func ub_string(for number: Int) -> String {
     formatter.positiveFormat = "###,##0"
     return formatter.string(for: number) ?? "\(number)"
 }
-internal func ub_string(for date: Date) -> String {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .full
-    formatter.timeStyle = .none
-    return formatter.string(from: date)
-}
+
 
 internal func ub_identifier(with media: AssetMediaType) -> String {
     switch media {

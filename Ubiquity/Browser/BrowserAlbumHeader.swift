@@ -20,6 +20,8 @@ internal class BrowserAlbumHeader: UICollectionReusableView {
         _setup()
     }
     
+    weak var parent: BrowserAlbumHeader?
+    
     @NSCopying var effect: UIVisualEffect? {
         willSet {
             // has any effect?
@@ -55,12 +57,17 @@ internal class BrowserAlbumHeader: UICollectionReusableView {
         }
     }
     
-    weak var parent: BrowserAlbumHeader?
-    
     var source: Source? {
-        didSet {
-            // update content on source change
-            _updateContents(source)
+        willSet {
+            // update content 
+            section.map {
+                _updateCollection(newValue?.collection(at: $0))
+            }
+            
+            // update subheader
+            _headers.forEach { key, value in
+                value._updateCollection(newValue?.collection(at: key))
+            }
         }
     }
     
@@ -71,29 +78,51 @@ internal class BrowserAlbumHeader: UICollectionReusableView {
                 return
             }
             
-            // remove from old
-            if let oldValue = oldValue {
-                parent?._headers.removeValue(forKey: oldValue)
+            // self is subheader?
+            if let parent = parent {
+                // remove link from parent
+                if let oldValue = oldValue {
+                    parent._headers.removeValue(forKey: oldValue)
+                }
+                
+                // add link to parent
+                if let newValue = section {
+                    parent._headers[newValue] = self
+                }
             }
             
-            // add to new
-            if let newValue = section {
-                parent?._headers[newValue] = self
+            // update self status
+            _updateStatus(section)
+            
+            // update self contents
+            if let section = section {
+                _updateCollection((source ?? parent?.source)?.collection(at: section))
             }
             
-            // update value on section change
-            _updateStatus()
-            _updateContents(source ?? parent?.source)
+            // self is parent?
+            _headers.forEach {
+                $1._updateStatus($0)
+            }
         }
     }
     
-    // update display status
-    private func _updateStatus() {
+    override func systemLayoutSizeFitting(_ targetSize: CGSize, withHorizontalFittingPriority horizontalFittingPriority: UILayoutPriority, verticalFittingPriority: UILayoutPriority) -> CGSize {
+        // don't call super, size is fixed
+        return frame.size
+    }
+    
+    override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
+        super.apply(layoutAttributes)
         
-        // update subview
-        _headers.forEach {
-            $1._updateStatus()
+        // update section
+        if section != layoutAttributes.indexPath.section, parent != nil {
+            section = layoutAttributes.indexPath.section
         }
+    }
+    
+    
+    // update display status
+    private func _updateStatus(_ section: Int?) {
         
         // if parent is nil, can't hide
         guard let parent = parent else {
@@ -104,27 +133,19 @@ internal class BrowserAlbumHeader: UICollectionReusableView {
         // if section is equal, hide 
         _contentView.isHidden = parent.section == section
     }
-    // update contetns
-    private func _updateContents(_ source: Source?) {
-        // source must be set
-        guard let source = source else {
+    
+    // update display contents
+    private func _updateCollection(_ collection: Collection?) {
+        // has any change?
+        guard _collection !== collection else {
             return
         }
+        _collection = collection
         
-        // update subview
-        _headers.forEach {
-            $1._updateContents(source)
-        }
-        
-        // section must be set
-        guard let section = section, let collection = source.collection(at: section) else {
-            _titleLabel.text = nil
-            return
-        }
-        
-        //_titleLabel.text = collection.title ?? ub_string(for: collection.startDate ?? .init())
-        _titleLabel.text = ub_string(for: collection.startDate ?? .init())
+        // update text
+        _titleLabel.text = collection?.title
     }
+    
     
     private func _setup() {
         // setup title
@@ -144,6 +165,8 @@ internal class BrowserAlbumHeader: UICollectionReusableView {
         // setup subviews
         addSubview(_contentView)
     }
+    
+    private var _collection: Collection?
     
     private var _headers: [Int: BrowserAlbumHeader] = [:]
     private var _contentView: UIView = .init()

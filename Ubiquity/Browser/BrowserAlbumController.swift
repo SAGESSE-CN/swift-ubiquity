@@ -536,6 +536,9 @@ extension BrowserAlbumController {
         
         // load source with container
         _source.load(with: _container)
+        
+        // update header view & footer view
+        _headerView?.source = _source
         _footerView?.source = _source
         
         // check for assets count
@@ -692,7 +695,6 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
         // update data
         view.parent = _headerView
         view.section = indexPath.section
-        view.contents = _source.collection(at: indexPath.section)
     }
     override func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
         // view must king of `BrowserAlbumHeader`
@@ -701,7 +703,6 @@ extension BrowserAlbumController: UICollectionViewDelegateFlowLayout {
         }
         
         // clear data
-        view.contents = nil
         view.section = nil
         view.parent = nil
     }
@@ -887,6 +888,9 @@ extension BrowserAlbumController: ChangeObserver {
         }
         // keep the new fetch result for future use.
         _source = source
+        
+        // update header view & footer view
+        _headerView?.source = source
         _footerView?.source = source
         
         // update collection asset count change

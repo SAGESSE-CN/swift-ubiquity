@@ -57,9 +57,10 @@ internal class BrowserAlbumHeader: UICollectionReusableView {
     
     weak var parent: BrowserAlbumHeader?
     
-    
-    var contents: Collection? {
-        willSet {
+    var source: Source? {
+        didSet {
+            // update content on source change
+            _updateContents(source)
         }
     }
     
@@ -80,8 +81,9 @@ internal class BrowserAlbumHeader: UICollectionReusableView {
                 parent?._headers[newValue] = self
             }
             
-            // update status
+            // update value on section change
             _updateStatus()
+            _updateContents(source ?? parent?.source)
         }
     }
     
@@ -102,18 +104,42 @@ internal class BrowserAlbumHeader: UICollectionReusableView {
         // if section is equal, hide 
         _contentView.isHidden = parent.section == section
     }
+    // update contetns
+    private func _updateContents(_ source: Source?) {
+        // source must be set
+        guard let source = source else {
+            return
+        }
+        
+        // update subview
+        _headers.forEach {
+            $1._updateContents(source)
+        }
+        
+        // section must be set
+        guard let section = section, let collection = source.collection(at: section) else {
+            _titleLabel.text = nil
+            return
+        }
+        
+        //_titleLabel.text = collection.title ?? ub_string(for: collection.startDate ?? .init())
+        _titleLabel.text = ub_string(for: collection.startDate ?? .init())
+    }
     
     private func _setup() {
+        // setup title
+        _titleLabel.font = .systemFont(ofSize: 15)
+        _titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        
         // setup content view
         _contentView.frame = bounds
         _contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        
-        let lb = UILabel()
-        lb.frame = UIEdgeInsetsInsetRect(_contentView.bounds, .init(top: 0, left: 10, bottom: 0, right: 10))
-        lb.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        lb.font = UIFont.systemFont(ofSize: 15)
-        lb.text = "October 10, 2009"
-        _contentView.addSubview(lb)
+        _contentView.addSubview(_titleLabel)
+        _contentView.addConstraints([
+            .ub_make(_contentView, .leftMargin, .equal, _titleLabel, .left),
+            .ub_make(_contentView, .rightMargin, .equal, _titleLabel, .right),
+            .ub_make(_contentView, .centerY, .equal, _titleLabel, .centerY),
+        ])
         
         // setup subviews
         addSubview(_contentView)
@@ -122,4 +148,6 @@ internal class BrowserAlbumHeader: UICollectionReusableView {
     private var _headers: [Int: BrowserAlbumHeader] = [:]
     private var _contentView: UIView = .init()
     private var _visualEffectView: UIVisualEffectView?
+    
+    private var _titleLabel: UILabel = .init()
 }

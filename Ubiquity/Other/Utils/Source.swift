@@ -194,6 +194,10 @@ internal class Source {
     }
     
     func collection(at section: Int) -> Collection? {
+        // check boundary
+        guard section < numberOfSections else {
+            return nil
+        }
         return _adapter?.collection(at: section)
     }
     

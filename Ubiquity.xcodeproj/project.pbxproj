@@ -104,6 +104,7 @@
 		0CF92BD31F30FE9800588062 /* ubiquity_tab_photos_n@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0CF92BCF1F30FE9800588062 /* ubiquity_tab_photos_n@2x.png */; };
 		0CF92BD41F30FE9800588062 /* ubiquity_tab_albums_s@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0CF92BD01F30FE9800588062 /* ubiquity_tab_albums_s@2x.png */; };
 		0CF92BD51F30FE9800588062 /* ubiquity_tab_photos_s@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0CF92BD11F30FE9800588062 /* ubiquity_tab_photos_s@2x.png */; };
+		0CF9C30A1F34432100385836 /* BrowserAlbumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CF9C3091F34432100385836 /* BrowserAlbumView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -219,6 +220,7 @@
 		0CF92BCF1F30FE9800588062 /* ubiquity_tab_photos_n@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ubiquity_tab_photos_n@2x.png"; sourceTree = "<group>"; };
 		0CF92BD01F30FE9800588062 /* ubiquity_tab_albums_s@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ubiquity_tab_albums_s@2x.png"; sourceTree = "<group>"; };
 		0CF92BD11F30FE9800588062 /* ubiquity_tab_photos_s@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ubiquity_tab_photos_s@2x.png"; sourceTree = "<group>"; };
+		0CF9C3091F34432100385836 /* BrowserAlbumView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserAlbumView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -346,6 +348,7 @@
 				0CD0302A1EBB7BA80098638E /* BrowserAlbumListCell.swift */,
 				0CE49E601E7A7D900058F5F8 /* BrowserAlbumListController.swift */,
 				0CE49E681E7A9CE50058F5F8 /* BrowserAlbumCell.swift */,
+				0CF9C3091F34432100385836 /* BrowserAlbumView.swift */,
 				0C776DE81F16599E00D242E8 /* BrowserAlbumFooter.swift */,
 				0CF92BCC1F2FAFD900588062 /* BrowserAlbumHeader.swift */,
 				0CE49E661E7A9BA80058F5F8 /* BrowserAlbumLayout.swift */,
@@ -643,6 +646,7 @@
 				0C7D45211EAB7AE800D56AB5 /* TilingViewCell.swift in Sources */,
 				0C983BBE1EBB90BE00A5A932 /* ThumbView.swift in Sources */,
 				0CE49E631E7A983A0058F5F8 /* BrowserDetailController.swift in Sources */,
+				0CF9C30A1F34432100385836 /* BrowserAlbumView.swift in Sources */,
 				0C24977B1EEA95BC00CDD68C /* Protocol.swift in Sources */,
 				0C7D45171EAB7AE800D56AB5 /* CanvasView.swift in Sources */,
 				0C983BC81EBC552300A5A932 /* PhotoContentView.swift in Sources */,

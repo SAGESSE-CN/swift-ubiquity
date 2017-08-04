@@ -101,7 +101,7 @@ internal class BrowserAlbumHeader: UICollectionReusableView {
             
             // self is parent?
             _headers.forEach {
-                $1._updateStatus($0)
+                $1._updateStatus($1.section)
             }
         }
     }
@@ -129,9 +129,12 @@ internal class BrowserAlbumHeader: UICollectionReusableView {
             _contentView.isHidden = false
             return
         }
-        
-        // if section is equal, hide 
-        _contentView.isHidden = parent.section == section
+        let isHidden = parent.section == section
+        guard isHidden != _contentView.isHidden else {
+            return
+        }
+        // if section is equal, hide
+        _contentView.isHidden = isHidden
     }
     
     // update display contents
@@ -144,22 +147,44 @@ internal class BrowserAlbumHeader: UICollectionReusableView {
         
         // update text
         _titleLabel.text = collection?.title
+        _subtitleLabel.text = collection?.subtitle
     }
     
     
     private func _setup() {
+        
         // setup title
         _titleLabel.font = .systemFont(ofSize: 15)
         _titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        _subtitleLabel.font = .systemFont(ofSize: 11)
+        _subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        // center view
+        let tmp = UIView(frame: bounds)
+        tmp.translatesAutoresizingMaskIntoConstraints = false
+        tmp.addSubview(_titleLabel)
+        tmp.addSubview(_subtitleLabel)
+        tmp.addConstraints([
+            
+            .ub_make(tmp, .top, .equal, _titleLabel, .top, -1),
+            .ub_make(tmp, .left, .equal, _titleLabel, .left),
+            .ub_make(tmp, .right, .equal, _titleLabel, .right),
+            
+            .ub_make(_titleLabel, .bottom, .equal, _subtitleLabel, .top, -1),
+            
+            .ub_make(tmp, .left, .equal, _subtitleLabel, .left),
+            .ub_make(tmp, .right, .equal, _subtitleLabel, .right),
+            .ub_make(tmp, .bottom, .equal, _subtitleLabel, .bottom),
+        ])
         
         // setup content view
         _contentView.frame = bounds
         _contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        _contentView.addSubview(_titleLabel)
+        _contentView.addSubview(tmp)
         _contentView.addConstraints([
-            .ub_make(_contentView, .leftMargin, .equal, _titleLabel, .left),
-            .ub_make(_contentView, .rightMargin, .equal, _titleLabel, .right),
-            .ub_make(_contentView, .centerY, .equal, _titleLabel, .centerY),
+            .ub_make(_contentView, .centerY, .equal, tmp, .centerY),
+            .ub_make(_contentView, .leftMargin, .equal, tmp, .left),
+            .ub_make(_contentView, .rightMargin, .equal, tmp, .right),
         ])
         
         // setup subviews
@@ -172,5 +197,6 @@ internal class BrowserAlbumHeader: UICollectionReusableView {
     private var _contentView: UIView = .init()
     private var _visualEffectView: UIVisualEffectView?
     
-    private var _titleLabel: UILabel = .init()
+    private lazy var _titleLabel: UILabel = .init()
+    private lazy var _subtitleLabel: UILabel = .init()
 }

@@ -158,7 +158,6 @@ internal class TabBarController: UITabBarController, UITabBarControllerDelegate 
             controllers.append(navigation)
         }
         
-        /*
         // generate album list
         if let controller = _container.viewController(wit: .albumsList, source: .init(collectionType: .regular), sender: self) {
             // must show in navigation controller
@@ -175,7 +174,6 @@ internal class TabBarController: UITabBarController, UITabBarControllerDelegate 
             // add to tabbar controller
             controllers.append(navigation)
         }
- */
         
         // setup controller
         viewControllers = controllers

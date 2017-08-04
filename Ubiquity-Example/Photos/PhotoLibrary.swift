@@ -121,8 +121,21 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
         if let title = _localizedTitle {
             return title
         }
-        // generate title
-        let title = collection.localizedTitle ?? _string(for: collection.startDate ?? .init())
+        
+        // if have title, display it
+        if let title = collection.localizedTitle {
+            _localizedTitle = title
+            return title
+        }
+        
+        // if have date, display it
+        guard let date = collection.startDate else {
+            _localizedTitle = nil
+            return nil
+        }
+        
+        // generate title for date
+        let title = _string(for: date)
         _localizedTitle = title
         return title
     }
@@ -132,7 +145,30 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
         if let subtitle = _localizedSubtitle {
             return subtitle
         }
-        return nil
+        
+        // if not have title, only display the date
+        if collection.localizedTitle == nil {
+            _localizedSubtitle = nil
+            return nil
+        }
+        
+        // the subtitle need cat
+        var subtitle = ""
+        
+        // if have date, display it
+        if let date = collection.startDate {
+            subtitle = _string(for: date)
+        }
+        
+        // get current location
+        let names = collection.localizedLocationNames
+        if let name = names.first {
+            subtitle += " · " + name
+        }
+        
+        // cache
+        _localizedSubtitle = subtitle
+        return subtitle
     }
     
     /// A unique string that persistently identifies the object.
@@ -182,21 +218,7 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
         _assets?[index] = asset
         return asset
     }
-    
-//    /// The earliest creation date among all assets in the asset collection.
-//    var startDate: Date? {
-//        return _collection.startDate
-//    }
-//    
-//    /// The latest creation date among all assets in the asset collection.
-//    var endDate: Date? {
-//        return _collection.endDate
-//    }
-//    
-//    /// The names of locations grouped by the collection (an array of NSString objects).
-//    var locationNames: [String] {
-//        return _collection.localizedLocationNames
-//    }
+
     
     /// Compare the change
     func changeDetails(for change: Ubiquity.Change) -> PhotoChangeDetails? {
@@ -1028,9 +1050,49 @@ private func _diff<Element: Hashable>(_ src: Array<Element>, dest: Array<Element
 
 /// generate string for date
 private func _string(for date: Date) -> String {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .long
-    formatter.timeStyle = .none
-    return formatter.string(from: date)
+    
+    let current = Date()
+    let formater = DateFormatter()
+    
+    repeat {
+        
+        // in today
+        if formater.calendar.isDateInToday(date) {
+            return "Today"
+        }
+        
+        // in yesterday
+        if formater.calendar.isDateInYesterday(date) {
+            return "Yesterday"
+        }
+        
+        // in tomorrow
+        if formater.calendar.isDateInTomorrow(date) {
+            return "Tomorrow"
+        }
+        
+        let day1 = trunc((date.timeIntervalSince1970 + .init(formater.timeZone.secondsFromGMT())) /  (24 * 60 * 60))
+        let day2 = trunc((current.timeIntervalSince1970 + .init(formater.timeZone.secondsFromGMT())) /  (24 * 60 * 60))
+        
+        // in week
+        if fabs(day1 - day2) < 7 {
+            formater.dateFormat = DateFormatter.dateFormat(fromTemplate: "EEEE", options: 0, locale: formater.locale)
+            break
+        }
+        
+        // in year
+        if formater.calendar.isDate(date, equalTo: current, toGranularity: .year) {
+            formater.dateFormat = DateFormatter.dateFormat(fromTemplate: "MMMM d", options: 0, locale: formater.locale)
+            break
+        }
+        
+        // other
+        formater.dateFormat = DateFormatter.dateFormat(fromTemplate: "yyyy MMMM d", options: 0, locale: formater.locale)
+        
+    } while false
+    
+    return formater.string(from: date)
 }
+
+
 

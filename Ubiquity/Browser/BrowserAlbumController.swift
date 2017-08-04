@@ -57,6 +57,9 @@ internal class BrowserAlbumController: UICollectionViewController, Controller {
         // setup controller
         view.backgroundColor = .white
         
+        // setup subclass
+        object_setClass(collectionView, BrowserAlbumView.self)
+        
         // generate header view
         _headerView = {
             // display header only in moment
@@ -891,9 +894,6 @@ extension BrowserAlbumController: ChangeObserver {
         // keep the new fetch result for future use.
         _source = source
         
-        // source did change, must update header cache
-        _updateHeaderCaches()
-        
         // update header view & footer view
         _headerView?.source = source
         _footerView?.source = source
@@ -936,6 +936,9 @@ extension BrowserAlbumController: ChangeObserver {
             }
             
         }, completion: nil)
+        
+        // source did change, must update header cache
+        _updateHeaderCaches()
     }
     
 }

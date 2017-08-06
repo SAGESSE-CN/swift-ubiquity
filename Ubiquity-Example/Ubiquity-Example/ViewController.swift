@@ -54,12 +54,10 @@ class ViewController: UITableViewController, UIActionSheetDelegate {
 //        let vc = PhotoLibraryController()
 //        present(vc, animated: true, completion: nil)
         
-        
 
         switch buttonIndex {
         case 1:
-            let library = PhotoLibrary()
-            let container = Ubiquity.Browser(library: library)
+            let container = Ubiquity.Browser(library: Ubiquity.PHLibrary())
             //let container = Ubiquity.Picker(library: library)
             
             //let vc1 = Ubiquity.BrowserAlbumZoomableController(library: library)
@@ -83,8 +81,7 @@ class ViewController: UITableViewController, UIActionSheetDelegate {
 //            ]
             
         case 2:
-            let library = PhotoLibrary()
-            let container = Ubiquity.Picker(library: library)
+            let container = Ubiquity.Picker(library: Ubiquity.PHLibrary())
             
             //let vc1 = Ubiquity.BrowserAlbumZoomableController(library: library)
             let vc2 = BrowserAlbumListControllerMake(container)

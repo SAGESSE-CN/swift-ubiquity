@@ -1,16 +1,17 @@
 //
-//  PhotoLibrary.swift
-//  Ubiquity-Example
+//  Library+Photos.swift
+//  Ubiquity
 //
-//  Created by SAGESSE on 5/23/17.
+//  Created by SAGESSE on 8/6/17.
 //  Copyright © 2017 SAGESSE. All rights reserved.
 //
 
 import UIKit
 import Photos
-import Ubiquity
 
-private class PhotoAsset: Ubiquity.Asset {
+/// bridge Photos
+
+private class _PHAsset: Asset {
     
     /// Create a asset for Photos
     init(asset: PHAsset) {
@@ -20,6 +21,15 @@ private class PhotoAsset: Ubiquity.Asset {
     
     /// The associated photots asset
     let asset: PHAsset
+    
+    /// The localized title of the asset.
+    var title: String? {
+        return "Title"
+    }
+    /// The localized subtitle of the asset.
+    var subtitle: String? {
+        return "Subtitle"
+    }
     
     /// A unique string that persistently identifies the object.
     var identifier: String {
@@ -58,18 +68,18 @@ private class PhotoAsset: Ubiquity.Asset {
     }
     
     /// The type of the asset, such as video or audio.
-    var mediaType: Ubiquity.AssetMediaType {
-        return Ubiquity.AssetMediaType(rawValue: asset.mediaType.rawValue) ?? .unknown
+    var mediaType: AssetMediaType {
+        return AssetMediaType(rawValue: asset.mediaType.rawValue) ?? .unknown
     }
     
     /// The subtypes of the asset, identifying special kinds of assets such as panoramic photo or high-framerate video.
-    var mediaSubtypes: Ubiquity.AssetMediaSubtype {
-//        // the media is gif?
-//        if filename?.hasSuffix("GIF") ?? false {
-//            print("it is gif")
-//        }
-//        
-        return Ubiquity.AssetMediaSubtype(rawValue: asset.mediaSubtypes.rawValue)
+    var mediaSubtypes: AssetMediaSubtype {
+        //        // the media is gif?
+        //        if filename?.hasSuffix("GIF") ?? false {
+        //            print("it is gif")
+        //        }
+        //        
+        return AssetMediaSubtype(rawValue: asset.mediaSubtypes.rawValue)
     }
     
     /// The asset filename
@@ -85,7 +95,7 @@ private class PhotoAsset: Ubiquity.Asset {
     
     private var _localIdentifier: String?
 }
-private class PhotoCollection: Ubiquity.Collection, Hashable {
+private class _PHCollection: Collection, Hashable {
     
     /// Create an collection for Photots
     init(collection: PHAssetCollection) {
@@ -115,7 +125,7 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
     }
     
     
-    /// The localized name of the collection.
+    /// The localized title of the collection.
     var title: String? {
         // hit cache?
         if let title = _localizedTitle {
@@ -135,11 +145,11 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
         }
         
         // generate title for date
-        let title = _string(for: date)
+        let title = ub_string(for: date)
         _localizedTitle = title
         return title
     }
-    /// The localized info of the collection.
+    /// The localized subtitle of the collection.
     var subtitle: String? {
         // hit cache?
         if let subtitle = _localizedSubtitle {
@@ -157,7 +167,7 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
         
         // if have date, display it
         if let date = collection.startDate {
-            subtitle = _string(for: date)
+            subtitle = ub_string(for: date)
         }
         
         // get current location
@@ -185,11 +195,11 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
     }
     
     /// The type of the asset collection, such as an album or a moment.
-    var collectionType: Ubiquity.CollectionType = .regular
+    var collectionType: CollectionType = .regular
     
     /// The subtype of the asset collection.
-    var collectionSubtype: Ubiquity.CollectionSubtype {
-        return Ubiquity.CollectionSubtype(rawValue: collection.assetCollectionSubtype.rawValue) ?? .smartAlbumGeneric
+    var collectionSubtype: CollectionSubtype {
+        return CollectionSubtype(rawValue: collection.assetCollectionSubtype.rawValue) ?? .smartAlbumGeneric
     }
     
     /// The number of assets in the asset collection.
@@ -197,7 +207,7 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
         return _assets?.count ?? result.count
     }
     /// The number of assets in the asset collection.
-    func count(with type: Ubiquity.AssetMediaType) -> Int {
+    func count(with type: AssetMediaType) -> Int {
         // hit cache?
         if let count = _cachedCount[type] {
             return count
@@ -214,16 +224,16 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
             return asset
         }
         
-        let asset = PhotoAsset(asset: result.object(at: index))
+        let asset = _PHAsset(asset: result.object(at: index))
         _assets?[index] = asset
         return asset
     }
-
+    
     
     /// Compare the change
-    func changeDetails(for change: Ubiquity.Change) -> PhotoChangeDetails? {
-        // change must king of `PhotoChange`
-        guard let change = (change as? PhotoChange)?.change else {
+    func changeDetails(for change: Change) -> _PHChangeDetails? {
+        // change must king of `_PHChange`
+        guard let change = (change as? _PHChange)?.change else {
             return nil
         }
         // if the result is not used, no any changes
@@ -247,10 +257,10 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
         
         // merge collection and result
         let newResult = assets?.fetchResultAfterChanges ?? result
-        let newCollection = PhotoCollection(collection: content?.objectAfterChanges as? PHAssetCollection ?? collection, result: newResult)
+        let newCollection = _PHCollection(collection: content?.objectAfterChanges as? PHAssetCollection ?? collection, result: newResult)
         
         // generate new chagne details for collection
-        let details = PhotoChangeDetails(before: self, after: newCollection)
+        let details = _PHChangeDetails(before: self, after: newCollection)
         
         // if after is nil, the collection is deleted
         if let content = content, content.objectAfterChanges == nil {
@@ -305,7 +315,7 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
         return _collection.hashValue
     }
     /// Returns a Boolean value indicating whether two values are equal.
-    static func ==(lhs: PhotoCollection, rhs: PhotoCollection) -> Bool {
+    static func ==(lhs: _PHCollection, rhs: _PHCollection) -> Bool {
         // if the memory, the same value must be the same
         guard lhs !== rhs else {
             return true
@@ -315,30 +325,30 @@ private class PhotoCollection: Ubiquity.Collection, Hashable {
     
     
     /// Cached assets
-    private var _assets: [PhotoAsset?]?
+    private var _assets: [_PHAsset?]?
     
     /// Cached associated Photots object
     private var _result: PHFetchResult<PHAsset>?
     private var _collection: PHAssetCollection
-    private var _cachedCount: Dictionary<Ubiquity.AssetMediaType, Int> = [:]
+    private var _cachedCount: Dictionary<AssetMediaType, Int> = [:]
     
     private var _localIdentifier: String?
     
     private var _localizedTitle: String??
     private var _localizedSubtitle: String??
 }
-private class PhotoCollectionList: Ubiquity.CollectionList {
+private class _PHCollectionList: CollectionList {
     
     private typealias _FetchResult = PHFetchResult<PHAssetCollection>
     private typealias _FetchResultChangeDetails = PHFetchResultChangeDetails<PHAssetCollection>
     
-    init(type: Ubiquity.CollectionType) {
+    init(type: CollectionType) {
         _type = type
         _collections = _collections(with: type)
     }
     
     /// The type of the asset collection, such as an album or a moment.
-    var collectionType: Ubiquity.CollectionType {
+    var collectionType: CollectionType {
         return _type
     }
     
@@ -348,15 +358,15 @@ private class PhotoCollectionList: Ubiquity.CollectionList {
     }
     
     /// Retrieves collection from the specified collection list.
-    subscript(index: Int) -> Ubiquity.Collection {
+    subscript(index: Int) -> Collection {
         return _collections[index]
     }
     
     /// Compare the change
-    public func changeDetails(for change: Ubiquity.Change) -> PhotoChangeDetails? {
+    public func changeDetails(for change: Change) -> _PHChangeDetails? {
         
         // generate new collection list.
-        let collectionList = PhotoCollectionList(type: _type)
+        let collectionList = _PHCollectionList(type: _type)
         // compare difference
         var diffs = _diff(_collections, dest: collectionList._collections)
         
@@ -378,7 +388,7 @@ private class PhotoCollectionList: Ubiquity.CollectionList {
             diffs.append(.update(from: index, to: $0))
             
             // merge collection
-            guard let collection = details.after as? PhotoCollection else {
+            guard let collection = details.after as? _PHCollection else {
                 return
             }
             collectionList._collections[$0] = collection
@@ -389,10 +399,10 @@ private class PhotoCollectionList: Ubiquity.CollectionList {
             return nil
         }
         
-        print(diffs)
+        logger.debug?.write(diffs)
         
         // generate new chagne details for collection list
-        let details = PhotoChangeDetails(before: self, after: collectionList)
+        let details = _PHChangeDetails(before: self, after: collectionList)
         
         // update change details
         details.removedIndexes = IndexSet()
@@ -444,7 +454,7 @@ private class PhotoCollectionList: Ubiquity.CollectionList {
         return details
     }
     
-    private func _types(with collectionType: Ubiquity.CollectionType) -> Array<(PHAssetCollectionType, PHAssetCollectionSubtype, Bool)> {
+    private func _types(with collectionType: CollectionType) -> Array<(PHAssetCollectionType, PHAssetCollectionSubtype, Bool)> {
         // create temp
         var types: Array<(PHAssetCollectionType, PHAssetCollectionSubtype, Bool)> = []
         
@@ -496,7 +506,7 @@ private class PhotoCollectionList: Ubiquity.CollectionList {
         
         return types
     }
-    private func _collections(with collectionType: Ubiquity.CollectionType) -> Array<PhotoCollection> {
+    private func _collections(with collectionType: CollectionType) -> Array<_PHCollection> {
         
         if collectionType == .moment {
             // fetch collection with type
@@ -504,25 +514,25 @@ private class PhotoCollectionList: Ubiquity.CollectionList {
             
             // merge
             return (0 ..< result.count).flatMap { index in
-                return PhotoCollection(collection: result.object(at: index))
+                return _PHCollection(collection: result.object(at: index))
             }
         }
         
-        return _types(with: collectionType).flatMap { type, subtype, allowsEmpty -> Array<PhotoCollection> in
+        return _types(with: collectionType).flatMap { type, subtype, allowsEmpty -> Array<_PHCollection> in
             // fetch collection with type
             let result = PHAssetCollection.fetchAssetCollections(with: type, subtype: subtype, options: nil)
             
             // merge
             return (0 ..< result.count).flatMap { index in
-                return PhotoCollection(collection: result.object(at: index))
+                return _PHCollection(collection: result.object(at: index))
             }
         }
     }
     
-    private var _type: Ubiquity.CollectionType
-    private var _collections: Array<PhotoCollection> = []
+    private var _type: CollectionType
+    private var _collections: Array<_PHCollection> = []
 }
-private class PhotoChange: Ubiquity.Change {
+private class _PHChange: Change {
     
     /// Create a change for Photots
     init(change: PHChange) {
@@ -530,9 +540,9 @@ private class PhotoChange: Ubiquity.Change {
     }
     
     /// Returns detailed change information for the specified  collection.
-    func changeDetails(for collection: Ubiquity.Collection) -> Ubiquity.ChangeDetails? {
-        // must king of `PhotoCollection`
-        guard let collection = collection as? PhotoCollection else {
+    func changeDetails(for collection: Collection) -> ChangeDetails? {
+        // must king of `_PHCollection`
+        guard let collection = collection as? _PHCollection else {
             return nil
         }
         
@@ -548,9 +558,9 @@ private class PhotoChange: Ubiquity.Change {
     }
     
     /// Returns detailed change information for the specified colleciotn list.
-    func changeDetails(for collectionList: Ubiquity.CollectionList) -> Ubiquity.ChangeDetails? {
-        // must king of `PhotoCollectionList`
-        guard let collectionList = collectionList as? PhotoCollectionList else {
+    func changeDetails(for collectionList: CollectionList) -> ChangeDetails? {
+        // must king of `_PHCollectionList`
+        guard let collectionList = collectionList as? _PHCollectionList else {
             return nil
         }
         
@@ -569,10 +579,10 @@ private class PhotoChange: Ubiquity.Change {
     let change: PHChange
     
     /// Cached change details
-    lazy var collectionCaches: Dictionary<String, PhotoChangeDetails?> = [:]
-    lazy var collectionListCaches: Dictionary<Ubiquity.CollectionType, PhotoChangeDetails?> = [:]
+    lazy var collectionCaches: Dictionary<String, _PHChangeDetails?> = [:]
+    lazy var collectionListCaches: Dictionary<CollectionType, _PHChangeDetails?> = [:]
 }
-private class PhotoChangeDetails: Ubiquity.ChangeDetails {
+private class _PHChangeDetails: ChangeDetails {
     
     /// Create an change detail
     init(before: Any, after: Any?) {
@@ -611,16 +621,13 @@ private class PhotoChangeDetails: Ubiquity.ChangeDetails {
     /// The indexs where new object have move
     var movedIndexes: [(Int, Int)]?
 }
-private class PhotoChangeForwarder {
-    /// Create a change observer
-    init(observer: Ubiquity.ChangeObserver) {
-        self.observer = observer
+private class _PHRequest: Request {
+    init(_ request: PHImageRequestID) {
+        self.request = request
     }
-    
-    /// forward to this is
-    weak var observer: Ubiquity.ChangeObserver?
+    var request: PHImageRequestID
 }
-private class PhotoResponse: Ubiquity.Response {
+private class _PHResponse: Response {
     
     init(info: [AnyHashable: Any]?) {
         error = info?[PHImageErrorKey] as? NSError
@@ -640,7 +647,7 @@ private class PhotoResponse: Ubiquity.Response {
     var downloading: Bool
 }
 
-internal class PhotoLibrary: NSObject, Ubiquity.Library, Photos.PHPhotoLibraryChangeObserver {
+private class _PHLibrary: NSObject, Library, Photos.PHPhotoLibraryChangeObserver {
     
     /// Create a library
     override init() {
@@ -651,12 +658,12 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library, Photos.PHPhotoLibraryCh
     // MARK: Authorization
     
     /// Returns information about your app’s authorization for accessing the library.
-    func authorizationStatus() -> Ubiquity.AuthorizationStatus {
+    func authorizationStatus() -> AuthorizationStatus {
         return _convert(forStatus: PHPhotoLibrary.authorizationStatus())
     }
     
     /// Requests the user’s permission, if needed, for accessing the library.
-    func requestAuthorization(_ handler: @escaping (Ubiquity.AuthorizationStatus) -> Swift.Void) {
+    func requestAuthorization(_ handler: @escaping (AuthorizationStatus) -> Swift.Void) {
         // convert authorization status
         PHPhotoLibrary.requestAuthorization {
             // load image manager
@@ -669,59 +676,58 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library, Photos.PHPhotoLibraryCh
     // MARK: Change
     
     /// Registers an object to receive messages when objects in the photo library change.
-    func addChangeObserver(_ observer: Ubiquity.ChangeObserver) {
-        
+    func addChangeObserver(_ observer: ChangeObserver) {
         // the observer is added?
-        guard !_observers.contains(where: { $0.observer === observer }) else {
+        guard !_observers.contains(where: { $0.some === observer }) else {
             return
         }
         // no, add a observer
-        _observers.append(.init(observer: observer))
+        _observers.append(.init(observer))
         
         // if count is 1, need to listen for system notifications
         guard _observers.count == 1 else {
             return
         }
-        // no, add to system
+        
+        // no, add observer to photos
         _library.register(self)
     }
     
     /// Unregisters an object so that it no longer receives change messages.
-    func removeChangeObserver(_ observer: Ubiquity.ChangeObserver) {
-        
+    func removeChangeObserver(_ observer: ChangeObserver) {
         // clear all invaild observers
         _observers = _observers.filter {
-            return $0.observer != nil
-                && $0.observer !== observer
+            return $0.some != nil && $0.some !== observer
         }
         
         // if count is 0, need remove
         guard _observers.count == 0 else {
             return
         }
-        // no, cancel listen
+        
+        // no, remove observer from photos
         _library.unregisterChangeObserver(self)
     }
     
     // MARK: Fetch
     
     /// Get collections with type
-    func request(forCollection type: Ubiquity.CollectionType) -> Ubiquity.CollectionList {
+    func request(forCollection type: CollectionType) -> CollectionList {
         // hit cache?
         if let collectionList = _collectionLists[type] {
             return collectionList
         }
         
         // create collection list and cache
-        let collectionList = PhotoCollectionList(type: type)
+        let collectionList = _PHCollectionList(type: type)
         _collectionLists[type] = collectionList
         return collectionList
     }
     
     /// Requests an image representation for the specified asset.
-    func request(forImage asset: Ubiquity.Asset, size: CGSize, mode: Ubiquity.RequestContentMode, options: Ubiquity.RequestOptions?, resultHandler: @escaping (UIImage?, Ubiquity.Response) -> ()) -> Ubiquity.Request? {
-        // must king of PhotoAsset
-        guard let asset = asset as? PhotoAsset else {
+    func request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
+        // must king of _PHAsset
+        guard let asset = asset as? _PHAsset else {
             return nil
         }
         
@@ -729,9 +735,9 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library, Photos.PHPhotoLibraryCh
         let newOptions = _convert(forImage: options)
         
         // send image request
-        return _cache.requestImage(for: asset.asset, targetSize: size, contentMode: newMode, options: newOptions) { image, info in
+        return _PHRequest(_cache.requestImage(for: asset.asset, targetSize: size, contentMode: newMode, options: newOptions) { image, info in
             // convert result info to response
-            let response = PhotoResponse(info: info)
+            let response = _PHResponse(info: info)
             
             // if the image is empty and the image is degraded, it need download
             if response.degraded && image == nil {
@@ -740,32 +746,32 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library, Photos.PHPhotoLibraryCh
             
             // callback
             resultHandler(image, response)
-        }
+        })
     }
     
     /// Requests a representation of the video asset for playback, to be loaded asynchronously.
-    func request(forItem asset: Ubiquity.Asset, options: Ubiquity.RequestOptions?, resultHandler: @escaping (AnyObject?, Ubiquity.Response) -> ()) -> Ubiquity.Request? {
-        // must king of PhotoAsset
-        guard let asset = asset as? PhotoAsset else {
+    func request(forItem asset: Asset, options: RequestOptions?, resultHandler: @escaping (AnyObject?, Response) -> ()) -> Request? {
+        // must king of _PHAsset
+        guard let asset = asset as? _PHAsset else {
             return nil
         }
         
         let newOptions = _convert(forVideo: options)
         
         // send player item request
-        return _cache.requestPlayerItem(forVideo: asset.asset, options: newOptions) { item, info in
+        return _PHRequest(_cache.requestPlayerItem(forVideo: asset.asset, options: newOptions) { item, info in
             // convert result info to response
-            let response = PhotoResponse(info: info)
+            let response = _PHResponse(info: info)
             
             // callback
             resultHandler(item, response)
-        }
+        })
     }
     
     /// Cancels an asynchronous request
-    func cancel(with request: Ubiquity.Request) {
+    func cancel(with request: Request) {
         // must is PHImageRequestID
-        guard let request = request as? PHImageRequestID else {
+        guard let request = (request as? _PHRequest)?.request else {
             return
         }
         _cache.cancelImageRequest(request)
@@ -780,9 +786,9 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library, Photos.PHPhotoLibraryCh
     }
     
     /// Prepares image representations of the specified assets for later use.
-    func startCachingImages(for assets: Array<Ubiquity.Asset>, size: CGSize, mode: Ubiquity.RequestContentMode, options: Ubiquity.RequestOptions?) {
-        // must king of PhotoAsset
-        guard let assets = assets as? [PhotoAsset] else {
+    func startCachingImages(for assets: Array<Asset>, size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
+        // must king of _PHAsset
+        guard let assets = assets as? [_PHAsset] else {
             return
         }
         let newMode = _convert(forMode: mode)
@@ -793,9 +799,9 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library, Photos.PHPhotoLibraryCh
     }
     
     /// Cancels image preparation for the specified assets and options.
-    func stopCachingImages(for assets: Array<Ubiquity.Asset>, size: CGSize, mode: Ubiquity.RequestContentMode, options: Ubiquity.RequestOptions?) {
-        // must king of PhotoAsset
-        guard let assets = assets as? [PhotoAsset] else {
+    func stopCachingImages(for assets: Array<Asset>, size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
+        // must king of _PHAsset
+        guard let assets = assets as? [_PHAsset] else {
             return
         }
         let newMode = _convert(forMode: mode)
@@ -815,7 +821,7 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library, Photos.PHPhotoLibraryCh
     /// This callback is invoked on an arbitrary serial queue. If you need this to be handled on a specific queue, you should redispatch appropriately
     func photoLibraryDidChange(_ changeInstance: PHChange) {
         // create a new change, it will cache the results
-        let change = PhotoChange(change: changeInstance)
+        let change = _PHChange(change: changeInstance)
         
         // update all collection
         _collectionLists.forEach { type, collectionList in
@@ -825,38 +831,32 @@ internal class PhotoLibrary: NSObject, Ubiquity.Library, Photos.PHPhotoLibraryCh
             }
             
             // update value
-            _collectionLists[type] = details.after as? PhotoCollectionList
+            _collectionLists[type] = details.after as? _PHCollectionList
         }
         
         // notify all observer
         _observers.forEach {
-            $0.observer?.library(self, didChange: change)
+            $0.some?.library(self, didChange: change)
         }
     }
     
     private var _library: PHPhotoLibrary
     
     private lazy var _cache: PHCachingImageManager = PHCachingImageManager.default() as! PHCachingImageManager
-    private lazy var _observers: Array<PhotoChangeForwarder> = []
-    private lazy var _collectionLists: Dictionary<Ubiquity.CollectionType, PhotoCollectionList> = [:]
+    private lazy var _observers: Array<Weak<ChangeObserver>> = []
+    private lazy var _collectionLists: Dictionary<CollectionType, _PHCollectionList> = [:]
 }
 
-
-/// Add library request progres(is empty)
-extension PHImageRequestID: Ubiquity.Request {
-}
-
-
-/// covnert `Ubiquity.RequestContentMode` to `PHImageContentMode`
-private func _convert(forMode mode: Ubiquity.RequestContentMode) -> PHImageContentMode {
+/// covnert `RequestContentMode` to `PHImageContentMode`
+private func _convert(forMode mode: RequestContentMode) -> PHImageContentMode {
     switch mode {
     case .aspectFill: return .aspectFill
     case .aspectFit: return .aspectFit
     }
 }
 
-/// covnert `PHAuthorizationStatus` to `Ubiquity.AuthorizationStatus`
-private func _convert(forStatus status: PHAuthorizationStatus) -> Ubiquity.AuthorizationStatus {
+/// covnert `PHAuthorizationStatus` to `AuthorizationStatus`
+private func _convert(forStatus status: PHAuthorizationStatus) -> AuthorizationStatus {
     switch status {
     case .authorized: return .authorized
     case .notDetermined: return .notDetermined
@@ -865,8 +865,8 @@ private func _convert(forStatus status: PHAuthorizationStatus) -> Ubiquity.Autho
     }
 }
 
-/// covnert `Ubiquity.RequestOptions` to `PHImageRequestOptions`
-private func _convert(forImage options: Ubiquity.RequestOptions?) -> PHImageRequestOptions? {
+/// covnert `RequestOptions` to `PHImageRequestOptions`
+private func _convert(forImage options: RequestOptions?) -> PHImageRequestOptions? {
     // if the option is nil, create a failure
     guard let options = options else {
         return nil
@@ -880,15 +880,15 @@ private func _convert(forImage options: Ubiquity.RequestOptions?) -> PHImageRequ
     if let progressHandler = options.progressHandler {
         // convert result info to response
         newOptions.progressHandler = { progress, _, _, info in
-            progressHandler(progress, PhotoResponse(info: info))
+            progressHandler(progress, _PHResponse(info: info))
         }
     }
     
     return newOptions
 }
 
-/// covnert `Ubiquity.RequestOptions` to `PHVideoRequestOptions`
-private func _convert(forVideo options: Ubiquity.RequestOptions?) -> PHVideoRequestOptions? {
+/// covnert `RequestOptions` to `PHVideoRequestOptions`
+private func _convert(forVideo options: RequestOptions?) -> PHVideoRequestOptions? {
     // if the option is nil, create a failure
     guard let options = options else {
         return nil
@@ -902,7 +902,7 @@ private func _convert(forVideo options: Ubiquity.RequestOptions?) -> PHVideoRequ
     if let progressHandler = options.progressHandler {
         // convert result info to response
         newOptions.progressHandler = { progress, _, _, info in
-            progressHandler(progress, PhotoResponse(info: info))
+            progressHandler(progress, _PHResponse(info: info))
         }
     }
     
@@ -1047,52 +1047,9 @@ private func _diff<Element: Hashable>(_ src: Array<Element>, dest: Array<Element
     // sort
     return results.sorted { $0.from < $1.from }
 }
-
-/// generate string for date
-private func _string(for date: Date) -> String {
     
-    let current = Date()
-    let formater = DateFormatter()
-    
-    repeat {
-        
-        // in today
-        if formater.calendar.isDateInToday(date) {
-            return "Today"
-        }
-        
-        // in yesterday
-        if formater.calendar.isDateInYesterday(date) {
-            return "Yesterday"
-        }
-        
-        // in tomorrow
-        if formater.calendar.isDateInTomorrow(date) {
-            return "Tomorrow"
-        }
-        
-        let day1 = trunc((date.timeIntervalSince1970 + .init(formater.timeZone.secondsFromGMT())) /  (24 * 60 * 60))
-        let day2 = trunc((current.timeIntervalSince1970 + .init(formater.timeZone.secondsFromGMT())) /  (24 * 60 * 60))
-        
-        // in week
-        if fabs(day1 - day2) < 7 {
-            formater.dateFormat = DateFormatter.dateFormat(fromTemplate: "EEEE", options: 0, locale: formater.locale)
-            break
-        }
-        
-        // in year
-        if formater.calendar.isDate(date, equalTo: current, toGranularity: .year) {
-            formater.dateFormat = DateFormatter.dateFormat(fromTemplate: "MMMM d", options: 0, locale: formater.locale)
-            break
-        }
-        
-        // other
-        formater.dateFormat = DateFormatter.dateFormat(fromTemplate: "yyyy MMMM d", options: 0, locale: formater.locale)
-        
-    } while false
-    
-    return formater.string(from: date)
+/// Generate a library with `Photos.framework`
+public func PHLibrary() -> Library {
+    return _PHLibrary()
 }
-
-
 

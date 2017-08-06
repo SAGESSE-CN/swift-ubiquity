@@ -14,13 +14,46 @@ public enum Position {
 }
 
 /// The base container
-open class Container: NSObject {
+open class Container: NSObject, ChangeObserver {
     
     /// Create a media browser
     internal init(library: Library) {
         self.cacher = .init(library: library)
         self.library = library
         super.init()
+    }
+    
+    // MARK: Observer
+    
+    /// Registers an object to receive messages when objects in the photo library change.
+    func addChangeObserver(_ observer: ChangeObserver) {
+        // this observer is added?
+        guard !observers.contains(where: { $0.some === observer }) else {
+            return
+        }
+        
+        // add to observers
+        observers.append(.init(observer))
+        
+        // if count is 1, need add to library
+        guard observers.count == 1 else {
+            return
+        }
+        library.addChangeObserver(self)
+    }
+    
+    /// Unregisters an object so that it no longer receives change messages.
+    func removeChangeObserver(_ observer: ChangeObserver) {
+        // clear all invaild observers
+        observers = observers.filter {
+            return $0.some != nil && $0.some !== observer
+        }
+        
+        // if count is 0, need remove from library
+        guard observers.count == 0 else {
+            return
+        }
+        library.removeChangeObserver(self)
     }
     
     // MARK: Fetch
@@ -35,6 +68,7 @@ open class Container: NSObject {
     open func request(forCollection type: CollectionType) -> CollectionList {
         return library.request(forCollection: type)
     }
+    
     /// Requests an image representation for the specified asset.
     open func request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
         #if DEBUG
@@ -95,6 +129,16 @@ open class Container: NSObject {
         return cacher.stopCachingImagesForAllAssets()
     }
     
+    // MARK: Library Change
+    
+    /// Tells your observer that a set of changes has occurred in the Photos library.
+    open func library(_ library: Library, didChange change: Change) {
+        // notifity all observers
+        observers.forEach {
+            $0.some?.library(library, didChange: change)
+        }
+    }
+    
     // MARK: Content
     
     func factory(with page: Page) -> Factory? {
@@ -122,12 +166,6 @@ open class Container: NSObject {
         }
     }
     
-//    func register(_ cellClass: AnyClass?, in position: Position) {
-//    }
-//    
-//    func register(_ contentClass: AnyClass?, in posistion: Position, mediaType: AssetMediaType) {
-//    }
-    
     func view(with page: Page, source: Source, sender: Any) -> UIView? {
         return nil
     }
@@ -144,8 +182,9 @@ open class Container: NSObject {
     /// The current the library
     open var library: Library
     
-    /// The current cache
-    internal var cacher: Cacher
+    // cache
+    private(set) var cacher: Cacher
+    private(set) var observers: Array<Weak<ChangeObserver>> = []
     
     #if DEBUG
     internal var debug: Bool = false

@@ -41,7 +41,6 @@ internal class ThumbView: UIView {
         }
     }
     
-    
     private func _update(at images: [UIImage?]?) {
         
         // if the images is empty, show empty photo album
@@ -55,8 +54,13 @@ internal class ThumbView: UIView {
         }
         // show image
         imageViews.enumerated().forEach { index, imageView in
-            // get the current thumbnails
-            let image = images.ub_get(at: index) ?? nil
+            // fetch the current thumbnails
+            guard index < images.count else {
+                imageView.image = nil
+                imageView.isHidden = true
+                return
+            }
+            let image = images[index]
             // if there is no change, ignored
             if imageView.image !== image {
                 imageView.image = image

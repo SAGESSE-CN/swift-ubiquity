@@ -19,18 +19,23 @@ internal class BrowserAlbumFooter: UIView {
         _setup()
     }
     
+    /// Displayed source
     var source: Source? {
         willSet {
-            guard let source = newValue else {
+            // The source is change?
+            guard let newValue = newValue, source !== newValue else {
                 return
             }
+            
+            // The count will be very slow
             DispatchQueue.global().async {
                 
-                let counts = (source.count(with: .image),
-                              source.count(with: .video),
-                              source.count(with: .audio),
-                              source.count(with: .unknown))
+                let counts = (newValue.count(with: .image),
+                              newValue.count(with: .video),
+                              newValue.count(with: .audio),
+                              newValue.count(with: .unknown))
                 
+                // Dispath to main thread
                 DispatchQueue.main.async {
                     self._update(with: counts.0, video: counts.1, audio: counts.2, unknow: counts.3)
                 }
@@ -39,6 +44,7 @@ internal class BrowserAlbumFooter: UIView {
         }
     }
     
+    // Update footer view text
     private func _update(with image: Int, video: Int, audio: Int, unknow: Int) {
         
         var tmp: [String] = []
@@ -61,6 +67,7 @@ internal class BrowserAlbumFooter: UIView {
         }
     }
     
+    // Init UI
     private func _setup() {
         
         _titleLabel.font = UIFont.systemFont(ofSize: 17)
@@ -81,5 +88,5 @@ internal class BrowserAlbumFooter: UIView {
         ])
     }
     
-    private lazy var _titleLabel = UILabel()
+    private lazy var _titleLabel: UILabel = .init()
 }

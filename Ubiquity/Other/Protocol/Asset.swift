@@ -11,8 +11,14 @@ import Foundation
 /// A representation of an image, video
 public protocol Asset: class {
     
+    /// The localized title of the asset.
+    var title: String? { get }
+    /// The localized subtitle of the asset.
+    var subtitle: String? { get }
+    
     /// A unique string that persistently identifies the object.
     var identifier: String { get }
+    
     /// The version of the asset, identifying asset change.
     var version: Int { get }
     

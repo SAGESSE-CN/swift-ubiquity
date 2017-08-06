@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class PickerAlbumCell: BrowserAlbumCell {
+internal class PickerAlbumCell: BrowserAlbumCell, SelectionStatusObserver {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -20,14 +20,17 @@ internal class PickerAlbumCell: BrowserAlbumCell {
         _setup()
     }
     
+    deinit {
+        // clear status
+        _updateStatus(nil, animated: false)
+    }
+    
     /// Will display the asset
     override func willDisplay(with asset: Asset, container: Container, orientation: UIImageOrientation) {
-        // update asset select status
-        if let container = container as? Picker {
-            setIsSelected(false, animated: false)
-        }
-        
         super.willDisplay(with: asset, container: container, orientation: orientation)
+        
+        // update cell selection status
+        status = (container as? Picker)?.statusOfItem(with: asset)
     }
     
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
@@ -45,14 +48,50 @@ internal class PickerAlbumCell: BrowserAlbumCell {
         return _selectedView
     }
     
+    /// Selection status did change
+    func selectionStatus(_ selectionStatus: SelectionStatus, didChange index: Int) {
+        _selectedView.setTitle("\(selectionStatus.number)", for: .selected)
+    }
     
-    func setIsSelected(_ isSelected: Bool, animated: Bool) {
+    private dynamic func _select(_ sender: Any) {
+        // the asset must be set
+        guard let asset = asset else {
+            return
+        }
         
-        self.isSelected = isSelected
+        // check old status
+        if status == nil {
+            // select asset
+            _updateStatus((container as? Picker)?.selectItem(with: asset, sender: self), animated: true)
+            
+        } else {
+            // deselect asset
+            _updateStatus((container as? Picker)?.deselectItem(with: asset, sender: self), animated: true)
+        }
+    }
+    
+    
+    /// Update selection status for animate
+    private func _updateStatus(_ status: SelectionStatus?, animated: Bool) {
+        // status is change?
+        guard _status !== status else {
+            return
+        }
+        // update data
+        _status?.removeObserver(self)
+        _status = status
+        _status?.addObserver(self)
+        
+        // update state
+        isSelected = status != nil
 
+        if let status = status  {
+            _selectedView.setTitle("\(status.number)", for: .selected)
+        }
+        
+        // update ui
         _selectedView.isSelected = isSelected
         _selectedBackgroundView.isHidden = !isSelected
-        
         
         // need add animation?
         guard animated else {
@@ -68,30 +107,7 @@ internal class PickerAlbumCell: BrowserAlbumCell {
         _selectedView.layer.add(ani, forKey: "selected")
     }
     
-    private dynamic func _select(_ sender: Any) {
-        logger.debug?.write()
-        
-//        if let index = delegate?.selection(self, indexOfSelectedItemsFor: photo), index != NSNotFound {
-//
-//            _isSelected = true
-//            _selectedView.isSelected = _isSelected
-//            _hightlightLayer.isHidden = !_isSelected
-//
-//            _selectedView.setTitle("\(index + 1)", for: .selected)
-//            
-//        } else {
-//            
-//            _isSelected = false
-//            _hightlightLayer.isHidden = !_isSelected
-//        }
-        
-//
-//        // 选中时, 加点特效
-        //        if animated {
-        
-        setIsSelected(!_selectedView.isSelected, animated: true)
-    }
-    
+    // Init UI
     private func _setup() {
         
         // setup selected view
@@ -120,8 +136,22 @@ internal class PickerAlbumCell: BrowserAlbumCell {
         contentView.insertSubview(_selectedBackgroundView, at: 0)
     }
     
+    // MARK: Property
+    
+    /// The asset selection status
+    var status: SelectionStatus? {
+        set { return _updateStatus(newValue, animated: false) }
+        get { return _status }
+    }
+    
+    // MARK: Ivar
+    
+    /// selection status
+    private var _status: SelectionStatus?
+    
     private var _inset: UIEdgeInsets = .init(top: 4.5, left: 4.5, bottom: 4.5, right: 4.5)
     
     private var _selectedView: UIButton = .init()
     private var _selectedBackgroundView: UIView = .init()
+    
 }

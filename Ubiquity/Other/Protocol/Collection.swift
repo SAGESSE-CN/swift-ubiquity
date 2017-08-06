@@ -11,9 +11,9 @@ import Foundation
 /// The abstract superclass for Photos asset collections.
 public protocol Collection: class {
     
-    /// The localized name of the collection.
+    /// The localized title of the collection.
     var title: String? { get }
-    /// The localized info of the collection.
+    /// The localized subtitle of the collection.
     var subtitle: String? { get }
     
     /// A unique string that persistently identifies the object.

@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
+internal class BrowserAlbumCell: UICollectionViewCell, Displayable, TransitioningView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -20,7 +20,7 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
     }
     deinit {
         // if the cell is displaying, hidden after then destroyed
-        guard let container = _container else {
+        guard let container = container else {
             return
         }
         
@@ -28,25 +28,27 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
         endDisplay(with: container)
     }
     
+    // MARK: Asset Display
+    
     /// the displayer delegate
-    weak var delegate: AnyObject? 
+    weak var delegate: AnyObject?
     
     /// Will display the asset
     func willDisplay(with asset: Asset, container: Container, orientation: UIImageOrientation) {
         
         // save context
-        _asset = asset
-        _container = container
-        _orientation = orientation
+        self.asset = asset
+        self.container = container
+        self.orientation = orientation
        
         _badgeView?.isHidden = true
+        _allowsInvaildContents = true
         
         // make options
         let options = SourceOptions()
         
         // setup content
-        _allowsInvaildContents = true
-        _request = container.request(forImage: asset, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: options) { [weak self, weak asset] contents, response in
+        self.request = container.request(forImage: asset, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: options) { [weak self, weak asset] contents, response in
             // if the asset is nil, the asset has been released
             guard let asset = asset else {
                 return
@@ -60,24 +62,60 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
     func endDisplay(with container: Container) {
         
         // when are requesting an image, please cancel it
-        _request.map { request in
-            // cancel
+        request.map { request in
             container.cancel(with: request)
         }
         
         // clear context
-        _asset = nil
-        _request = nil
-        _container = nil
+        self.asset = nil
+        self.request = nil
+        self.container = nil
         
         // NOTE: can't clear images, otherwise  fast scroll when will lead to generate a snapshot of the blank
         //_imageView?.image = nil
     }
     
-    // update contents
+    // MARK: Dynamic Class
+    
+    /// Provide content view of class
+    dynamic class var contentViewClass: AnyClass {
+        return UIImageView.self
+    }
+    
+    /// Provide content view of class, iOS 8+
+    private dynamic class var _contentViewClass: AnyClass {
+        return contentViewClass
+    }
+    
+    // MARK: Custom Transition
+    
+    var ub_frame: CGRect {
+        return convert(bounds, to: window)
+    }
+    
+    var ub_bounds: CGRect {
+        // if the asset was not set
+        guard let asset = asset else {
+            // can’t alignment
+            return contentView.bounds
+        }
+        return contentView.bounds.ub_aligned(with: .init(width: asset.pixelWidth, height: asset.pixelHeight))
+    }
+    
+    var ub_transform: CGAffineTransform {
+        return contentView.transform.rotated(by: orientation.ub_angle)
+    }
+    
+    func ub_snapshotView(with context: TransitioningContext) -> UIView? {
+        return contentView.snapshotView(afterScreenUpdates: context.ub_operation.appear)
+    }
+    
+    // MARK: Asset Contents
+    
+    /// Update contents
     private func _updateContents(_ contents: UIImage?, response: Response, asset: Asset) {
         // the current asset has been changed?
-        guard _asset === asset else {
+        guard self.asset === asset else {
             // changed, all reqeust is expire
             guard _allowsInvaildContents else {
                 logger.debug?.write("\(asset.identifier) image is expire")
@@ -89,24 +127,27 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
         }
         
         // update contents
-        _imageView?.image = contents?.ub_withOrientation(_orientation)
+        _imageView?.image = contents?.ub_withOrientation(self.orientation)
         _allowsInvaildContents = false
         
         // update badge icon
         _updateBadge(with: contents == nil)
     }
     
+    // MARK: Asset Contents
+    
+    /// Update badge
     private func _updateBadge(with downloading: Bool) {
         
-        let mediaType = _asset?.mediaType ?? .unknown
-        let mediaSubtypes = _asset?.mediaSubtypes ?? []
+        let mediaType = asset?.mediaType ?? .unknown
+        let mediaSubtypes = asset?.mediaSubtypes ?? []
         
         // setup badge item
         switch mediaType {
         case .video:
             
             // less than 1, the display of 1
-            let duration = ceil(_asset?.duration ?? 0)
+            let duration = ceil(asset?.duration ?? 0)
             
             _badgeView?.backgroundImage = BadgeView.ub_backgroundImage
             _badgeView?.rightItem = .text(.init(format: "%d:%02d", Int(duration) / 60, Int(duration) % 60))
@@ -152,10 +193,12 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
         _badgeView?.isHidden = false
     }
     
+    /// Init UI
     private func _setup() {
         
         // setup badge view
         let badgeView = BadgeView()
+        
         badgeView.frame = .init(x: 0, y: contentView.bounds.height - 20, width: contentView.bounds.width, height: 20)
         badgeView.tintColor = .white
         badgeView.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
@@ -177,49 +220,20 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable {
         _badgeView = badgeView
     }
     
-    fileprivate var _asset: Asset?
-    fileprivate var _container: Container?
+    // MARK: Property
     
-    fileprivate var _request: Request?
-    fileprivate var _orientation: UIImageOrientation = .up
-    fileprivate var _allowsInvaildContents: Bool = false
+    // contents
+    private(set) var asset: Asset?
+    private(set) var container: Container?
     
-    fileprivate var _imageView: UIImageView?
-    fileprivate var _badgeView: BadgeView?
-}
-
-/// Add dynamic class support
-extension BrowserAlbumCell {
+    // status
+    private(set) var request: Request?
+    private(set) var orientation: UIImageOrientation = .up
     
-    // provide content view of class
-    dynamic class var contentViewClass: AnyClass {
-        return UIImageView.self
-    }
-    // provide content view of class, iOS 8+
-    fileprivate dynamic class var _contentViewClass: AnyClass {
-        return contentViewClass
-    }
-}
-
-/// Add custom transition support
-extension BrowserAlbumCell: TransitioningView {
+    // MARK: Ivar
     
-    var ub_frame: CGRect {
-        return convert(bounds, to: window)
-    }
-    var ub_bounds: CGRect {
-        // if the asset was not set
-        guard let asset = _asset else {
-            // can’t alignment
-            return contentView.bounds
-        }
-        return contentView.bounds.ub_aligned(with: .init(width: asset.pixelWidth, height: asset.pixelHeight))
-    }
-    var ub_transform: CGAffineTransform {
-        return contentView.transform.rotated(by: _orientation.ub_angle)
-    }
+    private var _allowsInvaildContents: Bool = false
     
-    func ub_snapshotView(with context: TransitioningContext) -> UIView? {
-        return contentView.snapshotView(afterScreenUpdates: context.ub_operation.appear)
-    }
+    private var _imageView: UIImageView?
+    private var _badgeView: BadgeView?
 }

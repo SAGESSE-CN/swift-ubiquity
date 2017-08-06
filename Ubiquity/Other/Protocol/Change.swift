@@ -46,6 +46,7 @@ public protocol ChangeDetails {
 
 /// A protocol you can implement to be notified of changes that occur in the Photos library.
 public protocol ChangeObserver: class {
+    
     /// Tells your observer that a set of changes has occurred in the Photos library.
     func library(_ library: Library, didChange change: Change)
 }

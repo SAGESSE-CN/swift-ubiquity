@@ -22,14 +22,54 @@ public class Picker: Browser {
         }
     }
     
-    func select(with asset: Asset) {
+    var allowsUpdatingLibraryChagned: Bool = true
+    
+    // MARK: Library Change
+    
+    /// Tells your observer that a set of changes has occurred in the Photos library.
+    open override func library(_ library: Library, didChange change: Change) {
+        super.library(library, didChange: change)
     }
     
-    func deselect(with asset: Asset) {
+    // MARK: Selection Item
+    
+    /// Select a item 
+    @discardableResult
+    func selectItem(with asset: Asset, sender: Any) -> SelectionStatus? {
+        // the asset has been selected?
+        if let status = _selectedItems[asset.identifier] {
+            return status
+        }
+        
+        // generate a selection info
+        let status = SelectionStatus(asset: asset, number: _selectedItems.count + 1)
+        _selectedItems[asset.identifier] = status
+        return status
     }
     
-    func isSelected(with asset: Asset) -> Bool {
-        return false
+    /// Deselect a item
+    @discardableResult
+    func deselectItem(with asset: Asset, sender: Any) -> SelectionStatus? {
+        // the asset has been selected?
+        if let status = _selectedItems.removeValue(forKey: asset.identifier) {
+            // the all number is smaller than the deleted item and needs to be updated 
+            _selectedItems.forEach {
+                // meet the conditions? 
+                guard $1.number > status.number else {
+                    return
+                }
+                $1.number -= 1
+            }
+        }
+        return nil
     }
     
+    /// Returns a item select status
+    func statusOfItem(with asset: Asset) -> SelectionStatus? {
+        return _selectedItems[asset.identifier]
+    }
+    
+    // MARK: Ivar
+    
+    private lazy var _selectedItems: [String: SelectionStatus] = [:]
 }

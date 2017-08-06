@@ -25,7 +25,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller {
         super.init(nibName: nil, bundle: nil)
         
         // listen albums any change
-        _container.library.addChangeObserver(self)
+        _container.addChangeObserver(self)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -34,7 +34,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller {
     
     deinit {
         // cancel listen change
-        _container.library.removeChangeObserver(self)
+        _container.removeChangeObserver(self)
     }
     
     /// Reload all data on authorization status did change

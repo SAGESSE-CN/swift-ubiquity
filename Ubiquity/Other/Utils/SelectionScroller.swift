@@ -1,5 +1,5 @@
 //
-//  SelectScroller.swift
+//  SelectionScroller.swift
 //  Ubiquity
 //
 //  Created by sagesse on 27/07/2017.
@@ -9,14 +9,15 @@
 import UIKit
 
 @objc
-internal protocol SelectScrollerDelegate: class {
+internal protocol SelectionScrollerDelegate: class {
     
-    @objc optional func selectScroller(_ selectScroller: SelectScroller, shouldAutoScroll timestamp: CFTimeInterval, offset: CGPoint) -> Bool
-    @objc optional func selectScroller(_ selectScroller: SelectScroller, didAutoScroll timestamp: CFTimeInterval, offset: CGPoint)
+    /// Update contetn offset for timeover
+    @objc optional func selectionScroller(_ selectionScroller: SelectionScroller, shouldAutoScroll timestamp: CFTimeInterval, offset: CGPoint) -> Bool
+    @objc optional func selectionScroller(_ selectionScroller: SelectionScroller, didAutoScroll timestamp: CFTimeInterval, offset: CGPoint)
 }
 
 @objc
-internal class SelectScroller: NSObject {
+internal class SelectionScroller: NSObject {
 
     override init() {
         super.init()
@@ -42,7 +43,7 @@ internal class SelectScroller: NSObject {
         }
     }
     
-    weak var delegate: SelectScrollerDelegate?
+    weak var delegate: SelectionScrollerDelegate?
     weak var scrollView: UIScrollView?
     
     // update timestamp
@@ -63,13 +64,13 @@ internal class SelectScroller: NSObject {
         
         // ask use can update content offset?
         let offset = CGPoint(x: scrollView.contentOffset.x, y: y)
-        guard delegate?.selectScroller?(self, shouldAutoScroll: sender.timestamp, offset: offset) ?? true else {
+        guard delegate?.selectionScroller?(self, shouldAutoScroll: sender.timestamp, offset: offset) ?? true else {
             return
         }
         
         // update content offset
         scrollView.contentOffset = offset
-        delegate?.selectScroller?(self, didAutoScroll: sender.timestamp, offset: offset)
+        delegate?.selectionScroller?(self, didAutoScroll: sender.timestamp, offset: offset)
     }
     
     private lazy var _timer: CADisplayLink = .init(block: { [weak self] in self?._update($0) })

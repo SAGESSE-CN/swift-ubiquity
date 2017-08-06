@@ -16,8 +16,13 @@ internal protocol TransitioningView: class {
     
     func ub_snapshotView(with context: TransitioningContext) -> UIView?
     
+    /// Transitions the animation will start.
     func ub_transitionWillStart(_ context: TransitioningContext)
+    
+    /// Transitions the animation has been stated.
     func ub_transitionDidStart(_ context: TransitioningContext)
+    
+    /// Transitions the animation has been end.
     func ub_transitionDidEnd(_ didComplete: Bool)
 }
 
@@ -44,15 +49,25 @@ internal protocol TransitioningContext: class {
 
 internal protocol TransitioningDataSource: class {
     
+    /// Returns transitioning view.
     func ub_transitionView(using animator: Animator, for operation: Animator.Operation) -> TransitioningView?
     
+    /// Return A Boolean value that indicates whether users allows animation transition.
     func ub_transitionShouldStart(using animator: Animator, for operation: Animator.Operation) -> Bool
+    
+    /// Return A Boolean value that indicates whether users allows interactive animation transition.
     func ub_transitionShouldStartInteractive(using animator: Animator, for operation: Animator.Operation) -> Bool
     
+    /// Transitions the context has been prepared.
     func ub_transitionDidPrepare(using animator: Animator, context: TransitioningContext)
+    
+    /// Transitions the animation has been stated.
     func ub_transitionDidStart(using animator: Animator, context: TransitioningContext)
     
+    /// Transitions the animation will end.
     func ub_transitionWillEnd(using animator: Animator, context: TransitioningContext, transitionCompleted: Bool)
+    
+    /// Transitions the animation has been end.
     func ub_transitionDidEnd(using animator: Animator, transitionCompleted: Bool)
 }
 
@@ -345,6 +360,7 @@ extension Animator {
         func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
             // create transition context
             let context = AnimatedTransitioningContext(animator: animator, context: transitionContext, operation: operation)
+            
             // apply transition context for from
             context.prepare(for: .from)
             
@@ -352,6 +368,7 @@ extension Animator {
             DispatchQueue.main.async { [animator, operation] in
                 // disable all user interface
                 UIApplication.shared.beginIgnoringInteractionEvents()
+                
                 // preform animation
                 animator.ub_animate(with: operation, animations: {
                     // apply transition context for to
@@ -360,6 +377,7 @@ extension Animator {
                 }, completion: { finished in
                     // complate transition, clear context
                     context.complete(!transitionContext.transitionWasCancelled)
+                    
                     // enable all user interface
                     UIApplication.shared.endIgnoringInteractionEvents()
                 })
@@ -466,31 +484,40 @@ extension Animator {
                 logger.error?.write("'from view' or 'to view' no found!")
                 return
             }
+            
             // same time display fromView and toView
             context.containerView.insertSubview(toView, aboveSubview: fromView)
+            
             // refresh layout, fix layout of the screen after the rotation error issue
             if toView.frame != context.containerView.bounds {
                 toView.frame = context.containerView.bounds
                 toView.layoutIfNeeded()
             }
+            
             // notice delegate prepare
             animator.source?.ub_transitionDidPrepare(using: animator, context: self)
             animator.destination?.ub_transitionDidPrepare(using: animator, context: self)
+            
             // notice delegate will start
             ub_transitioningView(for: .source)?.ub_transitionWillStart(self)
             ub_transitioningView(for: .destination)?.ub_transitionWillStart(self)
+            
             // setup transition context for snapshot view
             snapshotView.frame = context.containerView.bounds
             snapshotView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
             context.containerView.addSubview(snapshotView)
+            
             // setup transition context for init
             snapshotView.prepare(with: ub_transitioningView(for: .destination), context: self)
             apply(for: key)
+            
             // setup transition context for other
             ub_view(for: .destination)?.isHidden = true
+            
             // notice delegate start
             animator.source?.ub_transitionDidStart(using: animator, context: self)
             animator.destination?.ub_transitionDidStart(using: animator, context: self)
+            
             // notice transitioning view
             ub_transitioningView(for: .source)?.ub_transitionDidStart(self)
             ub_transitioningView(for: .destination)?.ub_transitionDidStart(self)
@@ -501,15 +528,18 @@ extension Animator {
             // notice delegate
             animator.source?.ub_transitionWillEnd(using: animator, context: self, transitionCompleted: completed)
             animator.destination?.ub_transitionWillEnd(using: animator, context: self, transitionCompleted: completed)
+            
             // setup transition context for other
             ub_view(for: .destination)?.isHidden = false
-            // clear context
+            
+            // clear context and commit animation
             snapshotView.removeFromSuperview()
-            // commit
             context.completeTransition(completed)
+            
             // notice transitioning view
             ub_transitioningView(for: .source)?.ub_transitionDidEnd(completed)
             ub_transitioningView(for: .destination)?.ub_transitionDidEnd(completed)
+            
             // notice delegate
             animator.source?.ub_transitionDidEnd(using: animator, transitionCompleted: completed)
             animator.destination?.ub_transitionDidEnd(using: animator, transitionCompleted: completed)
@@ -670,19 +700,27 @@ extension TransitioningView {
 /// Add default implementation
 extension TransitioningDataSource {
     
+    /// Return A Boolean value that indicates whether users allows interactive animation transition.
     func ub_transitionShouldStartInteractive(using animator: Animator, for key: Animator.Operation) -> Bool {
         return false
     }
     
+    /// Transitions the context has been prepared.
     func ub_transitionDidPrepare(using animator: Animator, context: TransitioningContext) {
         // the default implementation is empty
     }
+    
+    /// Transitions the animation has been stated.
     func ub_transitionDidStart(using animator: Animator, context: TransitioningContext) {
         // the default implementation is empty
     }
+    
+    /// Transitions the animation will end.
     func ub_transitionWillEnd(using animator: Animator, context: TransitioningContext, transitionCompleted: Bool) {
         // the default implementation is empty
     }
+    
+    /// Transitions the animation has been end.
     func ub_transitionDidEnd(using animator: Animator, transitionCompleted: Bool) {
         // the default implementation is empty
     }

@@ -22,7 +22,7 @@ internal class BrowserAlbumHeader: UICollectionReusableView {
     
     weak var parent: BrowserAlbumHeader?
     
-    @NSCopying var effect: UIVisualEffect? {
+    var effect: UIVisualEffect? {
         willSet {
             // has any effect?
             guard let newValue = newValue else {
@@ -59,6 +59,11 @@ internal class BrowserAlbumHeader: UICollectionReusableView {
     
     var source: Source? {
         willSet {
+            // The source is change?
+            guard source !== newValue else {
+                return
+            }
+            
             // update content 
             section.map {
                 _updateCollection(newValue?.collection(at: $0))

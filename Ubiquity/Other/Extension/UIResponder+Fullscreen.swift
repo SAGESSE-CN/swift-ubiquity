@@ -9,7 +9,7 @@
 import UIKit
 
 
-/// add a full screen support
+/// Add a full screen support
 public extension UIResponder {
     
     /// the current fullscreen state
@@ -19,7 +19,7 @@ public extension UIResponder {
     }
 
     ///
-    /// enter fullscreen mode
+    /// Enter fullscreen mode
     ///
     /// - Parameter animated: the change need animation?
     /// - Returns: true is enter success, false is fail
@@ -30,7 +30,7 @@ public extension UIResponder {
     }
     
     ///
-    /// exit fullscreen mode
+    /// Exit fullscreen mode
     ///
     /// - Parameter animated: the change need animation?
     /// - Returns: true is exit success, false is fail

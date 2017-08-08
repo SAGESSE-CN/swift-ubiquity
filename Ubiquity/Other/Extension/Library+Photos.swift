@@ -399,8 +399,6 @@ private class _PHCollectionList: CollectionList {
             return nil
         }
         
-        logger.debug?.write(diffs)
-        
         // generate new chagne details for collection list
         let details = _PHChangeDetails(before: self, after: collectionList)
         
@@ -707,6 +705,13 @@ private class _PHLibrary: NSObject, Library, Photos.PHPhotoLibraryChangeObserver
         
         // no, remove observer from photos
         _library.unregisterChangeObserver(self)
+    }
+    
+    // MARK: Check
+    
+    /// Check asset exists
+    func exists(forItem asset: Asset) -> Bool {
+        return PHAsset.fetchAssets(withLocalIdentifiers: [asset.identifier], options: nil).count != 0
     }
     
     // MARK: Fetch

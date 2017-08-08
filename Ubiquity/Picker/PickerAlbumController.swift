@@ -64,6 +64,9 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
         _selectionReversed = _statusOfItem(at: indexPath)
         _selectionFastCaches = []
        
+        // begin ignore change events
+        container.beginIgnoringChangeEvents()
+        
         // allows selection rect
         return true
     }
@@ -73,6 +76,9 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
         // reset selection flag
         _selectionReversed = false
         _selectionFastCaches = nil
+        
+        // end ignore change events
+        container.endIgnoringChangeEvents()
     }
     
     /// Update selected item

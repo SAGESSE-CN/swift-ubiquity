@@ -38,6 +38,11 @@ public protocol Library {
     /// Unregisters an object so that it no longer receives change messages.
     func removeChangeObserver(_ observer: ChangeObserver)
     
+    // MARK: Check
+    
+    /// Check asset exists
+    func exists(forItem asset: Asset) -> Bool
+    
     // MARK: Fetch
     
     /// Get collections with type

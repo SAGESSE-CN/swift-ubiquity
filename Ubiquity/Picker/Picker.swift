@@ -33,7 +33,7 @@ public class Picker: Browser {
     
     // MARK: Selection Item
     
-    /// Select a item 
+    /// Select a item
     @discardableResult
     func selectItem(with asset: Asset, sender: Any) -> SelectionStatus? {
         // the asset has been selected?

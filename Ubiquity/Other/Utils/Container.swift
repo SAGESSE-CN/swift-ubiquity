@@ -72,7 +72,7 @@ open class Container: NSObject, ChangeObserver {
     /// Requests an image representation for the specified asset.
     open func request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
         #if DEBUG
-        guard !debug else {
+        guard !_debug else {
             return nil
         }
         #endif
@@ -81,7 +81,7 @@ open class Container: NSObject, ChangeObserver {
     /// Requests a representation of the video asset for playback, to be loaded asynchronously.
     open func request(forItem asset: Asset, options: RequestOptions?, resultHandler: @escaping (AnyObject?, Response) -> ()) -> Request? {
         #if DEBUG
-        guard !debug else {
+        guard !_debug else {
             return nil
         }
         #endif
@@ -91,7 +91,7 @@ open class Container: NSObject, ChangeObserver {
     /// Cancels an asynchronous request
     open func cancel(with request: Request) {
         #if DEBUG
-        guard !debug else {
+        guard !_debug else {
             return
         }
         #endif
@@ -103,7 +103,7 @@ open class Container: NSObject, ChangeObserver {
     /// Prepares image representations of the specified assets for later use.
     open func startCachingImages(for assets: Array<Asset>, size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
         #if DEBUG
-        guard !debug else {
+        guard !_debug else {
             return
         }
         #endif
@@ -112,7 +112,7 @@ open class Container: NSObject, ChangeObserver {
     /// Cancels image preparation for the specified assets and options.
     open func stopCachingImages(for assets: Array<Asset>, size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
         #if DEBUG
-        guard !debug else {
+        guard !_debug else {
             return
         }
         #endif
@@ -122,7 +122,7 @@ open class Container: NSObject, ChangeObserver {
     /// Cancels all image preparation that is currently in progress.
     open func stopCachingImagesForAllAssets() {
         #if DEBUG
-        guard !debug else {
+        guard !_debug else {
             return
         }
         #endif
@@ -131,10 +131,44 @@ open class Container: NSObject, ChangeObserver {
     
     // MARK: Library Change
     
+    /// Tells the receiver to suspend the handling of library change events.
+    func beginIgnoringChangeEvents() {
+        // ignoring is begin?
+        guard _dispatch == nil else {
+            return
+        }
+        _semaphore = DispatchSemaphore(value: 0)
+        _dispatch = DispatchQueue(label: "ubiquity-dispatch-wait")
+        _dispatch?.async { [_semaphore] in
+            _semaphore?.wait()
+        }
+    }
+    
+    /// Tells the receiver to resume the handling of library change events.
+    func endIgnoringChangeEvents() {
+        // ignoring is begin?
+        guard _dispatch != nil else {
+            return
+        }
+        // clear
+        _semaphore?.signal()
+        _semaphore = nil
+        _dispatch = nil
+    }
+    
+    
     /// Tells your observer that a set of changes has occurred in the Photos library.
     open func library(_ library: Library, didChange change: Change) {
+        // ignoring is begin?
+        guard _dispatch == nil else {
+            _dispatch?.async {
+                self.library(library, didChange: change)
+            }
+            return
+        }
+        
         // notifity all observers
-        observers.forEach {
+        self.observers.forEach {
             $0.some?.library(library, didChange: change)
         }
     }
@@ -186,9 +220,10 @@ open class Container: NSObject, ChangeObserver {
     private(set) var cacher: Cacher
     private(set) var observers: Array<Weak<ChangeObserver>> = []
     
-    #if DEBUG
-    internal var debug: Bool = false
-    #endif
+    private var _debug: Bool = false
+    
+    private var _dispatch: DispatchQueue?
+    private var _semaphore: DispatchSemaphore?
     
     private lazy var _factorys: Dictionary<Page, Factory> = [:]
 }

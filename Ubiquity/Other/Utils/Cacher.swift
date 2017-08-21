@@ -586,8 +586,8 @@ extension Cacher {
         
         init(size: CGSize, mode: RequestContentMode) {
             _mode = mode.rawValue
-            _width = Int(sqrt(size.width))
-            _height = Int(sqrt(size.height))
+            _width = Int(sqrt(max(size.width, 0)))
+            _height = Int(sqrt(max(size.height, 0)))
             
             let size = (MemoryLayout.size(ofValue: _width) << 2) - 1
             let mask = ~(.max << size)

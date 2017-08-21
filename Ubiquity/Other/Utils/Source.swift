@@ -36,6 +36,18 @@ internal class Source {
         return _collectionSubtype
     }
     
+    /// In this is source the footer view need display?
+    var isFooterViewHidden: Bool {
+        // automatic hidden
+        return false
+    }
+    
+    /// In this is source the header view need display?
+    var isHeaderViewHidden: Bool {
+        // display header only in moment
+        return _collectionType != .moment
+    }
+    
     
     var count: Int {
         // adapter must be set

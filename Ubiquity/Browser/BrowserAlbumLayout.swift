@@ -24,7 +24,6 @@ internal class BrowserAlbumLayout: UICollectionViewFlowLayout {
         
         // setup
         itemSize = size
-        sectionInset = .init(top: 4, left: 0, bottom: 4, right: 0)
         minimumLineSpacing = spacing
         minimumInteritemSpacing = spacing
     }

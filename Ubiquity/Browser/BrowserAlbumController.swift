@@ -49,8 +49,8 @@ internal class BrowserAlbumController: UICollectionViewController, Controller,  
         
         // generate header view
         _headerView = {
-            // display header only in moment
-            guard source.collectionType == .moment else {
+            // allows display header view?
+            guard !source.isHeaderViewHidden else {
                 return nil
             }
             
@@ -65,6 +65,11 @@ internal class BrowserAlbumController: UICollectionViewController, Controller,  
         
         // generate footer view
         _footerView = {
+            // allows display footer view?
+            guard !source.isFooterViewHidden else {
+                return nil
+            }
+            
             let footerView = BrowserAlbumFooter()
             
             // config
@@ -81,6 +86,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller,  
         collectionView?.backgroundColor = .white
         collectionView?.alwaysBounceVertical = true
         collectionView?.register(BrowserAlbumHeader.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "HEADER")
+        
         
         // register all cell for contents
         factory.contents.forEach {
@@ -215,9 +221,34 @@ internal class BrowserAlbumController: UICollectionViewController, Controller,  
         return collectionViewLayout.itemSize
     }
     
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        // collectionViewLayout must king of `UICollectionViewFlowLayout`
+        guard let collectionViewLayout = collectionViewLayout as? UICollectionViewFlowLayout else {
+            return .zero
+        }
+        var edg = UIEdgeInsets(top: collectionViewLayout.minimumLineSpacing, left: 0, bottom: 0, right: 0)
+        
+        // in header, top is 4
+        if !source.isHeaderViewHidden {
+            edg.top = 4
+        }
+        
+        // in first section, top is 4
+        if section == 0 {
+            edg.top = 4
+        }
+        
+        // in last section, bottom is 4
+        if section == collectionView.numberOfSections - 1 {
+            edg.bottom = 4
+        }
+        
+        return edg
+    }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         // show header view?
-        guard _headerView != nil else {
+        guard !source.isHeaderViewHidden else {
             return .zero
         }
         

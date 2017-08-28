@@ -22,7 +22,6 @@ internal protocol Controller {
     init(container: Container, factory: Factory, source: Source, sender: Any)
 }
 
-
 internal class Factory {
     
     init(controller: Controller.Type, cell: UIView.Type) {

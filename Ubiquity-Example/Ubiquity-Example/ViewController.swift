@@ -7,9 +7,30 @@
 //
 
 import UIKit
-import Ubiquity
+@testable import Ubiquity
 
 import WebKit
+
+class AT: UIViewController {
+}
+
+extension UIViewController {
+    
+    @objc var ub_warp: Bool {
+        set { return objc_setAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_warp).hashValue), ub_warpInit(newValue), .OBJC_ASSOCIATION_ASSIGN) }
+        get { return objc_getAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_warp).hashValue)) as? Bool ?? false }
+    }
+    
+    @objc func ub_warpInit(_ warp: Bool) -> Bool {
+        
+        
+        return warp
+    }
+    
+    @objc func ub_present(_ viewControllerToPresent: UIViewController, animated: Bool, completion: (() -> Swift.Void)? = nil) {
+        return self.present(viewControllerToPresent, animated: animated, completion: completion)
+    }
+}
 
 class ViewController: UITableViewController, UIActionSheetDelegate {
     
@@ -17,15 +38,29 @@ class ViewController: UITableViewController, UIActionSheetDelegate {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
+    
     @IBAction func show(_ sender: Any) {
-        let sheet = UIActionSheet(title: nil, delegate: self, cancelButtonTitle: "Cancel", destructiveButtonTitle: nil)
         
-        sheet.addButton(withTitle: "Browser")
-        sheet.addButton(withTitle: "Picker")
-        //sheet.addButton(withTitle: "Editor")
+//        let a = AT()
+//        a.ub_warp = true
+//        self.navigationController?.pushViewController(a, animated: true)
+//        self.present(a, animated: true, completion: nil)
         
-        sheet.show(in: self.view)
+        let picker = Ubiquity.Browser(library: Ubiquity.PHLibrary())
+        guard let contoller = picker.viewController(wit: .albums, source: .init(collectionType: .regular), sender: self) else {
+            return
+        }
+        self.navigationController?.viewControllers = [contoller]
+//        //pushViewController(contoller, animated: true)
+        return;
+        
+//        let sheet = UIActionSheet(title: nil, delegate: self, cancelButtonTitle: "Cancel", destructiveButtonTitle: nil)
+//        
+//        sheet.addButton(withTitle: "Browser")
+//        sheet.addButton(withTitle: "Picker")
+//        //sheet.addButton(withTitle: "Editor")
+//        
+//        sheet.show(in: self.view)
         
 //        // skip
 //        actionSheet(sheet, clickedButtonAt: 1)
@@ -54,11 +89,15 @@ class ViewController: UITableViewController, UIActionSheetDelegate {
 //        let vc = PhotoLibraryController()
 //        present(vc, animated: true, completion: nil)
         
+        
+        //let x = Ubiquity.Browser(library: Ubiquity.PHLibrary())
 
         switch buttonIndex {
         case 1:
             let container = Ubiquity.Browser(library: Ubiquity.PHLibrary())
             //let container = Ubiquity.Picker(library: library)
+            
+            
             
             //let vc1 = Ubiquity.BrowserAlbumZoomableController(library: library)
             let vc2 = BrowserAlbumListControllerMake(container)

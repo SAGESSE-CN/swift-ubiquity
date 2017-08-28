@@ -10,6 +10,15 @@ import UIKit
 
 internal class BrowserDetailLayout: UICollectionViewFlowLayout {
     
+    init(direction: UICollectionViewScrollDirection) {
+        super.init()
+        self.scrollDirection = direction
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+    }
+    
     override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard super.shouldInvalidateLayout(forBoundsChange: newBounds) else {
             return false

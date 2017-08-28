@@ -16,16 +16,8 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         self.container = container
         self.itemIndexPath = sender as? IndexPath ?? .init(item: 0, section: 0)
         
-        let collectionViewLayout = BrowserDetailLayout()
-        
-        collectionViewLayout.scrollDirection = .horizontal
-        collectionViewLayout.minimumLineSpacing = -extraContentInset.left * 2
-        collectionViewLayout.minimumInteritemSpacing = -extraContentInset.right * 2
-        collectionViewLayout.headerReferenceSize = CGSize(width: -extraContentInset.left, height: 0)
-        collectionViewLayout.footerReferenceSize = CGSize(width: -extraContentInset.right, height: 0)
-
         // continue init the UI
-        super.init(collectionViewLayout: collectionViewLayout)
+        super.init(collectionViewLayout: BrowserDetailLayout(direction: .horizontal))
         
 //        // the page must hide the bottom bar
 //        self.hidesBottomBarWhenPushed = true
@@ -237,6 +229,30 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         }
         
         displayer.endDisplay(with: container)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return -extraContentInset.left * 2
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return -extraContentInset.left * 2
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        // if section is empty, there is no need to fill in the blanks
+        guard collectionView.numberOfItems(inSection: section) != 0 else {
+            return .zero
+        }
+        return .init(width: -extraContentInset.left, height: 0)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+        // if section is empty, there is no need to fill in the blanks
+        guard collectionView.numberOfItems(inSection: section) != 0 else {
+            return .zero
+        }
+        return .init(width: -extraContentInset.right, height: 0)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {

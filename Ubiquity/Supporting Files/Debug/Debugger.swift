@@ -8,6 +8,8 @@
 
 import UIKit
 
+#if DBUEG
+    
 internal class Debugger: UIView {
     
     func addRect(_ rect: CGRect, file: String = #file, at line: Int = #line) {
@@ -134,6 +136,8 @@ extension UIView {
         return debugger
     }
 }
+    
+#endif
 
 extension UIWindow {
     // ..

@@ -24,12 +24,78 @@ import UIKit
 
 /// view controller custom transitioning support
 internal extension UIViewController {
+    
+    var prefersTabBarHidden: Bool {
+        return false
+    }
+    var preferredTabBarUpdateAnimation: UIStatusBarAnimation {
+        return .fade
+    }
+    
+    var prefersToolbarHidden: Bool {
+        return true
+    }
+    var preferredToolbarUpdateAnimation: UIStatusBarAnimation {
+        return .fade
+    }
+    
+    var prefersNavigationBarHidden: Bool {
+        return false
+    }
+    var preferredNavigationBarUpdateAnimation: UIStatusBarAnimation {
+        return .fade
+    }
+
+    
     // contains the navigation controller transitioning animation
     weak var ub_transitioningDelegate: UINavigationControllerTransitioningDelegate? {
         set { return transitioningDelegate = __ub_file_init(newValue) }
         get { return transitioningDelegate as? UINavigationControllerTransitioningDelegate }
     }
 }
+
+extension UIViewController {
+    
+    /// A Boolean value that indicates whether enabled controller warp protection.
+    internal var ub_warp: Bool {
+        set { return objc_setAssociatedObject(self, UnsafePointer(bitPattern: #selector(ub_warp(_:)).hashValue), ub_warp(newValue), .OBJC_ASSOCIATION_ASSIGN) }
+        get { return objc_getAssociatedObject(self, UnsafePointer(bitPattern: #selector(ub_warp(_:)).hashValue)) as? Bool ?? false }
+    }
+    
+    /// Hook presetn view controller event
+    private dynamic func ub_warp(_ warp: Bool) -> Bool {
+        
+        // replace the implementation method to ensure that the method is called only once
+        let getter: @convention(block) (AnyObject, Bool) -> Bool = { _, warp in
+            return warp
+        }
+        
+        let method1 = class_getInstanceMethod(UIViewController.self, #selector(ub_warp(_:)))
+        let method2 = class_getInstanceMethod(UIViewController.self, #selector(ub_present(_:animated:completion:)))
+        let method3 = class_getInstanceMethod(UIViewController.self, #selector(present(_:animated:completion:)))
+        
+        // exchange method
+        method_setImplementation(method1, imp_implementationWithBlock(unsafeBitCast(getter, to: AnyObject.self)))
+        method_exchangeImplementations(method2, method3)
+        
+        return warp
+    }
+    
+    /// Process presetn view controller event
+    private dynamic func ub_present(_ viewControllerToPresent: UIViewController, animated: Bool, completion: (() -> Void)?) {
+        // check whether the enabled warp protection
+        guard viewControllerToPresent.ub_warp else {
+            return ub_present(viewControllerToPresent, animated: animated, completion: completion)
+        }
+        
+        // generate a navgation controller
+        let navgationController = NavigationController(rootViewController: viewControllerToPresent)
+        
+        // show
+        return ub_present(navgationController, animated: animated, completion: completion)
+    }
+}
+
 
 /// navigation controller custom transitioning support
 fileprivate extension UINavigationController {

@@ -74,11 +74,10 @@ private class _PHAsset: Asset {
     
     /// The subtypes of the asset, identifying special kinds of assets such as panoramic photo or high-framerate video.
     var mediaSubtypes: AssetMediaSubtype {
-        //        // the media is gif?
-        //        if filename?.hasSuffix("GIF") ?? false {
-        //            print("it is gif")
-        //        }
-        //        
+//        // the media is gif?
+//        if filename?.hasSuffix("GIF") ?? false {
+//            print("it is gif")
+//        }
         return AssetMediaSubtype(rawValue: asset.mediaSubtypes.rawValue)
     }
     
@@ -452,79 +451,68 @@ private class _PHCollectionList: CollectionList {
         return details
     }
     
-    private func _types(with collectionType: CollectionType) -> Array<(PHAssetCollectionType, PHAssetCollectionSubtype, Bool)> {
-        // create temp
-        var types: Array<(PHAssetCollectionType, PHAssetCollectionSubtype, Bool)> = []
+    
+    private func _collections(with collectionType: PHAssetCollectionType, _ collectionSubtype: PHAssetCollectionSubtype, _ omittingEmptySubsequences: Bool) -> Array<_PHCollection> {
+        // fetch collection with type
+        let result = PHAssetCollection.fetchAssetCollections(with: collectionType, subtype: collectionSubtype, options: nil)
         
-        switch collectionType {
-        case .regular: // all albums
-            
-            // smart album -> user
-            types.append((.smartAlbum, .smartAlbumUserLibrary, true))
-            types.append((.smartAlbum, .smartAlbumFavorites, false))
-            types.append((.smartAlbum, .smartAlbumGeneric, false))
-            
-            // smart album -> recently
-            //types.append((.smartAlbum, .smartAlbumRecentlyAdded, false))
-            
-            // smart album -> video
-            types.append((.smartAlbum, .smartAlbumPanoramas, false))
-            types.append((.smartAlbum, .smartAlbumVideos, false))
-            types.append((.smartAlbum, .smartAlbumSlomoVideos, false))
-            types.append((.smartAlbum, .smartAlbumTimelapses, false))
-            
-            // smart album -> screenshots
-            if #available(iOS 9.0, *) { 
-                types.append((.smartAlbum, .smartAlbumScreenshots, false))
-                //types.append((.smartAlbum, .smartAlbumSelfPortraits))
-            }
-            
-            // album -> share
-            types.append((.album, .albumMyPhotoStream, false))
-            types.append((.album, .albumCloudShared, false))
-            
-            // album -> user
-            types.append((.album, .albumRegular, true))
-            types.append((.album, .albumSyncedAlbum, false))
-            types.append((.album, .albumImported, false))
-            types.append((.album, .albumSyncedFaces, false))
-            
-            return types
-            
-        case .moment: // moment
-            
-            // moment -> any
-            types.append((.moment, .any, true))
-            
-        case .recentlyAdded: // recently
-            
-            // smart album -> recently
-            types.append((.smartAlbum, .smartAlbumRecentlyAdded, true))
+        // convert to `_PHCollection`
+        return (0 ..< result.count).flatMap { index in
+            return _PHCollection(collection: result.object(at: index))
         }
-        
-        return types
     }
     private func _collections(with collectionType: CollectionType) -> Array<_PHCollection> {
-        
+        // process moment
         if collectionType == .moment {
             // fetch collection with type
             let result = PHAssetCollection.fetchMoments(with: nil)
             
-            // merge
+            // merge to result
             return (0 ..< result.count).flatMap { index in
                 return _PHCollection(collection: result.object(at: index))
             }
         }
         
-        return _types(with: collectionType).flatMap { type, subtype, allowsEmpty -> Array<_PHCollection> in
-            // fetch collection with type
-            let result = PHAssetCollection.fetchAssetCollections(with: type, subtype: subtype, options: nil)
-            
-            // merge
-            return (0 ..< result.count).flatMap { index in
-                return _PHCollection(collection: result.object(at: index))
-            }
+        // process recently added
+        if collectionType == .recentlyAdded {
+            // smart album -> recently
+            return _collections(with: .smartAlbum, .smartAlbumRecentlyAdded, true)
         }
+        
+        // the new collections
+        var collections: Array<_PHCollection> = []
+        
+        // smart album -> user
+        collections.append(contentsOf: _collections(with: .smartAlbum, .smartAlbumUserLibrary, true))
+        collections.append(contentsOf: _collections(with: .smartAlbum, .smartAlbumFavorites, false))
+        collections.append(contentsOf: _collections(with: .smartAlbum, .smartAlbumGeneric, false))
+        
+        // smart album -> recently
+        collections.append(contentsOf: _collections(with: .smartAlbum, .smartAlbumRecentlyAdded, false))
+        
+        // smart album -> video
+        collections.append(contentsOf: _collections(with: .smartAlbum, .smartAlbumPanoramas, false))
+        collections.append(contentsOf: _collections(with: .smartAlbum, .smartAlbumVideos, false))
+        collections.append(contentsOf: _collections(with: .smartAlbum, .smartAlbumSlomoVideos, false))
+        collections.append(contentsOf: _collections(with: .smartAlbum, .smartAlbumTimelapses, false))
+        
+        // smart album -> screenshots
+        if #available(iOS 9.0, *) {
+            collections.append(contentsOf: _collections(with: .smartAlbum, .smartAlbumScreenshots, false))
+            //collections.append(contentsOf: _collections(with: .smartAlbum, .smartAlbumSelfPortraits, false))
+        }
+        
+        // album -> share
+        collections.append(contentsOf: _collections(with: .album, .albumMyPhotoStream, false))
+        collections.append(contentsOf: _collections(with: .album, .albumCloudShared, false))
+        
+        // album -> user
+        collections.append(contentsOf: _collections(with: .album, .albumRegular, true))
+        collections.append(contentsOf: _collections(with: .album, .albumSyncedAlbum, false))
+        collections.append(contentsOf: _collections(with: .album, .albumImported, false))
+        collections.append(contentsOf: _collections(with: .album, .albumSyncedFaces, false))
+        
+        return collections
     }
     
     private var _type: CollectionType

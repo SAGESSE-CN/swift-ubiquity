@@ -7,30 +7,10 @@
 //
 
 import UIKit
-@testable import Ubiquity
+//@testable import Ubiquity
+import Ubiquity
 
 import WebKit
-
-class AT: UIViewController {
-}
-
-extension UIViewController {
-    
-    @objc var ub_warp: Bool {
-        set { return objc_setAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_warp).hashValue), ub_warpInit(newValue), .OBJC_ASSOCIATION_ASSIGN) }
-        get { return objc_getAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_warp).hashValue)) as? Bool ?? false }
-    }
-    
-    @objc func ub_warpInit(_ warp: Bool) -> Bool {
-        
-        
-        return warp
-    }
-    
-    @objc func ub_present(_ viewControllerToPresent: UIViewController, animated: Bool, completion: (() -> Swift.Void)? = nil) {
-        return self.present(viewControllerToPresent, animated: animated, completion: completion)
-    }
-}
 
 class ViewController: UITableViewController, UIActionSheetDelegate {
     
@@ -41,18 +21,26 @@ class ViewController: UITableViewController, UIActionSheetDelegate {
     
     @IBAction func show(_ sender: Any) {
         
-//        let a = AT()
-//        a.ub_warp = true
-//        self.navigationController?.pushViewController(a, animated: true)
-//        self.present(a, animated: true, completion: nil)
         
-        let picker = Ubiquity.Browser(library: Ubiquity.PHLibrary())
-        guard let contoller = picker.viewController(wit: .albums, source: .init(collectionType: .regular), sender: self) else {
-            return
-        }
-        self.navigationController?.viewControllers = [contoller]
-//        //pushViewController(contoller, animated: true)
-        return;
+        let browser = Ubiquity.Browser(library: Ubiquity.PHLibrary())
+        
+        // configure
+//        browser.source = .init(collectionType: .regular)
+        
+//        browser.register(UIViewController.self, for: .albums)
+//        browser.register(UIViewController.self, for: .albumsList)
+//        browser.register(UIViewController.self, for: .detail)
+        
+        
+        // display
+        //present(browser.initialViewController(with: .albumsList), animated: true, completion: nil)
+        present(browser.initialViewController(with: .albums), animated: true, completion: nil)
+        
+        
+//        let v = UIImagePickerController()
+    //open class func availableMediaTypes(for sourceType: UIImagePickerControllerSourceType) -> [String]? // returns array of available media types (i.e. kUTTypeImage)
+        
+        
         
 //        let sheet = UIActionSheet(title: nil, delegate: self, cancelButtonTitle: "Cancel", destructiveButtonTitle: nil)
 //        
@@ -83,68 +71,11 @@ class ViewController: UITableViewController, UIActionSheetDelegate {
     }
     
     func actionSheet(_ actionSheet: UIActionSheet, clickedButtonAt buttonIndex: Int) {
+        // is cancel?
         guard buttonIndex != actionSheet.cancelButtonIndex else {
             return
         }
-//        let vc = PhotoLibraryController()
-//        present(vc, animated: true, completion: nil)
         
-        
-        //let x = Ubiquity.Browser(library: Ubiquity.PHLibrary())
-
-        switch buttonIndex {
-        case 1:
-            let container = Ubiquity.Browser(library: Ubiquity.PHLibrary())
-            //let container = Ubiquity.Picker(library: library)
-            
-            
-            
-            //let vc1 = Ubiquity.BrowserAlbumZoomableController(library: library)
-            let vc2 = BrowserAlbumListControllerMake(container)
-            //Ubiquity.BrowserAlbumListController(library: library)
-            
-            present(vc2, animated: true, completion: nil)
-            //vc1.hidesBottomBarWhenPushed = true
-//            vc2.hidesBottomBarWhenPushed = true
-//            vc2.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Dismiss", style: .plain, target: vc, action: #selector(PhotoLibraryController.dismiss(_:)))
-//            
-//            //        let nav = NavigationController(navigationBarClass: nil, toolbarClass: ExtendedToolbar.self)
-//            //        nav.viewControllers = [container.viewController]
-//            
-//            let nav1  =  NavigationControllerMake().init(navigationBarClass: nil, toolbarClass: ToolbarMake())
-//            nav1.viewControllers = [vc2]
-//            nav1.isNavigationBarHidden = false
-//            
-//            vc.viewControllers = [
-//                nav1
-//            ]
-            
-        case 2:
-            let container = Ubiquity.Picker(library: Ubiquity.PHLibrary())
-            
-            //let vc1 = Ubiquity.BrowserAlbumZoomableController(library: library)
-            let vc2 = BrowserAlbumListControllerMake(container)
-            //Ubiquity.BrowserAlbumListController(library: library)
-            
-            present(vc2, animated: true, completion: nil)
-//            //vc1.hidesBottomBarWhenPushed = true
-//            vc2.hidesBottomBarWhenPushed = true
-//            vc2.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Dismiss", style: .plain, target: vc, action: #selector(PhotoLibraryController.dismiss(_:)))
-//            
-//            //        let nav = NavigationController(navigationBarClass: nil, toolbarClass: ExtendedToolbar.self)
-//            //        nav.viewControllers = [container.viewController]
-//            
-//            let nav1  =  NavigationControllerMake().init(navigationBarClass: nil, toolbarClass: ToolbarMake())
-//            nav1.viewControllers = [vc2]
-//            nav1.isNavigationBarHidden = false
-//            
-//            vc.viewControllers = [
-//                nav1
-//            ]
-            
-        default:
-            break
-        }
     }
 }
 

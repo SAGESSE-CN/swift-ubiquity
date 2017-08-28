@@ -50,9 +50,9 @@ public protocol CollectionList: class {
 /// Major distinctions between kinds of asset collections
 public enum CollectionType : Int {
     
-    /// All albums
+    /// All albums except moment.
     case regular = 1
-    /// A moment in the Photos app.
+    /// A moment album.
     case moment = 3
     /// A smart album whose contents update dynamically.
     case recentlyAdded = 2

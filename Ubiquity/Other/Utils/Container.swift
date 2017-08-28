@@ -41,7 +41,6 @@ open class Container: NSObject, ChangeObserver {
         }
         library.addChangeObserver(self)
     }
-    
     /// Unregisters an object so that it no longer receives change messages.
     func removeChangeObserver(_ observer: ChangeObserver) {
         // clear all invaild observers
@@ -68,7 +67,6 @@ open class Container: NSObject, ChangeObserver {
     open func request(forCollection type: CollectionType) -> CollectionList {
         return library.request(forCollection: type)
     }
-    
     /// Requests an image representation for the specified asset.
     open func request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
         #if DEBUG
@@ -132,7 +130,7 @@ open class Container: NSObject, ChangeObserver {
     // MARK: Library Change
     
     /// Tells the receiver to suspend the handling of library change events.
-    func beginIgnoringChangeEvents() {
+    open func beginIgnoringChangeEvents() {
         // ignoring is begin?
         guard _dispatch == nil else {
             return
@@ -143,9 +141,8 @@ open class Container: NSObject, ChangeObserver {
             _semaphore?.wait()
         }
     }
-    
     /// Tells the receiver to resume the handling of library change events.
-    func endIgnoringChangeEvents() {
+    open func endIgnoringChangeEvents() {
         // ignoring is begin?
         guard _dispatch != nil else {
             return
@@ -155,7 +152,6 @@ open class Container: NSObject, ChangeObserver {
         _semaphore = nil
         _dispatch = nil
     }
-    
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
     open func library(_ library: Library, didChange change: Change) {
@@ -175,7 +171,30 @@ open class Container: NSObject, ChangeObserver {
     
     // MARK: Content
     
-    func factory(with page: Page) -> Factory? {
+    var source: Source?
+    
+    /// Generate the initialized controller
+    open func initialViewController(with type: ControllerType) -> UIViewController {
+        // Try generate a controlelr
+        guard let controller = controller(with: type, source: .init(collectionType: .regular), sender: self) else {
+            logger.fatal?.write("The controller creation failed. This is an unknown error!")
+            fatalError("The controller creation failed. This is an unknown error!")
+        }
+        
+        // the controller need warp protection
+        controller.ub_warp = true
+        controller.ub_transitioningDelegate = nil
+        
+        
+        return controller
+    }
+    
+    
+    func register(_ viewController: AnyClass, for type: ControllerType) {
+    }
+    
+    
+    func factory(with page: ControllerType) -> Factory? {
         // hit cache?
         if let factory = _factorys[page] {
             return factory
@@ -200,12 +219,10 @@ open class Container: NSObject, ChangeObserver {
         }
     }
     
-    func view(with page: Page, source: Source, sender: Any) -> UIView? {
-        return nil
-    }
-    func viewController(wit page: Page, source: Source, sender: Any) -> UIViewController? {
+    /// Generate a controller for factory
+    internal func controller(with type: ControllerType, source: Source, sender: Any) -> UIViewController? {
         // if factory is nil, no provider
-        guard let factory = factory(with: page) else {
+        guard let factory = factory(with: type) else {
             return nil
         }
         
@@ -225,5 +242,5 @@ open class Container: NSObject, ChangeObserver {
     private var _dispatch: DispatchQueue?
     private var _semaphore: DispatchSemaphore?
     
-    private lazy var _factorys: Dictionary<Page, Factory> = [:]
+    private lazy var _factorys: Dictionary<ControllerType, Factory> = [:]
 }

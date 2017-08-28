@@ -59,6 +59,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller,  
             // config
             headerView.effect = UIBlurEffect(style: .extraLight)
             headerView.layer.zPosition = -0.5
+            headerView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(_hanleHeader(_:))))
             
             return headerView
         }()
@@ -110,8 +111,6 @@ internal class BrowserAlbumController: UICollectionViewController, Controller,  
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        self.t_viewWillAppear(animated)
     }
     
     override func viewWillLayoutSubviews() {
@@ -296,8 +295,9 @@ internal class BrowserAlbumController: UICollectionViewController, Controller,  
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        // generate detail controller for source
-        guard let controller = container.viewController(wit: .detail, source: source, sender: indexPath) else {
+        // try generate detail controller for factory
+        guard let controller = container.controller(with: .detail, source: source, sender: indexPath) else {
+            logger.warning?.write("The detail controller creation failed. This is an unknown error!")
             return
         }
         logger.debug?.write("show detail with: \(indexPath)")
@@ -939,6 +939,19 @@ internal class BrowserAlbumController: UICollectionViewController, Controller,  
             _footerViewInset.bottom = footerView.frame.height
         }
     }
+    
+    /// Tap header view
+    fileprivate dynamic func _hanleHeader(_ sender: Any) {
+        // the section must be set
+        guard let section = _headerView?.section, let frame = _headers?[section] else {
+            return
+        }
+        logger.debug?.write(frame, section)
+        
+        // scroll to header start position
+        collectionView?.scrollRectToVisible(frame, animated: true)
+    }
+    
     
     // MARK: Property
     

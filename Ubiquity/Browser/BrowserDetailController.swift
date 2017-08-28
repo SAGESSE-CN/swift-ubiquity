@@ -115,8 +115,6 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         navigationController?.interactivePopGestureRecognizer?.isEnabled = false
         
         super.viewWillAppear(animated)
-        self.t_viewWillAppear(animated)
-        
         
 //        UIView.animate(withDuration: 0.25) {
 ////            self.tabBarController?.tabBar.alpha = 0

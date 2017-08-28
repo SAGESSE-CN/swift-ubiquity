@@ -8,10 +8,6 @@
 
 import UIKit
 
-public func BrowserAlbumListControllerMake(_ container: Container) -> UIViewController {
-    //return BrowserAlbumListController(container: container)
-    return TabBarController(container: container)
-}
 
 /// the album list in container
 internal class BrowserAlbumListController: UITableViewController, Controller {
@@ -169,8 +165,9 @@ extension BrowserAlbumListController {
         }
         logger.debug?.write("show album with: \(collection.title ?? ""), at: \(indexPath)")
         
-        // create album controller
-        guard let controller = _container.viewController(wit: .albums, source: .init(collection: collection), sender: indexPath) else {
+        // try generate album controller for factory
+        guard let controller = _container.controller(with: .albums, source: .init(collection: collection), sender: indexPath) else {
+            logger.warning?.write("The albums controller creation failed. This is an unknown error!")
             return
         }
         _selectedItem = indexPath

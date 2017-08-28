@@ -8,7 +8,7 @@
 
 import UIKit
 
-enum Page {
+public enum ControllerType {
     
     case albums
     case albumsList

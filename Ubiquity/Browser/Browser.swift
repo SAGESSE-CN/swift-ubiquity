@@ -22,9 +22,6 @@ open class Browser: Container {
 //            .detail: .init(controller: BrowserDetailController.self, cell: BrowserDetailCell.self, contents: ub_defaultContentClasses(with: .detail)),
 //        ]
     }
-    
-    func show(in controller: UIViewController, animated: Bool) {
-    }
 }
 
 //internal class BrowserItem {

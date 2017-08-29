@@ -10,7 +10,7 @@
 		0C004FCA1F36CCFF00212C93 /* Library+Photos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C004FC91F36CCFF00212C93 /* Library+Photos.swift */; };
 		0C013AAA1ED52C47002617AE /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C013AA91ED52C47002617AE /* ErrorView.swift */; };
 		0C013AAE1ED56496002617AE /* UIColor+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C013AAD1ED56496002617AE /* UIColor+Hex.swift */; };
-		0C013AB01ED5A023002617AE /* Source.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C013AAF1ED5A023002617AE /* Source.swift */; };
+		0C013AB01ED5A023002617AE /* Accessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C013AAF1ED5A023002617AE /* Accessor.swift */; };
 		0C16F8771EA61D2500C788C5 /* UIImage+Module.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C16F8761EA61D2500C788C5 /* UIImage+Module.swift */; };
 		0C189CE41F299BE800E2699D /* SelectionScroller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C189CE31F299BE800E2699D /* SelectionScroller.swift */; };
 		0C189CE61F29AFDA00E2699D /* CADisplayLink+Block.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C189CE51F29AFDA00E2699D /* CADisplayLink+Block.swift */; };
@@ -24,6 +24,7 @@
 		0C220F761F0E220400A13786 /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F751F0E220400A13786 /* Response.swift */; };
 		0C220F781F0E25E000A13786 /* Playable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F771F0E25E000A13786 /* Playable.swift */; };
 		0C220F7A1F0E26BF00A13786 /* Cacher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F791F0E26BF00A13786 /* Cacher.swift */; };
+		0C2449D71F5518B2005388B8 /* Library+Sandbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2449D61F5518B2005388B8 /* Library+Sandbox.swift */; };
 		0C2497771EEA940500CDD68C /* PickerAlbumController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2497761EEA940500CDD68C /* PickerAlbumController.swift */; };
 		0C2497791EEA942300CDD68C /* PickerAlbumCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2497781EEA942300CDD68C /* PickerAlbumCell.swift */; };
 		0C24977B1EEA95BC00CDD68C /* Protocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C24977A1EEA95BC00CDD68C /* Protocol.swift */; };
@@ -118,7 +119,7 @@
 		0C004FC91F36CCFF00212C93 /* Library+Photos.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Library+Photos.swift"; sourceTree = "<group>"; };
 		0C013AA91ED52C47002617AE /* ErrorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
 		0C013AAD1ED56496002617AE /* UIColor+Hex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+Hex.swift"; sourceTree = "<group>"; };
-		0C013AAF1ED5A023002617AE /* Source.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Source.swift; sourceTree = "<group>"; };
+		0C013AAF1ED5A023002617AE /* Accessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Accessor.swift; sourceTree = "<group>"; };
 		0C16F8761EA61D2500C788C5 /* UIImage+Module.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+Module.swift"; sourceTree = "<group>"; };
 		0C189CE31F299BE800E2699D /* SelectionScroller.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectionScroller.swift; sourceTree = "<group>"; };
 		0C189CE51F29AFDA00E2699D /* CADisplayLink+Block.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CADisplayLink+Block.swift"; sourceTree = "<group>"; };
@@ -132,6 +133,7 @@
 		0C220F751F0E220400A13786 /* Response.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
 		0C220F771F0E25E000A13786 /* Playable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Playable.swift; sourceTree = "<group>"; };
 		0C220F791F0E26BF00A13786 /* Cacher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cacher.swift; sourceTree = "<group>"; };
+		0C2449D61F5518B2005388B8 /* Library+Sandbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Library+Sandbox.swift"; sourceTree = "<group>"; };
 		0C2497761EEA940500CDD68C /* PickerAlbumController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PickerAlbumController.swift; sourceTree = "<group>"; };
 		0C2497781EEA942300CDD68C /* PickerAlbumCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PickerAlbumCell.swift; sourceTree = "<group>"; };
 		0C24977A1EEA95BC00CDD68C /* Protocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Protocol.swift; sourceTree = "<group>"; };
@@ -276,7 +278,7 @@
 				0CD65B741F381BD8008CD3A7 /* SelectionStatus.swift */,
 				0C1D79001F2D263F0044E757 /* SelectionRectangle.swift */,
 				0C189CE31F299BE800E2699D /* SelectionScroller.swift */,
-				0C013AAF1ED5A023002617AE /* Source.swift */,
+				0C013AAF1ED5A023002617AE /* Accessor.swift */,
 				0C983BBD1EBB90BE00A5A932 /* ThumbView.swift */,
 				0C7D45111EAB7AE800D56AB5 /* TilingView.swift */,
 				0C7D45121EAB7AE800D56AB5 /* TilingViewCell.swift */,
@@ -439,6 +441,7 @@
 				0C879F281E7EB63F00E55741 /* UINavigationController+Transitioning.swift */,
 				0C5DCB7D1EC5C680009FA343 /* UIResponder+Fullscreen.swift */,
 				0C004FC91F36CCFF00212C93 /* Library+Photos.swift */,
+				0C2449D61F5518B2005388B8 /* Library+Sandbox.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -609,7 +612,8 @@
 				0C220F781F0E25E000A13786 /* Playable.swift in Sources */,
 				0C8FEE5E1E8BBF540096EC4C /* CGRect+Align.swift in Sources */,
 				0C81DE101ED7C7AE0077AE3B /* CGSize+Scale.swift in Sources */,
-				0C013AB01ED5A023002617AE /* Source.swift in Sources */,
+				0C2449D71F5518B2005388B8 /* Library+Sandbox.swift in Sources */,
+				0C013AB01ED5A023002617AE /* Accessor.swift in Sources */,
 				0CE49EA41E7AB11D0058F5F8 /* Logger.swift in Sources */,
 				0C7D45201EAB7AE800D56AB5 /* TilingView.swift in Sources */,
 				0C220F6C1F0DF5ED00A13786 /* Asset.swift in Sources */,

@@ -60,7 +60,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller {
     override func loadView() {
         super.loadView()
         // setup controller
-        title = "Albums"
+        title = "Photos"
         clearsSelectionOnViewWillAppear = false
         
         // setup table view

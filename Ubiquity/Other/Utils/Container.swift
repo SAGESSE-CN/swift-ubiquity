@@ -63,9 +63,9 @@ open class Container: NSObject, ChangeObserver {
         get { return library.allowsCachingHighQualityImages }
     }
     
-    /// Get collections with type
+    /// Returns collections with collectoin type
     open func request(forCollection type: CollectionType) -> CollectionList {
-        return library.request(forCollection: type)
+        return cacher.request(forCollection: type)
     }
     /// Requests an image representation for the specified asset.
     open func request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
@@ -162,6 +162,9 @@ open class Container: NSObject, ChangeObserver {
             }
             return
         }
+        
+        // update cache for library change
+        self.cacher.library(library, didChange: change)
         
         // notifity all observers
         self.observers.forEach {

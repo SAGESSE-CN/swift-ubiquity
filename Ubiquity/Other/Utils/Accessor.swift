@@ -1,5 +1,5 @@
 //
-//  Source.swift
+//  Accessor.swift
 //  Ubiquity
 //
 //  Created by SAGESSE on 5/24/17.
@@ -7,6 +7,158 @@
 //
 
 import UIKit
+
+/// Collection & Asset accessor
+internal class Accessor {
+    
+    /// Generate empty accessor
+    fileprivate init() {
+        _accessor = nil
+    }
+    /// Generate accessor for collection
+    init(collection: Collection) {
+        _accessor = _AccessorForCollection(collection: collection)
+    }
+    /// Generate accessor for collection type
+    init(collectionType: CollectionType) {
+        _accessor = _AccessorForCollectionList(collectionType: collectionType)
+    }
+    /// Generate accessor for collection types
+    init(collectionTypes: Array<CollectionType>) {
+        _accessor = _AccessorForCollectionLists(collectionTypes: collectionTypes)
+    }
+    
+//    /// The accessor using the collection types
+//    var collectionTypes: Array<CollectionType> {
+//        return []
+//    }
+    
+    /// Reload accessor with container
+    func reload(_ container: Container) {
+        _accessor?.reload(container)
+    }
+    
+    /// The number of collection.
+    var numberOfSections: Int {
+        return _accessor?.numberOfSections ?? 0
+    }
+    /// The number of assets at section.
+    func numberOfItems(inSection section: Int) -> Int {
+        return _accessor?.numberOfItems(inSection: section) ?? 0
+    }
+    
+    
+    private var _accessor: Accessor?
+}
+
+private class _AccessorForCollection: Accessor {
+    
+    /// Generate accessor for collection
+    override init(collection: Collection) {
+        super.init()
+    }
+    
+    /// Reload accessor with container
+    override func reload(_ container: Container) {
+    }
+    
+    /// The number of collection.
+    override var numberOfSections: Int {
+        return 0
+    }
+    /// The number of assets at section.
+    override func numberOfItems(inSection section: Int) -> Int {
+        return 0
+    }
+}
+private class _AccessorForCollectionList: Accessor {
+    
+    /// Generate accessor for collection type
+    override init(collectionType: CollectionType) {
+        _collectionType = collectionType
+        
+        super.init()
+    }
+    
+    /// Reload accessor with container
+    override func reload(_ container: Container) {
+        
+        
+        _collections = container.request(forCollection: _collectionType)
+        
+//    var numberOfSections: Int {
+//        return _collectionList.count
+//    }
+//    func numberOfItems(inSection section: Int) -> Int {
+//        return _collectionList[section].count
+//    }
+//    
+//    func collection(at section: Int) -> Collection {
+//        return _collectionList[section]
+//    }
+//    
+//    func asset(at indexPath: IndexPath) -> Asset {
+//        return _collectionList[indexPath.section][indexPath.item]
+//    }
+//    
+//    func changeDetails(for change: Change) -> ChangeDetails? {
+//        return change.changeDetails(for: _collectionList)
+//    }
+//    
+//    private var _collectionList: CollectionList
+        
+    }
+    
+    /// The number of collection.
+    override var numberOfSections: Int {
+        return 0
+    }
+    /// The number of assets at section.
+    override func numberOfItems(inSection section: Int) -> Int {
+        return 0
+    }
+    
+    private var _collections: CollectionList?
+    private var _collectionType: CollectionType
+}
+private class _AccessorForCollectionLists: Accessor {
+    
+    override init(collectionTypes: Array<CollectionType>) {
+        
+        
+        //self.collectionTypes = collectionTypes
+        super.init()
+    }
+    
+    /// Reload accessor with container
+    override func reload(_ container: Container) {
+//        
+//        // load moment
+//        _AccessorForCollectionList(collectionType: .moment)
+//
+//        // load regular
+//        _AccessorForCollectionList(collectionType: .regular)
+//
+//        // load recently
+//        _AccessorForCollectionList(collectionType: .recentlyAdded)
+    }
+    
+    /// The number of collection.
+    override var numberOfSections: Int {
+        return 0
+    }
+    /// The number of assets at section.
+    override func numberOfItems(inSection section: Int) -> Int {
+        return 0
+    }
+    
+}
+
+func testx() {
+    
+
+}
+
 
 internal class Source {
     
@@ -211,10 +363,6 @@ internal class Source {
             return nil
         }
         return _adapter?.collection(at: section)
-    }
-    
-    private func _copy(with data: Any) -> Source? {
-        return nil
     }
     
     private var _adapter: SourceAdapter?

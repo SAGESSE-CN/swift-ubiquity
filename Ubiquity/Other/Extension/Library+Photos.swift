@@ -706,15 +706,7 @@ private class _PHLibrary: NSObject, Library, Photos.PHPhotoLibraryChangeObserver
     
     /// Get collections with type
     func request(forCollection type: CollectionType) -> CollectionList {
-        // hit cache?
-        if let collectionList = _collectionLists[type] {
-            return collectionList
-        }
-        
-        // create collection list and cache
-        let collectionList = _PHCollectionList(type: type)
-        _collectionLists[type] = collectionList
-        return collectionList
+        return _PHCollectionList(type: type)
     }
     
     /// Requests an image representation for the specified asset.
@@ -816,17 +808,6 @@ private class _PHLibrary: NSObject, Library, Photos.PHPhotoLibraryChangeObserver
         // create a new change, it will cache the results
         let change = _PHChange(change: changeInstance)
         
-        // update all collection
-        _collectionLists.forEach { type, collectionList in
-            // the collection list has any change?
-            guard let details = change.changeDetails(for: collectionList) else {
-                return
-            }
-            
-            // update value
-            _collectionLists[type] = details.after as? _PHCollectionList
-        }
-        
         // notify all observer
         _observers.forEach {
             $0.some?.library(self, didChange: change)
@@ -837,7 +818,6 @@ private class _PHLibrary: NSObject, Library, Photos.PHPhotoLibraryChangeObserver
     
     private lazy var _cache: PHCachingImageManager = PHCachingImageManager.default() as! PHCachingImageManager
     private lazy var _observers: Array<Weak<ChangeObserver>> = []
-    private lazy var _collectionLists: Dictionary<CollectionType, _PHCollectionList> = [:]
 }
 
 /// covnert `RequestContentMode` to `PHImageContentMode`
@@ -1040,9 +1020,8 @@ private func _diff<Element: Hashable>(_ src: Array<Element>, dest: Array<Element
     // sort
     return results.sorted { $0.from < $1.from }
 }
-    
+
 /// Generate a library with `Photos.framework`
-public func PHLibrary() -> Library {
+public func SystemLibrary() -> Library {
     return _PHLibrary()
 }
-

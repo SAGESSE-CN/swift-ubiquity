@@ -18,6 +18,19 @@ internal class Cacher: NSObject {
         super.init()
     }
     
+    /// Returns collections with collectoin type
+    open func request(forCollection type: CollectionType) -> CollectionList {
+        // the request is hit cache?
+        if let collectionList = _collectionLists[type] {
+            return collectionList // eys
+        }
+        
+        // create collection list and cache
+        let collectionList = _library.request(forCollection: type)
+        _collectionLists[type] = collectionList
+        return collectionList
+    }
+    
     /// Requests an image representation for the specified asset.
     func request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
         //logger.trace?.write(asset.identifier, size) // the request very much 
@@ -183,6 +196,20 @@ internal class Cacher: NSObject {
         }
     }
     
+    /// Tells your observer that a set of changes has occurred in the Photos library.
+    open func library(_ library: Library, didChange change: Change) {
+        // update all collection
+        _collectionLists.forEach { type, collectionList in
+            // the collection list has any change?
+            guard let details = change.changeDetails(for: collectionList) else {
+                return
+            }
+            
+            // update value
+            _collectionLists[type] = details.after as? CollectionList
+        }
+    }
+    
     /// internal using the library
     fileprivate let _library: Library
     
@@ -200,6 +227,10 @@ internal class Cacher: NSObject {
     fileprivate lazy var _caches: Dictionary<Format, NSMutableDictionary> = [:]
     
     fileprivate lazy var _caching: Queue = .init()
+    
+    
+    /// collection list cache
+    fileprivate lazy var _collectionLists: Dictionary<CollectionType, CollectionList> = [:]
 }
 
 internal extension Cacher {

@@ -169,9 +169,15 @@ open class Container: NSObject, ChangeObserver {
         }
     }
     
+    // MARK: Pre-configuration
+    
+    
+    /// Container allowed to displayed collection types. Default is nil
+    open var allowsCollectionTypes: [CollectionType]?
+    
+    
     // MARK: Content
     
-    var source: Source?
     
     /// Generate the initialized controller
     open func initialViewController(with type: ControllerType) -> UIViewController {
@@ -190,8 +196,17 @@ open class Container: NSObject, ChangeObserver {
     }
     
     
-    func register(_ viewController: AnyClass, for type: ControllerType) {
+    /// Register a controller class for controller type
+    open func register(_ controllerClass: AnyClass, for type: ControllerType) {
+        logger.debug?.write()
+        
     }
+    
+    // Register a content view class for media in controller
+    open func register(_ contentViewClass: AnyClass, for media: AssetMediaType, type: ControllerType) {
+        logger.debug?.write()
+    }
+    
     
     
     func factory(with page: ControllerType) -> Factory? {
@@ -237,10 +252,12 @@ open class Container: NSObject, ChangeObserver {
     private(set) var cacher: Cacher
     private(set) var observers: Array<Weak<ChangeObserver>> = []
     
-    private var _debug: Bool = false
-    
+    // lock
     private var _dispatch: DispatchQueue?
     private var _semaphore: DispatchSemaphore?
     
+    // class provder
     private lazy var _factorys: Dictionary<ControllerType, Factory> = [:]
+    
+    private var _debug: Bool = false
 }

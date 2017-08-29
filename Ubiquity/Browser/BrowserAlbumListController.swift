@@ -209,7 +209,6 @@ extension BrowserAlbumListController: ChangeObserver {
             return
         }
         
-        
         tableView.beginUpdates()
         
         // For indexes to make sense, updates must be in this order:

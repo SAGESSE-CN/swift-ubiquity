@@ -12,11 +12,24 @@ import Ubiquity
 
 import WebKit
 
-class ViewController: UITableViewController, UIActionSheetDelegate {
+class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.PickerDelegate {
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    func picker(_ picker: Picker, shouldSelectItem asset: Asset) -> Bool {
+        // the asset should selected 
+        return true
+    }
+    
+    func picker(_ picker: Picker, didSelectItem asset: Asset) {
+        // the asset did selected
+    }
+    
+    func picker(_ picker: Picker, didDeselectItem asset: Asset) {
+        // the asset did deselected
     }
     
     @IBAction func show(_ sender: Any) {
@@ -25,7 +38,8 @@ class ViewController: UITableViewController, UIActionSheetDelegate {
         let browser = Ubiquity.Picker(library: Ubiquity.SystemLibrary())
         
         // configure
-        browser.allowsCollectionTypes = [.moment, .regular]
+        browser.delegate = self
+        browser.allowsCollectionTypes = [.regular]
         
         //browser.register(UIView.self, for: .video, type: .albums)
         //browser.register(UIView.self, for: .video, type: .albumsList)

@@ -54,6 +54,7 @@
 		0C879F291E7EB63F00E55741 /* UINavigationController+Transitioning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C879F281E7EB63F00E55741 /* UINavigationController+Transitioning.swift */; };
 		0C8FEE5C1E8BBD710096EC4C /* UIImageOrientation+Angle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8FEE5B1E8BBD710096EC4C /* UIImageOrientation+Angle.swift */; };
 		0C8FEE5E1E8BBF540096EC4C /* CGRect+Align.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8FEE5D1E8BBF540096EC4C /* CGRect+Align.swift */; };
+		0C949E851F56BC100076B5CE /* BrowserDetailTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C949E841F56BC100076B5CE /* BrowserDetailTitle.swift */; };
 		0C983BBE1EBB90BE00A5A932 /* ThumbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C983BBD1EBB90BE00A5A932 /* ThumbView.swift */; };
 		0C983BC31EBB9B3E00A5A932 /* ubiquity_icon_empty_album@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0C983BC11EBB9B3E00A5A932 /* ubiquity_icon_empty_album@2x.png */; };
 		0C983BC41EBB9B3E00A5A932 /* ubiquity_icon_empty_album@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0C983BC21EBB9B3E00A5A932 /* ubiquity_icon_empty_album@3x.png */; };
@@ -164,6 +165,7 @@
 		0C879F281E7EB63F00E55741 /* UINavigationController+Transitioning.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UINavigationController+Transitioning.swift"; sourceTree = "<group>"; };
 		0C8FEE5B1E8BBD710096EC4C /* UIImageOrientation+Angle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImageOrientation+Angle.swift"; sourceTree = "<group>"; };
 		0C8FEE5D1E8BBF540096EC4C /* CGRect+Align.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CGRect+Align.swift"; sourceTree = "<group>"; };
+		0C949E841F56BC100076B5CE /* BrowserDetailTitle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserDetailTitle.swift; sourceTree = "<group>"; };
 		0C983BBD1EBB90BE00A5A932 /* ThumbView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThumbView.swift; sourceTree = "<group>"; };
 		0C983BC11EBB9B3E00A5A932 /* ubiquity_icon_empty_album@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ubiquity_icon_empty_album@2x.png"; sourceTree = "<group>"; };
 		0C983BC21EBB9B3E00A5A932 /* ubiquity_icon_empty_album@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ubiquity_icon_empty_album@3x.png"; sourceTree = "<group>"; };
@@ -352,6 +354,7 @@
 				0CE49E661E7A9BA80058F5F8 /* BrowserAlbumLayout.swift */,
 				0CE49E641E7A99180058F5F8 /* BrowserAlbumController.swift */,
 				0CE49E7E1E7AAEB70058F5F8 /* BrowserDetailCell.swift */,
+				0C949E841F56BC100076B5CE /* BrowserDetailTitle.swift */,
 				0CE49E7C1E7AAD5D0058F5F8 /* BrowserDetailLayout.swift */,
 				0CE49E621E7A983A0058F5F8 /* BrowserDetailController.swift */,
 				0CD0302E1EBB7F3B0098638E /* BrowserPreviewView.swift */,
@@ -617,6 +620,7 @@
 				0C81DE101ED7C7AE0077AE3B /* CGSize+Scale.swift in Sources */,
 				0C2449D71F5518B2005388B8 /* Library+Sandbox.swift in Sources */,
 				0C013AB01ED5A023002617AE /* Accessor.swift in Sources */,
+				0C949E851F56BC100076B5CE /* BrowserDetailTitle.swift in Sources */,
 				0CE49EA41E7AB11D0058F5F8 /* Logger.swift in Sources */,
 				0C7D45201EAB7AE800D56AB5 /* TilingView.swift in Sources */,
 				0C220F6C1F0DF5ED00A13786 /* Asset.swift in Sources */,

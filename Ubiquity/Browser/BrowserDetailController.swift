@@ -100,6 +100,10 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
 //        indicatorItem.indicatorView.dataSource = self
 //        indicatorItem.indicatorView.register(IndicatorViewCell.dynamic(with: UIImageView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
 //        //indicatorItem.indicatorView.register(IndicatorViewCell.dynamic(with: UIScrollView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
+        
+        // setup title
+        navigationItem.titleView = BrowserDetailTitle(frame: .init(x: 0, y: 0, width: 32, height: 32))
+        navigationItem.titleView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     }
     
     override func viewDidLoad() {

@@ -62,6 +62,15 @@ internal func ub_string(for date: Date) -> String {
     return formater.string(from: date)
 }
 
+internal func ub_string(for time: TimeInterval) -> String {
+    
+    let formater = DateFormatter()
+    
+    formater.dateStyle = .none
+    formater.timeStyle = .short
+    
+    return formater.string(from: .init(timeIntervalSince1970: time))
+}
 
 internal func ub_identifier(with media: AssetMediaType) -> String {
     switch media {

@@ -107,7 +107,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
 //        //indicatorItem.indicatorView.register(IndicatorViewCell.dynamic(with: UIScrollView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
         
         // setup title
-        navigationItem.titleView = BrowserDetailTitle(frame: .init(x: 0, y: 0, width: 32, height: 32))
+        navigationItem.titleView = _titleView
     }
     
     override func viewDidLoad() {
@@ -146,6 +146,11 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         guard _cacheBounds?.size != view.bounds.size else {
             return
         }
+        
+        // update title layout
+        navigationItem.titleView?.setNeedsLayout()
+        navigationItem.titleView?.layoutIfNeeded()
+        
         // view.bounds is change, need update content inset
         _cacheBounds = view.bounds
         _updateSystemContentInsetIfNeeded()
@@ -694,8 +699,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         // update current item index path
         itemIndexPath = indexPath
         
-        title = source.asset(at: indexPath)?.title
-        
+        _titleView.asset = source.asset(at: indexPath)
         
         // update current item context
         _itemLayoutAttributes = collectionView?.layoutAttributesForItem(at: indexPath)
@@ -823,6 +827,9 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     private(set) var source: Source
     
     // MARK: Ivar
+    
+    // title view
+    fileprivate var _titleView: BrowserDetailTitle = .init(frame: .init(x: 0, y: 0, width: 48, height: 24))
     
     // transition
     fileprivate var _transitionIsInteractiving: Bool = false

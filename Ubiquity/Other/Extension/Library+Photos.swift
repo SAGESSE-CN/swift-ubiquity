@@ -24,11 +24,33 @@ private class _PHAsset: Asset {
     
     /// The localized title of the asset.
     var title: String? {
-        return "Title"
+        // the title is hit cache?
+        if let title = _localizedTitle {
+            return title
+        }
+        // the asset has modification date or creation date?
+        guard let date = asset.creationDate ?? asset.modificationDate else {
+            return nil
+        }
+        // generate title for date
+        let title = ub_string(for: date)
+        _localizedTitle = title
+        return title
     }
     /// The localized subtitle of the asset.
     var subtitle: String? {
-        return "Subtitle"
+        // the title is hit cache?
+        if let subtitle = _localizedSubtitle {
+            return subtitle
+        }
+        // the asset has modification date or creation date?
+        guard let date = asset.creationDate ?? asset.modificationDate else {
+            return nil
+        }
+        // generate title for time
+        let subtitle = ub_string(for: date.timeIntervalSince1970)
+        _localizedSubtitle = subtitle
+        return subtitle
     }
     
     /// A unique string that persistently identifies the object.
@@ -93,6 +115,9 @@ private class _PHAsset: Asset {
     }
     
     private var _localIdentifier: String?
+    
+    private var _localizedTitle: String??
+    private var _localizedSubtitle: String??
 }
 private class _PHCollection: Collection, Hashable {
     

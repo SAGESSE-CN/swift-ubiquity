@@ -38,17 +38,16 @@ open class Picker: Browser {
         super.init(library: library)
         
         // setup albums
-//        factory(with: .albums).flatMap {
-//            $0.cell = PickerAlbumCell.self
-//            $0.controller = PickerAlbumController.self
-//        }
+        register(PickerAlbumCell.self, forCell: .albums)
+        register(PickerAlbumController.self, forController: .albums)
         
-        register(PickerAlbumCell.self, for: .albums)
-        register(PickerAlbumController.self, for: .albums)
+        // setup details
+        register(PickerDetailCell.self, forCell: .detail)
+        register(PickerDetailController.self, forController: .detail)
     }
     
     /// The picker delegate
-    open var delegate: PickerDelegate?
+    open weak var delegate: PickerDelegate?
     
     
     // MARK: Library Change

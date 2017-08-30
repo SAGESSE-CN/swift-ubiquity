@@ -55,6 +55,8 @@
 		0C8FEE5C1E8BBD710096EC4C /* UIImageOrientation+Angle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8FEE5B1E8BBD710096EC4C /* UIImageOrientation+Angle.swift */; };
 		0C8FEE5E1E8BBF540096EC4C /* CGRect+Align.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8FEE5D1E8BBF540096EC4C /* CGRect+Align.swift */; };
 		0C949E851F56BC100076B5CE /* BrowserDetailTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C949E841F56BC100076B5CE /* BrowserDetailTitle.swift */; };
+		0C949E871F56CE9A0076B5CE /* PickerDetailController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C949E861F56CE9A0076B5CE /* PickerDetailController.swift */; };
+		0C949E891F56D0560076B5CE /* PickerDetailCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C949E881F56D0560076B5CE /* PickerDetailCell.swift */; };
 		0C983BBE1EBB90BE00A5A932 /* ThumbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C983BBD1EBB90BE00A5A932 /* ThumbView.swift */; };
 		0C983BC31EBB9B3E00A5A932 /* ubiquity_icon_empty_album@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0C983BC11EBB9B3E00A5A932 /* ubiquity_icon_empty_album@2x.png */; };
 		0C983BC41EBB9B3E00A5A932 /* ubiquity_icon_empty_album@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0C983BC21EBB9B3E00A5A932 /* ubiquity_icon_empty_album@3x.png */; };
@@ -166,6 +168,8 @@
 		0C8FEE5B1E8BBD710096EC4C /* UIImageOrientation+Angle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImageOrientation+Angle.swift"; sourceTree = "<group>"; };
 		0C8FEE5D1E8BBF540096EC4C /* CGRect+Align.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CGRect+Align.swift"; sourceTree = "<group>"; };
 		0C949E841F56BC100076B5CE /* BrowserDetailTitle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserDetailTitle.swift; sourceTree = "<group>"; };
+		0C949E861F56CE9A0076B5CE /* PickerDetailController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PickerDetailController.swift; sourceTree = "<group>"; };
+		0C949E881F56D0560076B5CE /* PickerDetailCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PickerDetailCell.swift; sourceTree = "<group>"; };
 		0C983BBD1EBB90BE00A5A932 /* ThumbView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThumbView.swift; sourceTree = "<group>"; };
 		0C983BC11EBB9B3E00A5A932 /* ubiquity_icon_empty_album@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ubiquity_icon_empty_album@2x.png"; sourceTree = "<group>"; };
 		0C983BC21EBB9B3E00A5A932 /* ubiquity_icon_empty_album@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ubiquity_icon_empty_album@3x.png"; sourceTree = "<group>"; };
@@ -368,6 +372,8 @@
 				0CE49E131E7A3F0B0058F5F8 /* Picker.swift */,
 				0C2497781EEA942300CDD68C /* PickerAlbumCell.swift */,
 				0C2497761EEA940500CDD68C /* PickerAlbumController.swift */,
+				0C949E881F56D0560076B5CE /* PickerDetailCell.swift */,
+				0C949E861F56CE9A0076B5CE /* PickerDetailController.swift */,
 			);
 			path = Picker;
 			sourceTree = "<group>";
@@ -635,11 +641,13 @@
 				0C7D45151EAB7AE800D56AB5 /* Animator.swift in Sources */,
 				0CBDA60A1ECAF7350016675C /* DisplayView.swift in Sources */,
 				0C7D451E1EAB7AE800D56AB5 /* IndicatorViewCell.swift in Sources */,
+				0C949E871F56CE9A0076B5CE /* PickerDetailController.swift in Sources */,
 				0C7D45191EAB7AE800D56AB5 /* EventCenter.swift in Sources */,
 				0C2497771EEA940500CDD68C /* PickerAlbumController.swift in Sources */,
 				0C220F741F0E21D100A13786 /* Request.swift in Sources */,
 				0C7D451B1EAB7AE800D56AB5 /* ExtendedToolbar.swift in Sources */,
 				0C7D45211EAB7AE800D56AB5 /* TilingViewCell.swift in Sources */,
+				0C949E891F56D0560076B5CE /* PickerDetailCell.swift in Sources */,
 				0C983BBE1EBB90BE00A5A932 /* ThumbView.swift in Sources */,
 				0CE49E631E7A983A0058F5F8 /* BrowserDetailController.swift in Sources */,
 				0CF9C30A1F34432100385836 /* BrowserAlbumView.swift in Sources */,

@@ -7,16 +7,22 @@
 //
 
 import UIKit
-//@testable import Ubiquity
-import Ubiquity
+@testable import Ubiquity
+//import Ubiquity
 
-import WebKit
+//import WebKit
 
 class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.PickerDelegate {
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        //Debugger.toolsDebugColorViewBounds = true
     }
     
     @IBAction func show(_ sender: Any) {
@@ -31,13 +37,6 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
         // configure
         browser.allowsCollectionTypes = [.regular]
         
-        //browser.register(UIView.self, for: .unknown, in: .albums)
-        //browser.register(UIView.self, for: .unknown, in: .albumsList)
-        //browser.register(UIView.self, for: .unknown, in: .detail)
-        //browser.register(UIViewController.self, for: .albums)
-        //browser.register(UIViewController.self, for: .albumsList)
-        //browser.register(UIViewController.self, for: .detail)
-        
         // display
         present(browser.initialViewController(with: .albumsList), animated: true, completion: nil)
     }
@@ -49,13 +48,6 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
         // configure
         picker.delegate = self
         picker.allowsCollectionTypes = [.regular]
-        
-        //picker.register(UIView.self, for: .unknown, in: .albums)
-        //picker.register(UIView.self, for: .unknown, in: .albumsList)
-        //picker.register(UIView.self, for: .unknown, in: .detail)
-        //picker.register(UIViewController.self, for: .albums)
-        //picker.register(UIViewController.self, for: .albumsList)
-        //picker.register(UIViewController.self, for: .detail)
         
         // display
         present(picker.initialViewController(with: .albumsList), animated: true, completion: nil)

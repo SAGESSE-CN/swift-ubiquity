@@ -88,7 +88,6 @@ internal class BrowserAlbumController: UICollectionViewController, Controller,  
         collectionView?.alwaysBounceVertical = true
         collectionView?.register(BrowserAlbumHeader.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "HEADER")
         
-        
         // register all cell for contents
         factory.contents.forEach {
             collectionView?.register($1, forCellWithReuseIdentifier: $0)

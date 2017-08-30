@@ -190,16 +190,37 @@ open class Container: NSObject, ChangeObserver {
     
     
     /// Register a controller class for controller type
-    open func register(_ controllerClass: AnyClass, for type: ControllerType) {
-        logger.debug?.write()
+    open func register(_ controllerClass: UIViewController.Type, for type: ControllerType) {
+        // must king of `Controller`
+        guard let controller = controllerClass as? Controller.Type else {
+            fatalError("The content must king of `UIViewController`")
+        }
         
+        // register controller in factory
+        factory(with: type)?.controller = controller
     }
     
     // Register a content view class for media in controller
-    open func register(_ contentViewClass: AnyClass, for media: AssetMediaType, type: ControllerType) {
-        logger.debug?.write()
+    open func register(_ contentViewClass: Displayable.Type, for media: AssetMediaType, in type: ControllerType) {
+        // must king of `UIView`
+        guard let contentViewClass = contentViewClass as? UIView.Type else {
+            fatalError("The content must king of `UIView`")
+        }
+        
+        // register content view in factory
+        factory(with: type)?.register(contentViewClass, for: media)
     }
     
+    // Register a cell class for controller type
+    open func register(_ cellClass: Displayable.Type, for type: ControllerType) {
+        // must king of `UIView`
+        guard let cellClass = cellClass as? UIView.Type else {
+            fatalError("The cellClass must king of `UITableViewCell` or `UICollectionViewCell`")
+        }
+        
+        // register cell in factory
+        factory(with: type)?.cell = cellClass
+    }
     
     
     func factory(with page: ControllerType) -> Factory? {

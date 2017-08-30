@@ -38,10 +38,13 @@ open class Picker: Browser {
         super.init(library: library)
         
         // setup albums
-        factory(with: .albums).flatMap {
-            $0.cell = PickerAlbumCell.self
-            $0.controller = PickerAlbumController.self
-        }
+//        factory(with: .albums).flatMap {
+//            $0.cell = PickerAlbumCell.self
+//            $0.controller = PickerAlbumController.self
+//        }
+        
+        register(PickerAlbumCell.self, for: .albums)
+        register(PickerAlbumController.self, for: .albums)
     }
     
     /// The picker delegate

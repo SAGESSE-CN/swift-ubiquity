@@ -61,6 +61,11 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         return .lightContent
     }
     
+    override var title: String? {
+        set { return super.title = newValue }
+        get { return super.title }
+    }
+    
     override func loadView() {
         super.loadView()
         // setup controller
@@ -103,7 +108,6 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         
         // setup title
         navigationItem.titleView = BrowserDetailTitle(frame: .init(x: 0, y: 0, width: 32, height: 32))
-        navigationItem.titleView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     }
     
     override func viewDidLoad() {

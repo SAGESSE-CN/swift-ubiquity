@@ -36,25 +36,21 @@ internal class SelectionStatus {
             
             // notifity all observers
             _observers.forEach {
-                // fetch a observer from ptr
-                let ob = Unmanaged<AnyObject>.fromOpaque($0).takeUnretainedValue() as? SelectionStatusObserver
-                
-                // notify
-                ob?.selectionStatus(self, didChange: number)
+                $0.selectionStatus(self, didChange: number)
             }
         }
     }
     
     /// Add observer, must call removeObserver(_:) method, not observer, are retained.
     func addObserver(_ observer: SelectionStatusObserver) {
-        _observers.insert(Unmanaged<AnyObject>.passUnretained(observer).toOpaque())
+        _observers.insert(observer)
     }
     
     /// Remove observer
     func removeObserver(_ observer: SelectionStatusObserver) {
-        _observers.remove(Unmanaged<AnyObject>.passUnretained(observer).toOpaque())
+        _observers.remove(observer)
     }
     
     // The reason for this design is the efficiency of optimization
-    private lazy var _observers: Set<UnsafeRawPointer> = []
+    private lazy var _observers: WSet<SelectionStatusObserver> = []
 }

@@ -25,6 +25,7 @@
 		0C220F781F0E25E000A13786 /* Playable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F771F0E25E000A13786 /* Playable.swift */; };
 		0C220F7A1F0E26BF00A13786 /* Cacher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F791F0E26BF00A13786 /* Cacher.swift */; };
 		0C2449D71F5518B2005388B8 /* Library+Sandbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2449D61F5518B2005388B8 /* Library+Sandbox.swift */; };
+		0C2449D91F56A97A005388B8 /* WSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2449D81F56A97A005388B8 /* WSet.swift */; };
 		0C2497771EEA940500CDD68C /* PickerAlbumController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2497761EEA940500CDD68C /* PickerAlbumController.swift */; };
 		0C2497791EEA942300CDD68C /* PickerAlbumCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2497781EEA942300CDD68C /* PickerAlbumCell.swift */; };
 		0C24977B1EEA95BC00CDD68C /* Protocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C24977A1EEA95BC00CDD68C /* Protocol.swift */; };
@@ -134,6 +135,7 @@
 		0C220F771F0E25E000A13786 /* Playable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Playable.swift; sourceTree = "<group>"; };
 		0C220F791F0E26BF00A13786 /* Cacher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cacher.swift; sourceTree = "<group>"; };
 		0C2449D61F5518B2005388B8 /* Library+Sandbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Library+Sandbox.swift"; sourceTree = "<group>"; };
+		0C2449D81F56A97A005388B8 /* WSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WSet.swift; sourceTree = "<group>"; };
 		0C2497761EEA940500CDD68C /* PickerAlbumController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PickerAlbumController.swift; sourceTree = "<group>"; };
 		0C2497781EEA942300CDD68C /* PickerAlbumCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PickerAlbumCell.swift; sourceTree = "<group>"; };
 		0C24977A1EEA95BC00CDD68C /* Protocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Protocol.swift; sourceTree = "<group>"; };
@@ -286,6 +288,7 @@
 				0C7D45141EAB7AE800D56AB5 /* TilingViewLayoutAttributes.swift */,
 				0C776DEA1F165F6400D242E8 /* Utils.swift */,
 				0CD65B721F381142008CD3A7 /* Weak.swift */,
+				0C2449D81F56A97A005388B8 /* WSet.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -643,6 +646,7 @@
 				0CBDA60C1ECB3E330016675C /* NavigationController.swift in Sources */,
 				0CD65B751F381BD8008CD3A7 /* SelectionStatus.swift in Sources */,
 				0C220F6A1F0DF5D600A13786 /* Change.swift in Sources */,
+				0C2449D91F56A97A005388B8 /* WSet.swift in Sources */,
 				0C189CE61F29AFDA00E2699D /* CADisplayLink+Block.swift in Sources */,
 				0C7D45221EAB7AE800D56AB5 /* TilingViewLayout.swift in Sources */,
 				0CE49E691E7A9CE50058F5F8 /* BrowserAlbumCell.swift in Sources */,

@@ -637,8 +637,18 @@ private class _PHLibrary: NSObject, Library, Photos.PHPhotoLibraryChangeObserver
     
     /// Create a library
     override init() {
+        
         _library = PHPhotoLibrary.shared()
+        _cache = PHCachingImageManager()
+        
         super.init()
+        
+        // add change observer
+        _library.register(self)
+    }
+    deinit {
+        // remove change observer
+        _library.unregisterChangeObserver(self)
     }
     
     // MARK: Authorization
@@ -663,36 +673,12 @@ private class _PHLibrary: NSObject, Library, Photos.PHPhotoLibraryChangeObserver
     
     /// Registers an object to receive messages when objects in the photo library change.
     func addChangeObserver(_ observer: ChangeObserver) {
-        // the observer is added?
-        guard !_observers.contains(where: { $0.some === observer }) else {
-            return
-        }
-        // no, add a observer
-        _observers.append(.init(observer))
-        
-        // if count is 1, need to listen for system notifications
-        guard _observers.count == 1 else {
-            return
-        }
-        
-        // no, add observer to photos
-        _library.register(self)
+        _observers.insert(observer)
     }
     
     /// Unregisters an object so that it no longer receives change messages.
     func removeChangeObserver(_ observer: ChangeObserver) {
-        // clear all invaild observers
-        _observers = _observers.filter {
-            return $0.some != nil && $0.some !== observer
-        }
-        
-        // if count is 0, need remove
-        guard _observers.count == 0 else {
-            return
-        }
-        
-        // no, remove observer from photos
-        _library.unregisterChangeObserver(self)
+        _observers.remove(observer)
     }
     
     // MARK: Check
@@ -810,14 +796,14 @@ private class _PHLibrary: NSObject, Library, Photos.PHPhotoLibraryChangeObserver
         
         // notify all observer
         _observers.forEach {
-            $0.some?.library(self, didChange: change)
+            $0.library(self, didChange: change)
         }
     }
     
+    private var _cache: PHCachingImageManager
     private var _library: PHPhotoLibrary
     
-    private lazy var _cache: PHCachingImageManager = PHCachingImageManager.default() as! PHCachingImageManager
-    private lazy var _observers: Array<Weak<ChangeObserver>> = []
+    private lazy var _observers: WSet<ChangeObserver> = []
 }
 
 /// covnert `RequestContentMode` to `PHImageContentMode`

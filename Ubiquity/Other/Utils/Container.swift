@@ -21,38 +21,24 @@ open class Container: NSObject, ChangeObserver {
         self.cacher = .init(library: library)
         self.library = library
         super.init()
+        
+        // add change observer
+        self.library.addChangeObserver(self)
+    }
+    deinit {
+        // remove change observer
+        self.library.removeChangeObserver(self)
     }
     
     // MARK: Observer
     
     /// Registers an object to receive messages when objects in the photo library change.
     func addChangeObserver(_ observer: ChangeObserver) {
-        // this observer is added?
-        guard !observers.contains(where: { $0.some === observer }) else {
-            return
-        }
-        
-        // add to observers
-        observers.append(.init(observer))
-        
-        // if count is 1, need add to library
-        guard observers.count == 1 else {
-            return
-        }
-        library.addChangeObserver(self)
+        observers.insert(observer)
     }
     /// Unregisters an object so that it no longer receives change messages.
     func removeChangeObserver(_ observer: ChangeObserver) {
-        // clear all invaild observers
-        observers = observers.filter {
-            return $0.some != nil && $0.some !== observer
-        }
-        
-        // if count is 0, need remove from library
-        guard observers.count == 0 else {
-            return
-        }
-        library.removeChangeObserver(self)
+        observers.remove(observer)
     }
     
     // MARK: Fetch
@@ -129,10 +115,14 @@ open class Container: NSObject, ChangeObserver {
     
     // MARK: Library Change
     
+    /// The library is ignoring change events
+    open var isIgnoringChangeEvents: Bool {
+        return _dispatch != nil
+    }
     /// Tells the receiver to suspend the handling of library change events.
     open func beginIgnoringChangeEvents() {
         // ignoring is begin?
-        guard _dispatch == nil else {
+        guard !isIgnoringChangeEvents else {
             return
         }
         _semaphore = DispatchSemaphore(value: 0)
@@ -144,13 +134,13 @@ open class Container: NSObject, ChangeObserver {
     /// Tells the receiver to resume the handling of library change events.
     open func endIgnoringChangeEvents() {
         // ignoring is begin?
-        guard _dispatch != nil else {
+        guard isIgnoringChangeEvents else {
             return
         }
         // clear
+        _dispatch = nil
         _semaphore?.signal()
         _semaphore = nil
-        _dispatch = nil
     }
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
@@ -168,7 +158,7 @@ open class Container: NSObject, ChangeObserver {
         
         // notifity all observers
         self.observers.forEach {
-            $0.some?.library(library, didChange: change)
+            $0.library(library, didChange: change)
         }
     }
     
@@ -253,7 +243,7 @@ open class Container: NSObject, ChangeObserver {
     
     // cache
     private(set) var cacher: Cacher
-    private(set) var observers: Array<Weak<ChangeObserver>> = []
+    private(set) var observers: WSet<ChangeObserver> = []
     
     // lock
     private var _dispatch: DispatchQueue?

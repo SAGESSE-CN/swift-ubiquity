@@ -21,7 +21,8 @@ class ViewController: UITableViewController, UIActionSheetDelegate {
     
     @IBAction func show(_ sender: Any) {
         
-        let browser = Ubiquity.Browser(library: Ubiquity.SandboxLibrary())
+        //let browser = Ubiquity.Browser(library: Ubiquity.SandboxLibrary())
+        let browser = Ubiquity.Picker(library: Ubiquity.SystemLibrary())
         
         // configure
         browser.allowsCollectionTypes = [.moment, .regular]

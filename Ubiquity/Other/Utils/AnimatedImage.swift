@@ -15,6 +15,7 @@ import UIKit
 import ImageIO
 import MobileCoreServices
 
+
 internal class AnimatedImage: UIImage {
     
     init?(source: CGImageSource) {

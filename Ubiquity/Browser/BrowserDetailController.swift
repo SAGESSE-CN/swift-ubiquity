@@ -114,6 +114,9 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         super.viewDidLoad()
         
         UIView.performWithoutAnimation {
+            // update current item
+            _updateCurrentItem(at: itemIndexPath)
+            
             collectionView?.scrollToItem(at: itemIndexPath, at: .centeredHorizontally, animated: false)
 //            indicatorItem.indicatorView.scrollToItem(at: _itemIndexPath, animated: false)
         }

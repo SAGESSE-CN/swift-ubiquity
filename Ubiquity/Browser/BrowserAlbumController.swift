@@ -9,7 +9,7 @@
 import UIKit
 
 /// the asset list in album
-internal class BrowserAlbumController: UICollectionViewController, Controller,  ChangeObserver, TransitioningDataSource, DetailControllerItemUpdateDelegate, UICollectionViewDelegateFlowLayout {
+internal class BrowserAlbumController: UICollectionViewController, Controller, ControllerDisplayable,  ChangeObserver, TransitioningDataSource, DetailControllerItemUpdateDelegate, UICollectionViewDelegateFlowLayout {
     
     required init(container: Container, factory: Factory, source: Source, sender: Any) {
         // setup init data
@@ -46,6 +46,9 @@ internal class BrowserAlbumController: UICollectionViewController, Controller,  
         
         // setup controller
         view.backgroundColor = .white
+        
+        // setup next page back item
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "Back", style: .done, target: nil, action: nil)
         
         // generate header view
         _headerView = {
@@ -97,15 +100,62 @@ internal class BrowserAlbumController: UICollectionViewController, Controller,  
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // fetch authorization status of the library
-        container.library.requestAuthorization { status in
-            DispatchQueue.main.async {
-                self._reloadData(with: status)
+        // setup controller on view did load
+        setup(with: self.container, source: self.source) { handler in
+            // the library authorized successed
+            self.authorized = true
+        
+            // load source with container
+            let source = self.source
+            source.load(with: self.container)
+            self.source = source
+            
+            // check for assets count
+            guard source.count != 0 else {
+                // count is zero, no data
+                handler(RequestError.notData)
+                return
             }
+            
+            // reload all data
+            self._reloadData()
+            
+            handler(nil)
+        }
+    }
+    
+    
+    /// Reload data data and scroll to init position
+    private func _reloadData() {
+        // collectionView must be set
+        guard let collectionView = collectionView else {
+            return
         }
         
-        // for the first show, need to add animation
-        collectionView?.alpha = 0
+        // reload data
+        collectionView.reloadData()
+        
+        // scroll after update footer
+        _updateFooterView()
+        _updateHeaderCaches()
+        
+        // scroll to init position if needed
+        if source.collectionSubtype == .smartAlbumUserLibrary {
+            // if the contentOffset over boundary
+            let size = collectionViewLayout.collectionViewContentSize
+            let bottom = collectionView.contentInset.bottom - _footerViewInset.bottom
+            
+            // reset vaild contentOffset in collectionView internal
+            collectionView.contentOffset.y = size.height - (collectionView.frame.height - bottom)
+        }
+        
+        // the library is prepared
+        prepared = true
+        
+        _targetContentOffset = collectionView.contentOffset
+        
+        // update content offset
+        scrollViewDidScroll(collectionView)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -456,32 +506,40 @@ internal class BrowserAlbumController: UICollectionViewController, Controller,  
     /// Tells your observer that a set of changes has occurred in the Photos library.
     func library(_ library: Library, didChange change: Change, details: SourceChangeDetails) {
         // collectionView must be set
-        guard let collectionView = collectionView, let source = details.after else {
+        guard let collectionView = collectionView, let newSource = details.after else {
             return
         }
         // keep the new fetch result for future use.
-        self.source = source
+        let oldSource = self.source
+        source = newSource
         
         // update header view & footer view
-        _headerView?.source = source
-        _footerView?.source = source
+        _headerView?.source = newSource
+        _footerView?.source = newSource
+        
+        // source did change, must update header cache
+        defer {
+            _updateHeaderCaches()
+        }
         
         // update collection asset count change
-        guard source.count != 0 else {
-            // count is zero, no data
-            _showError(with: "No Photos or Videos", subtitle: "You can sync photos and videos onto your iPhone using iTunes.")
-            _reloadData()
-            
-            // source did change, must update header cache
-            _updateHeaderCaches()
+        guard newSource.count != 0 else {
+            // new data source is empty, reload all data and reset error info
+            controller(self, container: container, didDisplay: newSource, error: RequestError.notData)
+            collectionView.reloadData()
             return
         }
         
-        // clear error info if needed
-        _clearError()
-        
         // the library is prepared
-        self.prepared = true
+        prepared = true
+        controller(self, container: container, didDisplay: newSource, error: nil)
+        
+        // the old source is empty?
+        guard oldSource.count != 0 else {
+            // old source is empty, reload all data
+            collectionView.reloadData()
+            return
+        }
         
         // the aset has any change?
         guard details.hasAssetChanges else {
@@ -507,9 +565,6 @@ internal class BrowserAlbumController: UICollectionViewController, Controller,  
             }
             
         }, completion: nil)
-        
-        // source did change, must update header cache
-        _updateHeaderCaches()
     }
     
     // MARK: Detail Display Notification
@@ -534,121 +589,6 @@ internal class BrowserAlbumController: UICollectionViewController, Controller,  
     
     /// Display item did change
     func detailController(_ detailController: Any, didShowItem indexPath: IndexPath) {
-    }
-    
-    // MARK: Assets Display
-    
-    /// Show error info in view controller
-    private func _showError(with title: String, subtitle: String) {
-        logger.trace?.write(title, subtitle)
-        
-        // clear view
-        _infoView?.removeFromSuperview()
-        _infoView = nil
-        
-        let infoView = ErrorView(frame: view.bounds)
-        
-        infoView.title = title
-        infoView.subtitle = subtitle
-        infoView.backgroundColor = .white
-        infoView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        
-        // show view
-        view.addSubview(infoView)
-        _infoView = infoView
-        
-        // disable scroll
-        collectionView?.isScrollEnabled = false
-        collectionView?.reloadData()
-    }
-    
-    /// Hiden all error info
-    private func _clearError() {
-        logger.trace?.write()
-        
-        // clear view
-        _infoView?.removeFromSuperview()
-        _infoView = nil
-        
-        // get current collectio nview
-        guard let collectionView = collectionView else {
-            return
-        }
-        
-        // enable scroll
-        collectionView.isScrollEnabled = true
-        
-        // need appear animation?
-        guard collectionView.alpha <= 0 else {
-            return
-        }
-        UIView.animate(withDuration: 0.25) {
-            collectionView.alpha = 1
-        }
-    }
-    
-    /// Reload data data and scroll to init position
-    private func _reloadData() {
-        // collectionView must be set
-        guard let collectionView = collectionView else {
-            return
-        }
-        
-        // reload data
-        collectionView.reloadData()
-        
-        // scroll after update footer
-        _updateFooterView()
-        _updateHeaderCaches()
-        
-        // scroll to init position if needed
-        if source.collectionSubtype == .smartAlbumUserLibrary {
-            // if the contentOffset over boundary
-            let size = collectionViewLayout.collectionViewContentSize
-            let bottom = collectionView.contentInset.bottom - _footerViewInset.bottom
-            
-            // reset vaild contentOffset in collectionView internal
-            collectionView.contentOffset.y = size.height - (collectionView.frame.height - bottom)
-        }
-        
-        // the library is prepared
-        prepared = true
-        
-        _targetContentOffset = collectionView.contentOffset
-        
-        // update content offset
-        scrollViewDidScroll(collectionView)
-    }
-    
-    /// Reload data with authorization info
-    private func _reloadData(with auth: AuthorizationStatus) {
-        
-        // check for authorization status
-        guard auth == .authorized else {
-            // no permission
-            _showError(with: "No Access Permissions", subtitle: "") // 此应用程序没有权限访问您的照片\n在\"设置-隐私-图片\"中开启后即可查看
-            return
-        }
-        
-        // the library authorized successed
-        authorized = true
-        
-        // load source with container
-        let source = self.source
-        source.load(with: container)
-        self.source = source
-        
-        // check for assets count
-        guard source.count != 0 else {
-            // count is zero, no data
-            _showError(with: "No Photos or Videos", subtitle: "You can sync photos and videos onto your iPhone using iTunes.")
-            return
-        }
-        // clear all error info
-        _clearError()
-        
-        // reload all data
-        _reloadData()
     }
     
     // MARK: Assets Cache

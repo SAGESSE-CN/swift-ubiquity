@@ -8,28 +8,13 @@
 
 import UIKit
 
-/// information about your app’s authorization to access the user’s library
-public enum AuthorizationStatus : Int {
-    
-    /// User has not yet made a choice with regards to this application
-    case notDetermined = 0
-    /// This application is not authorized to access photo data.
-    case restricted = 1
-    /// User has explicitly denied this application access to photos data.
-    case denied = 2
-    /// User has authorized this application to access photos data.
-    case authorized = 3
-}
-
 /// Provides methods for retrieving or generating preview thumbnails and full-size image or video data associated with Photos assets.
 public protocol Library {
     
     // MARK: Authorization
     
-    /// Returns information about your app’s authorization for accessing the library.
-    func authorizationStatus() -> AuthorizationStatus
     /// Requests the user’s permission, if needed, for accessing the library.
-    func requestAuthorization(_ handler: @escaping (AuthorizationStatus) -> Swift.Void)
+    func requestAuthorization(_ handler: @escaping (Error?) -> Swift.Void)
     
     // MARK: Change
     

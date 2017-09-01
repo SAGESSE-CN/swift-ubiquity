@@ -10,18 +10,18 @@ import UIKit
 
 
 /// the album list in container
-internal class BrowserAlbumListController: UITableViewController, Controller {
+internal class BrowserAlbumListController: UITableViewController, Controller, ControllerDisplayable {
     
     required init(container: Container, factory: Factory, source: Source, sender: Any) {
         // setup init data
-        _source = source
-        _container = container
+        self.source = source
+        self.container = container
         
         // continue init the UI
         super.init(nibName: nil, bundle: nil)
         
         // listen albums any change
-        _container.addChangeObserver(self)
+        self.container.addChangeObserver(self)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -30,32 +30,9 @@ internal class BrowserAlbumListController: UITableViewController, Controller {
     
     deinit {
         // cancel listen change
-        _container.removeChangeObserver(self)
+        self.container.removeChangeObserver(self)
     }
     
-    /// Reload all data on authorization status did change
-    func reloadData(with auth: AuthorizationStatus) {
-        // check for authorization status
-        guard auth == .authorized else {
-            // no permission
-            showError(with: "No Access Permissions", subtitle: "") // 此应用程序没有权限访问您的照片\n在\"设置-隐私-图片\"中开启后即可查看
-            return
-        }
-        
-        // fet collection list with container
-        let newCollectionList = _container.request(forCollection: _source.collectionType)
-        _collectionList = newCollectionList
-        
-        // check albums count
-        guard newCollectionList.count != 0 else {
-            // no data
-            showError(with: "No Photos or Videos", subtitle: "")
-            return
-        }
-        
-        // clear error info & display album
-        clearError()
-    }
     
     override func loadView() {
         super.loadView()
@@ -67,16 +44,26 @@ internal class BrowserAlbumListController: UITableViewController, Controller {
         tableView.register(BrowserAlbumListCell.self, forCellReuseIdentifier: "ASSET")
         tableView.separatorStyle = .none
         tableView.backgroundColor = .white
-        
     }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // request permission with show
-        _container.library.requestAuthorization  { status in
-            DispatchQueue.main.async {
-                self.reloadData(with: status)
+        // setup controller on view did load
+        setup(with: self.container, source: self.source) { handler in
+            // fetch collection list with container
+            let newCollectionList = self.container.request(forCollection: self.source.collectionType)
+            self._collectionList = newCollectionList
+            
+            // check albums count
+            guard newCollectionList.count != 0 else {
+                handler(RequestError.notData)
+                return
             }
+            
+            // refresh UI
+            self.tableView.reloadData()
+            handler(nil)
         }
     }
     
@@ -97,26 +84,13 @@ internal class BrowserAlbumListController: UITableViewController, Controller {
         }
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-    }
     
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        
-        // if the info view is show, update the layout
-        if let infoView = _infoView {
-            infoView.frame = view.bounds
-        }
-    }
+    private(set) var source: Source
+    private(set) var container: Container
     
-    fileprivate var _source: Source
-    fileprivate var _container: Container
     fileprivate var _collectionList: CollectionList?
     
     fileprivate var _selectedItem: IndexPath?
-    
-    fileprivate var _infoView: ErrorView?
 }
 
 /// Add data source
@@ -144,7 +118,7 @@ extension BrowserAlbumListController {
         cell.backgroundColor = .white
         
         // update data for displaying
-        cell.willDisplay(with: collection, container: _container)
+        cell.willDisplay(with: collection, container: container)
     }
     override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         // cell must king of `BrowserAlbumListCell`
@@ -153,7 +127,7 @@ extension BrowserAlbumListController {
         }
         
         // clear data for end display
-        cell.endDisplay(with: _container)
+        cell.endDisplay(with: container)
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -166,7 +140,7 @@ extension BrowserAlbumListController {
         logger.debug?.write("show album with: \(collection.title ?? ""), at: \(indexPath)")
         
         // try generate album controller for factory
-        guard let controller = _container.controller(with: .albums, source: .init(collection: collection), sender: indexPath) else {
+        guard let controller = container.controller(with: .albums, source: .init(collection: collection), sender: indexPath) else {
             logger.warning?.write("The albums controller creation failed. This is an unknown error!")
             return
         }
@@ -232,52 +206,5 @@ extension BrowserAlbumListController: ChangeObserver {
         }
         
         tableView.endUpdates()
-    }
-}
-
-/// Add library error info display support
-extension BrowserAlbumListController {
-    
-    /// Show error info in view controller
-    func showError(with title: String, subtitle: String) {
-        
-        logger.trace?.write(title, subtitle)
-        
-        // clear view
-        _infoView?.removeFromSuperview()
-        _infoView = nil
-        
-        let infoView = ErrorView(frame: view.bounds)
-        
-        infoView.title = title
-        infoView.subtitle = subtitle
-        infoView.backgroundColor = .white
-        infoView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        
-        // show view
-        view.addSubview(infoView)
-        _infoView = infoView
-        
-        // disable scroll
-        tableView.isScrollEnabled = false
-        tableView.reloadData()
-    }
-    
-    /// Hiden all error info
-    func clearError() {
-        logger.trace?.write()
-        
-        // enable scroll
-        tableView.isScrollEnabled = true
-        tableView.reloadData()
-        
-        // clear view
-        _infoView?.removeFromSuperview()
-        _infoView = nil
-        
-        self.tableView.alpha = 0
-        UIView.animate(withDuration: 0.25) {
-            self.tableView.alpha = 1
-        }
     }
 }

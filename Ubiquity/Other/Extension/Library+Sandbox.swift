@@ -276,14 +276,9 @@ private class _LSLibrary: NSObject, Library {
     
     // MARK: Authorization
     
-    /// Returns information about your app’s authorization for accessing the library.
-    func authorizationStatus() -> AuthorizationStatus {
-        return .authorized
-    }
-    
     /// Requests the user’s permission, if needed, for accessing the library.
-    func requestAuthorization(_ handler: @escaping (AuthorizationStatus) -> Swift.Void) {
-        return handler(.authorized)
+    func requestAuthorization(_ handler: @escaping (Error?) -> Void) {
+        return handler(nil)
     }
     
     // MARK: Change

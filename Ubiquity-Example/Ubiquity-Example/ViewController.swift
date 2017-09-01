@@ -21,13 +21,22 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        //Debugger.toolsDebugColorViewBounds = true
     }
     
     @IBAction func show(_ sender: Any) {
-        //browse(sender)
+        
+        // debug
+        view.window?.showsFPS = true
+        
+//        browse(sender)
         pick(sender)
+    }
+    
+    override func show(_ vc: UIViewController, sender: Any?) {
+        vc.hidesBottomBarWhenPushed = true
+        
+        navigationController?.view.backgroundColor = .white
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     @IBAction func browse(_ sender: Any) {
@@ -38,7 +47,8 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
         browser.allowsCollectionTypes = [.regular]
         
         // display
-        present(browser.initialViewController(with: .albumsList), animated: true, completion: nil)
+        //present(browser.initialViewController(with: .albumsList), animated: true, completion: nil)
+        show(browser.initialViewController(with: .albumsList), sender: nil)
     }
     
     @IBAction func pick(_ sender: Any) {

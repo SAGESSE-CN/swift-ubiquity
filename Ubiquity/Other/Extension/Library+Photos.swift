@@ -678,19 +678,33 @@ private class _PHLibrary: NSObject, Library, Photos.PHPhotoLibraryChangeObserver
     
     // MARK: Authorization
     
-    /// Returns information about your app’s authorization for accessing the library.
-    func authorizationStatus() -> AuthorizationStatus {
-        return _convert(forStatus: PHPhotoLibrary.authorizationStatus())
-    }
+//    /// Returns information about your app’s authorization for accessing the library.
+//    func authorizationStatus() -> AuthorizationStatus {
+//        return _convert(forStatus: PHPhotoLibrary.authorizationStatus())
+//    }
+//    
+//    func requestAuthorization(_ handler: @escaping (AuthorizationStatus) -> Swift.Void) {
+//    }
     
     /// Requests the user’s permission, if needed, for accessing the library.
-    func requestAuthorization(_ handler: @escaping (AuthorizationStatus) -> Swift.Void) {
+    func requestAuthorization(_ handler: @escaping (Error?) -> Void) {
         // convert authorization status
-        PHPhotoLibrary.requestAuthorization {
-            // load image manager
+        PHPhotoLibrary.requestAuthorization { status in
+            // check authorization status
+            switch status {
+            case .authorized:
+                handler(nil)
+                
+            case .denied,
+                 .notDetermined:
+                handler(RequestError.denied)
+                
+            case .restricted:
+                handler(RequestError.restricted)
+            }
+            
+            // load image manager(lazy load)
             self._cache.allowsCachingHighQualityImages = true
-            // authorization complete
-            handler(_convert(forStatus: $0))
         }
     }
     
@@ -836,16 +850,6 @@ private func _convert(forMode mode: RequestContentMode) -> PHImageContentMode {
     switch mode {
     case .aspectFill: return .aspectFill
     case .aspectFit: return .aspectFit
-    }
-}
-
-/// covnert `PHAuthorizationStatus` to `AuthorizationStatus`
-private func _convert(forStatus status: PHAuthorizationStatus) -> AuthorizationStatus {
-    switch status {
-    case .authorized: return .authorized
-    case .notDetermined: return .notDetermined
-    case .restricted: return .restricted
-    case .denied: return .denied
     }
 }
 

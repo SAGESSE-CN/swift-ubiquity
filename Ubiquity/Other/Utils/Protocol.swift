@@ -30,13 +30,21 @@ internal protocol DetailControllerItemUpdateDelegate: class {
 }
 
 
-protocol ControllerDisplayable: class {
+// If controller implements the protocol, it will receive the change automatically
+internal protocol SelectionStatusUpdateDelegate: class {
     
-    func controller(_ controller: ControllerDisplayable, container: Container, willAuthorization source: Source)
-    func controller(_ controller: ControllerDisplayable, container: Container, didAuthorization source: Source, error: Error?)
+    func selectionStatus(_ selectionStatus: SelectionStatus, didSelectItem asset: Asset, sender: AnyObject)
+    func selectionStatus(_ selectionStatus: SelectionStatus, didDeselectItem status: Asset, sender: AnyObject)
+}
+
+
+protocol ControllerLoader: class {
     
-    func controller(_ controller: ControllerDisplayable, container: Container, willDisplay source: Source)
-    func controller(_ controller: ControllerDisplayable, container: Container, didDisplay source: Source, error: Error?)
+    func controller(_ controller: ControllerLoader, container: Container, willAuthorization source: Source)
+    func controller(_ controller: ControllerLoader, container: Container, didAuthorization source: Source, error: Error?)
+    
+    func controller(_ controller: ControllerLoader, container: Container, willDisplay source: Source)
+    func controller(_ controller: ControllerLoader, container: Container, didDisplay source: Source, error: Error?)
 }
 
 
@@ -98,7 +106,7 @@ internal class ControllerContainerView: UIView, UIGestureRecognizerDelegate {
     private var _info: ErrorView?
 }
 
-extension ControllerDisplayable where Self: UIViewController {
+extension ControllerLoader where Self: UIViewController {
     
     /// Setup controller with source
     func setup(with container: Container, source: Source, loadData: @escaping (((Error?) -> Void) -> Void)) {
@@ -132,7 +140,7 @@ extension ControllerDisplayable where Self: UIViewController {
     }
     
     
-    func controller(_ controller: ControllerDisplayable, container: Container, willAuthorization source: Source) {
+    func controller(_ controller: ControllerLoader, container: Container, willAuthorization source: Source) {
         logger.trace?.write()
         
         // when requesting permissions, need to add a mask layer
@@ -145,7 +153,7 @@ extension ControllerDisplayable where Self: UIViewController {
         _containerView = containerView
     }
     
-    func controller(_ controller: ControllerDisplayable, container: Container, didAuthorization source: Source, error: Error?) {
+    func controller(_ controller: ControllerLoader, container: Container, didAuthorization source: Source, error: Error?) {
         logger.trace?.write(error?.localizedDescription ?? "")
         
         // when requesting permissions complete, need to add a error layer
@@ -153,13 +161,13 @@ extension ControllerDisplayable where Self: UIViewController {
     }
     
     
-    func controller(_ controller: ControllerDisplayable, container: Container, willDisplay source: Source) {
+    func controller(_ controller: ControllerLoader, container: Container, willDisplay source: Source) {
         logger.trace?.write()
         
         // nothing
     }
     
-    func controller(_ controller: ControllerDisplayable, container: Container, didDisplay source: Source, error: Error?) {
+    func controller(_ controller: ControllerLoader, container: Container, didDisplay source: Source, error: Error?) {
         logger.trace?.write(error?.localizedDescription ?? "")
         
         if error == nil {

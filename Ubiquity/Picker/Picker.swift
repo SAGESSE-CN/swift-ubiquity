@@ -88,9 +88,9 @@ open class Picker: Browser {
                 value.number -= offset
             }
             
-            // tell the user selected items is change
+            // notify all observers
             deletedItems.forEach {
-                self.delegate?.picker(self, didDeselectItem: $1.asset)
+                self._item(didDeselect: $1.asset, status: $1, sender: library as AnyObject)
             }
         }
     }
@@ -99,30 +99,32 @@ open class Picker: Browser {
     
     /// Select a item
     @discardableResult
-    func selectItem(with asset: Asset, sender: Any) -> SelectionStatus? {
+    func selectItem(with asset: Asset, sender: AnyObject) -> SelectionStatus? {
         // the asset has been selected?
         if let status = _selectedItems[asset.identifier] {
             return status
         }
         
-        // ask the user if the asset is allowed to be select
-        guard delegate?.picker(self, shouldSelectItem: asset) ?? true else {
+        // generate a selection info
+        let status = SelectionStatus(asset: asset, number: _selectedItems.count + 1)
+        
+        // ask the library the asset is allowed to be select?
+        guard _item(shouldSelectItem: asset, status: status, sender: sender) else {
             return nil
         }
         
-        // generate a selection info
-        let status = SelectionStatus(asset: asset, number: _selectedItems.count + 1)
+        // add to selection
         _selectedItems[asset.identifier] = status
         
-        // tell the user that the asset is already selected
-        delegate?.picker(self, didSelectItem: asset)
+        // notify all observers
+        _item(didSelectItem: asset, status: status, sender: sender)
         
         return status
     }
     
     /// Deselect a item
     @discardableResult
-    func deselectItem(with asset: Asset, sender: Any) -> SelectionStatus? {
+    func deselectItem(with asset: Asset, sender: AnyObject) -> SelectionStatus? {
         // the asset has been selected?
         if let status = _selectedItems.removeValue(forKey: asset.identifier) {
             // the all number is smaller than the deleted item and needs to be updated 
@@ -134,8 +136,8 @@ open class Picker: Browser {
                 $1.number -= 1
             }
             
-            // tell the user that the asset is already selected
-            delegate?.picker(self, didDeselectItem: asset)
+            // notify all observers
+            _item(didDeselect: asset, status: status, sender: sender)
         }
         return nil
     }
@@ -145,6 +147,31 @@ open class Picker: Browser {
         return _selectedItems[asset.identifier]
     }
     
+    
+    private func _item(shouldSelectItem asset: Asset, status: SelectionStatus, sender: AnyObject) -> Bool {
+        // ask the user if the asset is allowed to be select
+        return delegate?.picker(self, shouldSelectItem: asset) ?? true
+    }
+    private func _item(didSelectItem asset: Asset, status: SelectionStatus, sender: AnyObject) {
+        
+        // tell the user that the asset is already selected
+        delegate?.picker(self, didSelectItem: asset)
+        
+        // tell all observers
+        observers.forEach {
+            ($0 as? SelectionStatusUpdateDelegate)?.selectionStatus(status, didSelectItem: asset, sender: sender)
+        }
+    }
+    private func _item(didDeselect asset: Asset, status: SelectionStatus, sender: AnyObject) {
+        
+        // tell the user that the asset is already selected
+        delegate?.picker(self, didDeselectItem: asset)
+        
+        // tell all observers
+        observers.forEach {
+            ($0 as? SelectionStatusUpdateDelegate)?.selectionStatus(status, didDeselectItem: asset, sender: sender)
+        }
+    }
     
     // MARK: Ivar
     

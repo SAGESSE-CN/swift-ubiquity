@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerDelegate, SelectionRectangleDelegate, UIGestureRecognizerDelegate {
+internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerDelegate, SelectionRectangleDelegate, UIGestureRecognizerDelegate, SelectionStatusUpdateDelegate {
     
     override func loadView() {
         super.loadView()
@@ -129,6 +129,44 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
         // update selected items with current content offset
         _selectionLastUpdateTimestamp = timestamp
         _selectionRectangle.update(at: _selectionGestureRecognizer.location(in: collectionView))
+    }
+    
+    // MARK: Selection change
+    
+    func selectionStatus(_ selectionStatus: SelectionStatus, didSelectItem asset: Asset, sender: AnyObject) {
+        // ignore the events that itself sent
+        guard sender !== self else {
+            return
+        }
+        logger.debug?.write()
+        
+        // udpate all visable cell
+        collectionView?.visibleCells.forEach {
+            // the asset in displaying
+            guard let cell = ($0 as? PickerAlbumCell), cell.asset?.identifier == asset.identifier else {
+                return
+            }
+            // update selection
+            cell.status = selectionStatus
+        }
+    }
+    
+    func selectionStatus(_ selectionStatus: SelectionStatus, didDeselectItem asset: Asset, sender: AnyObject) {
+        // ignore the events that itself sent
+        guard sender !== self else {
+            return
+        }
+        logger.debug?.write()
+        
+        // udpate all visable cell
+        collectionView?.visibleCells.forEach {
+            // the asset in displaying
+            guard let cell = ($0 as? PickerAlbumCell), cell.asset?.identifier == asset.identifier else {
+                return
+            }
+            // clear selection
+            cell.status = nil
+        }
     }
     
     // MARK: Selection Event

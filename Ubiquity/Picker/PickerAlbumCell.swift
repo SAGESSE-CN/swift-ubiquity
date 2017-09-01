@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class PickerAlbumCell: BrowserAlbumCell, SelectionStatusObserver {
+internal class PickerAlbumCell: BrowserAlbumCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -20,17 +20,12 @@ internal class PickerAlbumCell: BrowserAlbumCell, SelectionStatusObserver {
         _setup()
     }
     
-    deinit {
-        // clear status
-        _updateStatus(nil, animated: false)
-    }
-    
     /// Will display the asset
     override func willDisplay(with asset: Asset, container: Container, orientation: UIImageOrientation) {
         super.willDisplay(with: asset, container: container, orientation: orientation)
         
         // update cell selection status
-        status = (container as? Picker)?.statusOfItem(with: asset)
+        _selectedView.status = (container as? Picker)?.statusOfItem(with: asset)
     }
     
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
@@ -46,11 +41,6 @@ internal class PickerAlbumCell: BrowserAlbumCell, SelectionStatusObserver {
         
         // hit
         return _selectedView
-    }
-    
-    /// Selection status did change
-    func selectionStatus(_ selectionStatus: SelectionStatus, didChange index: Int) {
-        _selectedView.setTitle("\(selectionStatus.number)", for: .selected)
     }
     
     private dynamic func _select(_ sender: Any) {
@@ -70,28 +60,11 @@ internal class PickerAlbumCell: BrowserAlbumCell, SelectionStatusObserver {
         }
     }
     
-    
     /// Update selection status for animate
     private func _updateStatus(_ status: SelectionStatus?, animated: Bool) {
-        // status is change?
-        guard _status !== status else {
-            return
-        }
-        // update data
-        _status?.removeObserver(self)
-        _status = status
-        _status?.addObserver(self)
-        
-        // update state
-        isSelected = status != nil
-
-        if let status = status  {
-            _selectedView.setTitle("\(status.number)", for: .selected)
-        }
-        
-        // update ui
-        _selectedView.isSelected = isSelected
-        _selectedBackgroundView.isHidden = !isSelected
+    
+        _selectedView.status = status
+        _selectedBackgroundView.isHidden = !_selectedView.isSelected
         
         // need add animation?
         guard animated else {
@@ -112,13 +85,7 @@ internal class PickerAlbumCell: BrowserAlbumCell, SelectionStatusObserver {
         
         // setup selected view
         _selectedView.frame = .init(x: bounds.width - _inset.right - 24, y: _inset.top, width: 24, height: 24)
-        _selectedView.titleLabel?.font = UIFont.systemFont(ofSize: 14)
         _selectedView.autoresizingMask = [.flexibleLeftMargin, .flexibleBottomMargin]
-        _selectedView.setBackgroundImage(ub_image(named: "ubiquity_checkbox_normal"), for: [.normal])
-        _selectedView.setBackgroundImage(ub_image(named: "ubiquity_checkbox_normal"), for: [.highlighted])
-        _selectedView.setBackgroundImage(ub_image(named: "ubiquity_checkbox_selected"), for: [.selected, .normal])
-        _selectedView.setBackgroundImage(ub_image(named: "ubiquity_checkbox_selected"), for: [.selected, .highlighted])
-        _selectedView.setTitle("1", for: .selected)
         _selectedView.addTarget(self, action: #selector(_select(_:)), for: .touchUpInside)
         
         // setup selected background view
@@ -141,17 +108,14 @@ internal class PickerAlbumCell: BrowserAlbumCell, SelectionStatusObserver {
     /// The asset selection status
     var status: SelectionStatus? {
         set { return _updateStatus(newValue, animated: false) }
-        get { return _status }
+        get { return _selectedView.status }
     }
     
     // MARK: Ivar
     
-    /// selection status
-    private var _status: SelectionStatus?
+    private lazy var _inset: UIEdgeInsets = .init(top: 4.5, left: 4.5, bottom: 4.5, right: 4.5)
     
-    private var _inset: UIEdgeInsets = .init(top: 4.5, left: 4.5, bottom: 4.5, right: 4.5)
-    
-    private var _selectedView: UIButton = .init()
-    private var _selectedBackgroundView: UIView = .init()
+    private lazy var _selectedView: SelectionStatusView = .init()
+    private lazy var _selectedBackgroundView: UIView = .init()
     
 }

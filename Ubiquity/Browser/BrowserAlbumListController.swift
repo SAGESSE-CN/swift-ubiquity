@@ -10,7 +10,7 @@ import UIKit
 
 
 /// the album list in container
-internal class BrowserAlbumListController: UITableViewController, Controller, ControllerDisplayable {
+internal class BrowserAlbumListController: UITableViewController, Controller, ControllerLoader {
     
     required init(container: Container, factory: Factory, source: Source, sender: Any) {
         // setup init data

@@ -8,13 +8,13 @@
 
 import UIKit
 
-internal class BrowserDetailController: UICollectionViewController, Controller, ChangeObserver, TransitioningDataSource, DetailControllerItemRotationDelegate, UIGestureRecognizerDelegate, UICollectionViewDelegateFlowLayout {
+internal class BrowserDetailController: UICollectionViewController, Controller, ChangeObserver, TransitioningDataSource, DetailControllerItemUpdateDelegate, DetailControllerItemRotationDelegate, UIGestureRecognizerDelegate, UICollectionViewDelegateFlowLayout {
     
     required init(container: Container, factory: Factory, source: Source, sender: Any) {
         self.source = source
         self.factory = factory
         self.container = container
-        self.itemIndexPath = sender as? IndexPath ?? .init(item: 0, section: 0)
+        self.displayedIndexPath = sender as? IndexPath ?? .init(item: 0, section: 0)
         
         // continue init the UI
         super.init(collectionViewLayout: BrowserDetailLayout(direction: .horizontal))
@@ -115,9 +115,9 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         
         UIView.performWithoutAnimation {
             // update current item
-            _updateCurrentItem(at: itemIndexPath)
+            _updateCurrentItem(at: displayedIndexPath)
             
-            collectionView?.scrollToItem(at: itemIndexPath, at: .centeredHorizontally, animated: false)
+            collectionView?.scrollToItem(at: displayedIndexPath, at: .centeredHorizontally, animated: false)
 //            indicatorItem.indicatorView.scrollToItem(at: _itemIndexPath, animated: false)
         }
     }
@@ -437,10 +437,10 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     /// Return a Boolean value that indicates whether users allows transition.
     func ub_transitionShouldStart(using animator: Animator, for operation: Animator.Operation) -> Bool {
         logger.trace?.write()
-        animator.indexPath = itemIndexPath
+        animator.indexPath = displayedIndexPath
         
         // check the boundary
-        guard itemIndexPath.section < source.numberOfSections && itemIndexPath.item < source.numberOfItems(inSection: itemIndexPath.section) else {
+        guard displayedIndexPath.section < source.numberOfSections && displayedIndexPath.item < source.numberOfItems(inSection: displayedIndexPath.section) else {
             return false
         }
         
@@ -598,11 +598,33 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         })
     }
     
-    // MARK: Detail Rotation
+    // MARK: Item Change
     
-    /// Display item will change
+    // Display item will change
+    func detailController(_ detailController: Any, willShowItem indexPath: IndexPath) {
+        logger.debug?.write(indexPath)
+        
+        // forward
+        updateDelegate?.detailController(self, willShowItem: indexPath)
+    }
+    
+    // Display item did change
+    func detailController(_ detailController: Any, didShowItem indexPath: IndexPath) {
+        logger.debug?.write(indexPath)
+        
+        // forward
+        updateDelegate?.detailController(self, didShowItem: indexPath)
+        
+        // update title in item change
+        _titleView.asset = source.asset(at: indexPath)
+    }
+    
+    // MARK: Item Rotation
+    
+    /// Display item will rotationing
     func detailController(_ detailController: Any, shouldBeginRotationing asset: Asset) -> Bool {
         logger.debug?.write(asset.identifier)
+        
         // allow
         return true
     }
@@ -610,6 +632,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     /// Display item did rotationing
     func detailController(_ detailController: Any, didEndRotationing asset: Asset, at orientation: UIImageOrientation) {
         logger.debug?.write(asset.identifier, "is landscape: \(orientation.ub_isLandscape)")
+        
         // save
         _orientationes[asset.identifier] = orientation
     }
@@ -696,19 +719,17 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     fileprivate func _updateCurrentItem(at indexPath: IndexPath) {
         logger.debug?.write(indexPath)
         
-        // notify user item will change
-        updateDelegate?.detailController(self, willShowItem: indexPath)
+        // notify user item did change
+        detailController(self, willShowItem: indexPath)
         
         // update current item index path
-        itemIndexPath = indexPath
-        
-        _titleView.asset = source.asset(at: indexPath)
+        displayedItem = source.asset(at: indexPath)
+        displayedIndexPath = indexPath
         
         // update current item context
         _itemLayoutAttributes = collectionView?.layoutAttributesForItem(at: indexPath)
         
-        // notify user item did change
-        updateDelegate?.detailController(self, didShowItem: indexPath)
+        detailController(self, didShowItem: indexPath)
     }
     fileprivate func _updateCurrentItem(with contentOffset: CGPoint) {
         
@@ -824,7 +845,9 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     
     // MARK: Property
     
-    private(set) var itemIndexPath: IndexPath
+    private(set) var displayedItem: Asset?
+    private(set) var displayedIndexPath: IndexPath
+    
     private(set) var container: Container
     private(set) var factory: Factory
     private(set) var source: Source

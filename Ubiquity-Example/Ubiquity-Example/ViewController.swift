@@ -28,8 +28,8 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
         // debug
         view.window?.showsFPS = true
         
-//        browse(sender)
-        pick(sender)
+        browse(sender)
+//        pick(sender)
     }
     
     override func show(_ vc: UIViewController, sender: Any?) {

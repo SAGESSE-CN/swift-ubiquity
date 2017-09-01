@@ -63,7 +63,7 @@
                 <navigationController storyboardIdentifier="X1" automaticallyAdjustsScrollViewInsets="NO" useStoryboardIdentifierAsRestorationIdentifier="YES" id="Ghq-4e-xjI" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" systemItem="favorites" id="RyF-E1-Hla"/>
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="Whb-RP-aWQ">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" id="Whb-RP-aWQ">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>

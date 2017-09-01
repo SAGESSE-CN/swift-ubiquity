@@ -20,9 +20,15 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, C
         // continue init the UI
         super.init(collectionViewLayout: BrowserAlbumLayout())
         
-        // config other
-        self.title = source.title
-        self.container.addChangeObserver(self)
+        // the title will follow data source change
+        title = source.title
+        
+        // if the navigation bar disable translucent will have an error offset, enabled `extendedLayoutIncludesOpaqueBars` can solve the problem 
+        extendedLayoutIncludesOpaqueBars = true
+        automaticallyAdjustsScrollViewInsets = true
+        
+        // add change observer for library
+        container.addChangeObserver(self)
     }
     
     required init?(coder aDecoder: NSCoder) {

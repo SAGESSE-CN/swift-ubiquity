@@ -31,7 +31,11 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         ]
         setToolbarItems(toolbarItems, animated: false)
         
-        // listen albums any change
+        // if the navigation bar disable translucent will have an error offset, enabled `extendedLayoutIncludesOpaqueBars` can solve the problem 
+        extendedLayoutIncludesOpaqueBars = true
+        automaticallyAdjustsScrollViewInsets = false
+        
+        // add change observer for library
         container.addChangeObserver(self)
     }
     
@@ -70,7 +74,6 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         super.loadView()
         // setup controller
         title = "Detail"
-        automaticallyAdjustsScrollViewInsets = false
         
         // setup view
         view.clipsToBounds = true
@@ -106,12 +109,16 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
 //        indicatorItem.indicatorView.register(IndicatorViewCell.dynamic(with: UIImageView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
 //        //indicatorItem.indicatorView.register(IndicatorViewCell.dynamic(with: UIScrollView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
         
-        // setup title
+        // setup title view
         navigationItem.titleView = _titleView
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // setup title color for navgation bar
+        _titleView.barStyle = navigationController?.navigationBar.barStyle ?? .default
+        _titleView.titleTextAttributes = navigationController?.navigationBar.titleTextAttributes
         
         UIView.performWithoutAnimation {
             // update current item

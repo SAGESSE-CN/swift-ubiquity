@@ -19,6 +19,54 @@ internal class BrowserDetailTitle: UIView {
         _setup()
     }
     
+    var barStyle: UIBarStyle = .default {
+        willSet {
+            guard barStyle != newValue else {
+                return
+            }
+            
+            // update text color with bar style
+            switch newValue {
+            case .black,
+                 .blackTranslucent:
+                _titleLabel.textColor = .white
+                _subtitleLabel.textColor = .white
+                
+                
+            case .default:
+                _titleLabel.textColor = .black
+                _subtitleLabel.textColor = .black
+            }
+        }
+    }
+    var titleTextAttributes: [String: Any]? {
+        willSet {
+            guard let newValue = newValue, !newValue.isEmpty else {
+                return
+            }
+            
+            // the navgationBar specifies the font
+            if let font = newValue[NSFontAttributeName] as? UIFont {
+                _titleLabel.font = UIFont(descriptor: font.fontDescriptor, size: 15)
+                _subtitleLabel.font = UIFont(descriptor: font.fontDescriptor, size: 11)
+            }
+            
+            // the navgationBar specifies the color
+            if let color = newValue[NSForegroundColorAttributeName] as? UIColor {
+                _titleLabel.textColor = color
+                _subtitleLabel.textColor = color
+            }
+            
+            // the navgationBar specifies the shadow
+            if let color = newValue[NSShadowAttributeName] as? NSShadow {
+                _titleLabel.shadowColor = color.shadowColor as? UIColor
+                _titleLabel.shadowOffset = color.shadowOffset
+                _subtitleLabel.shadowColor = color.shadowColor as? UIColor
+                _subtitleLabel.shadowOffset = color.shadowOffset
+            }
+        }
+    }
+    
     var asset: Asset? {
         willSet {
             guard asset !== newValue else {
@@ -89,7 +137,7 @@ internal class BrowserDetailTitle: UIView {
         
         // update title for portrait
         _titleLabel.text = _title
-        _titleLabel.font = UIFont.systemFont(ofSize: 15)
+        _titleLabel.font = UIFont(descriptor: (_titleLabel.font ?? .systemFont(ofSize: 15)).fontDescriptor, size: 15)
         
         _subtitleLabel.text = _subtitle
         _subtitleLabel.alpha = 1
@@ -112,7 +160,7 @@ internal class BrowserDetailTitle: UIView {
         
         // update title for portrait
         _titleLabel.text = _mergedTitle
-        _titleLabel.font = UIFont.systemFont(ofSize: 13)
+        _titleLabel.font = UIFont(descriptor: (_titleLabel.font ?? .systemFont(ofSize: 13)).fontDescriptor, size: 13)
         
         _subtitleLabel.text = nil
         _subtitleLabel.alpha = 0

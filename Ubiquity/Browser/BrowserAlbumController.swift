@@ -917,6 +917,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
     
     // MARK: Property
     
+    
     // library status
     private(set) var prepared: Bool = false
     private(set) var authorized: Bool = false
@@ -933,6 +934,18 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
             // update title
             title = newValue.title ?? title
         }
+    }
+    
+    // Minimum interval between each item allowed
+    static var minimumItemSpacing: CGFloat {
+        set { return BrowserAlbumLayout.minimumItemSpacing = newValue }
+        get { return BrowserAlbumLayout.minimumItemSpacing }
+    }
+    
+    // Minimum size of each item allowed
+    static var minimumItemSize: CGSize  {
+        set { return BrowserAlbumLayout.minimumItemSize = newValue }
+        get { return BrowserAlbumLayout.minimumItemSize }
     }
     
     // MARK: Ivar

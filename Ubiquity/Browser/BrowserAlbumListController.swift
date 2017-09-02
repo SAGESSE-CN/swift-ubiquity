@@ -10,7 +10,7 @@ import UIKit
 
 
 /// the album list in container
-internal class BrowserAlbumListController: UITableViewController, Controller, ControllerLoader {
+internal class BrowserAlbumListController: UITableViewController, Controller, ExceptionDefaultImplementation {
     
     required init(container: Container, factory: Factory, source: Source, sender: Any) {
         // setup init data
@@ -57,7 +57,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Co
             
             // check albums count
             guard newCollectionList.count != 0 else {
-                handler(RequestError.notData)
+                handler(Exception.notData)
                 return
             }
             

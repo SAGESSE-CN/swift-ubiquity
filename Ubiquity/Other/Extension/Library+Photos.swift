@@ -697,10 +697,10 @@ private class _PHLibrary: NSObject, Library, Photos.PHPhotoLibraryChangeObserver
                 
             case .denied,
                  .notDetermined:
-                handler(RequestError.denied)
+                handler(Exception.denied)
                 
             case .restricted:
-                handler(RequestError.restricted)
+                handler(Exception.restricted)
             }
             
             // load image manager(lazy load)

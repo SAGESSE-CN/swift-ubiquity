@@ -28,8 +28,8 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
         // debug
         view.window?.showsFPS = true
         
-        browse(sender)
-//        pick(sender)
+//        browse(sender)
+        pick(sender)
     }
     
     override func show(_ vc: UIViewController, sender: Any?) {
@@ -48,8 +48,7 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
         
         // display
         //present(browser.initialViewController(with: .albumsList), animated: true, completion: nil)
-        //show(browser.initialViewController(with: .albumsList), sender: nil)
-        show(browser.initialViewController(with: .albums), sender: nil)
+        show(browser.initialViewController(with: .albumsList), sender: nil)
     }
     
     @IBAction func pick(_ sender: Any) {

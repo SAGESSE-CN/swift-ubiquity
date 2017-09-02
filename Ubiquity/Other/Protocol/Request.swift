@@ -40,11 +40,3 @@ public enum RequestContentMode: Int {
     /// Use this content mode when requesting a full-sized image using the PHImageManagerMaximumSize value for the target size. In this case, the image manager does not scale or crop the image.
     static var `default`: RequestContentMode = .aspectFill
 }
-
-
-public enum RequestError: Error {
-    
-    case restricted // This application is not authorized to access photo data.
-    case denied // User has explicitly denied this application access to photos data.
-    case notData // No any content
-}

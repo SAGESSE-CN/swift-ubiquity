@@ -62,3 +62,4 @@ public protocol DisplayableDelegate: class {
     ///
     func displayer(_ displayer: Displayable, didEndDownload asset: Asset, error: Error?)
 }
+

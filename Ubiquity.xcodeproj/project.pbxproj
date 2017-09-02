@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0C004FCA1F36CCFF00212C93 /* Library+Photos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C004FC91F36CCFF00212C93 /* Library+Photos.swift */; };
-		0C013AAA1ED52C47002617AE /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C013AA91ED52C47002617AE /* ErrorView.swift */; };
+		0C013AAA1ED52C47002617AE /* ExceptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C013AA91ED52C47002617AE /* ExceptionView.swift */; };
 		0C013AAE1ED56496002617AE /* UIColor+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C013AAD1ED56496002617AE /* UIColor+Hex.swift */; };
 		0C013AB01ED5A023002617AE /* Source.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C013AAF1ED5A023002617AE /* Source.swift */; };
 		0C16F8771EA61D2500C788C5 /* UIImage+Module.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C16F8761EA61D2500C788C5 /* UIImage+Module.swift */; };
@@ -18,6 +18,7 @@
 		0C1E4F6D1F5A697E00299E64 /* NavigationTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1E4F6C1F5A697E00299E64 /* NavigationTitleView.swift */; };
 		0C1E4F701F5A6A0600299E64 /* NavigationFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1E4F6E1F5A6A0600299E64 /* NavigationFooterView.swift */; };
 		0C1E4F711F5A6A0600299E64 /* NavigationHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1E4F6F1F5A6A0600299E64 /* NavigationHeaderView.swift */; };
+		0C1E4F751F5AAD2B00299E64 /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1E4F741F5AAD2B00299E64 /* Exception.swift */; };
 		0C220F661F0DF4B100A13786 /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F651F0DF4B100A13786 /* Library.swift */; };
 		0C220F6A1F0DF5D600A13786 /* Change.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F691F0DF5D600A13786 /* Change.swift */; };
 		0C220F6C1F0DF5ED00A13786 /* Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F6B1F0DF5ED00A13786 /* Asset.swift */; };
@@ -122,7 +123,7 @@
 
 /* Begin PBXFileReference section */
 		0C004FC91F36CCFF00212C93 /* Library+Photos.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Library+Photos.swift"; sourceTree = "<group>"; };
-		0C013AA91ED52C47002617AE /* ErrorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
+		0C013AA91ED52C47002617AE /* ExceptionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExceptionView.swift; sourceTree = "<group>"; };
 		0C013AAD1ED56496002617AE /* UIColor+Hex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+Hex.swift"; sourceTree = "<group>"; };
 		0C013AAF1ED5A023002617AE /* Source.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Source.swift; sourceTree = "<group>"; };
 		0C16F8761EA61D2500C788C5 /* UIImage+Module.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+Module.swift"; sourceTree = "<group>"; };
@@ -132,6 +133,7 @@
 		0C1E4F6C1F5A697E00299E64 /* NavigationTitleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NavigationTitleView.swift; sourceTree = "<group>"; };
 		0C1E4F6E1F5A6A0600299E64 /* NavigationFooterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NavigationFooterView.swift; sourceTree = "<group>"; };
 		0C1E4F6F1F5A6A0600299E64 /* NavigationHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NavigationHeaderView.swift; sourceTree = "<group>"; };
+		0C1E4F741F5AAD2B00299E64 /* Exception.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exception.swift; sourceTree = "<group>"; };
 		0C220F651F0DF4B100A13786 /* Library.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; };
 		0C220F691F0DF5D600A13786 /* Change.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Change.swift; sourceTree = "<group>"; };
 		0C220F6B1F0DF5ED00A13786 /* Asset.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Asset.swift; sourceTree = "<group>"; };
@@ -258,6 +260,7 @@
 				0C220F771F0E25E000A13786 /* Playable.swift */,
 				0C220F731F0E21D100A13786 /* Request.swift */,
 				0C220F751F0E220400A13786 /* Response.swift */,
+				0C1E4F741F5AAD2B00299E64 /* Exception.swift */,
 			);
 			path = Protocol;
 			sourceTree = "<group>";
@@ -273,7 +276,7 @@
 				0C7D45091EAB7AE800D56AB5 /* ConsoleView.swift */,
 				0CB91E721F0EB8F000741F48 /* Container.swift */,
 				0CBDA6091ECAF7350016675C /* DisplayView.swift */,
-				0C013AA91ED52C47002617AE /* ErrorView.swift */,
+				0C013AA91ED52C47002617AE /* ExceptionView.swift */,
 				0C7D450A1EAB7AE800D56AB5 /* EventCenter.swift */,
 				0C7D450B1EAB7AE800D56AB5 /* ExtendedItem.swift */,
 				0C7D450C1EAB7AE800D56AB5 /* ExtendedToolbar.swift */,
@@ -621,7 +624,7 @@
 				0C7D451F1EAB7AE800D56AB5 /* ProgressView.swift in Sources */,
 				0C7D451C1EAB7AE800D56AB5 /* IndicatorItem.swift in Sources */,
 				0CE49EA31E7AB11D0058F5F8 /* Debugger.swift in Sources */,
-				0C013AAA1ED52C47002617AE /* ErrorView.swift in Sources */,
+				0C013AAA1ED52C47002617AE /* ExceptionView.swift in Sources */,
 				0CE49E611E7A7D900058F5F8 /* BrowserAlbumListController.swift in Sources */,
 				0C220F781F0E25E000A13786 /* Playable.swift in Sources */,
 				0C8FEE5E1E8BBF540096EC4C /* CGRect+Align.swift in Sources */,
@@ -646,6 +649,7 @@
 				0C7D451E1EAB7AE800D56AB5 /* IndicatorViewCell.swift in Sources */,
 				0C949E871F56CE9A0076B5CE /* PickerDetailController.swift in Sources */,
 				0C7D45191EAB7AE800D56AB5 /* EventCenter.swift in Sources */,
+				0C1E4F751F5AAD2B00299E64 /* Exception.swift in Sources */,
 				0C2497771EEA940500CDD68C /* PickerAlbumController.swift in Sources */,
 				0C220F741F0E21D100A13786 /* Request.swift in Sources */,
 				0C7D451B1EAB7AE800D56AB5 /* ExtendedToolbar.swift in Sources */,

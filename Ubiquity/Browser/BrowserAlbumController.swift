@@ -9,7 +9,7 @@
 import UIKit
 
 /// the asset list in album
-internal class BrowserAlbumController: UICollectionViewController, Controller, ControllerLoader,  ChangeObserver, TransitioningDataSource, DetailControllerItemUpdateDelegate, UICollectionViewDelegateFlowLayout {
+internal class BrowserAlbumController: UICollectionViewController, Controller, ExceptionDefaultImplementation,  ChangeObserver, TransitioningDataSource, DetailControllerItemUpdateDelegate, UICollectionViewDelegateFlowLayout {
     
     required init(container: Container, factory: Factory, source: Source, sender: Any) {
         // setup init data
@@ -119,7 +119,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, C
             // check for assets count
             guard source.count != 0 else {
                 // count is zero, no data
-                handler(RequestError.notData)
+                handler(Exception.notData)
                 return
             }
             
@@ -538,14 +538,14 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, C
         // update collection asset count change
         guard newSource.count != 0 else {
             // new data source is empty, reload all data and reset error info
-            controller(self, container: container, didDisplay: newSource, error: RequestError.notData)
-            collectionView.reloadData()
+            self.controller(self, container: container, didDisplay: newSource, error: Exception.notData)
+            self.collectionView?.reloadData()
             return
         }
         
         // the library is prepared
-        prepared = true
-        controller(self, container: container, didDisplay: newSource, error: nil)
+        self.prepared = true
+        self.controller(self, container: container, didDisplay: newSource, error: nil)
         
         // the old source is empty?
         guard oldSource.count != 0 else {
@@ -556,6 +556,13 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, C
         
         // the aset has any change?
         guard details.hasAssetChanges else {
+            return
+        }
+        
+        // whether the change will support incremental updating?
+        guard details.hasIncrementalChanges else {
+            // does not support, forced to update all the data
+            collectionView.reloadData()
             return
         }
         
@@ -959,6 +966,5 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, C
     private var _headers: [CGRect?]?
     private var _headerView: NavigationHeaderView?
     
-    private var _infoView: ErrorView?
     private var _cachedSize: CGSize?
 }

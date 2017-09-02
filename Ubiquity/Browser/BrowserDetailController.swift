@@ -561,22 +561,30 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     func library(_ library: Library, didChange change: Change, details: SourceChangeDetails) {
         
         // get collection view and new data source
-        guard let collectionView = collectionView, let source = details.after else {
+        guard let collectionView = collectionView, let newSource = details.after else {
             return
         }
         // keep the new fetch result for future use.
-        self.source = source
+        source = newSource
         
         // update collection asset count change
-        guard source.count != 0 else {
-            // count is zero, no data
-            collectionView.reloadData()
-            navigationController?.popViewController(animated: true)
+        guard newSource.count != 0 else {
+            // new source is empty, back to albums
+            self.collectionView?.reloadData()
+            self.navigationController?.popViewController(animated: true)
             return
         }
 
         // the aset has any change?
         guard details.hasAssetChanges else {
+            return
+        }
+        
+        // whether the change will support incremental updating?
+        guard details.hasIncrementalChanges else {
+            // does not support, forced to update all the data
+            self.collectionView?.reloadData()
+            self.scrollViewDidScroll(collectionView)
             return
         }
         

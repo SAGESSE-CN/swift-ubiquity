@@ -8,10 +8,6 @@
 
 import UIKit
 
-public enum Position {
-    case thumbnail
-    case detail
-}
 
 /// The base container
 open class Container: NSObject, ChangeObserver {
@@ -193,6 +189,16 @@ open class Container: NSObject, ChangeObserver {
     }
     
     
+    /// Register exception display page
+    open func register(_ exceptionViewClass: ExceptionDisplayable.Type) {
+        // must king of `UIView`
+        guard exceptionViewClass is UIView.Type else {
+            fatalError("The exception view must king of `UIView`")
+        }
+        
+        _exceptionViewClass = exceptionViewClass
+    }
+    
     // Register a content view class for media in controller
     open func register(_ contentViewClass: Displayable.Type, forContentView media: AssetMediaType, in type: ControllerType) {
         // must king of `UIView`
@@ -252,6 +258,11 @@ open class Container: NSObject, ChangeObserver {
         }
     }
     
+    /// Generate a exception display page
+    internal func exceptionView(with error: Error, sender: AnyObject) -> ExceptionDisplayable {
+        return _exceptionViewClass.init(container: self, error: error, sender: sender)
+    }
+    
     /// Generate a controller for factory
     internal func controller(with type: ControllerType, source: Source, sender: Any) -> UIViewController? {
         // if factory is nil, no provider
@@ -276,6 +287,7 @@ open class Container: NSObject, ChangeObserver {
     
     // class provder
     private lazy var _factorys: Dictionary<ControllerType, Factory> = [:]
+    private lazy var _exceptionViewClass: ExceptionDisplayable.Type = ExceptionView.self
     
     private var _debug: Bool = false
 }

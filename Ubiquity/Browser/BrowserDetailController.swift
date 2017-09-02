@@ -153,7 +153,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         super.viewWillLayoutSubviews()
         
         // size change
-        guard _cacheBounds?.size != view.bounds.size else {
+        guard _cachedBounds?.size != view.bounds.size else {
             return
         }
         
@@ -162,7 +162,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         navigationItem.titleView?.layoutIfNeeded()
         
         // view.bounds is change, need update content inset
-        _cacheBounds = view.bounds
+        _cachedBounds = view.bounds
         _updateSystemContentInsetIfNeeded()
     }
     
@@ -559,13 +559,17 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
     func library(_ library: Library, didChange change: Change, details: SourceChangeDetails) {
-        
         // get collection view and new data source
         guard let collectionView = collectionView, let newSource = details.after else {
             return
         }
+        logger.trace?.write()
+        
         // keep the new fetch result for future use.
         source = newSource
+        
+        // must be clear the layout attributes cache
+        clearItemCache()
         
         // update collection asset count change
         guard newSource.count != 0 else {
@@ -730,6 +734,11 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         }
     }
     
+    internal func clearItemCache() {
+        
+        // the item layout
+        _cachedItemLayoutAttributes = nil
+    }
     
     fileprivate func _updateCurrentItem(at indexPath: IndexPath) {
         logger.debug?.write(indexPath)
@@ -742,7 +751,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         displayedIndexPath = indexPath
         
         // update current item context
-        _itemLayoutAttributes = collectionView?.layoutAttributesForItem(at: indexPath)
+        _cachedItemLayoutAttributes = collectionView?.layoutAttributesForItem(at: indexPath)
         
         detailController(self, didShowItem: indexPath)
     }
@@ -755,7 +764,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         let x = contentOffset.x + collectionView.bounds.width / 2
         
         // check for any changes
-        if let item = _itemLayoutAttributes, item.frame.minX <= x && x < item.frame.maxX {
+        if let item = _cachedItemLayoutAttributes, item.frame.minX <= x && x < item.frame.maxX {
             return // hit cache
         }
         
@@ -881,7 +890,8 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     fileprivate var _isFullscreen: Bool = false
     
     // cache
-    fileprivate var _cacheBounds: CGRect?
+    fileprivate var _cachedBounds: CGRect?
+    fileprivate var _cachedItemLayoutAttributes: UICollectionViewLayoutAttributes?
     
     // 插入/删除的时候必须清除
     fileprivate var _interactivingFromIndex: Int?
@@ -889,8 +899,6 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     fileprivate var _interactivingToIndex: Int?
     fileprivate var _interactivingToIndexPath: IndexPath?
     
-    // the current item context
-    fileprivate var _itemLayoutAttributes: UICollectionViewLayoutAttributes?
     
     fileprivate var _orientationes: [String: UIImageOrientation] = [:]
     

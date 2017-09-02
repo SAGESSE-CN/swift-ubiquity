@@ -1,5 +1,5 @@
 //
-//  BrowserAlbumFooter.swift
+//  NavigationFooterView.swift
 //  Ubiquity
 //
 //  Created by sagesse on 12/07/2017.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class BrowserAlbumFooter: UIView {
+internal class NavigationFooterView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)

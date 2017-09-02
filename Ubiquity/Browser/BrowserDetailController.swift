@@ -862,7 +862,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     // MARK: Ivar
     
     // title view
-    fileprivate var _titleView: BrowserDetailTitle = .init(frame: .init(x: 0, y: 0, width: 48, height: 24))
+    fileprivate var _titleView: NavigationTitleView = .init(frame: .init(x: 0, y: 0, width: 48, height: 24))
     
     // transition
     fileprivate var _transitionIsInteractiving: Bool = false

@@ -1,5 +1,5 @@
 //
-//  BrowserDetailTitle.swift
+//  NavigationTitleView.swift
 //  Ubiquity
 //
 //  Created by sagesse on 30/08/2017.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class BrowserDetailTitle: UIView {
+internal class NavigationTitleView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)

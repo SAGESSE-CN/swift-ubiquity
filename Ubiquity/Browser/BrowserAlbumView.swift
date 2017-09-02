@@ -17,7 +17,7 @@ internal class BrowserAlbumView: UICollectionView {
         }
         
         // extra check, first subview
-        guard let subview = subviews.first as? BrowserAlbumHeader else {
+        guard let subview = subviews.first as? NavigationHeaderView else {
             return view
         }
         

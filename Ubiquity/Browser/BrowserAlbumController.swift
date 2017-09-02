@@ -63,7 +63,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, C
                 return nil
             }
             
-            let headerView = BrowserAlbumHeader(frame: .init(x: 0, y: 0, width: view.frame.width, height: 48))
+            let headerView = NavigationHeaderView(frame: .init(x: 0, y: 0, width: view.frame.width, height: 48))
             
             // config
             headerView.effect = UIBlurEffect(style: .extraLight)
@@ -80,7 +80,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, C
                 return nil
             }
             
-            let footerView = BrowserAlbumFooter()
+            let footerView = NavigationFooterView()
             
             // config
             footerView.frame = .init(x: 0, y: 0, width: collectionView?.frame.width ?? 0, height: 48)
@@ -95,7 +95,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, C
         // setup colleciton view
         collectionView?.backgroundColor = .white
         collectionView?.alwaysBounceVertical = true
-        collectionView?.register(BrowserAlbumHeader.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "HEADER")
+        collectionView?.register(NavigationHeaderView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "HEADER")
         
         // register all cell for contents
         factory.contents.forEach {
@@ -287,6 +287,12 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, C
             edg.top = 4
         }
         
+        // if the section is empty, don't inset
+        if collectionView.numberOfItems(inSection: section) == 0 {
+            edg.top = 0
+            edg.bottom = 0
+        }
+        
         // in first section, top is 4
         if section == 0 {
             edg.top = 4
@@ -301,8 +307,9 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, C
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        // show header view?
-        guard !source.isHeaderViewHidden else {
+        // if the section is empty, ignore
+        // if the source can't allows show header, ignore
+        guard !source.isHeaderViewHidden && collectionView.numberOfItems(inSection: section) != 0 else {
             return .zero
         }
         
@@ -329,8 +336,8 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, C
     }
     
     override func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
-        // the view must king of `BrowserAlbumHeader`
-        guard let view = view as? BrowserAlbumHeader else {
+        // the view must king of `NavigationHeaderView`
+        guard let view = view as? NavigationHeaderView else {
             return
         }
         
@@ -339,8 +346,8 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, C
         view.section = indexPath.section
     }
     override func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
-        // the view must king of `BrowserAlbumHeader`
-        guard let view = view as? BrowserAlbumHeader else {
+        // the view must king of `NavigationHeaderView`
+        guard let view = view as? NavigationHeaderView else {
             return
         }
         
@@ -602,6 +609,9 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, C
     /// Fetch assets in rect
     private func _assetsOfCaching(in rect: CGRect) -> [Asset] {
         return collectionViewLayout.layoutAttributesForElements(in: rect)?.flatMap {
+            guard $0.representedElementCategory == .cell else {
+                return nil
+            }
             return source.asset(at: $0.indexPath)
         } ?? []
     }
@@ -926,7 +936,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, C
     private var _previousTargetPreheatRect: CGRect = .zero
     
     // footer
-    private var _footerView: BrowserAlbumFooter?
+    private var _footerView: NavigationFooterView?
     private var _footerViewInset: UIEdgeInsets = .zero {
         willSet {
             // collectionView must be set
@@ -947,7 +957,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, C
     // header
     private var _header: Int = 0
     private var _headers: [CGRect?]?
-    private var _headerView: BrowserAlbumHeader?
+    private var _headerView: NavigationHeaderView?
     
     private var _infoView: ErrorView?
     private var _cachedSize: CGSize?

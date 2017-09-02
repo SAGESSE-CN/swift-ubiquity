@@ -174,8 +174,12 @@ open class Container: NSObject, ChangeObserver {
     
     /// Generate the initialized controller
     open func initialViewController(with type: ControllerType) -> UIViewController {
+        
+        // fetch current allows display the collection type
+        let collectionType = allowsCollectionTypes?.first ?? .regular
+        
         // Try generate a controlelr
-        guard let controller = controller(with: type, source: .init(collectionType: .regular), sender: self) else {
+        guard let controller = controller(with: type, source: .init(collectionType: collectionType), sender: self) else {
             logger.fatal?.write("The controller creation failed. This is an unknown error!")
             fatalError("The controller creation failed. This is an unknown error!")
         }

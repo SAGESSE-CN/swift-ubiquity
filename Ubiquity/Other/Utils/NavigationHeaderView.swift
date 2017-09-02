@@ -1,5 +1,5 @@
 //
-//  BrowserAlbumHeader.swift
+//  NavigationHeaderView.swift
 //  Ubiquity
 //
 //  Created by SAGESSE on 8/1/17.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class BrowserAlbumHeader: UICollectionReusableView {
+internal class NavigationHeaderView: UICollectionReusableView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -20,7 +20,7 @@ internal class BrowserAlbumHeader: UICollectionReusableView {
         _setup()
     }
     
-    weak var parent: BrowserAlbumHeader?
+    weak var parent: NavigationHeaderView?
     
     var effect: UIVisualEffect? {
         willSet {
@@ -198,7 +198,7 @@ internal class BrowserAlbumHeader: UICollectionReusableView {
     
     private var _collection: Collection?
     
-    private var _headers: [Int: BrowserAlbumHeader] = [:]
+    private var _headers: [Int: NavigationHeaderView] = [:]
     private var _contentView: UIView = .init()
     private var _visualEffectView: UIVisualEffectView?
     

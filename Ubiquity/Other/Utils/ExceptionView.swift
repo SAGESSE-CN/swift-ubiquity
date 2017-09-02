@@ -187,8 +187,8 @@ internal class ExceptionContainerView: UIView, UIGestureRecognizerDelegate {
     private var _contentView: ExceptionDisplayable?
 }
 
-/// Exception processing default implementation
-internal protocol ExceptionDefaultImplementation: class {
+/// Exception handling implementation
+internal protocol ExceptionHandling: class {
     
     func controller(_ controller: UIViewController, container: Container, willAuthorization source: Source)
     func controller(_ controller: UIViewController, container: Container, didAuthorization source: Source, error: Error?)
@@ -197,8 +197,8 @@ internal protocol ExceptionDefaultImplementation: class {
     func controller(_ controller: UIViewController, container: Container, didDisplay source: Source, error: Error?)
 }
 
-/// Exception processing default implementation
-internal extension ExceptionDefaultImplementation where Self: UIViewController {
+/// Exception handling implementation
+internal extension ExceptionHandling where Self: UIViewController {
     
     /// Setup controller with source
     func setup(with container: Container, source: Source, loadData: @escaping (((Error?) -> Void) -> Void)) {

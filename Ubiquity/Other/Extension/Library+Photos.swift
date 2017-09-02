@@ -1040,3 +1040,19 @@ private func _diff<Element: Hashable>(_ src: Array<Element>, dest: Array<Element
 public func SystemLibrary() -> Library {
     return _PHLibrary()
 }
+
+internal extension Asset {
+    /// Access `Photos.PHAsset` support
+    var PHAsset: PHAsset? {
+        return (self as? _PHAsset)?.asset
+    }
+}
+internal extension Collection {
+    /// Access `Photos.PHCollection` support
+    var PHCollection: PHCollection? {
+        return (self as? _PHCollection)?.collection
+    }
+}
+
+
+

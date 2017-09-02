@@ -862,6 +862,9 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         
         logger.debug?.write()
         
+        // update collection view if needed
+        collectionView.layoutIfNeeded()
+        
         // fetch all header layout attributes
         _headers = (0 ..< collectionView.numberOfSections).map {
             collectionView.layoutAttributesForSupplementaryElement(ofKind: UICollectionElementKindSectionHeader, at: .init(item: 0, section: $0))?.frame

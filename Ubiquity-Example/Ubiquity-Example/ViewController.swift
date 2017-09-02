@@ -28,8 +28,8 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
         // debug
         view.window?.showsFPS = true
         
-//        browse(sender)
-        pick(sender)
+        browse(sender)
+//        pick(sender)
     }
     
     override func show(_ vc: UIViewController, sender: Any?) {
@@ -44,11 +44,12 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
         let browser = Ubiquity.Browser(library: Ubiquity.SystemLibrary())
         
         // configure
-        browser.allowsCollectionTypes = [.regular]
+        browser.allowsCollectionTypes = [.moment]
         
         // display
         //present(browser.initialViewController(with: .albumsList), animated: true, completion: nil)
-        show(browser.initialViewController(with: .albumsList), sender: nil)
+        //show(browser.initialViewController(with: .albumsList), sender: nil)
+        show(browser.initialViewController(with: .albums), sender: nil)
     }
     
     @IBAction func pick(_ sender: Any) {

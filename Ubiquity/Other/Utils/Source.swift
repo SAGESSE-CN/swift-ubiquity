@@ -174,6 +174,17 @@ internal class Source {
         // init data
         _collectionType = collectionType
         _collectionSubtype = .smartAlbumUserLibrary
+        
+        switch collectionType {
+        case .moment:
+            title = "Moments"
+            
+        case .regular:
+            title = "Photos"
+            
+        case .recentlyAdded:
+            title = "Recently"
+        }
     }
     
     var title: String?
@@ -290,6 +301,7 @@ internal class Source {
             // update section changes
             newDetails.insertSections = details.insertedIndexes
             newDetails.deleteSections = details.removedIndexes
+            newDetails.hasIncrementalChanges = true
             
             // has insert or delete? 
             newDetails.hasAssetChanges = !(newDetails.insertSections?.isEmpty ?? true && newDetails.deleteSections?.isEmpty ?? true)
@@ -306,6 +318,7 @@ internal class Source {
             // keep the new fetch result for future use.
             guard details.after != nil else {
                 // the section is deleted
+                newDetails.hasIncrementalChanges = true
                 newDetails.deleteSections?.update(with: section)
                 return
             }

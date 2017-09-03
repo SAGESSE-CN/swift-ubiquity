@@ -856,7 +856,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
     /// Update header view caches
     private func _updateHeaderCaches() {
         // collection view must be set
-        guard let collectionView = collectionView, _headerView != nil else {
+        guard let collectionView = collectionView, prepared, _headerView != nil else {
             return
         }
         

@@ -7,8 +7,8 @@
 //
 
 import UIKit
-@testable import Ubiquity
-//import Ubiquity
+//@testable import Ubiquity
+import Ubiquity
 
 //import WebKit
 
@@ -26,7 +26,7 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
     @IBAction func show(_ sender: Any) {
         
         // debug
-        view.window?.showsFPS = true
+//        view.window?.showsFPS = true
         
         browse(sender)
 //        pick(sender)

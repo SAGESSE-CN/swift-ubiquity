@@ -42,7 +42,7 @@ internal class Factory {
     var controller: Controller.Type
     
     
-    func register(_ contentClass: AnyClass?, for media: AssetMediaType) {
+    func register(_ contentClass: AnyClass?, for media: AssetType) {
         // update content class
         _contents[ub_identifier(with: media)] = contentClass
     }

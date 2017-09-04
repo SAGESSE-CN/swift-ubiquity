@@ -143,7 +143,7 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
         // udpate all visable cell
         collectionView?.visibleCells.forEach {
             // the asset in displaying
-            guard let cell = ($0 as? PickerAlbumCell), cell.asset?.identifier == asset.identifier else {
+            guard let cell = ($0 as? PickerAlbumCell), cell.asset?.ub_identifier == asset.ub_identifier else {
                 return
             }
             // update selection
@@ -161,7 +161,7 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
         // udpate all visable cell
         collectionView?.visibleCells.forEach {
             // the asset in displaying
-            guard let cell = ($0 as? PickerAlbumCell), cell.asset?.identifier == asset.identifier else {
+            guard let cell = ($0 as? PickerAlbumCell), cell.asset?.ub_identifier == asset.ub_identifier else {
                 return
             }
             // clear selection

@@ -155,10 +155,10 @@ extension VideoContentView: Playable {
             _prepareing = false
             _prepared = false
             // change, all reqeust is expire
-            logger.debug?.write("\(asset.identifier) item is expire")
+            logger.debug?.write("\(asset.ub_identifier) item is expire")
             return
         }
-        logger.trace?.write("\(asset.identifier)")
+        logger.trace?.write("\(asset.ub_identifier)")
         
         // if item is nil, the player preare error 
         guard let item = item else {

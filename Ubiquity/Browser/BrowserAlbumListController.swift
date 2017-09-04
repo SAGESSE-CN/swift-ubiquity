@@ -52,11 +52,11 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         // setup controller on view did load
         setup(with: self.container, source: self.source) { handler in
             // fetch collection list with container
-            let newCollectionList = self.container.request(forCollection: self.source.collectionType)
+            let newCollectionList = self.container.request(forCollectionList: self.source.collectionType)
             self._collectionList = newCollectionList
             
             // check albums count
-            guard newCollectionList.count != 0 else {
+            guard newCollectionList.ub_count != 0 else {
                 handler(Exception.notData)
                 return
             }
@@ -97,7 +97,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
 extension BrowserAlbumListController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return _collectionList?.count ?? 0
+        return _collectionList?.ub_count ?? 0
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -110,7 +110,7 @@ extension BrowserAlbumListController {
     
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         // cell must king of `BrowserAlbumListCell`
-        guard let cell = cell as? BrowserAlbumListCell, let collection = _collectionList?[indexPath.row] else {
+        guard let cell = cell as? BrowserAlbumListCell, let collection = _collectionList?.ub_collection(at: indexPath.row) else {
             return
         }
         
@@ -134,10 +134,10 @@ extension BrowserAlbumListController {
         logger.trace?.write(indexPath)
         
         // fetch collection
-        guard let collection = _collectionList?[indexPath.row] else {
+        guard let collection = _collectionList?.ub_collection(at: indexPath.row) else {
             return
         }
-        logger.debug?.write("show album with: \(collection.title ?? ""), at: \(indexPath)")
+        logger.debug?.write("show album with: \(collection.ub_title ?? ""), at: \(indexPath)")
         
         // try generate album controller for factory
         guard let controller = container.controller(with: .albums, source: .init(collection: collection), sender: indexPath) else {
@@ -156,7 +156,7 @@ extension BrowserAlbumListController: ChangeObserver {
     /// Tells your observer that a set of changes has occurred in the Photos library.
     func library(_ library: Library, didChange change: Change) {
         // albums is change?
-        guard let collectionList = _collectionList, let details = change.changeDetails(for: collectionList) else {
+        guard let collectionList = _collectionList, let details = change.ub_changeDetails(forCollectionList: collectionList) else {
             return
         }
         logger.trace?.write()
@@ -200,7 +200,7 @@ extension BrowserAlbumListController: ChangeObserver {
             tableView.reloadRows(at: rds, with: .automatic)
         }
         
-        details.enumerateMoves { from, to in
+        details.movedIndexes?.forEach { from, to in
             tableView.moveRow(at: .init(row: from, section: 0),
                               to: .init(row: to, section: 0))
         }

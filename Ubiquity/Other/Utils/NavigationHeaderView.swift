@@ -151,8 +151,8 @@ internal class NavigationHeaderView: UICollectionReusableView {
         _collection = collection
         
         // update text
-        _titleLabel.text = collection?.title
-        _subtitleLabel.text = collection?.subtitle
+        _titleLabel.text = collection?.ub_title
+        _subtitleLabel.text = collection?.ub_subtitle
     }
     
     

@@ -41,7 +41,7 @@ private class _LSAsset: Asset {
     var allowsPlay: Bool = false
     
     /// The type of the asset, such as video or audio.
-    var mediaType: AssetMediaType = .image
+    var mediaType: AssetType = .image
     
     /// The subtypes of the asset, identifying special kinds of assets such as panoramic photo or high-framerate video.
     var mediaSubtypes: AssetMediaSubtype = []
@@ -75,7 +75,7 @@ private class _LSCollection: Collection, Hashable {
         return _assets.count
     }
     /// The number of assets in the asset collection.
-    func count(with type: AssetMediaType) -> Int {
+    func count(with type: AssetType) -> Int {
         guard type == .image else {
             return 0
         }
@@ -174,13 +174,13 @@ private class _LSChange: Change {
         }
         
         // hit collection cache?
-        if let details = collectionCaches[collection.identifier] {
+        if let details = collectionCaches[collection.ub_identifier] {
             return details
         }
         
         // make change details and cache
         let details = collection.changeDetails(for: self)
-        collectionCaches[collection.identifier] = details
+        collectionCaches[collection.ub_identifier] = details
         return details
     }
     
@@ -304,7 +304,7 @@ private class _LSLibrary: NSObject, Library {
     // MARK: Fetch
     
     /// Get collections with type
-    func request(forCollection type: CollectionType) -> CollectionList {
+    func request(forCollectionList type: CollectionType) -> CollectionList {
         return _LSCollectionList(type: type)
     }
     

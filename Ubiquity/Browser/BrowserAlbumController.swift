@@ -251,7 +251,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         // generate the reuse identifier
-        let type = source.asset(at: indexPath)?.mediaType ?? .unknown
+        let type = source.asset(at: indexPath)?.ub_type ?? .unknown
         
         // generate cell for media type
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ub_identifier(with: type), for: indexPath)

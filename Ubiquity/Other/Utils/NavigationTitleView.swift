@@ -72,8 +72,8 @@ internal class NavigationTitleView: UIView {
             guard asset !== newValue else {
                 return
             }
-            _title = newValue?.title
-            _subtitle = newValue?.subtitle
+            _title = newValue?.ub_title
+            _subtitle = newValue?.ub_subtitle
             _mergedTitle = {
                 var str = _title ?? ""
                 

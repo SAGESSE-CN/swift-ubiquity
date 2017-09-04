@@ -99,7 +99,7 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable, Transitionin
             // can’t alignment
             return contentView.bounds
         }
-        return contentView.bounds.ub_aligned(with: .init(width: asset.pixelWidth, height: asset.pixelHeight))
+        return contentView.bounds.ub_aligned(with: .init(width: asset.ub_pixelWidth, height: asset.ub_pixelHeight))
     }
     
     var ub_transform: CGAffineTransform {
@@ -118,7 +118,7 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable, Transitionin
         guard self.asset === asset else {
             // changed, all reqeust is expire
             guard _allowsInvaildContents else {
-                logger.debug?.write("\(asset.identifier) image is expire")
+                logger.debug?.write("\(asset.ub_identifier) image is expire")
                 return
             }
             // update invaild contents
@@ -139,15 +139,15 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable, Transitionin
     /// Update badge
     private func _updateBadge(with downloading: Bool) {
         
-        let mediaType = asset?.mediaType ?? .unknown
-        let mediaSubtypes = asset?.mediaSubtypes ?? []
+        let mediaType = asset?.ub_type ?? .unknown
+        let mediaSubtypes = AssetSubtype(rawValue: asset?.ub_subtype ?? 0)
         
         // setup badge item
         switch mediaType {
         case .video:
             
             // less than 1, the display of 1
-            let duration = ceil(asset?.duration ?? 0)
+            let duration = ceil(asset?.ub_duration ?? 0)
             
             _badgeView?.backgroundImage = BadgeView.ub_backgroundImage
             _badgeView?.rightItem = .text(.init(format: "%d:%02d", Int(duration) / 60, Int(duration) % 60))

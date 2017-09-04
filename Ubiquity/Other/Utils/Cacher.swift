@@ -19,21 +19,21 @@ internal class Cacher: NSObject {
     }
     
     /// Returns collections with collectoin type
-    open func request(forCollection type: CollectionType) -> CollectionList {
+    open func request(forCollectionList type: CollectionType) -> CollectionList {
         // the request is hit cache?
         if let collectionList = _collectionLists[type] {
             return collectionList // eys
         }
         
         // create collection list and cache
-        let collectionList = _library.request(forCollection: type)
-        _collectionLists[type] = collectionList
+        let collectionList = _library.request(forCollectionList: type)
+        _collectionLists[type] = Cacher.bridging(of: collectionList)
         return collectionList
     }
     
     /// Requests an image representation for the specified asset.
     func request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
-        //logger.trace?.write(asset.identifier, size) // the request very much 
+        //logger.trace?.write(asset.ub_identifier, size) // the request very much 
         
         // because the performance issue, make a temporary subtask
         let request = RequestTask(for: asset, size: size, mode: mode, result: resultHandler)
@@ -113,14 +113,14 @@ internal class Cacher: NSObject {
         let subtasks = assets.flatMap { asset -> CacheTask? in
             
             //  in caching, ignore
-            if let _ = cache[asset.identifier] as? CacheTask {
+            if let _ = cache[asset.ub_identifier] as? CacheTask {
                 return nil
             }
             // create a cache task
             let subtask = CacheTask(for: asset, size: size, mode: mode)
             
             // prepare cache
-            cache[asset.identifier] = subtask
+            cache[asset.ub_identifier] = subtask
             subtask.prepare()
             
             // the task need start
@@ -149,12 +149,12 @@ internal class Cacher: NSObject {
         let subtasks = assets.flatMap { asset -> CacheTask? in
             
             //  no in caching, ignore
-            guard let subtask = cache?[asset.identifier] as? CacheTask else {
+            guard let subtask = cache?[asset.ub_identifier] as? CacheTask else {
                 return nil
             }
             
             // cancel cache
-            cache?.removeObject(forKey: asset.identifier)
+            cache?.removeObject(forKey: asset.ub_identifier)
             subtask.cancel()
             
             // the task need stop
@@ -199,9 +199,10 @@ internal class Cacher: NSObject {
     /// Tells your observer that a set of changes has occurred in the Photos library.
     open func library(_ library: Library, didChange change: Change) {
         // update all collection
+        _ = Cacher.bridging(of: change)
         _collectionLists.forEach { type, collectionList in
             // the collection list has any change?
-            guard let details = change.changeDetails(for: collectionList) else {
+            guard let details = change.ub_changeDetails(forCollectionList: collectionList) else {
                 return
             }
             
@@ -209,6 +210,91 @@ internal class Cacher: NSObject {
             _collectionLists[type] = details.after as? CollectionList
         }
     }
+    
+    // MARK: Bridging
+    
+    @nonobjc static func bridging(of object: Asset) -> Asset {
+        bridging(of: object, protocol: Asset.self, cacher: __CacherOfAsset.self)
+        return object
+    }
+    
+    @nonobjc static func bridging(of object: Collection) -> Collection {
+        bridging(of: object, protocol: Collection.self, cacher: __CacherOfCollection.self)
+        return object
+    }
+    
+    @nonobjc static func bridging(of object: CollectionList) -> CollectionList {
+        bridging(of: object, protocol: CollectionList.self, cacher: __CacherOfCollectionList.self)
+        return object
+    }
+    
+    @nonobjc static func bridging(of object: Change) -> Change {
+        bridging(of: object, protocol: Change.self, cacher: __CacherOfChange.self)
+        return object
+    }
+    
+    /// The establishment and bridging between buffer
+    @nonobjc static func bridging(of object: AnyObject, protocol: Protocol, cacher: AnyClass) {
+        // generate bridge info
+        let cls: AnyClass = type(of: object)
+        let selector: Selector = Selector(String("__ub_cacher"))
+        
+        // the object is bridged?
+        guard !object.responds(to: selector) else {
+            return
+        }
+        
+        // need to repeat filtering method
+        var count: UInt32 = 0
+        var methods: [Selector: objc_method_description] = [:]
+        
+        // gets the protocol require all the methods.
+        if let descriptions = protocol_copyMethodDescriptionList(`protocol`, true, true, &count) {
+            for index in 0 ..< Int(count) {
+                let method = descriptions.advanced(by: index).move()
+                methods[method.name] = method
+            }
+        }
+        
+        // gets the protocol optional all the methods.
+        if let descriptions = protocol_copyMethodDescriptionList(`protocol`, false, true, &count) {
+            for index in 0 ..< Int(count) {
+                let method = descriptions.advanced(by: index).move()
+                methods[method.name] = method
+            }
+        }
+        
+        // exchange all protocol method
+        methods.forEach {
+            // generate method info
+            let caching = Selector("__" + NSStringFromSelector($0.key))
+            let origin = $0.key
+            
+            // if cache is not supported, ignore
+            guard let tmp = class_getInstanceMethod(cacher, caching) else {
+                return
+            }
+            
+            // copy caching method to object
+            guard class_addMethod(cls, caching, method_getImplementation(tmp), $0.value.types) else {
+                return
+            }
+            
+            // get the caching method and the origin method
+            let m1 = class_getInstanceMethod(cls, caching)
+            let m2 = class_getInstanceMethod(cls, origin)
+            
+            // exchange method
+            method_exchangeImplementations(m1, m2)
+        }
+        
+        // copy ub_cacher to object
+        guard let method = class_getInstanceMethod(cacher, selector) else {
+            return
+        }
+        class_addMethod(cls, selector, method_getImplementation(method), method_getTypeEncoding(method))
+    }
+    
     
     /// internal using the library
     fileprivate let _library: Library
@@ -289,8 +375,8 @@ internal extension Cacher {
         // cancel image request
         subtask.cancel { task, request in
             // clear memory
-            if let tasks = _tasks[subtask.format], (tasks[subtask.asset.identifier] as? Task) === task {
-                tasks.removeObject(forKey: subtask.asset.identifier)
+            if let tasks = _tasks[subtask.format], (tasks[subtask.asset.ub_identifier] as? Task) === task {
+                tasks.removeObject(forKey: subtask.asset.ub_identifier)
             }
             
             // need sent to cancel request?
@@ -372,8 +458,8 @@ internal extension Cacher {
     fileprivate func _task(for asset: Asset, format: Format) -> Task {
         
         // fetch to the main task if exists
-        if let task = _taskWithoutMake(for: asset, format: format), task.asset.version == asset.version {
-            //logger.debug?.write("\(asset.identifier) -> hit fast cache")
+        if let task = _taskWithoutMake(for: asset, format: format), task.asset.ub_version == asset.ub_version {
+            //logger.debug?.write("\(asset.ub_identifier) -> hit fast cache")
             return task
         }
         
@@ -384,14 +470,14 @@ internal extension Cacher {
         
         // make a main task
         let task = Task(asset: asset, format: format)
-        _tasks[format]?[asset.identifier] = task
-        //logger.debug?.write("\(asset.identifier) -> create a task, count: \(_tasks[format]?.count ?? 0)")
+        _tasks[format]?[asset.ub_identifier] = task
+        //logger.debug?.write("\(asset.ub_identifier) -> create a task, count: \(_tasks[format]?.count ?? 0)")
         return task
     }
     
     fileprivate func _taskWithoutMake(for asset: Asset, format: Format) -> Task? {
         // fetch to the main task if exists
-        return _tasks[format]?[asset.identifier] as? Task
+        return _tasks[format]?[asset.ub_identifier] as? Task
     }
 }
 
@@ -440,7 +526,7 @@ extension Cacher {
                     }
                     subtask.notify(contents, response: response, version: self.version)
                 }
-                logger.debug?.write("hit cache: \(asset.identifier) - \(subtask.format)")
+                logger.debug?.write("hit cache: \(asset.ub_identifier) - \(subtask.format)")
                 
                 // if the task has been completed, do not create a new subtask
                 if !response.cancelled && !response.downloading && !response.degraded {
@@ -723,7 +809,7 @@ extension Cacher {
                 
                 // the task is vaild?
                 guard isVaild(item) else {
-                    //logger.debug?.write("\(task.asset.identifier): no started")
+                    //logger.debug?.write("\(task.asset.ub_identifier): no started")
                     continue // task is invaild
                 }
                 results.append(item)
@@ -762,7 +848,7 @@ extension Cacher {
                 
                 // the task is vaild?
                 guard isVaild(item) else {
-                    //logger.debug?.write("\(task.asset.identifier): no started")
+                    //logger.debug?.write("\(task.asset.ub_identifier): no started")
                     continue // task is invaild
                 }
                 results.append(item)
@@ -812,3 +898,198 @@ extension DispatchQueue {
         }
     }
 }
+
+///  Adding cache support for asset
+private class __CacherOfAsset: NSObject {
+    
+    /// A cacher used to provide fast cache
+    dynamic var __ub_cacher: __CacherOfAsset {
+        return __ub_property(self, selector: #selector(getter: self.__ub_cacher), newValue: __CacherOfAsset())
+    }
+    
+    dynamic var __ub_title: String? {
+        return __ub_property(&__ub_cacher.__title, newValue: self.__ub_title)
+    }
+    dynamic var __ub_subtitle: String? {
+        return __ub_property(&__ub_cacher.__subtitle, newValue: self.__ub_subtitle)
+    }
+    dynamic var __ub_identifier: String {
+        return __ub_property(&__ub_cacher.__identifier, newValue: self.__ub_identifier)
+    }
+    
+    dynamic var __ub_type: AssetType {
+        return __ub_property(&__ub_cacher.__type, newValue: self.__ub_type)
+    }
+    dynamic var __ub_subtype: UInt {
+        return __ub_property(&__ub_cacher.__subtype, newValue: self.__ub_subtype)
+    }
+    
+    private var __title: String??
+    private var __subtitle: String??
+    private var __identifier: String?
+    
+    private var __type: AssetType?
+    private var __subtype: UInt?
+}
+
+///  Adding cache support for collection
+private class __CacherOfCollection: NSObject {
+    
+    /// A cacher used to provide fast cache
+    dynamic var __ub_cacher: __CacherOfCollection {
+        return __ub_property(self, selector: #selector(getter: self.__ub_cacher), newValue: __CacherOfCollection())
+    }
+    
+    dynamic var __ub_title: String? {
+        return __ub_property(&__ub_cacher.__title, newValue: self.__ub_title)
+    }
+    dynamic var __ub_subtitle: String? {
+        return __ub_property(&__ub_cacher.__subtitle, newValue: self.__ub_subtitle)
+    }
+    dynamic var __ub_identifier: String {
+        return __ub_property(&__ub_cacher.__identifier, newValue: self.__ub_identifier)
+    }
+    
+    dynamic var __ub_count: Int {
+        return __ub_property(&__ub_cacher.__count, newValue: self.__ub_count)
+    }
+    
+    dynamic func __ub_count(with type: AssetType) -> Int {
+        // count is cached?
+        let cacher = __ub_cacher
+        if let count = cacher.__counts[type] {
+            return count
+        }
+        
+        // get count for origin
+        let count = __ub_count(with: type)
+        cacher.__counts[type] = count
+        return count
+    }
+    
+    dynamic func __ub_asset(at index: Int) -> Asset {
+        // collection is cached?
+        let cacher = __ub_cacher
+        if let asset = cacher.__assets?[index] {
+            return asset
+        }
+        
+        // if there is no cache at once, initialize
+        if cacher.__assets == nil {
+            cacher.__assets = Array(repeating: nil, count: self.__ub_count)
+        }
+        
+        // fetch asset and bridging and cache
+        let asset = __ub_asset(at: index)
+        cacher.__assets?[index] = Cacher.bridging(of: asset)
+        return asset
+    }
+
+    private var __title: String??
+    private var __subtitle: String??
+    private var __identifier: String?
+    
+    private var __count: Int?
+    private var __counts: [AssetType: Int] = [:]
+    
+    private var __assets: [Asset?]?
+}
+
+///  Adding cache support for collection list
+private class __CacherOfCollectionList: NSObject {
+    
+    /// A cacher used to provide fast cache
+    dynamic var __ub_cacher: __CacherOfCollectionList {
+        return __ub_property(self, selector: #selector(getter: self.__ub_cacher), newValue: __CacherOfCollectionList())
+    }
+    
+    dynamic var __ub_count: Int {
+        return self.__ub_count
+    }
+    
+    dynamic func __ub_collection(at index: Int) -> Collection {
+        // collection is cached?
+        let cacher = __ub_cacher
+        if let collection = cacher.__colltions?[index] {
+            return collection
+        }
+        
+        // if there is no cache at once, initialize
+        if cacher.__colltions == nil {
+            cacher.__colltions = Array(repeating: nil, count: self.__ub_count)
+        }
+        
+        // fetch collection and bridging and cache
+        let collection = __ub_collection(at: index)
+        cacher.__colltions?[index] = Cacher.bridging(of: collection)
+        return collection
+    }
+    
+    private var __colltions: [Collection?]?
+}
+
+///  Adding cache support for asset
+private class __CacherOfChange: NSObject {
+    
+    /// A cacher used to provide fast cache
+    dynamic var __ub_cacher: __CacherOfChange {
+        return __ub_property(self, selector: #selector(getter: self.__ub_cacher), newValue: __CacherOfChange())
+    }
+    
+    /// Returns detailed change information for the specified collection.
+    dynamic func __ub_changeDetails(forCollection collection: Collection) -> ChangeDetails? {
+        // hit collection cache?
+        let cacher = __ub_cacher
+        if let details = cacher.__collectionCaches[collection.ub_identifier] {
+            return details
+        }
+        
+        // make change details and cache
+        let details = __ub_changeDetails(forCollection: collection)
+        cacher.__collectionCaches[collection.ub_identifier] = details
+        return details
+    }
+    
+    /// Returns detailed change information for the specified colleciotn list.
+    dynamic func __ub_changeDetails(forCollectionList collectionList: CollectionList) -> ChangeDetails? {
+        // hit collection cache?
+        let cacher = __ub_cacher
+        if let details = cacher.__collectionListCaches[collectionList.ub_collectionType] {
+            return details
+        }
+        
+        // make change details and cache
+        let details = __ub_changeDetails(forCollectionList: collectionList)
+        cacher.__collectionListCaches[collectionList.ub_collectionType] = details
+        return details
+    }
+    
+    /// Cached change details
+    private var __collectionCaches: Dictionary<String, ChangeDetails?> = [:]
+    private var __collectionListCaches: Dictionary<CollectionType, ChangeDetails?> = [:]
+}
+
+/// Access variables, if not exists automatic create
+private func __ub_property<T>(_ ivar: inout T?, newValue: @autoclosure () throws -> T) rethrows -> T {
+    // the object is hit cache?
+    if let object = ivar {
+        return object
+    }
+    // generate an new object
+    let object = try newValue()
+    ivar = object
+    return object
+}
+
+/// Access variables for ivar, if not exists automatic create 
+private func __ub_property<T>(_ self: Any!, selector: Selector, newValue: @autoclosure () throws -> T) rethrows -> T {
+    // the object is hit cache?
+    if let object = objc_getAssociatedObject(self, UnsafeRawPointer(bitPattern: selector.hashValue)) as? T {
+        return object
+    }
+    // generate an new object
+    let object = try newValue()
+    objc_setAssociatedObject(self, UnsafeRawPointer(bitPattern: selector.hashValue), object, .OBJC_ASSOCIATION_RETAIN)
+    return object
+}
+

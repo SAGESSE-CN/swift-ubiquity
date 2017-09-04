@@ -32,7 +32,7 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
         
         let thumbSize = BrowserAlbumLayout.thumbnailItemSize
         let thumbOptions = SourceOptions(isSynchronous: true)
-        let largeSize = CGSize(width: asset.pixelWidth, height: asset.pixelHeight)
+        let largeSize = CGSize(width: asset.ub_pixelWidth, height: asset.ub_pixelHeight)
         let largeOptions = SourceOptions(progressHandler: { [weak self, weak asset] progress, response in
             DispatchQueue.main.async {
                 // if the asset is nil, the asset has been released
@@ -101,10 +101,10 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
         // the current asset has been changed?
         guard _asset === asset else {
             // change, all reqeust is expire
-            logger.debug?.write("\(asset.identifier) image is expire")
+            logger.debug?.write("\(asset.ub_identifier) image is expire")
             return
         }
-        //logger.trace?.write("\(asset.identifier) => \(contents?.size ?? .zero)")
+        //logger.trace?.write("\(asset.ub_identifier) => \(contents?.size ?? .zero)")
         
         // update contents
         self.ub_setImage(contents ?? self.image, animated: true)
@@ -114,7 +114,7 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
         // the current asset has been changed?
         guard _asset === asset else {
             // change, all reqeust is expire
-            logger.debug?.write("\(asset.identifier) progress is expire")
+            logger.debug?.write("\(asset.ub_identifier) progress is expire")
             return
         }
         // if the container required to download

@@ -225,7 +225,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         // generate the reuse identifier
-        let type = source.asset(at: indexPath)?.mediaType ?? .unknown
+        let type = source.asset(at: indexPath)?.ub_type ?? .unknown
         
         // generate cell for media type
         return collectionView.dequeueReusableCell(withReuseIdentifier: ub_identifier(with: type), for: indexPath)
@@ -241,7 +241,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         
         // update disaply content
         displayer.delegate = self
-        displayer.willDisplay(with: asset, container: container, orientation: _orientationes[asset.identifier] ?? .up)
+        displayer.willDisplay(with: asset, container: container, orientation: _orientationes[asset.ub_identifier] ?? .up)
     }
     override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         // cell must king of `Displayable`
@@ -642,7 +642,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     
     /// Display item will rotationing
     func detailController(_ detailController: Any, shouldBeginRotationing asset: Asset) -> Bool {
-        logger.debug?.write(asset.identifier)
+        logger.debug?.write(asset.ub_identifier)
         
         // allow
         return true
@@ -650,10 +650,10 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     
     /// Display item did rotationing
     func detailController(_ detailController: Any, didEndRotationing asset: Asset, at orientation: UIImageOrientation) {
-        logger.debug?.write(asset.identifier, "is landscape: \(orientation.ub_isLandscape)")
+        logger.debug?.write(asset.ub_identifier, "is landscape: \(orientation.ub_isLandscape)")
         
         // save
-        _orientationes[asset.identifier] = orientation
+        _orientationes[asset.ub_identifier] = orientation
     }
     
     

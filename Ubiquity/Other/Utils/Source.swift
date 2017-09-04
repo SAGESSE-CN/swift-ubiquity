@@ -84,7 +84,7 @@ private class _AccessorForCollectionList: Accessor {
     override func reload(_ container: Container) {
         
         
-        _collections = container.request(forCollection: _collectionType)
+        _collections = container.request(forCollectionList: _collectionType)
         
 //    var numberOfSections: Int {
 //        return _collectionList.count
@@ -163,11 +163,11 @@ internal class Source {
     init(collection: Collection) {
         // init data
         _adapter = CollectionAdapter(collection: collection)
-        _collectionType = collection.collectionType
-        _collectionSubtype = collection.collectionSubtype
+        _collectionType = collection.ub_collectionType
+        _collectionSubtype = collection.ub_collectionSubtype
         
         // config
-        title = collection.title
+        title = collection.ub_title
     }
     
     init(collectionType: CollectionType) {
@@ -222,7 +222,7 @@ internal class Source {
         }
     }
     
-    func count(with type: AssetMediaType) -> Int {
+    func count(with type: AssetType) -> Int {
         // adapter must be set
         guard let adapter = _adapter else {
             return 0
@@ -230,7 +230,7 @@ internal class Source {
         
         // sum
         return (0 ..< adapter.numberOfSections).reduce(0) {
-            $0 + adapter.collection(at: $1).count(with: type)
+            $0 + adapter.collection(at: $1).ub_count(with: type)
         }
     }
     
@@ -241,7 +241,7 @@ internal class Source {
         }
         
         // setup
-        _adapter = CollectionListAdapter(collectionList: container.request(forCollection: _collectionType))
+        _adapter = CollectionListAdapter(collectionList: container.request(forCollectionList: _collectionType))
     }
     
     func changeDetails(for change: Change) -> SourceChangeDetails? {
@@ -268,7 +268,7 @@ internal class Source {
             }
             
             // the collection has any change?
-            guard let details = change.changeDetails(for: adapter.collection(at: section)) else {
+            guard let details = change.ub_changeDetails(forCollection: adapter.collection(at: section)) else {
                 return nil
             }
             
@@ -342,10 +342,10 @@ internal class Source {
             newDetails.insertItems?.append(contentsOf: details.insertedIndexes?.map({ .init(item: $0, section: section) }) ?? [])
             newDetails.reloadItems?.append(contentsOf: details.changedIndexes?.map({ .init(item: $0, section: section) }) ?? [])
             
-            details.enumerateMoves { from, to in
-                newDetails.hasMoves = true
-                newDetails.moveItems?.append((.init(row: from, section: section), .init(row: to, section: section)))
-            }
+//            details.enumerateMoves { from, to in
+//                newDetails.hasMoves = true
+//                newDetails.moveItems?.append((.init(row: from, section: section), .init(row: to, section: section)))
+//            }
         }
         
         // clear invaild index path
@@ -489,14 +489,14 @@ private class CollectionAdapter: SourceAdapter {
     }
     
     var title: String? {
-        return _collection.title
+        return _collection.ub_title
     }
     
     var numberOfSections: Int {
         return 1
     }
     func numberOfItems(inSection section: Int) -> Int {
-        return _collection.count
+        return _collection.ub_count
     }
     
     func collection(at section: Int) -> Collection {
@@ -504,11 +504,11 @@ private class CollectionAdapter: SourceAdapter {
     }
     
     func asset(at indexPath: IndexPath) -> Asset {
-        return _collection[indexPath.item]
+        return _collection.ub_asset(at: indexPath.item)
     }
     
     func changeDetails(for change: Change) -> ChangeDetails? {
-        return change.changeDetails(for: _collection)
+        return change.ub_changeDetails(forCollection: _collection)
     }
     
     private var _collection: Collection
@@ -525,22 +525,22 @@ private class CollectionListAdapter: SourceAdapter {
     }
     
     var numberOfSections: Int {
-        return _collectionList.count
+        return _collectionList.ub_count
     }
     func numberOfItems(inSection section: Int) -> Int {
-        return _collectionList[section].count
+        return _collectionList.ub_collection(at: section).ub_count
     }
     
     func collection(at section: Int) -> Collection {
-        return _collectionList[section]
+        return _collectionList.ub_collection(at: section)
     }
     
     func asset(at indexPath: IndexPath) -> Asset {
-        return _collectionList[indexPath.section][indexPath.item]
+        return _collectionList.ub_collection(at: indexPath.section).ub_asset(at: indexPath.item)
     }
     
     func changeDetails(for change: Change) -> ChangeDetails? {
-        return change.changeDetails(for: _collectionList)
+        return change.ub_changeDetails(forCollectionList: _collectionList)
     }
     
     private var _collectionList: CollectionList

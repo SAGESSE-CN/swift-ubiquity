@@ -40,7 +40,7 @@ internal class PickerDetailController: BrowserDetailController, SelectionStatusU
     func selectionStatus(_ selectionStatus: SelectionStatus, didSelectItem asset: Asset, sender: AnyObject) {
         // ignore the events that itself sent
         // ignores events other than the currently displayed asset 
-        guard sender !== self, asset.identifier == displayedItem?.identifier else {
+        guard sender !== self, asset.ub_identifier == displayedItem?.ub_identifier else {
             return
         }
         logger.debug?.write()
@@ -52,7 +52,7 @@ internal class PickerDetailController: BrowserDetailController, SelectionStatusU
     func selectionStatus(_ selectionStatus: SelectionStatus, didDeselectItem asset: Asset, sender: AnyObject) {
         // ignore the events that itself sent
         // ignores events other than the currently displayed asset 
-        guard sender !== self, asset.identifier == displayedItem?.identifier else {
+        guard sender !== self, asset.ub_identifier == displayedItem?.ub_identifier else {
             return
         }
         logger.debug?.write()

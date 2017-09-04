@@ -101,7 +101,7 @@ open class Picker: Browser {
     @discardableResult
     func selectItem(with asset: Asset, sender: AnyObject) -> SelectionStatus? {
         // the asset has been selected?
-        if let status = _selectedItems[asset.identifier] {
+        if let status = _selectedItems[asset.ub_identifier] {
             return status
         }
         
@@ -114,7 +114,7 @@ open class Picker: Browser {
         }
         
         // add to selection
-        _selectedItems[asset.identifier] = status
+        _selectedItems[asset.ub_identifier] = status
         
         // notify all observers
         _item(didSelectItem: asset, status: status, sender: sender)
@@ -126,7 +126,7 @@ open class Picker: Browser {
     @discardableResult
     func deselectItem(with asset: Asset, sender: AnyObject) -> SelectionStatus? {
         // the asset has been selected?
-        if let status = _selectedItems.removeValue(forKey: asset.identifier) {
+        if let status = _selectedItems.removeValue(forKey: asset.ub_identifier) {
             // the all number is smaller than the deleted item and needs to be updated 
             _selectedItems.forEach {
                 // meet the conditions? 
@@ -144,7 +144,7 @@ open class Picker: Browser {
     
     /// Returns a item select status
     func statusOfItem(with asset: Asset) -> SelectionStatus? {
-        return _selectedItems[asset.identifier]
+        return _selectedItems[asset.ub_identifier]
     }
     
     

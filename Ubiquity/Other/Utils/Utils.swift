@@ -72,7 +72,7 @@ internal func ub_string(for time: TimeInterval) -> String {
     return formater.string(from: .init(timeIntervalSince1970: time))
 }
 
-internal func ub_identifier(with media: AssetMediaType) -> String {
+internal func ub_identifier(with media: AssetType) -> String {
     switch media {
     case .image:   return "ASSET-IMAGE"
     case .audio:   return "ASSET-AUDIO"

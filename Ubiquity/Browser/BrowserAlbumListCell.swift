@@ -21,7 +21,7 @@ internal class BrowserAlbumListCell: UITableViewCell {
     
     /// Will display the collection
     func willDisplay(with collection: Collection, container: Container) {
-        //logger.trace?.write(collection.identifier)
+        //logger.trace?.write(collection.ub_identifier)
         
         // have any change?
         guard _collection !== collection else {
@@ -32,15 +32,15 @@ internal class BrowserAlbumListCell: UITableViewCell {
         _container = container
         _collection = collection
         
-        let count = collection.count
-        let assets = (max(count - 3, 0) ..< count).flatMap { collection[$0] }
+        let count = collection.ub_count
+        let assets = (max(count - 3, 0) ..< count).flatMap { collection.ub_asset(at: $0) }
 
         // setup content
-        _titleLabel.text = collection.title
+        _titleLabel.text = collection.ub_title
         _subtitleLabel.text = ub_string(for: count)
         
         // setup badge icon & background
-        if let icon = BadgeView.Item.ub_init(subtype: collection.collectionSubtype) {
+        if let icon = BadgeView.Item.ub_init(subtype: collection.ub_collectionSubtype) {
             // show icon
             _badgeView.leftItem = icon
             _badgeView.backgroundImage = BadgeView.ub_backgroundImage
@@ -71,7 +71,7 @@ internal class BrowserAlbumListCell: UITableViewCell {
     }
     /// End display the collection
     func endDisplay(with container: Container) {
-        //logger.trace?.write(collection.identifier)
+        //logger.trace?.write(collection.ub_identifier)
         
         // when are requesting an image, please cancel it
         _requests?.forEach { request in
@@ -93,7 +93,7 @@ internal class BrowserAlbumListCell: UITableViewCell {
         // the current collection has been changed?
         guard _collection === collection else {
             // change, all reqeust is expire
-            logger.debug?.write("\(collection.identifier) image is expire")
+            logger.debug?.write("\(collection.ub_identifier) image is expire")
             return
         }
         // no change, update content

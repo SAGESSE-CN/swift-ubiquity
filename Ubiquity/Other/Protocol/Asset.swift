@@ -8,40 +8,8 @@
 
 import Foundation
 
-/// A representation of an image, video
-public protocol Asset: class {
-    
-    /// The localized title of the asset.
-    var title: String? { get }
-    /// The localized subtitle of the asset.
-    var subtitle: String? { get }
-    
-    /// A unique string that persistently identifies the object.
-    var identifier: String { get }
-    
-    /// The version of the asset, identifying asset change.
-    var version: Int { get }
-    
-    /// The width, in pixels, of the asset’s image or video data.
-    var pixelWidth: Int { get }
-    /// The height, in pixels, of the asset’s image or video data.
-    var pixelHeight: Int { get }
-    
-    /// The duration, in seconds, of the video asset.
-    /// For photo assets, the duration is always zero.
-    var duration: TimeInterval { get }
-    
-    /// The asset allows play operation
-    var allowsPlay: Bool { get }
-    
-    /// The type of the asset, such as video or audio.
-    var mediaType: AssetMediaType { get }
-    /// The subtypes of the asset, identifying special kinds of assets such as panoramic photo or high-framerate video.
-    var mediaSubtypes: AssetMediaSubtype { get }
-}
-
 /// Constants identifying the general type of an asset, such as image or video.
-public enum AssetMediaType: Int {
+@objc public enum AssetType: Int {
     
     /// The asset’s type is unknown.
     case unknown = 0
@@ -57,25 +25,27 @@ public enum AssetMediaType: Int {
 }
 
 /// Constants identifying specific variations of asset media, such as panorama or screenshot photos and time lapse or high frame rate video.
-public struct AssetMediaSubtype: OptionSet {
+public struct AssetSubtype: OptionSet {
     
     // Photo subtypes
     
     /// The asset is a large-format panorama photo.
-    public static var photoPanorama: AssetMediaSubtype      = .init(rawValue: 1 << 0)
+    public static var photoPanorama: AssetSubtype      = .init(rawValue: 1 << 0)
     /// The asset is a High Dynamic Range photo.
-    public static var photoHDR: AssetMediaSubtype           = .init(rawValue: 1 << 1)
+    public static var photoHDR: AssetSubtype           = .init(rawValue: 1 << 1)
     /// The asset is an image captured with the device’s screenshot feature.
-    public static var photoScreenshot: AssetMediaSubtype    = .init(rawValue: 1 << 2)
+    public static var photoScreenshot: AssetSubtype    = .init(rawValue: 1 << 2)
+    /// The asset is a Graphics Interchange Format photo.
+    public static var photoGIF: AssetSubtype           = .init(rawValue: 1 << 3)
     
     // Video subtypes
     
     /// The asset is a video whose contents are always streamed over a network connection.
-    public static var videoStreamed: AssetMediaSubtype      = .init(rawValue: 1 << 16)
+    public static var videoStreamed: AssetSubtype      = .init(rawValue: 1 << 16)
     /// The asset is a high-frame-rate video.
-    public static var videoHighFrameRate: AssetMediaSubtype = .init(rawValue: 1 << 17)
+    public static var videoHighFrameRate: AssetSubtype = .init(rawValue: 1 << 17)
     /// The asset is a time-lapse video.
-    public static var videoTimelapse: AssetMediaSubtype     = .init(rawValue: 1 << 18)
+    public static var videoTimelapse: AssetSubtype     = .init(rawValue: 1 << 18)
     
     /// The element type of the option set.
     public let rawValue: UInt
@@ -85,3 +55,36 @@ public struct AssetMediaSubtype: OptionSet {
         self.rawValue = rawValue
     }
 }
+
+/// A representation of an image, video
+@objc public protocol Asset: class {
+    
+    /// The localized title of the asset.
+    var ub_title: String? { get }
+    /// The localized subtitle of the asset.
+    var ub_subtitle: String? { get }
+    /// A unique string that persistently identifies the object.
+    var ub_identifier: String { get }
+    
+    /// The version of the asset, identifying asset change.
+    var ub_version: Int { get }
+    
+    /// The width, in pixels, of the asset’s image or video data.
+    var ub_pixelWidth: Int { get }
+    /// The height, in pixels, of the asset’s image or video data.
+    var ub_pixelHeight: Int { get }
+    
+    /// The duration, in seconds, of the video asset.
+    /// For photo assets, the duration is always zero.
+    var ub_duration: TimeInterval { get }
+    
+    /// The asset allows play operation
+    var ub_allowsPlay: Bool { get }
+    
+    /// The type of the asset, such as video or audio.
+    var ub_type: AssetType { get }
+    /// The subtypes of the asset, an option of type `AssetSubtype`
+    var ub_subtype: UInt { get }
+}
+
+

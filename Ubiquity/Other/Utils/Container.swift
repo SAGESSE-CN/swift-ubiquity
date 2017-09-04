@@ -46,8 +46,8 @@ open class Container: NSObject, ChangeObserver {
     }
     
     /// Returns collections with collectoin type
-    open func request(forCollection type: CollectionType) -> CollectionList {
-        return cacher.request(forCollection: type)
+    open func request(forCollectionList type: CollectionType) -> CollectionList {
+        return cacher.request(forCollectionList: type)
     }
     /// Requests an image representation for the specified asset.
     open func request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
@@ -200,7 +200,7 @@ open class Container: NSObject, ChangeObserver {
     }
     
     // Register a content view class for media in controller
-    open func register(_ contentViewClass: Displayable.Type, forContentView media: AssetMediaType, in type: ControllerType) {
+    open func register(_ contentViewClass: Displayable.Type, forContentView media: AssetType, in type: ControllerType) {
         // must king of `UIView`
         guard let contentViewClass = contentViewClass as? UIView.Type else {
             fatalError("The content must king of `UIView`")

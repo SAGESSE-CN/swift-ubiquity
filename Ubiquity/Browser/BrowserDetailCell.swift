@@ -33,7 +33,7 @@ internal class BrowserDetailCell: UICollectionViewCell, Displayable {
     
     /// Will display the asset
     func willDisplay(with asset: Asset, container: Container, orientation: UIImageOrientation) {
-        logger.trace?.write(asset.identifier)
+        logger.trace?.write(asset.ub_identifier)
         
         // update ata
         _asset = asset
@@ -45,14 +45,14 @@ internal class BrowserDetailCell: UICollectionViewCell, Displayable {
             // default is 1(auto hidden)
             progress.setValue(1, animated: false)
         }
-        if let console = _console, asset.allowsPlay {
+        if let console = _console, asset.ub_allowsPlay {
             // if the asset allows play, display console
             // defaults is stop
             console.setState(.stop, animated: false)
         }
         
         // update canvas
-        _containerView?.contentSize = .init(width: asset.pixelWidth, height: asset.pixelHeight)
+        _containerView?.contentSize = .init(width: asset.ub_pixelWidth, height: asset.ub_pixelHeight)
         _containerView?.zoom(to: bounds , with: orientation, animated: false)
         
         // update content

@@ -31,7 +31,7 @@ public protocol Library {
     // MARK: Fetch
     
     /// Get collections with type
-    func request(forCollection type: CollectionType) -> CollectionList
+    func request(forCollectionList type: CollectionType) -> CollectionList
     /// Requests an image representation for the specified asset.
     func request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request?
     /// Requests a representation of the video asset for playback, to be loaded asynchronously.
@@ -53,4 +53,5 @@ public protocol Library {
     /// Cancels all image preparation that is currently in progress.
     func stopCachingImagesForAllAssets()
 }
+
 

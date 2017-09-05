@@ -210,7 +210,7 @@ internal extension ExceptionHandling where Self: UIViewController {
             self.controller(self, container: container, willAuthorization: source)
             
             // if request permission for library an error occurs, return the non nil.
-            container.library.requestAuthorization { error in
+            container.library.ub_requestAuthorization { error in
                 // authorization callback may not be in the main thread.
                 DispatchQueue.main.async {
                     // processing for authorization issues.
@@ -225,9 +225,13 @@ internal extension ExceptionHandling where Self: UIViewController {
                     self.controller(self, container: container, willDisplay: source)
                     
                     // if request data for library an error occurs, retunr the non nil
-                    loadData { error in
-                        // processing for data load issues.
-                        self.controller(self, container: container, didDisplay: source, error: error)
+                    DispatchQueue.global().async {
+                        loadData { error in
+                            DispatchQueue.main.async {
+                                // processing for data load issues.
+                                self.controller(self, container: container, didDisplay: source, error: error)
+                            }
+                        }
                     }
                 }
             }

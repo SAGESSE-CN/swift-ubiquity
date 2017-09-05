@@ -11,7 +11,7 @@ import UIKit
 import CoreGraphics
 import CoreGraphics.CGImage
 
-@testable import Ubiquity
+//@testable import Ubiquity
 
 class TestLargeLayer: CATiledLayer {
     
@@ -175,16 +175,14 @@ class TextLargetImageLoader: UIViewController, UIScrollViewDelegate {
         scrollView.minimumZoomScale = view.bounds.width / image.size.width
         scrollView.maximumZoomScale = 1
         
-        let bounds = UIScreen.main.bounds
+//        let bounds = UIScreen.main.bounds
+//        let scale = min(bounds.width / scrollView.contentSize.width, bounds.height / scrollView.contentSize.height) * 2
+//        let size = CGSize(width: scrollView.contentSize.width * scale, height: scrollView.contentSize.height * scale)
+//        let _ = UIGraphicsBeginImageContext(size)
+//        image.draw(in: .init(origin: .zero, size: size))
         
-        let scale = min(bounds.width / scrollView.contentSize.width, bounds.height / scrollView.contentSize.height) * 2
-        let size = CGSize(width: scrollView.contentSize.width * scale, height: scrollView.contentSize.height * scale)
-        
-        let _ = UIGraphicsBeginImageContext(size)
-        
-        image.draw(in: .init(origin: .zero, size: size))
 //    // this is actually the interesting part:
-//    
+//
 //    UIGraphicsBeginImageContext(targetSize);
 //    
 //    CGRect thumbnailRect = CGRectZero;
@@ -199,7 +197,7 @@ class TextLargetImageLoader: UIViewController, UIScrollViewDelegate {
         
         let contentView = UIImageView(frame: .init(origin: .zero, size: image.size))
         
-        contentView.backgroundColor = .random
+        contentView.backgroundColor = .clear
         contentView.image = newImage
         
         let imageView = TestLargeImageView(frame: contentView.bounds)

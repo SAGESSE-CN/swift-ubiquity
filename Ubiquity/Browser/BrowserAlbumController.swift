@@ -85,6 +85,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
             // config
             footerView.frame = .init(x: 0, y: 0, width: collectionView?.frame.width ?? 0, height: 48)
             footerView.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
+            footerView.alpha = 0
             
             // add to view
             collectionView?.addSubview(footerView)
@@ -114,7 +115,6 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
             // load source with container
             let source = self.source
             source.load(with: self.container)
-            self.source = source
             
             // check for assets count
             guard source.count != 0 else {
@@ -124,7 +124,10 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
             }
             
             // reload all data
-            self._reloadData()
+            DispatchQueue.main.async {
+                self.source = source
+                self._reloadData()
+            }
             
             handler(nil)
         }
@@ -159,10 +162,6 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         
         _targetContentOffset = collectionView.contentOffset
         
-        // init header view layout
-        _updateHeaderCaches()
-        _updateHeaderView()
-        
         // update content offset
         scrollViewDidScroll(collectionView)
     }
@@ -176,12 +175,12 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         
         // check
         let size = collectionViewLayout.collectionViewContentSize
-        guard size != _cachedSize else {
+        guard size != _cachedSize, prepared else {
             return
         }
         
         // bounds is change?
-        if _cachedSize?.width != size.width, prepared {
+        if _cachedSize?.width != size.width {
             _updateHeaderCaches()
         }
         
@@ -844,7 +843,11 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         
         // update position
         header.origin.y = offset + min(distance - header.height, 0)
-        headerView.frame = header
+        
+        // header view position is chnage?
+        if headerView.frame != header {
+            headerView.frame = header
+        }
         
         // the header view section is change?
         if headerView.section != section {
@@ -860,19 +863,19 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
     /// Update header view caches
     private func _updateHeaderCaches() {
         // collection view must be set
-        guard let collectionView = collectionView, prepared, _headerView != nil else {
+        guard let collectionView = collectionView, _headerView != nil else {
             return
         }
         
         logger.debug?.write()
         
-        // update collection view if needed
-        collectionView.layoutIfNeeded()
-        
         // fetch all header layout attributes
         _headers = (0 ..< collectionView.numberOfSections).map {
             collectionView.layoutAttributesForSupplementaryElement(ofKind: UICollectionElementKindSectionHeader, at: .init(item: 0, section: $0))?.frame
         }
+        
+        // cache is change, must update header view
+        _updateHeaderView()
     }
     
     /// Update footer view & layout
@@ -888,7 +891,11 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         var nframe = footerView.frame
         nframe.origin.y = contentSize.height + 0
         nframe.size.width = view.bounds.width
-        footerView.frame = nframe
+        
+        // footer view position is change?
+        if footerView.frame != nframe {
+            footerView.frame = nframe
+        }
         
         // calculates the height of the current minimum display
         let top = collectionView.contentInset.top - _footerViewInset.top

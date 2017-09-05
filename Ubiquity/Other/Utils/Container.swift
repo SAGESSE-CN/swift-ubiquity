@@ -8,32 +8,32 @@
 
 import UIKit
 
-
 /// The base container
-open class Container: NSObject, ChangeObserver {
+@objc open class Container: NSObject, ChangeObserver {
     
     /// Create a media browser
+    /// This init method is not public
     internal init(library: Library) {
         self.cacher = .init(library: library)
         self.library = library
         super.init()
         
         // add change observer
-        self.library.addChangeObserver(self)
+        self.library.ub_addChangeObserver(self)
     }
     deinit {
         // remove change observer
-        self.library.removeChangeObserver(self)
+        self.library.ub_removeChangeObserver(self)
     }
     
     // MARK: Observer
     
     /// Registers an object to receive messages when objects in the photo library change.
-    func addChangeObserver(_ observer: ChangeObserver) {
+    internal func addChangeObserver(_ observer: ChangeObserver) {
         observers.insert(observer)
     }
     /// Unregisters an object so that it no longer receives change messages.
-    func removeChangeObserver(_ observer: ChangeObserver) {
+    internal func removeChangeObserver(_ observer: ChangeObserver) {
         observers.remove(observer)
     }
     
@@ -41,8 +41,8 @@ open class Container: NSObject, ChangeObserver {
     
     ///A Boolean value that determines whether the image manager prepares high-quality images.
     open var allowsCachingHighQualityImages: Bool {
-        set { return library.allowsCachingHighQualityImages = newValue }
-        get { return library.allowsCachingHighQualityImages }
+        set { return library.ub_allowsCachingHighQualityImages = newValue }
+        get { return library.ub_allowsCachingHighQualityImages }
     }
     
     /// Returns collections with collectoin type
@@ -65,7 +65,7 @@ open class Container: NSObject, ChangeObserver {
             return nil
         }
         #endif
-        return library.request(forItem: asset, options: options, resultHandler: resultHandler)
+        return library.ub_request(forItem: asset, options: options, resultHandler: resultHandler)
     }
     
     /// Cancels an asynchronous request

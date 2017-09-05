@@ -28,7 +28,7 @@ internal class NavigationFooterView: UIView {
             }
             
             // The count will be very slow
-            DispatchQueue.global().async {
+            DispatchQueue.global(qos: .userInitiated).async {
                 
                 let counts = (newValue.count(with: .image),
                               newValue.count(with: .video),

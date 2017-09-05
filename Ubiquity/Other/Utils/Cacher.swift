@@ -26,7 +26,7 @@ internal class Cacher: NSObject {
         }
         
         // create collection list and cache
-        let collectionList = _library.request(forCollectionList: type)
+        let collectionList = _library.ub_request(forCollectionList: type)
         _collectionLists[type] = Cacher.bridging(of: collectionList)
         return collectionList
     }
@@ -37,13 +37,13 @@ internal class Cacher: NSObject {
         
         // because the performance issue, make a temporary subtask
         let request = RequestTask(for: asset, size: size, mode: mode, result: resultHandler)
-        let synchronous = (options as? SourceOptions)?.isSynchronous ?? false
+        let synchronous = options?.isSynchronous ?? false
         
         // add subtask to main task
         _dispatch.util.ub_map(synchronous) {
             self._addMainTask(with: request) { task in
                 // forward send request
-                self._library.request(forImage: asset, size: size, mode: mode, options: options) { contents, response in
+                self._library.ub_request(forImage: asset, size: size, mode: mode, options: options) { contents, response in
                     // cache the result
                     task.cache(contents, response: response)
                     
@@ -58,7 +58,7 @@ internal class Cacher: NSObject {
                     //   `ub_downloading` is true, task required a download
                     //   `ub_cancelled` is true, task is canceled(system canceled)
                     //   `ub_degraded` is false, task is completed
-                    if response.cancelled || response.error != nil || response.downloading || !response.degraded {
+                    if response.ub_cancelled || response.ub_error != nil || response.ub_downloading || !response.ub_degraded {
                         task.next()
                     }
                     
@@ -80,7 +80,7 @@ internal class Cacher: NSObject {
         // can only processing `RequestTask`
         guard let subtask = request as? RequestTask else {
             // send cancel request
-            _library.cancel(with: request)
+            _library.ub_cancel(with: request)
             return
         }
         
@@ -92,7 +92,7 @@ internal class Cacher: NSObject {
             // if main task no any subtask, sent cancel request
             self._removeMainTask(with: subtask) { request in
                 // send cancel request
-                self._library.cancel(with: request)
+                self._library.ub_cancel(with: request)
             }
         }
     }
@@ -387,7 +387,7 @@ internal extension Cacher {
             // get task cached response
             if let (_, response) = task.contents {
                 // the task is completed?
-                if !response.cancelled && !response.downloading && !response.degraded {
+                if !response.ub_cancelled && !response.ub_downloading && !response.ub_degraded {
                     return // don't send cancel request
                 }
             }
@@ -437,7 +437,7 @@ internal extension Cacher {
             // has stop task?
             if let subtask = stop?.first, let assets = stop?.map({ $0.asset }) {
                 // send to stop
-                _library.stopCachingImages(for: assets, size: subtask.size, mode: subtask.mode, options: nil)
+                _library.ub_stopCachingImages(for: assets, size: subtask.size, mode: subtask.mode, options: nil)
                 // reset stop flag
                 stop?.forEach {
                     $0.stop()
@@ -446,7 +446,7 @@ internal extension Cacher {
             // has start task?
             if let subtask = start?.first, let assets = start?.map({ $0.asset }) {
                 // send to start
-                _library.startCachingImages(for: assets, size: subtask.size, mode: subtask.mode, options: nil)
+                _library.ub_startCachingImages(for: assets, size: subtask.size, mode: subtask.mode, options: nil)
                 // reset stop flag
                 start?.forEach {
                     $0.start()
@@ -529,7 +529,7 @@ extension Cacher {
                 logger.debug?.write("hit cache: \(asset.ub_identifier) - \(subtask.format)")
                 
                 // if the task has been completed, do not create a new subtask
-                if !response.cancelled && !response.downloading && !response.degraded {
+                if !response.ub_cancelled && !response.ub_downloading && !response.ub_degraded {
                     return
                 }
             }
@@ -907,19 +907,27 @@ private class __CacherOfAsset: NSObject {
         return __ub_property(self, selector: #selector(getter: self.__ub_cacher), newValue: __CacherOfAsset())
     }
     
+    /// The localized title of the asset.
     dynamic var __ub_title: String? {
         return __ub_property(&__ub_cacher.__title, newValue: self.__ub_title)
     }
+    
+    /// The localized subtitle of the asset.
     dynamic var __ub_subtitle: String? {
         return __ub_property(&__ub_cacher.__subtitle, newValue: self.__ub_subtitle)
     }
+    
+    /// A unique string that persistently identifies the object.
     dynamic var __ub_identifier: String {
         return __ub_property(&__ub_cacher.__identifier, newValue: self.__ub_identifier)
     }
     
+    /// The type of the asset, such as video or audio.
     dynamic var __ub_type: AssetType {
         return __ub_property(&__ub_cacher.__type, newValue: self.__ub_type)
     }
+    
+    /// The subtypes of the asset, an option of type `AssetSubtype`
     dynamic var __ub_subtype: UInt {
         return __ub_property(&__ub_cacher.__subtype, newValue: self.__ub_subtype)
     }
@@ -940,20 +948,27 @@ private class __CacherOfCollection: NSObject {
         return __ub_property(self, selector: #selector(getter: self.__ub_cacher), newValue: __CacherOfCollection())
     }
     
+    /// The localized title of the collection.
     dynamic var __ub_title: String? {
         return __ub_property(&__ub_cacher.__title, newValue: self.__ub_title)
     }
+    
+    /// The localized subtitle of the collection.
     dynamic var __ub_subtitle: String? {
         return __ub_property(&__ub_cacher.__subtitle, newValue: self.__ub_subtitle)
     }
+    
+    /// A unique string that persistently identifies the object.
     dynamic var __ub_identifier: String {
         return __ub_property(&__ub_cacher.__identifier, newValue: self.__ub_identifier)
     }
     
+    /// The number of assets in the asset collection.
     dynamic var __ub_count: Int {
         return __ub_property(&__ub_cacher.__count, newValue: self.__ub_count)
     }
     
+    /// The number of assets in the asset collection.
     dynamic func __ub_count(with type: AssetType) -> Int {
         // count is cached?
         let cacher = __ub_cacher
@@ -967,6 +982,7 @@ private class __CacherOfCollection: NSObject {
         return count
     }
     
+    /// Retrieves assets from the specified asset collection.
     dynamic func __ub_asset(at index: Int) -> Asset {
         // collection is cached?
         let cacher = __ub_cacher
@@ -1003,10 +1019,12 @@ private class __CacherOfCollectionList: NSObject {
         return __ub_property(self, selector: #selector(getter: self.__ub_cacher), newValue: __CacherOfCollectionList())
     }
     
+    /// The number of collection in the collection list.
     dynamic var __ub_count: Int {
         return self.__ub_count
     }
     
+    /// Retrieves collection from the specified collection list.
     dynamic func __ub_collection(at index: Int) -> Collection {
         // collection is cached?
         let cacher = __ub_cacher

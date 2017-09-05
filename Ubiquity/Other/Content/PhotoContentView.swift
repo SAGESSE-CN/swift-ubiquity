@@ -31,9 +31,15 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
         backgroundColor = .ub_init(hex: 0xf0f0f0)
         
         let thumbSize = BrowserAlbumLayout.thumbnailItemSize
-        let thumbOptions = SourceOptions(isSynchronous: true)
+        let thumbOptions = RequestOptions()
+        
         let largeSize = CGSize(width: asset.ub_pixelWidth, height: asset.ub_pixelHeight)
-        let largeOptions = SourceOptions(progressHandler: { [weak self, weak asset] progress, response in
+        let largeOptions = RequestOptions()
+        
+        thumbOptions.isSynchronous = true
+        
+        largeOptions.isSynchronous = false
+        largeOptions.progressHandler = { [weak self, weak asset] progress, response in
             DispatchQueue.main.async {
                 // if the asset is nil, the asset has been released
                 guard let asset = asset else {
@@ -42,7 +48,7 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
                 // update progress
                 self?._updateContentsProgress(progress, response: response, asset: asset)
             }
-        })
+        }
         
         _requests = [
             // request thumb iamge
@@ -130,10 +136,10 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
             (delegate as? DisplayableDelegate)?.displayer(self, didReceive: asset, progress: progress)
         }
         // if the donwload completed or an error occurred, end of the download
-        if (_donwloading && progress >= 1) || (response.error != nil) {
+        if (_donwloading && progress >= 1) || (response.ub_error != nil) {
             _donwloading = false
             // complate download
-            (delegate as? DisplayableDelegate)?.displayer(self, didEndDownload: asset, error: response.error)
+            (delegate as? DisplayableDelegate)?.displayer(self, didEndDownload: asset, error: response.ub_error)
         }
     }
     

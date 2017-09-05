@@ -382,23 +382,6 @@ internal class Source {
     private var _collectionSubtype: CollectionSubtype
 }
 
-internal class SourceOptions: RequestOptions {
-    
-    init(isSynchronous: Bool = false, progressHandler: ((Double, Response) -> ())? = nil) {
-        self.isSynchronous = isSynchronous
-        self.progressHandler = progressHandler
-    }
-    
-    /// if necessary will download the image from reomte
-    var isNetworkAccessAllowed: Bool = true
-    
-    // return only a single result, blocking until available (or failure). Defaults to NO
-    var isSynchronous: Bool = false
-    
-    /// provide caller a way to be told how much progress has been made prior to delivering the data when it comes from remote.
-    var progressHandler: ((Double, Response) -> ())?
-}
-
 internal class SourceChangeDetails {
     
     /// Create an change detail

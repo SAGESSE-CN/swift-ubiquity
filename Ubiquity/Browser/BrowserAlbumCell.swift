@@ -44,11 +44,8 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable, Transitionin
         _badgeView?.isHidden = true
         _allowsInvaildContents = true
         
-        // make options
-        let options = SourceOptions()
-        
         // setup content
-        self.request = container.request(forImage: asset, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: options) { [weak self, weak asset] contents, response in
+        self.request = container.request(forImage: asset, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: .init()) { [weak self, weak asset] contents, response in
             // if the asset is nil, the asset has been released
             guard let asset = asset else {
                 return

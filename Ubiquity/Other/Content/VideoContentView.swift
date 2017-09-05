@@ -131,13 +131,10 @@ extension VideoContentView: Playable {
             return
         }
         
-        // prepare data
-        let options = SourceOptions()
-        
         // request player item
         _prepareing = true
         _prepared = false
-        _request = container.request(forItem: asset, options: options) { [weak self, weak asset] item, response in
+        _request = container.request(forItem: asset, options: nil) { [weak self, weak asset] item, response in
             // if the asset is nil, the asset has been released
             guard let asset = asset, let item = item as? AVPlayerItem else {
                 return
@@ -163,7 +160,7 @@ extension VideoContentView: Playable {
         // if item is nil, the player preare error 
         guard let item = item else {
             // notice to delegate
-            (delegate as? PlayableDelegate)?.player(self, didOccur: asset, error: response.error)
+            (delegate as? PlayableDelegate)?.player(self, didOccur: asset, error: response.ub_error)
             return
         }
         _playerView.prepare(with: item)

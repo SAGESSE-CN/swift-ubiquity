@@ -62,7 +62,10 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
             }
             
             // refresh UI
-            self.tableView.reloadData()
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+            
             handler(nil)
         }
     }

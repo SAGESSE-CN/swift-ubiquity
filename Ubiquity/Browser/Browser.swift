@@ -9,7 +9,7 @@
 import UIKit
 
 /// A media browser
-open class Browser: Container {
+@objc open class Browser: Container {
     
     /// Create a media browser
     public override init(library: Library) {

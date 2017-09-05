@@ -151,10 +151,33 @@ internal class NavigationHeaderView: UICollectionReusableView {
         _collection = collection
         
         // update text
-        _titleLabel.text = collection?.ub_title
-        _subtitleLabel.text = collection?.ub_subtitle
+        _titleLabel.text = nil
+        _subtitleLabel.text = nil
+        
+        DispatchQueue.global(qos: .userInitiated).async { [weak _titleLabel, weak _subtitleLabel] in
+            
+            // if collection is change, ignore
+            guard self._collection === collection else {
+                return
+            }
+            
+            // fetch title & subtitle
+            let title = collection?.ub_title
+            let subtitle = collection?.ub_subtitle
+            
+            DispatchQueue.main.async {
+                
+                // if collection is change, ignore
+                guard self._collection === collection else {
+                    return
+                }
+                
+                // update title
+                _titleLabel?.text = title
+                _subtitleLabel?.text = subtitle
+            }
+        }
     }
-    
     
     private func _setup() {
         

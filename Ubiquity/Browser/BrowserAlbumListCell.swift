@@ -53,7 +53,7 @@ internal class BrowserAlbumListCell: UITableViewCell {
 
         // make options
         let size = _thumbView.bounds.size.ub_fitWithScreen
-        let options = SourceOptions()
+        let options = RequestOptions()
         
         // setup thumbnail image
         _thumbView.images = assets.map { _ in nil }

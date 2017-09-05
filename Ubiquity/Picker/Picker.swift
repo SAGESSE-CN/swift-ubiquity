@@ -9,29 +9,16 @@
 import UIKit
 
 /// Picker delegate events
-public protocol PickerDelegate: class {
+@objc public protocol PickerDelegate: class {
     
     // Check whether item can select
-    func picker(_ picker: Picker, shouldSelectItem asset: Asset) -> Bool
-    func picker(_ picker: Picker, didSelectItem asset: Asset)
-    func picker(_ picker: Picker, didDeselectItem asset: Asset)
-}
-
-public extension PickerDelegate {
-    
-    func picker(_ picker: Picker, shouldSelectItem asset: Asset) -> Bool {
-        return true
-    }
-    
-    func picker(_ picker: Picker, didSelectItem asset: Asset) {
-    }
-    
-    func picker(_ picker: Picker, didDeselectItem asset: Asset) {
-    }
+    @objc optional func picker(_ picker: Picker, shouldSelectItem asset: Asset) -> Bool
+    @objc optional func picker(_ picker: Picker, didSelectItem asset: Asset)
+    @objc optional func picker(_ picker: Picker, didDeselectItem asset: Asset)
 }
 
 /// A media picker
-open class Picker: Browser {
+@objc open class Picker: Browser {
     
     /// Create a media picker
     public override init(library: Library) {
@@ -62,7 +49,7 @@ open class Picker: Browser {
         }
         
         // clear deleted items
-        let deletedItems = _selectedItems.filter { !library.exists(forItem: $1.asset) }
+        let deletedItems = _selectedItems.filter { !library.ub_exists(forItem: $1.asset) }
         guard !deletedItems.isEmpty else {
             return
         }
@@ -150,12 +137,12 @@ open class Picker: Browser {
     
     private func _item(shouldSelectItem asset: Asset, status: SelectionStatus, sender: AnyObject) -> Bool {
         // ask the user if the asset is allowed to be select
-        return delegate?.picker(self, shouldSelectItem: asset) ?? true
+        return delegate?.picker?(self, shouldSelectItem: asset) ?? true
     }
     private func _item(didSelectItem asset: Asset, status: SelectionStatus, sender: AnyObject) {
         
         // tell the user that the asset is already selected
-        delegate?.picker(self, didSelectItem: asset)
+        delegate?.picker?(self, didSelectItem: asset)
         
         // tell all observers
         observers.forEach {
@@ -165,7 +152,7 @@ open class Picker: Browser {
     private func _item(didDeselect asset: Asset, status: SelectionStatus, sender: AnyObject) {
         
         // tell the user that the asset is already selected
-        delegate?.picker(self, didDeselectItem: asset)
+        delegate?.picker?(self, didDeselectItem: asset)
         
         // tell all observers
         observers.forEach {

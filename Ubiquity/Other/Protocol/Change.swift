@@ -28,28 +28,43 @@ import Foundation
     }
     
     /// the object in the state before this change
-    var before: Any 
+    public var before: Any 
     /// the object in the state after this change
-    var after: Any? 
+    public var after: Any? 
     
     /// A Boolean value that indicates whether objects have been rearranged in the fetch result.
-    var hasMoves: Bool = false
+    public var hasMoves: Bool = false
     /// A Boolean value that indicates whether objects have been any change in result.
-    var hasAssetChanges: Bool = false
+    public var hasAssetChanges: Bool = false
     /// A Boolean value that indicates whether changes to the fetch result can be described incrementally.
-    var hasIncrementalChanges: Bool = false
+    public var hasIncrementalChanges: Bool = false
     
     /// The indexes of objects in the fetch result whose content or metadata have been updated.
-    var changedIndexes: IndexSet? 
+    public var changedIndexes: IndexSet? 
     /// The indexes from which objects have been removed from the fetch result.
-    var removedIndexes: IndexSet?
+    public var removedIndexes: IndexSet?
     /// The indexes where new objects have been inserted in the fetch result.
-    var insertedIndexes: IndexSet?
+    public var insertedIndexes: IndexSet?
     
     /// The indexes wherer new objects have been move in the fetch result.
-    var movedIndexes: [(Int, Int)]?
+    public var movedIndexes: [(Int, Int)]?
+    
+    /// Display debug info
+    public override var description: String {
+        // fetch all change
+        let tmp = [
+            insertedIndexes?.map { index -> DifferenceResult in .insert(from: -1, to: index) },
+            removedIndexes?.map { index -> DifferenceResult in .remove(from: index, to: -1) },
+            changedIndexes?.map { index -> DifferenceResult in .update(from: index, to: index) },
+            movedIndexes?.map { from, to -> DifferenceResult in .update(from: from, to: to) }
+        ]
+        
+        // map
+        let diffs = tmp.flatMap { $0 }.flatMap { $0 }
+        
+        return "\(super.description), diffs: \(diffs)"
+    }
 }
-
 
 /// A protocol you can implement to be notified of changes that occur in the Photos library.
 public protocol ChangeObserver: class {

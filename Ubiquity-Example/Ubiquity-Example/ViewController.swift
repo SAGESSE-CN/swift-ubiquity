@@ -24,13 +24,13 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        #if DEBUG
+            UIApplication.shared.delegate?.window??.showsFPS = true
+        #endif
     }
     
     @IBAction func show(_ sender: Any) {
-        
-        #if DEBUG
-            view.window?.showsFPS = true
-        #endif
         
         browse(sender)
 //        pick(sender)
@@ -45,20 +45,20 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
     
     @IBAction func browse(_ sender: Any) {
         
-        let browser = Ubiquity.Browser(library: Ubiquity.SystemLibrary())
+        let browser = Ubiquity.Browser(library: Ubiquity.UHAssetLibrary())
         
         // configure
-        browser.allowsCollectionTypes = [.regular]
+        browser.allowsCollectionTypes = [.moment]
         
         // display
         //present(browser.initialViewController(with: .albumsList), animated: true, completion: nil)
-        show(browser.initialViewController(with: .albumsList), sender: nil)
-        //show(browser.initialViewController(with: .albums), sender: nil)
+        //show(browser.initialViewController(with: .albumsList), sender: nil)
+        show(browser.initialViewController(with: .albums), sender: nil)
     }
     
     @IBAction func pick(_ sender: Any) {
         
-        let picker = Ubiquity.Picker(library: Ubiquity.SystemLibrary())
+        let picker = Ubiquity.Picker(library: Ubiquity.UHAssetLibrary())
         
         // configure
         picker.delegate = self

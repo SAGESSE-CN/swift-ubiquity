@@ -20,6 +20,7 @@ class TestLargeLayer: CATiledLayer {
     }
     
 }
+
 class TestLargeImageView: UIView {
     
     override class var layerClass: AnyClass {
@@ -49,54 +50,37 @@ class TestLargeImageView: UIView {
     
     var image: UIImage?
     
-//
+    /// limit the maximum tile zoom level
+    var maximumTileZoomLevel: Int = 16
+    
     override func draw(_ rect: CGRect) {
-//        super.draw(rect)
-        
-        guard let context = UIGraphicsGetCurrentContext() else {
+        // limit the maximum tile size, because if the tile beyond this size you can't see it
+        guard let context = UIGraphicsGetCurrentContext(), ceil(rect.width / tileSize.width) <= CGFloat(maximumTileZoomLevel + 1) else {
             return
         }
         
-        let scale = context.ctm.a / tiledLayer.contentsScale
-        let column = Int(rect.minX * scale / tileSize.width + 0.5)
-        let row = Int(rect.minY * scale / tileSize.height + 0.5)
-        
-//        let str = "\(rect)\n\(ceil(scale * 200) / 200)\n[\(row), \(column)]" as NSString
-//        
-//        if (Int(row % 2) + column) % 2 == 0 {
-//            UIColor(white: 0, alpha: 0.5).setFill()
-//            UIGraphicsGetCurrentContext()?.fill(rect)
-//            str.draw(at: rect.origin, withAttributes: [NSForegroundColorAttributeName: UIColor.white,
-//                                                       NSFontAttributeName: UIFont.systemFont(ofSize: 16 * 1 / scale),
-//                                                       ])
-//        } else {
-//            UIColor(white: 0, alpha: 0.0).setFill()
-//            UIGraphicsGetCurrentContext()?.fill(rect)
-//            str.draw(at: rect.origin, withAttributes: [NSForegroundColorAttributeName: UIColor.red,
-//                                                       NSFontAttributeName: UIFont.systemFont(ofSize: 16 * 1 / scale),
-//                                                       ])
-//        }
-        
-//        //裁剪展示视图
-//        CGImageRef cgRef = _orImage.CGImage;
-//        CGImageRef imageRef = CGImageCreateWithImageInRect(cgRef, CGRectMake(self.scrollView.contentOffset.x *multipleF   ,self.scrollView.contentOffset.y *multipleF, width, height));
-//        UIImage *thumbScale = [UIImage imageWithCGImage:imageRef];
-//        CGImageRelease(imageRef);
-//        self.bigCupImageView.image = thumbScale;
-        
-        if let cropped = image?.cgImage?.cropping(to: rect) {
-            
-            context.translateBy(x: rect.minX, y: rect.minY + rect.height)
-            context.scaleBy(x: 1, y: -1)
-            context.draw(cropped, in: .init(origin: .zero, size: rect.size))
+        // cropping the image that need to be display from source image
+        guard let cropped = image?.cgImage?.cropping(to: rect) else {
+            return
         }
         
+        // must set the starting point for the drawing, otherwise the flip drawing will wrong
+        context.translateBy(x: rect.minX, y: rect.minY)
         
-        //if (Int(row % 2) + column) % 2 == 0 {
-//            UIColor(white: 0, alpha: 0.5).setFill()
-//            UIGraphicsGetCurrentContext()?.fill(.init(origin: .zero, size: rect.size))
-        //}
+        // because of the use of context.draw and UIKit coordinates are not the same, so the need to flip drawing image
+        context.translateBy(x: 0, y: rect.height)
+        context.scaleBy(x: 1, y: -1)
+        
+        // drawing cropped image
+        context.draw(cropped, in: .init(origin: .zero, size: rect.size))
     }
+    
+//        let scale = context.ctm.a / tiledLayer.contentsScale
+//        let column = Int(rect.minX * scale / tileSize.width + 0.5)
+//        let row = Int(rect.minY * scale / tileSize.height + 0.5)
+//        
+//        let str = "\(rect)\n\(ceil(scale * 200) / 200)\n[\(row), \(column)]" as NSString
+//        logger.debug?.write(rect.size)
     
     private func _setup() {
         

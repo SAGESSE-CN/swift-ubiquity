@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0C1004041F1CA60100D7B09A /* TestIndicatorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C224C411EAC55F7001ABB47 /* TestIndicatorViewController.swift */; };
-		0C19D2331F5E742100A2A36B /* 《塞尔达传说：荒野之息》导航地图.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 0C19D2321F5E742100A2A36B /* 《塞尔达传说：荒野之息》导航地图.jpg */; };
+		0C19D2391F5E8CFB00A2A36B /* 《塞尔达传说：荒野之息》导航地图.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 0C19D2381F5E8CFB00A2A36B /* 《塞尔达传说：荒野之息》导航地图.jpg */; };
 		0C1E4F791F5B337F00299E64 /* TextLargetImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1E4F781F5B337F00299E64 /* TextLargetImageLoader.swift */; };
 		0C2B78181ED4513300925D18 /* PhotoLibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2B78171ED4513300925D18 /* PhotoLibraryController.swift */; };
 		0CAB22701F31A91E000171A0 /* XViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CAB226F1F31A91E000171A0 /* XViewController.swift */; };
@@ -37,7 +37,7 @@
 
 /* Begin PBXFileReference section */
 		0C16F87A1EA663E700C788C5 /* TestLayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestLayerViewController.swift; sourceTree = "<group>"; };
-		0C19D2321F5E742100A2A36B /* 《塞尔达传说：荒野之息》导航地图.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "《塞尔达传说：荒野之息》导航地图.jpg"; path = "../../../Downloads/《塞尔达传说：荒野之息》导航地图.jpg"; sourceTree = SOURCE_ROOT; };
+		0C19D2381F5E8CFB00A2A36B /* 《塞尔达传说：荒野之息》导航地图.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "《塞尔达传说：荒野之息》导航地图.jpg"; path = "~/Downloads/《塞尔达传说：荒野之息》导航地图.jpg"; sourceTree = "<group>"; };
 		0C1E4F781F5B337F00299E64 /* TextLargetImageLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextLargetImageLoader.swift; sourceTree = "<group>"; };
 		0C224C411EAC55F7001ABB47 /* TestIndicatorViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestIndicatorViewController.swift; sourceTree = "<group>"; };
 		0C2B78171ED4513300925D18 /* PhotoLibraryController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoLibraryController.swift; sourceTree = "<group>"; };
@@ -95,11 +95,11 @@
 		0CE49E201E7A3F690058F5F8 /* Example */ = {
 			isa = PBXGroup;
 			children = (
+				0C19D2381F5E8CFB00A2A36B /* 《塞尔达传说：荒野之息》导航地图.jpg */,
 				0CE49EA81E7B97CE0058F5F8 /* TestCanvasViewController.swift */,
 				0C16F87A1EA663E700C788C5 /* TestLayerViewController.swift */,
 				0C224C411EAC55F7001ABB47 /* TestIndicatorViewController.swift */,
 				0CE49E211E7A3F690058F5F8 /* AppDelegate.swift */,
-				0C19D2321F5E742100A2A36B /* 《塞尔达传说：荒野之息》导航地图.jpg */,
 				0CE49E251E7A3F690058F5F8 /* Main.storyboard */,
 				0CE49E281E7A3F690058F5F8 /* Assets.xcassets */,
 				0CE49E2A1E7A3F690058F5F8 /* LaunchScreen.storyboard */,
@@ -182,7 +182,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0C19D2331F5E742100A2A36B /* 《塞尔达传说：荒野之息》导航地图.jpg in Resources */,
+				0C19D2391F5E8CFB00A2A36B /* 《塞尔达传说：荒野之息》导航地图.jpg in Resources */,
 				0CE49E2C1E7A3F690058F5F8 /* LaunchScreen.storyboard in Resources */,
 				0CE49E291E7A3F690058F5F8 /* Assets.xcassets in Resources */,
 				0CE49E271E7A3F690058F5F8 /* Main.storyboard in Resources */,

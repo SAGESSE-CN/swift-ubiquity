@@ -143,7 +143,6 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         
         // scroll after update footer
         _updateFooterView()
-        _updateHeaderCaches()
         
         // scroll to init position if needed
         if source.collectionSubtype == .smartAlbumUserLibrary {
@@ -159,6 +158,10 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         prepared = true
         
         _targetContentOffset = collectionView.contentOffset
+        
+        // init header view layout
+        _updateHeaderCaches()
+        _updateHeaderView()
         
         // update content offset
         scrollViewDidScroll(collectionView)
@@ -533,6 +536,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         // source did change, must update header cache
         defer {
             _updateHeaderCaches()
+            _updateHeaderView()
         }
         
         // update collection asset count change

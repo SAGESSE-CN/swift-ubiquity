@@ -49,6 +49,7 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
         
         // configure
         browser.allowsCollectionTypes = [.moment]
+//        browser.allowsCollectionTypes = [.regular]
         
         // display
         //present(browser.initialViewController(with: .albumsList), animated: true, completion: nil)

@@ -150,10 +150,8 @@ internal class NavigationHeaderView: UICollectionReusableView {
         }
         _collection = collection
         
-        // update text
-        _titleLabel.text = nil
-        _subtitleLabel.text = nil
-        
+        // load title for the first time will be very slow
+        // need to load in the background
         DispatchQueue.global(qos: .userInitiated).async { [weak _titleLabel, weak _subtitleLabel] in
             
             // if collection is change, ignore

@@ -63,7 +63,7 @@ public enum DifferenceResult: CustomStringConvertible {
 }
 
 /// Compare the differences between the two arrays 
-public func ub_diff<Element: Hashable>(_ src: Array<Element>, dest: Array<Element>) -> Array<DifferenceResult> {
+public func ub_diff<Element: Equatable>(_ src: Array<Element>, dest: Array<Element>) -> Array<DifferenceResult> {
     
     let slen = src.count
     let dlen = dest.count

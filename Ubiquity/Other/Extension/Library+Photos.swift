@@ -14,11 +14,47 @@ import Photos
 public typealias UHAsset = PHAsset
 public typealias UHAssetChange = PHChange
 
+
 public class UHAssetCollection: NSObject {
     
     // Generate a collection for Photos.
     public init(collection: PHAssetCollection) {
         self.collection = collection
+    }
+    
+    /// Returns a Boolean value that indicates whether the receiver and a given object are equal.
+    public override func isEqual(_ object: Any?) -> Bool {
+        // compare collection type
+        if let object = object as? UHAssetCollection {
+            return collection === object.collection
+                || ub_identifier == object.ub_identifier
+        }
+        
+        // compare to other types
+        return super.isEqual(object)
+    }
+    /// Returns a Boolean value that indicates whether the receiver and a given object are equal.
+    public func isEquals(_ other: UHAssetCollection) -> Bool {
+        // if the memory is the same
+        // then all attributes must be the same
+        guard other.collection !== collection else {
+            return true
+        }
+        
+        // validate all properties
+        return !type(of: self).validates.contains {
+            // fetch value for key path
+            let lhs = collection.value(forKeyPath: $0) as AnyObject?
+            let rhs = other.collection.value(forKeyPath: $0) as AnyObject?
+            
+            // compare
+            return !(lhs === rhs || lhs?.isEqual(rhs) ?? false)
+        }
+    }
+    
+    /// The collection hash value.
+    public override var hash: Int {
+        return ub_identifier.hashValue
     }
     
     /// The associated fetch result
@@ -34,8 +70,29 @@ public class UHAssetCollection: NSObject {
         return result
     }
     
+    
     /// The mapping the collection
     public let collection: PHAssetCollection
+    
+    /// Need to validate the properties
+    internal static let validates = [
+        // PHObject
+        #keyPath(PHObject.localIdentifier),
+        
+        // PHCollection
+        #keyPath(PHCollection.canContainAssets),
+        #keyPath(PHCollection.canContainCollections),
+        #keyPath(PHCollection.localizedTitle),
+        
+        // PHAssetCollection
+        //#keyPath(PHAssetCollection.approximateLocation), // does not support compare
+        #keyPath(PHAssetCollection.localizedLocationNames),
+        #keyPath(PHAssetCollection.assetCollectionType),
+        #keyPath(PHAssetCollection.assetCollectionSubtype),
+        #keyPath(PHAssetCollection.estimatedAssetCount),
+        #keyPath(PHAssetCollection.startDate),
+        #keyPath(PHAssetCollection.endDate),
+    ]
 }
 
 public class UHAssetCollectionList: NSObject {
@@ -160,6 +217,8 @@ public class UHAssetLibrary: NSObject, Photos.PHPhotoLibraryChangeObserver {
     
     /// This callback is invoked on an arbitrary serial queue. If you need this to be handled on a specific queue, you should redispatch appropriately
     public func photoLibraryDidChange(_ changeInstance: PHChange) {
+        logger.debug?.write(changeInstance)
+        
         // notify all observer
         observers.forEach {
             $0.library(self, didChange: changeInstance)
@@ -397,7 +456,7 @@ extension UHAssetChange: Change {
         
         // `assets` is nil the collection count no any change
         // `contents` is nil the collection property no any chnage
-        guard assets != nil || contents?.objectBeforeChanges !== contents?.objectAfterChanges else {
+        guard assets != nil || contents != nil else {
             return nil
         }
         
@@ -405,6 +464,12 @@ extension UHAssetChange: Change {
         // must be create a new collection, otherwise the cache cannot be updated in time
         let newResult = assets?.fetchResultAfterChanges ?? result
         let newCollection = UHAssetCollection(collection: contents?.objectAfterChanges as? PHAssetCollection ?? collection.collection)
+        
+        // if only the contents change,
+        // check new collection and collection is eqqual, if true ignore the changes
+        if assets == nil && collection.isEquals(newCollection) {
+            return nil
+        }
         
         // if colleciton is change, save new result
         if newCollection !== collection {
@@ -541,7 +606,9 @@ extension UHAssetChange: Change {
             }
         }
         
-        logger.debug?.write(details)
+        // check status
+        details.hasMoves = !(details.movedIndexes?.isEmpty ?? true)
+        
         
         return details
     }

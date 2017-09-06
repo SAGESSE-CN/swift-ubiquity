@@ -33,7 +33,7 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
         let thumbSize = BrowserAlbumLayout.thumbnailItemSize
         let thumbOptions = RequestOptions()
         
-        let largeSize = CGSize(width: asset.ub_pixelWidth, height: asset.ub_pixelHeight)
+        let largeSize = type(of: container.library).ub_requestMaximumSize
         let largeOptions = RequestOptions()
         
         thumbOptions.isSynchronous = true
@@ -51,7 +51,7 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
         }
         
         _requests = [
-            // request thumb iamge
+            // request thumb image
             container.request(forImage: asset, size: thumbSize, mode: .aspectFill, options: thumbOptions) { [weak self, weak asset] contents, response in
                 // if the asset is nil, the asset has been released
                 guard let asset = asset else {

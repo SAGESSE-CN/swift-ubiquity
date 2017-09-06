@@ -174,13 +174,14 @@ public class UHAssetCollectionList: NSObject {
 
 public class UHAssetRequest: NSObject, Request {
     
-    /// Generate request for Photos.
-    public init(_ request: PHImageRequestID) {
-        self.request = request
-    }
+    /// Request of image.
+    public var image: PHImageRequestID?
     
-    /// The request id in Photos.
-    public let request: PHImageRequestID
+    /// Request of video.
+    public var video: PHImageRequestID?
+    
+    /// Request of data.
+    public var data: PHImageRequestID?
 }
 
 public class UHAssetResponse: NSObject, Response {
@@ -224,6 +225,9 @@ public class UHAssetLibrary: NSObject, Photos.PHPhotoLibraryChangeObserver {
             $0.library(self, didChange: changeInstance)
         }
     }
+    
+    /// Allows maximum one-time loading image bytes
+    public static var maximumLoadBytes: Int = 100 * 1024 * 1024 // 100MiB
     
     internal lazy var cache: PHCachingImageManager = PHCachingImageManager()
     internal lazy var library: PHPhotoLibrary = {
@@ -316,7 +320,7 @@ extension UHAsset: Asset {
                 }
             }
             // is gif photo.
-            if filename?.hasSuffix("GIF") ?? false {
+            if filename?.uppercased().hasSuffix("GIF") ?? false {
                 subtype.insert(.photoGIF)
             }
         }
@@ -609,6 +613,8 @@ extension UHAssetChange: Change {
         // check status
         details.hasMoves = !(details.movedIndexes?.isEmpty ?? true)
         
+        // output detail info
+        logger.debug?.write(details)
         
         return details
     }
@@ -669,9 +675,41 @@ extension UHAssetLibrary: Library {
         
         let newMode = _convert(forMode: mode)
         let newOptions = _convert(forImage: options)
+        let newRequest = UHAssetRequest()
+        
+        // special processing is required when loading larger images
+        if size == UHAssetLibrary.ub_requestMaximumSize {
+            
+            // estimate the memory space required for an image
+            let width = (asset.pixelWidth + min(.init(size.width), asset.pixelWidth) + 1) % (asset.pixelWidth + 1)
+            let height = (asset.pixelHeight + min(.init(size.height), asset.pixelHeight) + 1) % (asset.pixelHeight + 1)
+            let bytes = width * height * 4
+            
+            // the requested image size has exceeded the limit size?
+            if bytes >= UHAssetLibrary.maximumLoadBytes {
+                // exceeds preset maximun bytes
+                logger.info?.write("request SD image, request bytes is \(Float(bytes) / 1024 / 1024)MiB")
+                
+//                // send data request
+//                newRequest.data = cache.requestImageData(for: asset, options: newOptions) { imageData, dataUTI, orientation, responseObject in
+//                    //print(dataUTI)
+//                }
+            }
+            
+            // for GIF special loading methods are required
+            if newRequest.data == nil && asset.ub_subtype & AssetSubtype.photoGIF.rawValue != 0 {
+                // the image is GIF.
+                logger.info?.write("request GIF image")
+                
+//                // send data request
+//                newRequest.data = cache.requestImageData(for: asset, options: newOptions) { imageData, dataUTI, orientation, responseObject in
+//                    //print(dataUTI)
+//                }
+            }
+        }
         
         // send image request
-        return UHAssetRequest(cache.requestImage(for: asset, targetSize: size, contentMode: newMode, options: newOptions) { image, responseObject in
+        newRequest.image = cache.requestImage(for: asset, targetSize: size, contentMode: newMode, options: newOptions) { image, responseObject in
             // convert result info to response
             let response = UHAssetResponse(responseObject)
             
@@ -682,7 +720,10 @@ extension UHAssetLibrary: Library {
             
             // update request result 
             resultHandler(image, response)
-        })
+        }
+        
+        // the request has been sent successfully
+        return newRequest
     }
     
     /// Requests a representation of the video asset for playback, to be loaded asynchronously.
@@ -693,15 +734,19 @@ extension UHAssetLibrary: Library {
         }
         
         let newOptions = _convert(forVideo: options)
+        let newRequest = UHAssetRequest()
         
         // send player item request
-        return UHAssetRequest(cache.requestPlayerItem(forVideo: asset, options: newOptions) { item, responseObject in
+        newRequest.video = cache.requestPlayerItem(forVideo: asset, options: newOptions) { item, responseObject in
             // convert result info to response
             let response = UHAssetResponse(responseObject)
             
             // update request result
             resultHandler(item, response)
-        })
+        }
+        
+        // the request has been sent successfully 
+        return newRequest
     }
     
     /// Cancels an asynchronous request
@@ -710,7 +755,11 @@ extension UHAssetLibrary: Library {
         guard let request = request as? UHAssetRequest else {
             return
         }
-        cache.cancelImageRequest(request.request)
+        
+        // cancel all requests.
+        request.data.map { cache.cancelImageRequest($0) }
+        request.image.map { cache.cancelImageRequest($0) }
+        request.video.map { cache.cancelImageRequest($0) }
     }
     
     ///A Boolean value that determines whether the image manager prepares high-quality images.
@@ -749,6 +798,11 @@ extension UHAssetLibrary: Library {
     public func ub_stopCachingImagesForAllAssets() {
         // forward
         cache.stopCachingImagesForAllAssets()
+    }
+    
+    /// Predefined size of the original request
+    public static var ub_requestMaximumSize: CGSize {
+        return PHImageManagerMaximumSize
     }
 }
 
@@ -803,5 +857,6 @@ private func _convert(forVideo options: RequestOptions?) -> PHVideoRequestOption
     
     return newOptions
 }
+
 
 

@@ -101,6 +101,14 @@ internal class NavigationHeaderView: UICollectionReusableView {
             
             // update self contents
             if let section = section {
+                
+                // if is parent header
+                if parent == nil {
+                    // preconfig title & subtitle
+                    _titleLabel.text = _headers[section]?._titleLabel.text
+                    _subtitleLabel.text = _headers[section]?._subtitleLabel.text
+                }
+                
                 _updateCollection((source ?? parent?.source)?.collection(at: section))
             }
             

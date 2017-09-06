@@ -33,7 +33,7 @@ internal class BrowserDetailCell: UICollectionViewCell, Displayable {
     
     /// Will display the asset
     func willDisplay(with asset: Asset, container: Container, orientation: UIImageOrientation) {
-        logger.trace?.write(asset.ub_identifier)
+        logger.trace?.write(asset.ub_identifier, "(\(asset.ub_pixelWidth), \(asset.ub_pixelHeight))")
         
         // update ata
         _asset = asset

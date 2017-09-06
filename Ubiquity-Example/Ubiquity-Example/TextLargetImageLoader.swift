@@ -11,7 +11,7 @@ import UIKit
 import CoreGraphics
 import CoreGraphics.CGImage
 
-//@testable import Ubiquity
+@testable import Ubiquity
 
 class TestLargeLayer: CATiledLayer {
     
@@ -94,6 +94,7 @@ class TestLargeImageView: UIView {
     }
 }
 
+
 class TextLargetImageLoader: UIViewController, UIScrollViewDelegate {
     
     
@@ -166,49 +167,30 @@ class TextLargetImageLoader: UIViewController, UIScrollViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let image = UIImage(contentsOfFile: Bundle.main.path(forResource: "《塞尔达传说：荒野之息》导航地图", ofType: "jpg")!)!
+        guard let path = Bundle.main.url(forResource: "《塞尔达传说：荒野之息》导航地图", withExtension: "jpg") else {
+            return
+        }
+        guard let data = try? Data(contentsOf: path, options: .mappedIfSafe) else {
+            return
+        }
+        
+        let image = Ubiquity.Image(data: data)
+        let imageView = Ubiquity.ImageView(frame: .init(origin: .zero, size: image?.size ?? .zero))
         let scrollView = UIScrollView(frame: view.bounds)
         
-        scrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        scrollView.contentSize = image.size
-        scrollView.delegate = self
-        scrollView.minimumZoomScale = view.bounds.width / image.size.width
-        scrollView.maximumZoomScale = 1
-        
-//        let bounds = UIScreen.main.bounds
-//        let scale = min(bounds.width / scrollView.contentSize.width, bounds.height / scrollView.contentSize.height) * 2
-//        let size = CGSize(width: scrollView.contentSize.width * scale, height: scrollView.contentSize.height * scale)
-//        let _ = UIGraphicsBeginImageContext(size)
-//        image.draw(in: .init(origin: .zero, size: size))
-        
-//    // this is actually the interesting part:
-//
-//    UIGraphicsBeginImageContext(targetSize);
-//    
-//    CGRect thumbnailRect = CGRectZero;
-//    thumbnailRect.origin = thumbnailPoint;
-//    thumbnailRect.size.width  = scaledWidth;
-//    thumbnailRect.size.height = scaledHeight;
-//    
-//    [sourceImage drawInRect:thumbnailRect];
-//    
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        let contentView = UIImageView(frame: .init(origin: .zero, size: image.size))
-        
-        contentView.backgroundColor = .clear
-        contentView.image = newImage
-        
-        let imageView = TestLargeImageView(frame: contentView.bounds)
+        imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         imageView.image = image
-        contentView.addSubview(imageView)
-        //let v = image.cgImage
         
-        scrollView.addSubview(contentView)
+        scrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        scrollView.contentSize = imageView.frame.size
+        scrollView.delegate = self
+        scrollView.minimumZoomScale = view.bounds.width / max(imageView.frame.width, 1)
+        scrollView.maximumZoomScale = 1
+        scrollView.addSubview(imageView)
+        
         view.addSubview(scrollView)
         
-        _contentView = contentView
+        _contentView = imageView
     }
     
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12118" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="91z-7B-evL">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="91z-7B-evL">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12086"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -38,6 +38,26 @@
                                         </tableViewCellContentView>
                                         <connections>
                                             <segue destination="tXa-uc-eV5" kind="show" id="C4k-rQ-XJb"/>
+                                        </connections>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" textLabel="u3k-sK-z3y" style="IBUITableViewCellStyleDefault" id="jWB-6Z-2h6">
+                                        <rect key="frame" x="0.0" y="44" width="375" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="jWB-6Z-2h6" id="S51-vO-5m9">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Animated Image Loader" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="u3k-sK-z3y">
+                                                    <rect key="frame" x="15" y="0.0" width="345" height="43.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <segue destination="xLi-EL-xF1" kind="show" id="WbB-LZ-JbR"/>
                                         </connections>
                                     </tableViewCell>
                                 </cells>
@@ -78,7 +98,26 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="H8m-S9-Y0J" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2468" y="52"/>
+            <point key="canvasLocation" x="2052" y="798"/>
+        </scene>
+        <!--Animated Image Loader-->
+        <scene sceneID="K7b-Iu-7dx">
+            <objects>
+                <viewController id="xLi-EL-xF1" customClass="TestAnimatedImageViewController" customModule="Ubiquity_Example" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="uVc-ZP-dts"/>
+                        <viewControllerLayoutGuide type="bottom" id="28a-uV-NLe"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="E4b-es-SDj">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="Animated Image Loader" id="1wc-fX-s3u"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dqE-IF-VSB" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1447" y="799"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="hze-dF-flK">

@@ -31,6 +31,8 @@
 		0C2497771EEA940500CDD68C /* PickerAlbumController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2497761EEA940500CDD68C /* PickerAlbumController.swift */; };
 		0C2497791EEA942300CDD68C /* PickerAlbumCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2497781EEA942300CDD68C /* PickerAlbumCell.swift */; };
 		0C24977B1EEA95BC00CDD68C /* Protocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C24977A1EEA95BC00CDD68C /* Protocol.swift */; };
+		0C30A78D1F5FD97200E5980B /* Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C30A78C1F5FD97200E5980B /* Image.swift */; };
+		0C30A78F1F5FDA3400E5980B /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C30A78E1F5FDA3400E5980B /* ImageView.swift */; };
 		0C3AC3381F2844DC0066DA1B /* ubiquity_checkbox_normal@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0C3AC3361F2844DC0066DA1B /* ubiquity_checkbox_normal@2x.png */; };
 		0C3AC3391F2844DC0066DA1B /* ubiquity_checkbox_selected@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0C3AC3371F2844DC0066DA1B /* ubiquity_checkbox_selected@2x.png */; };
 		0C580E0D1F2201170099E1EF /* Factory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C580E0C1F2201170099E1EF /* Factory.swift */; };
@@ -144,6 +146,8 @@
 		0C2497761EEA940500CDD68C /* PickerAlbumController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PickerAlbumController.swift; sourceTree = "<group>"; };
 		0C2497781EEA942300CDD68C /* PickerAlbumCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PickerAlbumCell.swift; sourceTree = "<group>"; };
 		0C24977A1EEA95BC00CDD68C /* Protocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Protocol.swift; sourceTree = "<group>"; };
+		0C30A78C1F5FD97200E5980B /* Image.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Image.swift; sourceTree = "<group>"; };
+		0C30A78E1F5FDA3400E5980B /* ImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageView.swift; sourceTree = "<group>"; };
 		0C3AC3361F2844DC0066DA1B /* ubiquity_checkbox_normal@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ubiquity_checkbox_normal@2x.png"; sourceTree = "<group>"; };
 		0C3AC3371F2844DC0066DA1B /* ubiquity_checkbox_selected@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ubiquity_checkbox_selected@2x.png"; sourceTree = "<group>"; };
 		0C580E0C1F2201170099E1EF /* Factory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Factory.swift; sourceTree = "<group>"; };
@@ -297,6 +301,8 @@
 				0C7D45141EAB7AE800D56AB5 /* TilingViewLayoutAttributes.swift */,
 				0C776DEA1F165F6400D242E8 /* Utils.swift */,
 				0C2449D81F56A97A005388B8 /* WSet.swift */,
+				0C30A78C1F5FD97200E5980B /* Image.swift */,
+				0C30A78E1F5FDA3400E5980B /* ImageView.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -630,6 +636,7 @@
 				0C220F6C1F0DF5ED00A13786 /* Asset.swift in Sources */,
 				0C580E0D1F2201170099E1EF /* Factory.swift in Sources */,
 				0C5DCB7E1EC5C680009FA343 /* UIResponder+Fullscreen.swift in Sources */,
+				0C30A78F1F5FDA3400E5980B /* ImageView.swift in Sources */,
 				0C7D45181EAB7AE800D56AB5 /* ConsoleView.swift in Sources */,
 				0CE49E7F1E7AAEB70058F5F8 /* BrowserDetailCell.swift in Sources */,
 				0C7D451A1EAB7AE800D56AB5 /* ExtendedItem.swift in Sources */,
@@ -642,6 +649,7 @@
 				0C7D45191EAB7AE800D56AB5 /* EventCenter.swift in Sources */,
 				0C19D22B1F5D37B400A2A36B /* Library+Photos.swift in Sources */,
 				0C1E4F751F5AAD2B00299E64 /* Exception.swift in Sources */,
+				0C30A78D1F5FD97200E5980B /* Image.swift in Sources */,
 				0C2497771EEA940500CDD68C /* PickerAlbumController.swift in Sources */,
 				0C7D451B1EAB7AE800D56AB5 /* ExtendedToolbar.swift in Sources */,
 				0C19D22A1F5D360900A2A36B /* Collection.swift in Sources */,

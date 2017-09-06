@@ -304,7 +304,7 @@ internal class Logger {
             }
             // write a log
             internal override func write(_ log: Logger.Log) {
-                #if true
+                #if DEBUG && false
                     Console._queue.sync {
                         print(self.layout.format(with: log), terminator: "")
                     }
@@ -400,7 +400,7 @@ internal class Logger {
     }
     internal static var appender: Array<Appender> = [
         //Appender.File(), // 暂不写入文件
-        Appender.Console(threshold: .debug),
+        Appender.Console(threshold: .all),
     ]
 }
 

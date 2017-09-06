@@ -104,5 +104,11 @@ public protocol Library {
     
     /// Cancels all image preparation that is currently in progress.
     func ub_stopCachingImagesForAllAssets()
+    
+    // MARK: Configure
+
+    /// Predefined size of the original request
+    static var ub_requestMaximumSize: CGSize { get }
 }
+
 

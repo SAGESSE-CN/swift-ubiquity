@@ -8,6 +8,7 @@
 
 import UIKit
 
+
 /// The base container
 @objc open class Container: NSObject, ChangeObserver {
     
@@ -167,15 +168,14 @@ import UIKit
     
     // MARK: Content
     
-    
     /// Generate the initialized controller
-    open func initialViewController(with type: ControllerType) -> UIViewController {
+    open func initialViewController(with options: ControllerOptions) -> UIViewController {
         
         // fetch current allows display the collection type
         let collectionType = allowsCollectionTypes?.first ?? .regular
         
         // Try generate a controlelr
-        guard let controller = controller(with: type, source: .init(collectionType: collectionType), sender: self) else {
+        guard let controller = controller(with: options.type, source: .init(collectionType: collectionType), sender: self) else {
             logger.fatal?.write("The controller creation failed. This is an unknown error!")
             fatalError("The controller creation failed. This is an unknown error!")
         }
@@ -187,7 +187,6 @@ import UIKit
         
         return controller
     }
-    
     
     /// Register exception display page
     open func register(_ exceptionViewClass: ExceptionDisplayable.Type) {

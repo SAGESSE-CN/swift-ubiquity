@@ -20,8 +20,9 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         // continue init the UI
         super.init(collectionViewLayout: BrowserAlbumLayout())
         
+        // if not configure title
         // the title will follow data source change
-        title = source.title
+        super.title = source.title
         
         // if the navigation bar disable translucent will have an error offset, enabled `extendedLayoutIncludesOpaqueBars` can solve the problem 
         extendedLayoutIncludesOpaqueBars = true
@@ -43,6 +44,11 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         container.removeChangeObserver(self)
     }
     
+    override var title: String? {
+        willSet {
+            _cachedTitle = newValue
+        }
+    }
     
     override func loadView() {
         super.loadView()
@@ -945,8 +951,8 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
             _headerView?.source = newValue
             _footerView?.source = newValue
             
-            // update title
-            title = newValue.title ?? title
+            // only when in did not set the title will be updated
+            super.title = _cachedTitle ?? newValue.title
         }
     }
     
@@ -994,4 +1000,5 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
     private var _headerView: NavigationHeaderView?
     
     private var _cachedSize: CGSize?
+    private var _cachedTitle: String?
 }

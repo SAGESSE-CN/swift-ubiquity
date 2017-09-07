@@ -32,8 +32,8 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
     
     @IBAction func show(_ sender: Any) {
         
-//        browse(sender)
-        pick(sender)
+        browse(sender)
+//        pick(sender)
     }
     @IBAction func odissmis(_ sender: Any) {
         dismiss(animated: true, completion: nil)
@@ -57,7 +57,16 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
         // display
         //present(browser.initialViewController(with: .albumsList), animated: true, completion: nil)
 //        show(browser.initialViewController(with: .albumsList), sender: nil)
-        show(browser.initialViewController(with: .albums), sender: nil)
+//        show(browser.initialViewController(with: .albums), sender: nil)
+        
+        // generate the albums initial view controller
+        let controller = browser.initialViewController(with: .albums(collectionListType: .regular, filter: {
+            // only display the album user library.
+            $0.ub_collectionSubtype == .smartAlbumUserLibrary
+        }))
+        
+        // display controller
+        show(controller, sender: nil)
     }
     
     @IBAction func pick(_ sender: Any) {
@@ -69,10 +78,12 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
         picker.allowsCollectionTypes = [.regular]
         
         // display
-        let vc = picker.initialViewController(with: .albumsList)
-        vc.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(odissmis(_:)))
+        let controlelr = picker.initialViewController(with: .albumsList(collectionListType: .regular))
         
-        present(vc, animated: true, completion: nil)
+        controlelr.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(odissmis(_:)))
+        
+        // display controller
+        present(controlelr, animated: true, completion: nil)
     }
     
     

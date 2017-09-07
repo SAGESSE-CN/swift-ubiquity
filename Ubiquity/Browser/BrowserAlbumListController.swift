@@ -19,6 +19,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         
         // continue init the UI
         super.init(nibName: nil, bundle: nil)
+        super.title = source.title
         
         // listen albums any change
         self.container.addChangeObserver(self)
@@ -33,11 +34,16 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         self.container.removeChangeObserver(self)
     }
     
+    override var title: String? {
+        willSet {
+            _cachedTitle = newValue
+        }
+    }
+    
     
     override func loadView() {
         super.loadView()
         // setup controller
-        title = "Photos"
         clearsSelectionOnViewWillAppear = false
         
         // setup table view
@@ -74,7 +80,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         super.viewWillAppear(animated)
         
         // start clear
-        _selectedItem.map {
+        _cachedSelectItem.map {
             tableView?.deselectRow(at: $0, animated: animated)
         }
     }
@@ -82,18 +88,23 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         super.viewWillDisappear(animated)
         
         // cancel clear
-        _selectedItem.map {
+        _cachedSelectItem.map {
             tableView?.selectRow(at: $0, animated: animated, scrollPosition: .none)
         }
     }
     
-    
-    private(set) var source: Source
     private(set) var container: Container
+    private(set) var source: Source {
+        willSet {
+            // only when in did not set the title will be updated
+            super.title = _cachedTitle ?? newValue.title
+        }
+    }
     
     fileprivate var _collectionList: CollectionList?
     
-    fileprivate var _selectedItem: IndexPath?
+    fileprivate var _cachedSelectItem: IndexPath?
+    fileprivate var _cachedTitle: String?
 }
 
 /// Add data source
@@ -147,7 +158,7 @@ extension BrowserAlbumListController {
             logger.warning?.write("The albums controller creation failed. This is an unknown error!")
             return
         }
-        _selectedItem = indexPath
+        _cachedSelectItem = indexPath
        
         // show next page
         show(controller, sender: indexPath)

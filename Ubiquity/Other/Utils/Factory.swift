@@ -16,6 +16,52 @@ public enum ControllerType {
     case detail
 }
 
+public struct ControllerOptions {
+    
+    public typealias CollectionFilter = (Collection) -> Bool
+    
+    /// Generate an options. prohibit external create
+    private init(type: ControllerType) {
+        self.type = type
+    }
+    
+    internal var type: ControllerType
+    
+    public static func albumsList(collectionList: CollectionList, filter: CollectionFilter? = nil) ->  ControllerOptions {
+        return .init(type: .albumsList)
+    }
+    public static func albumsList(collectionListType: CollectionType, filter: CollectionFilter? = nil) ->  ControllerOptions {
+        return .init(type: .albumsList)
+    }
+    public static func albumsList(collectionLists: [CollectionList], filter: CollectionFilter? = nil) ->  ControllerOptions {
+        return .init(type: .albumsList)
+    }
+    public static func albumsList(collectionListTypes: [CollectionType], filter: CollectionFilter? = nil) -> ControllerOptions {
+        return .init(type: .albumsList)
+    }
+    
+    public static func albums(collection: Collection) ->  ControllerOptions {
+        return .init(type: .albums)
+    }
+    public static func albums(collectionList: CollectionList, filter: CollectionFilter? = nil) ->  ControllerOptions {
+        return .init(type: .albums)
+    }
+    public static func albums(collectionListType: CollectionType, filter: CollectionFilter? = nil) ->  ControllerOptions {
+        return .init(type: .albums)
+    }
+    
+    public static func details(collection: Collection) ->  ControllerOptions {
+        return .init(type: .detail)
+    }
+    public static func details(collectionList: CollectionList, filter: CollectionFilter? = nil) ->  ControllerOptions {
+        return .init(type: .detail)
+    }
+    public static func details(collectionListType: CollectionType, filter: CollectionFilter? = nil) ->  ControllerOptions {
+        return .init(type: .detail)
+    }
+}
+
+
 internal protocol Controller {
     
     /// Base controller craete method

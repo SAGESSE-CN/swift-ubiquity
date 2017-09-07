@@ -9,7 +9,7 @@
 import UIKit
 import Photos
 
-/// bridge Photos
+// MARK: - define photos utils strong.
 
 public typealias UHAsset = PHAsset
 public typealias UHAssetChange = PHChange
@@ -94,7 +94,6 @@ public class UHAssetCollection: NSObject {
         #keyPath(PHAssetCollection.endDate),
     ]
 }
-
 public class UHAssetCollectionList: NSObject {
     
     /// Generate a collection list with collectoin type
@@ -172,7 +171,7 @@ public class UHAssetCollectionList: NSObject {
 }
 
 
-internal class UHAssetRequest: NSObject, Request {
+internal class UHAssetRequest: NSObject {
     
     /// Generate a asset request.
     internal init(targetSize: CGSize = PHImageManagerMaximumSize, contentMode: PHImageContentMode = .default) {
@@ -195,25 +194,25 @@ internal class UHAssetRequest: NSObject, Request {
     internal var contentMode: PHImageContentMode = .default
 }
 
-internal class UHAssetResponse: NSObject, Response {
+internal class UHAssetResponse: NSObject {
     
     /// Generate response for Photos.
     internal init(_ responseObject: [AnyHashable: Any]?) {
-        ub_error = responseObject?[PHImageErrorKey] as? NSError
-        ub_degraded = responseObject?[PHImageResultIsDegradedKey] as? Bool ?? false
-        ub_cancelled = responseObject?[PHImageCancelledKey] as? Bool ?? false
-        ub_downloading = responseObject?[PHImageResultIsInCloudKey] as? Bool ?? false
+        error = responseObject?[PHImageErrorKey] as? NSError
+        isDegraded = responseObject?[PHImageResultIsDegradedKey] as? Bool ?? false
+        isCancelled = responseObject?[PHImageCancelledKey] as? Bool ?? false
+        isDownloading = responseObject?[PHImageResultIsInCloudKey] as? Bool ?? false
     }
     
     /// An error that occurred when Photos attempted to load the image.
-    internal var ub_error: Error?
+    open var error: Error?
     
     /// The result image is a low-quality substitute for the requested image.
-    internal var ub_degraded: Bool
+    open var isDegraded: Bool = false
     /// The image request was canceled.
-    internal var ub_cancelled: Bool
+    open var isCancelled: Bool = false
     /// The photo asset data is stored on the local device or must be downloaded from remote servicer
-    internal var ub_downloading: Bool
+    open var isDownloading: Bool = false
 }
 
 public class UHAssetLibrary: NSObject, Photos.PHPhotoLibraryChangeObserver {
@@ -249,6 +248,9 @@ public class UHAssetLibrary: NSObject, Photos.PHPhotoLibraryChangeObserver {
     
     internal lazy var observers: WSet<ChangeObserver> = []
 }
+
+
+// MARK: - bridging Photos to Ubiquity.
 
 
 extension UHAsset: Asset {
@@ -630,6 +632,29 @@ extension UHAssetChange: Change {
         return details
     }
 }
+extension UHAssetRequest: Request {
+}
+extension UHAssetResponse: Response {
+    
+    /// An error that occurred when Photos attempted to load the image.
+    public var ub_error: Error? {
+        return error
+    }
+    
+    /// The result image is a low-quality substitute for the requested image.
+    public var ub_degraded: Bool {
+        return isDegraded
+    }
+    
+    /// The image request was canceled.
+    public var ub_cancelled: Bool {
+        return isCancelled
+    }
+    /// The photo asset data is stored on the local device or must be downloaded from remote servicer
+    public var ub_downloading: Bool {
+        return isDownloading
+    }
+}
 
 extension UHAssetLibrary: Library {
 
@@ -727,8 +752,8 @@ extension UHAssetLibrary: Library {
             
             
             // if the image is empty and the image is degraded, it need download
-            if response.ub_degraded && image == nil {
-                response.ub_downloading = true
+            if response.isDegraded && image == nil {
+                response.isDownloading = true
             }
             
             // update request result 

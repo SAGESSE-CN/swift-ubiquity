@@ -87,8 +87,12 @@ public class ImageView: UIImageView {
     
     public override var image: UIImage? {
         willSet {
+            // value is changed?
+            guard newValue !== image else {
+                return
+            }
             
-            guard let image = newValue as? Image else {
+            guard let image = newValue as? Image, image.isLarged else {
                 return
             }
             
@@ -123,6 +127,9 @@ public class ImageView: UIImageView {
             _tiledLayer = tiled
         }
     }
+    public var placeholderImage: UIImage?
+    
+    
 //    public override var contentScaleFactor: CGFloat {
 //        willSet {
 //            guard let renderer = _tiledRender else {

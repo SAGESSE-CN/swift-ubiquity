@@ -35,6 +35,9 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
 //        browse(sender)
         pick(sender)
     }
+    @IBAction func odissmis(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
+    }
     
     override func show(_ vc: UIViewController, sender: Any?) {
         vc.hidesBottomBarWhenPushed = true
@@ -66,7 +69,10 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
         picker.allowsCollectionTypes = [.regular]
         
         // display
-        present(picker.initialViewController(with: .albumsList), animated: true, completion: nil)
+        let vc = picker.initialViewController(with: .albumsList)
+        vc.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(odissmis(_:)))
+        
+        present(vc, animated: true, completion: nil)
     }
     
     

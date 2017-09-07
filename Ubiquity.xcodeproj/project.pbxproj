@@ -31,6 +31,7 @@
 		0C2497771EEA940500CDD68C /* PickerAlbumController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2497761EEA940500CDD68C /* PickerAlbumController.swift */; };
 		0C2497791EEA942300CDD68C /* PickerAlbumCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2497781EEA942300CDD68C /* PickerAlbumCell.swift */; };
 		0C24977B1EEA95BC00CDD68C /* Protocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C24977A1EEA95BC00CDD68C /* Protocol.swift */; };
+		0C2595D21F611F37008E2206 /* Library+Sandbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2449D61F5518B2005388B8 /* Library+Sandbox.swift */; };
 		0C30A78D1F5FD97200E5980B /* Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C30A78C1F5FD97200E5980B /* Image.swift */; };
 		0C30A78F1F5FDA3400E5980B /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C30A78E1F5FDA3400E5980B /* ImageView.swift */; };
 		0C3AC3381F2844DC0066DA1B /* ubiquity_checkbox_normal@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0C3AC3361F2844DC0066DA1B /* ubiquity_checkbox_normal@2x.png */; };
@@ -663,6 +664,7 @@
 				0C983BC81EBC552300A5A932 /* PhotoContentView.swift in Sources */,
 				0C7D44CD1F595957006DEB53 /* SelectionStatusView.swift in Sources */,
 				0C776DEB1F165F6400D242E8 /* Utils.swift in Sources */,
+				0C2595D21F611F37008E2206 /* Library+Sandbox.swift in Sources */,
 				0CBDA60C1ECB3E330016675C /* NavigationController.swift in Sources */,
 				0CD65B751F381BD8008CD3A7 /* SelectionStatus.swift in Sources */,
 				0C2449D91F56A97A005388B8 /* WSet.swift in Sources */,

@@ -47,17 +47,33 @@ public enum RequestContentMode: Int {
     static var `default`: RequestContentMode = .aspectFill
 }
 
+/// Options for delivering requested image data, used by the deliveryMode property.
+public enum RequestDeliveryMode : Int {
+    
+    /// client may get several image results when the call is asynchronous or will get one result when the call is synchronous
+    case opportunistic
+    
+    /// client will get one result only and it will be as asked or better than asked (sync requests are automatically processed this way regardless of the specified mode)
+    case highQualityFormat 
+    
+    /// client will get one result only and it may be degraded
+    case fastFormat 
+}
+
 /// A set of options affecting the delivery of still image representations of Photos assets you request from an image manager.
 public class RequestOptions: NSObject {
     
     /// if necessary will download the image from reomte, Defaults to true
-    var isNetworkAccessAllowed: Bool = true
+    public var isNetworkAccessAllowed: Bool = true
     
     // return only a single result, blocking until available (or failure). Defaults to false
-    var isSynchronous: Bool = false
+    public var isSynchronous: Bool = false
+    
+    // delivery mode. Defaults to opportunistic
+    public var deliveryMode: RequestDeliveryMode = .opportunistic
     
     /// provide caller a way to be told how much progress has been made prior to delivering the data when it comes from remote server.
-    var progressHandler: ((Double, Response) -> ())? 
+    public var progressHandler: ((Double, Response) -> ())?
 }
 
 /// Provides methods for retrieving or generating preview thumbnails and full-size image or video data associated with Photos assets.

@@ -193,6 +193,7 @@ import UIKit
     open func register(_ exceptionViewClass: ExceptionDisplayable.Type) {
         // must king of `UIView`
         guard exceptionViewClass is UIView.Type else {
+            logger.fatal?.write("The exception view must king of `UIView`")
             fatalError("The exception view must king of `UIView`")
         }
         
@@ -203,6 +204,7 @@ import UIKit
     open func register(_ contentViewClass: Displayable.Type, forContentView media: AssetType, in type: ControllerType) {
         // must king of `UIView`
         guard let contentViewClass = contentViewClass as? UIView.Type else {
+            logger.fatal?.write("The exception view must king of `UIView`")
             fatalError("The content must king of `UIView`")
         }
         
@@ -214,6 +216,7 @@ import UIKit
     open func register(_ controllerClass: UIViewController.Type, forController type: ControllerType) {
         // must king of `Controller`
         guard let controller = controllerClass as? Controller.Type else {
+            logger.fatal?.write("The content must king of `UIViewController`")
             fatalError("The content must king of `UIViewController`")
         }
         
@@ -225,6 +228,7 @@ import UIKit
     open func register(_ cellClass: Displayable.Type, forCell type: ControllerType) {
         // must king of `UIView`
         guard let cellClass = cellClass as? UIView.Type else {
+            logger.fatal?.write("The cellClass must king of `UITableViewCell` or `UICollectionViewCell`")
             fatalError("The cellClass must king of `UITableViewCell` or `UICollectionViewCell`")
         }
         

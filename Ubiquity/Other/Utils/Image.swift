@@ -40,11 +40,15 @@ public class Image: UIImage {
     
     public override init?(data: Data) {
         super.init(data: data)
-        _check()
+        
+        // load other info
+        super.cgImage.map { _load(image: $0) }
     }
-    
     public override init?(data: Data, scale: CGFloat) {
-        fatalError("init(coder:scale:) has not been implemented")
+        super.init(data: data, scale: scale)
+        
+        // load other info
+        super.cgImage.map { _load(image: $0) }
     }
     
     public required convenience init(imageLiteralResourceName name: String) {
@@ -58,25 +62,24 @@ public class Image: UIImage {
     public required init(itemProviderData data: Data, typeIdentifier: String) throws {
         fatalError("init(itemProviderData:typeIdentifier:) has not been implemented")
     }
-    
-//    public /*not inherited*/ init?(named name: String)
-//
-//    
-//    @available(iOS 8.0, *)
-//    public /*not inherited*/ init?(named name: String, in bundle: Bundle?, compatibleWith traitCollection: UITraitCollection?)
+
     
     public override var size: CGSize {
-        return .init(width: super.cgImage?.width ?? 0, height: super.cgImage?.height ?? 0)
+        // cgImage must be set
+        guard let raw = raw else {
+            return .zero
+        }
+        return .init(width: raw.width, height: raw.height)
     }
     
     public override var cgImage: CGImage? {
-        return nil//super.cgImage
+        // if it's large image, don't use cgImage directly 
+        guard isLarged else {
+            return super.cgImage
+        }
+        return nil
     }
     
-    public var placeholder: UIImage? {
-        willSet {
-        }
-    }
     
 //
 //
@@ -108,27 +111,29 @@ public class Image: UIImage {
 //            logger.debug?.write("\(mem / 1024 / 1024)MiB, \(mem)B")
 //        }
     
-    // check image info
-    private func _check() {
-        // if you do not set a cgImage, ignored
-        guard let image = super.cgImage else {
-            return
-        }
-        
+    // check bytes
+    private func _load(image: CGImage) {
         // calculate the memory footprint after decoding
         let bytes = image.bytesPerRow * image.height
         
-        
-        logger.debug?.write("decode bytes is \(Float(bytes) / 1024 / 1024)MiB")
+        // if the image decode bytes has exceeded the limit, the image is large iamge
+        isLarged = (bytes >= UHAssetLibrary.maximumLoadBytes)
     }
     
-    /// This is the original image
-    internal var raw: CGImage? {
-        return super.cgImage
+    private func _check(data: Data) {
     }
+    
 
     /// A image renderer
     internal lazy var renderer: ImageRenderer = ImageRenderer(image: self)
+    
+    /// The image raw cgImage
+    internal var raw: CGImage? {
+        return super.cgImage
+    }
+    
+    /// The image is large image
+    internal var isLarged: Bool = false
 }
 
 /// A image renderer
@@ -140,7 +145,7 @@ internal class ImageRenderer: NSObject {
     }
     
     /// The renderer associated image
-    unowned let image: Image
+    internal unowned let image: Image
     
     /// Create an image scaling within the specified `rect`.
     internal func scaling(to rect: CGRect) -> CGImage? {
@@ -204,4 +209,7 @@ internal class ImageRenderer: NSObject {
     internal func cropping(to rect: CGRect) -> CGImage? {
         return image.raw?.cropping(to: rect)
     }
+    
+    /// Allows maximum one-time loading image bytes
+    internal static var maximumLoadBytes: Int = 100 * 1024 * 1024 // 100MiB
 }

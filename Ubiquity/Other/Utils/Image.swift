@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import ImageIO
 
 public class Image: UIImage {
     
@@ -39,6 +40,7 @@ public class Image: UIImage {
     
     public override init?(data: Data) {
         super.init(data: data)
+        _check()
     }
     
     public override init?(data: Data, scale: CGFloat) {
@@ -71,8 +73,9 @@ public class Image: UIImage {
         return nil//super.cgImage
     }
     
-    internal var sucgImage: CGImage? {
-        return super.cgImage
+    public var placeholder: UIImage? {
+        willSet {
+        }
     }
     
 //
@@ -104,6 +107,25 @@ public class Image: UIImage {
 //            
 //            logger.debug?.write("\(mem / 1024 / 1024)MiB, \(mem)B")
 //        }
+    
+    // check image info
+    private func _check() {
+        // if you do not set a cgImage, ignored
+        guard let image = super.cgImage else {
+            return
+        }
+        
+        // calculate the memory footprint after decoding
+        let bytes = image.bytesPerRow * image.height
+        
+        
+        logger.debug?.write("decode bytes is \(Float(bytes) / 1024 / 1024)MiB")
+    }
+    
+    /// This is the original image
+    internal var raw: CGImage? {
+        return super.cgImage
+    }
 
     /// A image renderer
     internal lazy var renderer: ImageRenderer = ImageRenderer(image: self)
@@ -123,25 +145,63 @@ internal class ImageRenderer: NSObject {
     /// Create an image scaling within the specified `rect`.
     internal func scaling(to rect: CGRect) -> CGImage? {
         
-        let scale = min(rect.width / image.size.width, rect.height / image.size.height)
-        let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
-        
-        UIGraphicsBeginImageContext(size)
-        let context = UIGraphicsGetCurrentContext()
-        
-        if let sub = image.sucgImage {
-            context?.translateBy(x: 0, y: size.height)
-            context?.scaleBy(x: 1, y: -1)
-            context?.draw(sub, in: .init(origin: .zero, size: size), byTiling: false)
+        // the cgImage must be set
+        guard let image = image.raw else {
+            return nil
         }
         
-        let ni = context?.makeImage()
-        UIGraphicsEndImageContext()
-        return ni
+//        guard let data = image.data else {
+//            return nil
+//        }
+//        
+//        
+//        // To create image source from UIImage, use this
+//        // NSData* pngData =  UIImagePNGRepresentation(image);
+//        
+//        guard let src = CGImageSourceCreateWithData(data as CFData, nil) else {
+//            return nil
+//        }
+//
+//        // Create thumbnail options
+//        let options = [
+//            kCGImageSourceCreateThumbnailWithTransform as String: true,
+//            kCGImageSourceCreateThumbnailFromImageAlways as String: true,
+//            kCGImageSourceThumbnailMaxPixelSize as String: max(rect.width, rect.height)
+//        ] as [String : Any]
+//        
+//        // Generate the thumbnail
+//        return CGImageSourceCreateThumbnailAtIndex(src, 0, options as CFDictionary)
+        
+        // calculate the scaled rect 
+        let scale = min(rect.width / .init(image.width), rect.height / .init(image.height))
+        let size = CGSize(width: .init(image.width) * scale, height: .init(image.height) * scale)
+        
+        // begin drawing image 
+        autoreleasepool { 
+            UIGraphicsBeginImageContext(size)
+        }
+        
+        // automatic release at end of scope 
+        defer {
+            UIGraphicsEndImageContext()
+        }
+        
+        // if the context cannot be reached, the rendering fails
+        guard let context = UIGraphicsGetCurrentContext() else {
+            return nil
+        }
+        
+        // because of the use of context.draw and UIKit coordinates are not the same, so the need to flip drawing image
+        context.translateBy(x: 0, y: size.height)
+        context.scaleBy(x: 1, y: -1)
+        context.draw(image, in: .init(origin: .zero, size: size), byTiling: false)
+        
+        // get drawing results 
+        return context.makeImage()
     }
     
     /// Create an image using the data contained within the subrectangle `rect' of `image'.
     internal func cropping(to rect: CGRect) -> CGImage? {
-        return image.sucgImage?.cropping(to: rect)
+        return image.raw?.cropping(to: rect)
     }
 }

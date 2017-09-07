@@ -25,7 +25,7 @@ internal class ImageLayer: CATiledLayer, CALayerDelegate {
     
     /// Animation duration for after tile loading finishes
     override class func fadeDuration() -> CFTimeInterval {
-        return 0.00
+        return 0.02
     }
     
     /// limit the maximum tile zoom level
@@ -75,7 +75,7 @@ internal class ImageLayer: CATiledLayer, CALayerDelegate {
         delegate = self
         
         tileSize = .init(width: 512, height: 512)
-        tileMaximumZoomLevel = 5 // 2560x2560
+        tileMaximumZoomLevel = 4 // 2048x2048
         
         levelsOfDetail = 1
         levelsOfDetailBias = 2
@@ -94,7 +94,7 @@ public class ImageView: UIImageView {
             
             DispatchQueue.global().async {
                 
-                guard let nr = image.renderer.scaling(to: .init(x: 0, y: 0, width: 2560, height: 2560)) else {
+                guard let nr = image.renderer.scaling(to: .init(x: 0, y: 0, width: 2048, height: 2048)) else {
                     return
                 }
                 

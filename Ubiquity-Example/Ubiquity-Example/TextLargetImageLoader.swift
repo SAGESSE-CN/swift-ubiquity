@@ -11,89 +11,91 @@ import UIKit
 import CoreGraphics
 import CoreGraphics.CGImage
 
-@testable import Ubiquity
+import Ubiquity
 
-class TestLargeLayer: CATiledLayer {
-    
-    override class func fadeDuration() -> CFTimeInterval {
-        return 0.02
-    }
-    
-}
-
-class TestLargeImageView: UIView {
-    
-    override class var layerClass: AnyClass {
-        return TestLargeLayer.self
-    }
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        _setup()
-    }
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        _setup()
-    }
-    
-    // MARK: Properties
-    
-    var tiledLayer: CATiledLayer {
-        return layer as! CATiledLayer
-    }
-    
-    var tileSize: CGSize = .init(width: 256, height: 256) {
-        willSet {
-            tiledLayer.tileSize = newValue.applying(.init(scaleX: contentScaleFactor, y: contentScaleFactor))
-        }
-    }
-    
-    var image: UIImage?
-    
-    /// limit the maximum tile zoom level
-    var maximumTileZoomLevel: Int = 16
-    
-    override func draw(_ rect: CGRect) {
-        // limit the maximum tile size, because if the tile beyond this size you can't see it
-        guard let context = UIGraphicsGetCurrentContext(), ceil(rect.width / tileSize.width) <= CGFloat(maximumTileZoomLevel + 1) else {
-            return
-        }
-        
-        // cropping the image that need to be display from source image
-        guard let cropped = image?.cgImage?.cropping(to: rect) else {
-            return
-        }
-        
-        // must set the starting point for the drawing, otherwise the flip drawing will wrong
-        context.translateBy(x: rect.minX, y: rect.minY)
-        
-        // because of the use of context.draw and UIKit coordinates are not the same, so the need to flip drawing image
-        context.translateBy(x: 0, y: rect.height)
-        context.scaleBy(x: 1, y: -1)
-        
-        // drawing cropped image
-        context.draw(cropped, in: .init(origin: .zero, size: rect.size))
-    }
-    
-//        let scale = context.ctm.a / tiledLayer.contentsScale
-//        let column = Int(rect.minX * scale / tileSize.width + 0.5)
-//        let row = Int(rect.minY * scale / tileSize.height + 0.5)
+//@testable import Ubiquity
+//
+//class TestLargeLayer: CATiledLayer {
+//    
+//    override class func fadeDuration() -> CFTimeInterval {
+//        return 0.02
+//    }
+//    
+//}
+//
+//class TestLargeImageView: UIView {
+//    
+//    override class var layerClass: AnyClass {
+//        return TestLargeLayer.self
+//    }
+//    
+//    override init(frame: CGRect) {
+//        super.init(frame: frame)
+//        _setup()
+//    }
+//    required init?(coder aDecoder: NSCoder) {
+//        super.init(coder: aDecoder)
+//        _setup()
+//    }
+//    
+//    // MARK: Properties
+//    
+//    var tiledLayer: CATiledLayer {
+//        return layer as! CATiledLayer
+//    }
+//    
+//    var tileSize: CGSize = .init(width: 256, height: 256) {
+//        willSet {
+//            tiledLayer.tileSize = newValue.applying(.init(scaleX: contentScaleFactor, y: contentScaleFactor))
+//        }
+//    }
+//    
+//    var image: UIImage?
+//    
+//    /// limit the maximum tile zoom level
+//    var maximumTileZoomLevel: Int = 16
+//    
+//    override func draw(_ rect: CGRect) {
+//        // limit the maximum tile size, because if the tile beyond this size you can't see it
+//        guard let context = UIGraphicsGetCurrentContext(), ceil(rect.width / tileSize.width) <= CGFloat(maximumTileZoomLevel + 1) else {
+//            return
+//        }
 //        
-//        let str = "\(rect)\n\(ceil(scale * 200) / 200)\n[\(row), \(column)]" as NSString
-//        logger.debug?.write(rect.size)
-    
-    private func _setup() {
-        
-        // configure tile
-        tiledLayer.tileSize = tileSize.applying(.init(scaleX: contentScaleFactor, y: contentScaleFactor))
-        tiledLayer.levelsOfDetail = 1
-        tiledLayer.levelsOfDetailBias = 3
-        
-        
-        backgroundColor = .clear
-    }
-}
-
+//        // cropping the image that need to be display from source image
+//        guard let cropped = image?.cgImage?.cropping(to: rect) else {
+//            return
+//        }
+//        
+//        // must set the starting point for the drawing, otherwise the flip drawing will wrong
+//        context.translateBy(x: rect.minX, y: rect.minY)
+//        
+//        // because of the use of context.draw and UIKit coordinates are not the same, so the need to flip drawing image
+//        context.translateBy(x: 0, y: rect.height)
+//        context.scaleBy(x: 1, y: -1)
+//        
+//        // drawing cropped image
+//        context.draw(cropped, in: .init(origin: .zero, size: rect.size))
+//    }
+//    
+////        let scale = context.ctm.a / tiledLayer.contentsScale
+////        let column = Int(rect.minX * scale / tileSize.width + 0.5)
+////        let row = Int(rect.minY * scale / tileSize.height + 0.5)
+////        
+////        let str = "\(rect)\n\(ceil(scale * 200) / 200)\n[\(row), \(column)]" as NSString
+////        logger.debug?.write(rect.size)
+//    
+//    private func _setup() {
+//        
+//        // configure tile
+//        tiledLayer.tileSize = tileSize.applying(.init(scaleX: contentScaleFactor, y: contentScaleFactor))
+//        tiledLayer.levelsOfDetail = 1
+//        tiledLayer.levelsOfDetailBias = 3
+//        
+//        
+//        backgroundColor = .clear
+//    }
+//}
+//
 
 class TextLargetImageLoader: UIViewController, UIScrollViewDelegate {
     
@@ -175,22 +177,36 @@ class TextLargetImageLoader: UIViewController, UIScrollViewDelegate {
         }
         
         let image = Ubiquity.Image(data: data)
-        let imageView = Ubiquity.ImageView(frame: .init(origin: .zero, size: image?.size ?? .zero))
+        let size = image?.size ?? .zero
+        let scale = max(size.width, 1) / view.bounds.width
+        
+        let imageView = Ubiquity.ImageView(frame: .init(x: 0, y: 0, width: size.width, height: size.height))
         let scrollView = UIScrollView(frame: view.bounds)
         
         imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         imageView.image = image
         
         scrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        scrollView.contentSize = imageView.frame.size
+        scrollView.contentSize = size
         scrollView.delegate = self
-        scrollView.minimumZoomScale = view.bounds.width / max(imageView.frame.width, 1)
-        scrollView.maximumZoomScale = 1
         scrollView.addSubview(imageView)
         
         view.addSubview(scrollView)
         
         _contentView = imageView
+        
+        scrollView.minimumZoomScale = 1 / scale
+        scrollView.maximumZoomScale = 1
+        scrollView.zoomScale = scrollView.minimumZoomScale
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
     }
     
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {

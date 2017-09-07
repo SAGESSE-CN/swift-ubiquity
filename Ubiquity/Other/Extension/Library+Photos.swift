@@ -172,22 +172,33 @@ public class UHAssetCollectionList: NSObject {
 }
 
 
-public class UHAssetRequest: NSObject, Request {
+internal class UHAssetRequest: NSObject, Request {
     
-    /// Request of image.
-    public var image: PHImageRequestID?
+    /// Generate a asset request.
+    internal init(targetSize: CGSize = PHImageManagerMaximumSize, contentMode: PHImageContentMode = .default) {
+        self.targetSize = targetSize
+        self.contentMode = contentMode
+        super.init()
+    }
     
-    /// Request of video.
-    public var video: PHImageRequestID?
+    /// The request of image.
+    internal var image: PHImageRequestID?
     
-    /// Request of data.
-    public var data: PHImageRequestID?
+    /// The request of video.
+    internal var video: PHImageRequestID?
+    
+    /// The request of data.
+    internal var data: PHImageRequestID?
+    
+    /// The request of target size.
+    internal var targetSize: CGSize
+    internal var contentMode: PHImageContentMode = .default
 }
 
-public class UHAssetResponse: NSObject, Response {
+internal class UHAssetResponse: NSObject, Response {
     
     /// Generate response for Photos.
-    public init(_ responseObject: [AnyHashable: Any]?) {
+    internal init(_ responseObject: [AnyHashable: Any]?) {
         ub_error = responseObject?[PHImageErrorKey] as? NSError
         ub_degraded = responseObject?[PHImageResultIsDegradedKey] as? Bool ?? false
         ub_cancelled = responseObject?[PHImageCancelledKey] as? Bool ?? false
@@ -195,14 +206,14 @@ public class UHAssetResponse: NSObject, Response {
     }
     
     /// An error that occurred when Photos attempted to load the image.
-    public var ub_error: Error?
+    internal var ub_error: Error?
     
     /// The result image is a low-quality substitute for the requested image.
-    public var ub_degraded: Bool
+    internal var ub_degraded: Bool
     /// The image request was canceled.
-    public var ub_cancelled: Bool
+    internal var ub_cancelled: Bool
     /// The photo asset data is stored on the local device or must be downloaded from remote servicer
-    public var ub_downloading: Bool
+    internal var ub_downloading: Bool
 }
 
 public class UHAssetLibrary: NSObject, Photos.PHPhotoLibraryChangeObserver {
@@ -673,9 +684,8 @@ extension UHAssetLibrary: Library {
             return nil
         }
         
-        let newMode = _convert(forMode: mode)
-        let newOptions = _convert(forImage: options)
-        let newRequest = UHAssetRequest()
+        let option = _convert(forImage: options)
+        let request = UHAssetRequest(targetSize: size, contentMode: _convert(forMode: mode))
         
         // special processing is required when loading larger images
         if size == UHAssetLibrary.ub_requestMaximumSize {
@@ -688,30 +698,33 @@ extension UHAssetLibrary: Library {
             // the requested image size has exceeded the limit size?
             if bytes >= UHAssetLibrary.maximumLoadBytes {
                 // exceeds preset maximun bytes
-                logger.info?.write("request SD image, request bytes is \(Float(bytes) / 1024 / 1024)MiB")
+                logger.info?.write("request HD/SD image, request bytes is \(Float(bytes) / 1024 / 1024)MiB")
                 
-//                // send data request
-//                newRequest.data = cache.requestImageData(for: asset, options: newOptions) { imageData, dataUTI, orientation, responseObject in
-//                    //print(dataUTI)
+                // send data request
+                request.targetSize = UIScreen.main.bounds.size
+                request.contentMode = .aspectFill
+//                request.data = cache.requestImageData(for: asset, options: option) { imageData, dataUTI, orientation, responseObject in
+//                    
 //                }
             }
             
             // for GIF special loading methods are required
-            if newRequest.data == nil && asset.ub_subtype & AssetSubtype.photoGIF.rawValue != 0 {
+            if request.data == nil && asset.ub_subtype & AssetSubtype.photoGIF.rawValue != 0 {
                 // the image is GIF.
                 logger.info?.write("request GIF image")
                 
-//                // send data request
-//                newRequest.data = cache.requestImageData(for: asset, options: newOptions) { imageData, dataUTI, orientation, responseObject in
-//                    //print(dataUTI)
+                // send data request
+//                request.data = cache.requestImageData(for: asset, options: option) { imageData, dataUTI, orientation, responseObject in
+//                    
 //                }
             }
         }
         
         // send image request
-        newRequest.image = cache.requestImage(for: asset, targetSize: size, contentMode: newMode, options: newOptions) { image, responseObject in
+        request.image = cache.requestImage(for: asset, targetSize: request.targetSize, contentMode: request.contentMode, options: option) { image, responseObject in
             // convert result info to response
             let response = UHAssetResponse(responseObject)
+            
             
             // if the image is empty and the image is degraded, it need download
             if response.ub_degraded && image == nil {
@@ -723,7 +736,7 @@ extension UHAssetLibrary: Library {
         }
         
         // the request has been sent successfully
-        return newRequest
+        return request
     }
     
     /// Requests a representation of the video asset for playback, to be loaded asynchronously.
@@ -733,11 +746,11 @@ extension UHAssetLibrary: Library {
             return nil
         }
         
-        let newOptions = _convert(forVideo: options)
-        let newRequest = UHAssetRequest()
+        let option = _convert(forVideo: options)
+        let request = UHAssetRequest()
         
         // send player item request
-        newRequest.video = cache.requestPlayerItem(forVideo: asset, options: newOptions) { item, responseObject in
+        request.video = cache.requestPlayerItem(forVideo: asset, options: option) { item, responseObject in
             // convert result info to response
             let response = UHAssetResponse(responseObject)
             
@@ -746,7 +759,7 @@ extension UHAssetLibrary: Library {
         }
         
         // the request has been sent successfully 
-        return newRequest
+        return request
     }
     
     /// Cancels an asynchronous request

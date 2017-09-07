@@ -98,6 +98,10 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         collectionView?.allowsSelection = false
         collectionView?.backgroundColor = .white
         
+        // must set up an empty view
+        // otherwise in the performBatchUpdates header/footer create failure led to the crash
+        collectionView?.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "HEADER")
+        
         // register colleciton cell
         factory.contents.forEach {
             collectionView?.register($1, forCellWithReuseIdentifier: $0)
@@ -251,6 +255,17 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         
         displayer.endDisplay(with: container)
     }
+    
+    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        // generate header view.
+        return collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "HEADER", for: indexPath)
+    }
+    override func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
+        // hidden header view
+        view.isHidden = true
+        view.isUserInteractionEnabled = false
+    }
+    
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return -extraContentInset.left * 2

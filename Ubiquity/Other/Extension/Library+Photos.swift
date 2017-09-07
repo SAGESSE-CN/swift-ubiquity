@@ -14,7 +14,6 @@ import Photos
 public typealias UHAsset = PHAsset
 public typealias UHAssetChange = PHChange
 
-
 public class UHAssetCollection: NSObject {
     
     // Generate a collection for Photos.
@@ -170,7 +169,6 @@ public class UHAssetCollectionList: NSObject {
     public var collectionType: CollectionType
 }
 
-
 internal class UHAssetRequest: NSObject {
     
     /// Generate a asset request.
@@ -193,7 +191,6 @@ internal class UHAssetRequest: NSObject {
     internal var targetSize: CGSize
     internal var contentMode: PHImageContentMode = .default
 }
-
 internal class UHAssetResponse: NSObject {
     
     /// Generate response for Photos.
@@ -360,7 +357,6 @@ extension UHAsset: Asset {
     /// The asset filename
     @NSManaged internal var filename: String?
 }
-
 extension UHAssetCollection: Collection {
     
     /// The localized title of the collection.
@@ -430,7 +426,6 @@ extension UHAssetCollection: Collection {
         return fetchResultLoaded.object(at: index)
     }
 }
-
 extension UHAssetCollectionList: CollectionList {
     
     /// The type of the asset collection, such as an album or a moment.
@@ -448,7 +443,6 @@ extension UHAssetCollectionList: CollectionList {
         return collections[index]
     }
 }
-
 
 extension UHAssetChange: Change {
 

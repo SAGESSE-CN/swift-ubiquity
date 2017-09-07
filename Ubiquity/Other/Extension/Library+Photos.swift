@@ -698,7 +698,7 @@ extension UHAssetLibrary: Library {
             // the requested image size has exceeded the limit size?
             if bytes >= UHAssetLibrary.maximumLoadBytes {
                 // exceeds preset maximun bytes
-                logger.info?.write("request HD/SD image, request bytes is \(Float(bytes) / 1024 / 1024)MiB")
+                logger.info?.write("request HD/SD image, decode bytes is \(Float(bytes) / 1024 / 1024)MiB")
                 
                 // send data request
                 request.targetSize = UIScreen.main.bounds.size

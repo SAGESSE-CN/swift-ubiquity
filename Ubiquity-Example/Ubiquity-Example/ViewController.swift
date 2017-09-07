@@ -32,8 +32,8 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
     
     @IBAction func show(_ sender: Any) {
         
-        browse(sender)
-//        pick(sender)
+//        browse(sender)
+        pick(sender)
     }
     
     override func show(_ vc: UIViewController, sender: Any?) {
@@ -48,13 +48,13 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
         let browser = Ubiquity.Browser(library: Ubiquity.UHAssetLibrary())
         
         // configure
-//        browser.allowsCollectionTypes = [.moment]
-        browser.allowsCollectionTypes = [.regular]
+        browser.allowsCollectionTypes = [.moment]
+//        browser.allowsCollectionTypes = [.regular]
         
         // display
         //present(browser.initialViewController(with: .albumsList), animated: true, completion: nil)
-        show(browser.initialViewController(with: .albumsList), sender: nil)
-        //show(browser.initialViewController(with: .albums), sender: nil)
+//        show(browser.initialViewController(with: .albumsList), sender: nil)
+        show(browser.initialViewController(with: .albums), sender: nil)
     }
     
     @IBAction func pick(_ sender: Any) {

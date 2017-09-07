@@ -25,7 +25,7 @@ internal class PickerAlbumCell: BrowserAlbumCell {
         super.willDisplay(with: asset, container: container, orientation: orientation)
         
         // update cell selection status
-        _selectedView.status = (container as? Picker)?.statusOfItem(with: asset)
+        _updateStatus((container as? Picker)?.statusOfItem(with: asset), animated: false)
     }
     
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {

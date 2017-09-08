@@ -162,20 +162,15 @@ import UIKit
     // MARK: Pre-configuration
     
     
-    /// Container allowed to displayed collection types. Default is nil
-    open var allowsCollectionTypes: [CollectionType]?
-    
     
     // MARK: Content
     
-    /// Generate the initialized controller
-    open func initialViewController(with options: ControllerOptions) -> UIViewController {
+    /// Create the view controller with controller type
+    open func instantiateViewController(with type: ControllerType, source: UHSource, sender: Any? = nil) -> UIViewController {
+        logger.trace?.write(type)
         
-        // fetch current allows display the collection type
-        let collectionType = allowsCollectionTypes?.first ?? .regular
-        
-        // Try generate a controlelr
-        guard let controller = controller(with: options.type, source: .init(collectionType: collectionType), sender: self) else {
+        // create a controlelr
+        guard let controller = factory(with: type).controller.init(container: self, source: source, sender: sender) as? UIViewController else {
             logger.fatal?.write("The controller creation failed. This is an unknown error!")
             fatalError("The controller creation failed. This is an unknown error!")
         }
@@ -183,7 +178,6 @@ import UIKit
         // the controller need warp protection
         controller.ub_warp = true
         controller.ub_transitioningDelegate = nil
-        
         
         return controller
     }
@@ -208,7 +202,7 @@ import UIKit
         }
         
         // register content view in factory
-        factory(with: type)?.register(contentViewClass, for: media)
+        factory(with: type).register(contentViewClass, for: media)
     }
     
     /// Register a controller class for controller type
@@ -220,7 +214,7 @@ import UIKit
         }
         
         // register controller in factory
-        factory(with: type)?.controller = controller
+        factory(with: type).controller = controller
     }
     
     // Register a cell class for controller type
@@ -232,11 +226,11 @@ import UIKit
         }
         
         // register cell in factory
-        factory(with: type)?.cell = cellClass
+        factory(with: type).cell = cellClass
     }
     
     
-    func factory(with page: ControllerType) -> Factory? {
+    func factory(with page: ControllerType) -> Factory {
         // hit cache?
         if let factory = _factorys[page] {
             return factory
@@ -264,17 +258,6 @@ import UIKit
     /// Generate a exception display page
     internal func exceptionView(with error: Error, sender: AnyObject) -> ExceptionDisplayable {
         return _exceptionViewClass.init(container: self, error: error, sender: sender)
-    }
-    
-    /// Generate a controller for factory
-    internal func controller(with type: ControllerType, source: Source, sender: Any) -> UIViewController? {
-        // if factory is nil, no provider
-        guard let factory = factory(with: type) else {
-            return nil
-        }
-        
-        // create controller for page
-        return factory.controller.init(container: self, factory: factory, source: source, sender: sender) as? UIViewController
     }
     
     /// The current the library

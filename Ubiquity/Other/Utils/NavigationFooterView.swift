@@ -20,7 +20,7 @@ internal class NavigationFooterView: UIView {
     }
     
     /// Displayed source
-    var source: Source? {
+    var source: UHSource? {
         willSet {
             // The source is change?
             guard let newValue = newValue, source !== newValue else {
@@ -30,10 +30,10 @@ internal class NavigationFooterView: UIView {
             // The count will be very slow
             DispatchQueue.global(qos: .userInitiated).async {
                 
-                let counts = (newValue.count(with: .image),
-                              newValue.count(with: .video),
-                              newValue.count(with: .audio),
-                              newValue.count(with: .unknown))
+                let counts = (newValue.numberOfAssets(with: .image),
+                              newValue.numberOfAssets(with: .video),
+                              newValue.numberOfAssets(with: .audio),
+                              newValue.numberOfAssets(with: .unknown))
                 
                 // Dispath to main thread
                 DispatchQueue.main.async {

@@ -118,6 +118,10 @@ internal class ExceptionContainerView: UIView, UIGestureRecognizerDelegate {
         _setup()
     }
     
+    /// Marks the currently actived version
+    /// if the version is different, the animation is invalid
+    var version: Int = 0
+    
     // disable all other pan gesture recognizer
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRequireFailureOf otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return false
@@ -190,108 +194,106 @@ internal class ExceptionContainerView: UIView, UIGestureRecognizerDelegate {
 /// Exception handling implementation
 internal protocol ExceptionHandling: class {
     
-    func controller(_ controller: UIViewController, container: Container, willAuthorization source: Source)
-    func controller(_ controller: UIViewController, container: Container, didAuthorization source: Source, error: Error?)
+    /// Call before request authorization
+    func container(_ container: Container, willAuthorization source: UHSource)
+    /// Call after completion of request authorization
+    func container(_ container: Container, didAuthorization source: UHSource, error: Error?)
     
-    func controller(_ controller: UIViewController, container: Container, willDisplay source: Source)
-    func controller(_ controller: UIViewController, container: Container, didDisplay source: Source, error: Error?)
+    /// Call before request load
+    func container(_ container: Container, willLoad source: UHSource)
+    /// Call after completion of load
+    func container(_ container: Container, didLoad source: UHSource, error: Error?)
+    
 }
 
 /// Exception handling implementation
 internal extension ExceptionHandling where Self: UIViewController {
     
-    /// Setup controller with source
-    func setup(with container: Container, source: Source, loadData: @escaping (((Error?) -> Void) -> Void)) {
+    /// Initialize controller with container and source
+    func ub_initialize(with container: Container, source: UHSource) {
         logger.trace?.write()
         
-        // delay exec, order to prevent the view not initialized
-        DispatchQueue.main.async {
-            // prepare the UI for authorization
-            self.controller(self, container: container, willAuthorization: source)
+        // prepare the UI for authorization
+        self.container(container, willAuthorization: source)
+        self.ub_execptionContainerView = {
+            // when requesting permissions, need to add a mask layer
+            let containerView = ExceptionContainerView(frame: view.bounds)
             
-            // if request permission for library an error occurs, return the non nil.
-            container.library.ub_requestAuthorization { error in
-                // authorization callback may not be in the main thread.
-                DispatchQueue.main.async {
-                    // processing for authorization issues.
-                    self.controller(self, container: container, didAuthorization: source, error: error)
-                    
-                    // authorization is success?
-                    guard error == nil else {
-                        return
-                    }
-                    
-                    // prepare the UI for load.
-                    self.controller(self, container: container, willDisplay: source)
-                    
-                    // if request data for library an error occurs, retunr the non nil
-                    DispatchQueue.global().async {
-                        loadData { error in
-                            DispatchQueue.main.async {
-                                // processing for data load issues.
-                                self.controller(self, container: container, didDisplay: source, error: error)
-                            }
-                        }
+            // in mask, it is empty view
+            containerView.update(nil, container: container, sender: self, animated: false)
+            
+            // link to screen
+            return containerView
+        }()
+        
+        // sent data authorization request
+        container.library.ub_requestAuthorization { error in
+            // callback may not be in the main thread.
+            DispatchQueue.main.async {
+                // processing for authorization issues.
+                self.ub_execptionContainerView?.update(error, container: container, sender: self, animated: true)
+                self.container(container, didAuthorization: source, error: error)
+                
+                // authorization is success?
+                guard error == nil else {
+                    return
+                }
+                
+                // if request data for library an error occurs, retunr the non nil
+                self.container(container, willLoad: source)
+                self.ub_execptionContainerView?.update(nil, container: container, sender: self, animated: true)
+                
+                // sent data loading request
+                source.loadData(with: container) { error in
+                    // callback may not be in the main thread.
+                    DispatchQueue.main.async {
+                        // processing for load issue.
+                        self.ub_execption(with: container, source: source, error: error, animated: true)
+                        self.container(container, didLoad: source, error: error)
                     }
                 }
             }
         }
     }
     
-    
-    func controller(_ controller: UIViewController, container: Container, willAuthorization source: Source) {
+    /// Displays or hides an exception
+    func ub_execption(with container: Container, source: UHSource, error: Error?, animated: Bool) {
         logger.trace?.write()
-        
-        // when requesting permissions, need to add a mask layer
-        let containerView = ExceptionContainerView(frame: view.bounds)
-        
-        // in mask, it is empty view
-        containerView.update(nil, container: container, sender: self, animated: false)
-        
-        // install container view to self
-        _containerView = containerView
-    }
-    
-    func controller(_ controller: UIViewController, container: Container, didAuthorization source: Source, error: Error?) {
-        logger.trace?.write(error?.localizedDescription ?? "")
-        
-        // when requesting permissions complete, need to add a error layer
-        _containerView?.update(error, container: container, sender: self, animated: true)
-    }
-    
-    
-    func controller(_ controller: UIViewController, container: Container, willDisplay source: Source) {
-        logger.trace?.write()
-        
-        // nothing
-    }
-    
-    func controller(_ controller: UIViewController, container: Container, didDisplay source: Source, error: Error?) {
-        logger.trace?.write(error?.localizedDescription ?? "")
         
         if error == nil {
             // no error, show content view
-            guard let containerView = _containerView else {
+            guard let containerView = ub_execptionContainerView else {
                 // is hidden, ignore
                 return
             }
+            
+            let version = containerView.version + 1
             
             // add disappear animation
             UIView.animate(withDuration: 0.25, animations: {
                 
                 containerView.alpha = 0
+                containerView.version = version
                 containerView.update(nil, container: container, sender: self, animated: true)
                 
             }, completion: { _ in
                 
+                // the version has been changed
+                // the operation is ignored
+                guard version == containerView.version else {
+                    return
+                }
+                
                 // uninstall container view from self
-                self._containerView = nil
+                self.ub_execptionContainerView = nil
             })
             
         } else {
             // has error, show error view
-            if let containerView = _containerView {
+            if let containerView = ub_execptionContainerView {
                 // is showed, ignore
+                containerView.alpha = 1
+                containerView.version += 1
                 containerView.update(error, container: container, sender: self, animated: true)
                 return
             }
@@ -304,35 +306,34 @@ internal extension ExceptionHandling where Self: UIViewController {
             containerView.update(error, container: container, sender: self, animated: false)
             
             // install container view to self
-            _containerView = containerView
+            self.ub_execptionContainerView = containerView
             
             // add appear animation
             UIView.animate(withDuration: 0.25, animations: {
                 
                 containerView.alpha = 1
-                
+
             }, completion: nil)
         }
     }
     
-    
     /// Tips container view
-    private var _containerView: ExceptionContainerView? {
+    private var ub_execptionContainerView: ExceptionContainerView? {
         set {
             // container view has any change?
-            guard _containerView != newValue else {
+            guard ub_execptionContainerView != newValue else {
                 return
             }
             
             // uninstall container view
-            if let containerView = _containerView {
+            if let containerView = ub_execptionContainerView {
                 // remove from self.view
                 // constraints should automatic remove
                 containerView.removeFromSuperview()
             }
             
             // save container view for runtime
-            objc_setAssociatedObject(self, &_UIViewController_containerView, newValue, .OBJC_ASSOCIATION_RETAIN)
+            objc_setAssociatedObject(self, &_UIViewController_execptionContainerView, newValue, .OBJC_ASSOCIATION_RETAIN)
             
             // install container view
             if let containerView = newValue  {
@@ -364,10 +365,10 @@ internal extension ExceptionHandling where Self: UIViewController {
         }
         get {
             // read container view for runtime
-            return objc_getAssociatedObject(self, &_UIViewController_containerView) as? ExceptionContainerView
+            return objc_getAssociatedObject(self, &_UIViewController_execptionContainerView) as? ExceptionContainerView
         }
     }
 }
 
-private var _UIViewController_containerView: String = "_containerView"
+private var _UIViewController_execptionContainerView: String = "execptionContainerView"
 

@@ -57,7 +57,7 @@ internal class NavigationHeaderView: UICollectionReusableView {
         }
     }
     
-    var source: Source? {
+    var source: UHSource? {
         willSet {
             // The source is change?
             guard source !== newValue else {

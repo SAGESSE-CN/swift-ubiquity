@@ -10,9 +10,9 @@ import UIKit
 
 
 /// the album list in container
-internal class BrowserAlbumListController: UITableViewController, Controller, ExceptionHandling {
+internal class BrowserAlbumListController: UITableViewController, Controller, ExceptionHandling, ChangeObserver {
     
-    required init(container: Container, factory: Factory, source: Source, sender: Any) {
+    required init(container: Container, source: UHSource, sender: Any?) {
         // setup init data
         self.source = source
         self.container = container
@@ -55,24 +55,10 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // setup controller on view did load
-        setup(with: self.container, source: self.source) { handler in
-            // fetch collection list with container
-            let newCollectionList = self.container.request(forCollectionList: self.source.collectionType)
-            self._collectionList = newCollectionList
-            
-            // check albums count
-            guard newCollectionList.ub_count != 0 else {
-                handler(Exception.notData)
-                return
-            }
-            
-            // refresh UI
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
-            }
-            
-            handler(nil)
+        // delay exec, order to prevent the view not initialized
+        DispatchQueue.main.async {
+            // initialize controller with container and source
+            self.ub_initialize(with: self.container, source: self.source)
         }
     }
     
@@ -93,25 +79,10 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         }
     }
     
-    private(set) var container: Container
-    private(set) var source: Source {
-        willSet {
-            // only when in did not set the title will be updated
-            super.title = _cachedTitle ?? newValue.title
-        }
-    }
-    
-    fileprivate var _collectionList: CollectionList?
-    
-    fileprivate var _cachedSelectItem: IndexPath?
-    fileprivate var _cachedTitle: String?
-}
-
-/// Add data source
-extension BrowserAlbumListController {
+    // MARK: Table view
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return _collectionList?.ub_count ?? 0
+        return source.numberOfCollections
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -124,7 +95,7 @@ extension BrowserAlbumListController {
     
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         // cell must king of `BrowserAlbumListCell`
-        guard let cell = cell as? BrowserAlbumListCell, let collection = _collectionList?.ub_collection(at: indexPath.row) else {
+        guard let cell = cell as? BrowserAlbumListCell, let collection = source.collection(at: indexPath.row) else {
             return
         }
         
@@ -147,78 +118,131 @@ extension BrowserAlbumListController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         logger.trace?.write(indexPath)
         
-        // fetch collection
-        guard let collection = _collectionList?.ub_collection(at: indexPath.row) else {
+        // get selected collection
+        guard let collection = source.collection(at: indexPath.row) else {
             return
         }
         logger.debug?.write("show album with: \(collection.ub_title ?? ""), at: \(indexPath)")
         
         // try generate album controller for factory
-        guard let controller = container.controller(with: .albums, source: .init(collection: collection), sender: indexPath) else {
-            logger.warning?.write("The albums controller creation failed. This is an unknown error!")
-            return
-        }
+        let controller = container.instantiateViewController(with: .albums, source: .init(collection: collection), sender: indexPath)
+        
         _cachedSelectItem = indexPath
        
         // show next page
         show(controller, sender: indexPath)
     }
-}
-
-/// Add change update support
-extension BrowserAlbumListController: ChangeObserver {
+    
+    // MARK: Library change
+    
     /// Tells your observer that a set of changes has occurred in the Photos library.
     func library(_ library: Library, didChange change: Change) {
-        // albums is change?
-        guard let collectionList = _collectionList, let details = change.ub_changeDetails(forCollectionList: collectionList) else {
-            return
-        }
-        logger.trace?.write()
-        
-        // change notifications may be made on a background queue.
-        // re-dispatch to the main queue to update the UI.
-        DispatchQueue.main.async {
-            self.library(library, didChange: change, details: details)
-        }
+//        // albums is change?
+//        guard let collectionList = _collectionList, let details = change.ub_changeDetails(forCollectionList: collectionList) else {
+//            return
+//        }
+//        logger.trace?.write()
+//        
+//        // change notifications may be made on a background queue.
+//        // re-dispatch to the main queue to update the UI.
+//        DispatchQueue.main.async {
+//            self.library(library, didChange: change, details: details)
+//        }
     }
     /// Tells your observer that a set of changes has occurred in the Photos library.
     func library(_ library: Library, didChange change: Change, details: ChangeDetails) {
-        // get table view and new data source
-        guard let tableView = tableView, let newCollectionList = details.after as? CollectionList else {
-            return
-        }
-        // keep the new fetch result for future use.
-        _collectionList = newCollectionList
-        
-        // if there are incremental diffs, animate them in the table view.
-        guard details.hasIncrementalChanges else {
-            // reload the table view if incremental diffs are not available.
-            tableView.reloadData()
-            return
-        }
-        
-        tableView.beginUpdates()
-        
-        // For indexes to make sense, updates must be in this order:
-        // delete, insert, reload, move
-        if let rms = details.removedIndexes?.map({ IndexPath(item: $0, section:0) }) {
-            tableView.deleteRows(at: rms, with: .automatic)
-        }
-        
-        if let ins = details.insertedIndexes?.map({ IndexPath(item: $0, section:0) }) {
-            tableView.insertRows(at: ins, with: .automatic)
-        }
-        
-        if let rds = details.changedIndexes?.map({ IndexPath(item: $0, section:0) }) {
-            
-            tableView.reloadRows(at: rds, with: .automatic)
-        }
-        
-        details.movedIndexes?.forEach { from, to in
-            tableView.moveRow(at: .init(row: from, section: 0),
-                              to: .init(row: to, section: 0))
-        }
-        
-        tableView.endUpdates()
+//        // get table view and new data source
+//        guard let tableView = tableView, let newCollectionList = details.after as? CollectionList else {
+//            return
+//        }
+//        // keep the new fetch result for future use.
+//        _collectionList = newCollectionList
+//        
+//        // if there are incremental diffs, animate them in the table view.
+//        guard details.hasIncrementalChanges else {
+//            // reload the table view if incremental diffs are not available.
+//            tableView.reloadData()
+//            return
+//        }
+//        
+//        tableView.beginUpdates()
+//        
+//        // For indexes to make sense, updates must be in this order:
+//        // delete, insert, reload, move
+//        if let rms = details.removedIndexes?.map({ IndexPath(item: $0, section:0) }) {
+//            tableView.deleteRows(at: rms, with: .automatic)
+//        }
+//        
+//        if let ins = details.insertedIndexes?.map({ IndexPath(item: $0, section:0) }) {
+//            tableView.insertRows(at: ins, with: .automatic)
+//        }
+//        
+//        if let rds = details.changedIndexes?.map({ IndexPath(item: $0, section:0) }) {
+//            
+//            tableView.reloadRows(at: rds, with: .automatic)
+//        }
+//        
+//        details.movedIndexes?.forEach { from, to in
+//            tableView.moveRow(at: .init(row: from, section: 0),
+//                              to: .init(row: to, section: 0))
+//        }
+//        
+//        tableView.endUpdates()
     }
+    
+    
+    // MARK: Extended
+    
+    /// Call before request authorization
+    open func container(_ container: Container, willAuthorization source: UHSource) {
+        logger.trace?.write()
+    }
+    
+    /// Call after completion of request authorization
+    open func container(_ container: Container, didAuthorization source: UHSource, error: Error?) {
+        // the error message has been processed by the ExceptionHandling
+        guard error == nil else {
+            return
+        }
+        logger.trace?.write(error ?? "")
+    }
+    
+    /// Call before request load
+    open func container(_ container: Container, willLoad source: UHSource) {
+        logger.trace?.write()
+    }
+    
+    /// Call after completion of load
+    open func container(_ container: Container, didLoad source: UHSource, error: Error?) {
+        // the error message has been processed by the ExceptionHandling
+        guard error == nil else {
+            return
+        }
+        logger.trace?.write(error ?? "")
+        
+        // check albums count
+        guard source.numberOfCollections != 0 else {
+            ub_execption(with: container, source: source, error: Exception.notData, animated: true)
+            return
+        }
+        
+        // refresh UI
+        self.source = source
+        self.tableView?.reloadData()
+    }
+    
+    
+    private(set) var container: Container
+    private(set) var source: UHSource {
+        willSet {
+            // only when in did not set the title will be updated
+            super.title = _cachedTitle ?? newValue.title
+        }
+    }
+    
+    private var _collectionList: CollectionList?
+    
+    private var _cachedSelectItem: IndexPath?
+    private var _cachedTitle: String?
 }
+

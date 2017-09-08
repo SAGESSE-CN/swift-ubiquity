@@ -48,22 +48,16 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
     
     @IBAction func browse(_ sender: Any) {
         
+        // create an image browser
         let browser = Ubiquity.Browser(library: Ubiquity.UHAssetLibrary())
         
-        // configure
-        browser.allowsCollectionTypes = [.moment]
-//        browser.allowsCollectionTypes = [.regular]
         
-        // display
-        //present(browser.initialViewController(with: .albumsList), animated: true, completion: nil)
-//        show(browser.initialViewController(with: .albumsList), sender: nil)
-//        show(browser.initialViewController(with: .albums), sender: nil)
+        // create an view controller for albums
+        let controller = browser.instantiateViewController(with: .albumsList, source: .init(collectionType: .regular))
+        //let controller = browser.instantiateViewController(with: .albumsList, source: .init(collectionType: .regular))
         
-        // generate the albums initial view controller
-        let controller = browser.initialViewController(with: .albums(collectionListType: .regular, filter: {
-            // only display the album user library.
-            $0.ub_collectionSubtype == .smartAlbumUserLibrary
-        }))
+        //let controller = browser.instantiateViewController(with: .albums, source: .init(collectionType: .moment))
+        //let controller = browser.instantiateViewController(with: .albums, source: .init(collectionType: .regular, filter: { $0.offset == 0 }))
         
         // display controller
         show(controller, sender: nil)
@@ -75,15 +69,14 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
         
         // configure
         picker.delegate = self
-        picker.allowsCollectionTypes = [.regular]
         
-        // display
-        let controlelr = picker.initialViewController(with: .albumsList(collectionListType: .regular))
-        
-        controlelr.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(odissmis(_:)))
-        
-        // display controller
-        present(controlelr, animated: true, completion: nil)
+//        // display
+//        let controlelr = picker.initialViewController(with: .albumsList(collectionListType: .regular))
+//        
+//        controlelr.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(odissmis(_:)))
+//        
+//        // display controller
+//        present(controlelr, animated: true, completion: nil)
     }
     
     

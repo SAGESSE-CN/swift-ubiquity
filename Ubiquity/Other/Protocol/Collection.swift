@@ -83,6 +83,9 @@ import Foundation
 /// The abstract superclass for Photos asset collection lists.
 @objc public protocol CollectionList: NSObjectProtocol {
     
+    /// A unique string that persistently identifies the object.
+    var ub_identifier: String { get }
+    
     /// The type of the asset collection, such as an album or a moment.
     var ub_collectionType: CollectionType { get }
     
@@ -91,5 +94,4 @@ import Foundation
     /// Retrieves collection from the specified collection list.
     func ub_collection(at index: Int) -> Collection
 }
-
 

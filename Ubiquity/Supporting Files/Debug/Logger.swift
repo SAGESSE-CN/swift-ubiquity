@@ -257,8 +257,6 @@ internal class Logger {
             self.name = name
             self.pattern = pattern
             self.threshold = threshold
-            
-            self.layout = .init(pattern: pattern)
         }
         // decode init
         internal init?(coder: NSCoder) {
@@ -278,8 +276,6 @@ internal class Logger {
             self.name = name
             self.pattern = pattern
             self.threshold = threshold
-            
-            self.layout = .init(pattern: pattern)
         }
         
         /// write a log, default is no imp
@@ -294,7 +290,10 @@ internal class Logger {
         /// appender threshold, default is all
         internal let threshold: Priority
         
-        internal let layout: Layout
+        /// creating a layout is a very resource consuming  
+        internal lazy var layout: Layout = {
+            return Layout(pattern: self.pattern)
+        }()
         
         // stream write to console
         internal class Console: Appender {

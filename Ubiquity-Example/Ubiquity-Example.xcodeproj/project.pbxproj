@@ -43,6 +43,7 @@
 		0C30A7881F5FD5EF00E5980B /* 019@2x.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "019@2x.gif"; sourceTree = "<group>"; };
 		0C30A78A1F5FD60400E5980B /* TestAnimatedImageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestAnimatedImageViewController.swift; sourceTree = "<group>"; };
 		0C30A7921F5FDF2900E5980B /* 《塞尔达传说：荒野之息》导航地图.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "《塞尔达传说：荒野之息》导航地图.jpg"; path = "~/Downloads/《塞尔达传说：荒野之息》导航地图.jpg"; sourceTree = "<group>"; };
+		0C56FD5C1F67CA5800BE768D /* TestVideoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestVideoViewController.swift; sourceTree = "<group>"; };
 		0C5DCB7B1EC0C45F009FA343 /* TestVideoFilmstripViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestVideoFilmstripViewController.swift; sourceTree = "<group>"; wrapsLines = 0; };
 		0CAB226F1F31A91E000171A0 /* XViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XViewController.swift; sourceTree = "<group>"; };
 		0CE49E1E1E7A3F690058F5F8 /* Ubiquity-Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ubiquity-Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -103,6 +104,7 @@
 				0C1E4F781F5B337F00299E64 /* TextLargetImageLoader.swift */,
 				0C30A78A1F5FD60400E5980B /* TestAnimatedImageViewController.swift */,
 				0CAB226F1F31A91E000171A0 /* XViewController.swift */,
+				0C56FD5C1F67CA5800BE768D /* TestVideoViewController.swift */,
 			);
 			name = Example;
 			path = "Ubiquity-Example";

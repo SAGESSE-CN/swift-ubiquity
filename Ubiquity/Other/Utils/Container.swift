@@ -166,7 +166,7 @@ import UIKit
     // MARK: Content
     
     /// Create the view controller with controller type
-    open func instantiateViewController(with type: ControllerType, source: UHSource, sender: Any? = nil) -> UIViewController {
+    open func instantiateViewController(with type: ControllerType, source: Source, sender: Any? = nil) -> UIViewController {
         logger.trace?.write(type)
         
         // create a controlelr

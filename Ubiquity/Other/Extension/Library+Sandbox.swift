@@ -88,9 +88,19 @@ open class UHLocalAssetCollectionList: NSObject {
     
     /// Generate a local asset collection list
     public init(collectionType: CollectionType) {
+        self.identifier = UUID().uuidString
         self.collectionType = collectionType
         super.init()
     }
+    /// Generate a local asset collection list
+    public init(identifier: String, collectionType: CollectionType) {
+        self.identifier = identifier
+        self.collectionType = collectionType
+        super.init()
+    }
+    
+    /// A unique string that persistently identifies the object.
+    open let identifier: String
     
     /// The type of the asset collection, such as an album or a moment.
     open var collectionType: CollectionType
@@ -257,6 +267,11 @@ extension UHLocalAssetCollection: Collection {
     }
 }
 extension UHLocalAssetCollectionList: CollectionList {
+    
+    /// A unique string that persistently identifies the object.
+    public var ub_identifier: String {
+        return identifier
+    }
     
     /// The type of the asset collection, such as an album or a moment.
     public var ub_collectionType: CollectionType {

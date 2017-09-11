@@ -10,7 +10,7 @@ import UIKit
 
 internal class BrowserDetailController: UICollectionViewController, Controller, ChangeObserver, TransitioningDataSource, DetailControllerItemUpdateDelegate, DetailControllerItemRotationDelegate, UIGestureRecognizerDelegate, UICollectionViewDelegateFlowLayout {
     
-    required init(container: Container, source: UHSource, sender: Any?) {
+    required init(container: Container, source: Source, sender: Any?) {
         // setup init data
         self.source = source
         self.container = container
@@ -558,78 +558,81 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
     func library(_ library: Library, didChange change: Change) {
-//        // fetch source change details
-//        guard let details = source.changeDetails(for: change) else {
-//            return // no change
-//        }
-//        logger.trace?.write()
-//        
-//        // change notifications may be made on a background queue.
-//        // re-dispatch to the main queue to update the UI.
-//        DispatchQueue.main.async {
-//            // progressing
-//            self.library(library, didChange: change, details: details)
-//        }
+        // fetch the source change
+        guard let details = source.changeDetails(forAssets: change) else {
+            return // no change
+        }
+        logger.trace?.write()
+        
+        // change notifications may be made on a background queue.
+        // re-dispatch to the main queue to update the UI.
+        DispatchQueue.main.async {
+            // progressing
+            self.library(library, didChange: change, details: details)
+        }
     }
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
     func library(_ library: Library, didChange change: Change, details: SourceChangeDetails) {
-//        // get collection view and new data source
-//        guard let collectionView = collectionView, let newSource = details.after else {
-//            return
-//        }
-//        logger.trace?.write()
-//        
-//        // keep the new fetch result for future use.
-//        source = newSource
-//        
-//        // must be clear the layout attributes cache
-//        clearItemCache()
-//        
-//        // update collection asset count change
-//        guard newSource.count != 0 else {
-//            // new source is empty, back to albums
-//            self.collectionView?.reloadData()
-//            self.navigationController?.popViewController(animated: true)
-//            return
-//        }
-//
-//        // the aset has any change?
-//        guard details.hasAssetChanges else {
-//            return
-//        }
-//        
-//        // whether the change will support incremental updating?
-//        guard details.hasIncrementalChanges else {
-//            // does not support, forced to update all the data
-//            self.collectionView?.reloadData()
-//            self.scrollViewDidScroll(collectionView)
-//            return
-//        }
-//        
-//        // update collection
-//        collectionView.performBatchUpdates({
-//            
-//            // For indexes to make sense, updates must be in this order:
-//            // delete, insert, reload, move
-//            
-//            details.deleteSections.map { collectionView.deleteSections($0) }
-//            details.insertSections.map { collectionView.insertSections($0) }
-//            details.reloadSections.map { collectionView.reloadSections($0) }
-//            
-//            details.removeItems.map { collectionView.deleteItems(at: $0) }
-//            details.insertItems.map { collectionView.insertItems(at: $0) }
-//            details.reloadItems.map { collectionView.reloadItems(at: $0) }
-//            
-//            // move
-//            details.enumerateMoves { from, to in
-//                collectionView.moveItem(at: from, to: to)
-//            }
-//            
-//        }, completion: { _ in
-//            // cell animation perform finished, update index path
-//            self.scrollViewDidScroll(collectionView)
-//        })
+        // get collection view and new data source
+        guard let collectionView = collectionView, let newSource = details.after else {
+            return
+        }
+        logger.trace?.write()
+        
+        // keep the new fetch result for future use.
+        source = newSource
+        
+        // must be clear the layout attributes cache
+        clearItemCache()
+        
+        // update collection asset count change
+        guard newSource.numberOfAssets != 0 else {
+            // new source is empty, back to albums
+            self.collectionView?.reloadData()
+            self.navigationController?.popViewController(animated: true)
+            return
+        }
+
+        // the aset has any change?
+        guard details.hasItemChanges else {
+            return
+        }
+        
+        // whether the change will support incremental updating?
+        guard details.hasIncrementalChanges else {
+            // does not support, forced to update all the data
+            self.collectionView?.reloadData()
+            self.scrollViewDidScroll(collectionView)
+            return
+        }
+
+        // update collection
+        collectionView.performBatchUpdates({
+            
+            // For indexes to make sense, updates must be in this order:
+            // delete, insert, reload, move
+            
+            details.deleteSections.map { collectionView.deleteSections($0) }
+            details.insertSections.map { collectionView.insertSections($0) }
+            details.reloadSections.map { collectionView.reloadSections($0) }
+            
+            details.moveSections?.forEach { from, to in
+                collectionView.moveSection(from, toSection: to)
+            }
+            
+            details.removeItems.map { collectionView.deleteItems(at: $0) }
+            details.insertItems.map { collectionView.insertItems(at: $0) }
+            details.reloadItems.map { collectionView.reloadItems(at: $0) }
+            
+            details.moveItems?.forEach { from, to in
+                collectionView.moveItem(at: from, to: to)
+            }
+            
+        }, completion: { _ in
+            // cell animation perform finished, update index path
+            self.scrollViewDidScroll(collectionView)
+        })
     }
     
     // MARK: Item Change
@@ -888,7 +891,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     private(set) var displayedIndexPath: IndexPath
     
     private(set) var container: Container
-    private(set) var source: UHSource
+    private(set) var source: Source
     
     // MARK: Ivar
     

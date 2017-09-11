@@ -13,7 +13,6 @@ import Foundation
     
     /// Returns detailed change information for the specified collection.
     func ub_changeDetails(forCollection collection: Collection) -> ChangeDetails?
-    
     /// Returns detailed change information for the specified colleciotn list.
     func ub_changeDetails(forCollectionList collectionList: CollectionList) -> ChangeDetails?
 }
@@ -35,7 +34,7 @@ import Foundation
     /// A Boolean value that indicates whether objects have been rearranged in the fetch result.
     public var hasMoves: Bool = false
     /// A Boolean value that indicates whether objects have been any change in result.
-    public var hasAssetChanges: Bool = false
+    public var hasItemChanges: Bool = false
     /// A Boolean value that indicates whether changes to the fetch result can be described incrementally.
     public var hasIncrementalChanges: Bool = false
     
@@ -72,4 +71,5 @@ public protocol ChangeObserver: class {
     /// Tells your observer that a set of changes has occurred in the Photos library.
     func library(_ library: Library, didChange change: Change)
 }
+
 

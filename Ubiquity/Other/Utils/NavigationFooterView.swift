@@ -20,7 +20,7 @@ internal class NavigationFooterView: UIView {
     }
     
     /// Displayed source
-    var source: UHSource? {
+    var source: Source? {
         willSet {
             // The source is change?
             guard let newValue = newValue, source !== newValue else {

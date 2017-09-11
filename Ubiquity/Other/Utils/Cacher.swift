@@ -211,6 +211,28 @@ internal class Cacher: NSObject {
         }
     }
     
+    // MARK: Cache
+    
+    /// Cache extra data into the object 
+    @nonobjc static func cache(of object: AnyObject, value: Any, forKey key: String) {
+        // if not added cacher, ignore
+        guard object.responds(to: #selector(getter: __CacherOfAsset.__ub_cacher)) else {
+            return
+        }
+        // cache value for cacher
+        (object.value(forKey: #keyPath(__CacherOfAsset.__ub_cacher)) as? __Cacher)?.cache(value, for: key)
+    }
+    
+    /// Cache extra data into the object 
+    @nonobjc static func cache(of object: AnyObject, forKey key: String) -> Any? {
+        // if not added cacher, ignore
+        guard object.responds(to: #selector(getter: __CacherOfAsset.__ub_cacher)) else {
+            return nil
+        }
+        // fetch value for cacher
+        return (object.value(forKey: #keyPath(__CacherOfAsset.__ub_cacher)) as? __Cacher)?.cache(for: key)
+    }
+    
     // MARK: Bridging
     
     @nonobjc static func bridging(of object: Asset) -> Asset {
@@ -246,43 +268,39 @@ internal class Cacher: NSObject {
         
         // need to repeat filtering method
         var count: UInt32 = 0
-        var methods: [Selector: objc_method_description] = [:]
+        var methods: [Selector: Method] = [:]
         
-        // gets the protocol require all the methods.
-        if let descriptions = protocol_copyMethodDescriptionList(`protocol`, true, true, &count) {
-            for index in 0 ..< Int(count) {
-                let method = descriptions.advanced(by: index).move()
-                methods[method.name] = method
-            }
-        }
-        
-        // gets the protocol optional all the methods.
-        if let descriptions = protocol_copyMethodDescriptionList(`protocol`, false, true, &count) {
-            for index in 0 ..< Int(count) {
-                let method = descriptions.advanced(by: index).move()
-                methods[method.name] = method
+        // gets the all method
+        if let descriptions = class_copyMethodList(cacher, &count) {
+            (0 ..< Int(count)).forEach { index in
+                guard let method = descriptions.advanced(by: index).move() else {
+                    return
+                }
+                guard let name = method_getName(method), NSStringFromSelector(name).hasPrefix("__") else {
+                    return
+                }
+                methods[name] = method
             }
         }
         
         // exchange all protocol method
         methods.forEach {
             // generate method info
-            let caching = Selector("__" + NSStringFromSelector($0.key))
-            let origin = $0.key
+            let caching = $0.key
+            let origin = Selector((NSStringFromSelector($0.key) as NSString).substring(from: 2))
             
-            // if cache is not supported, ignore
-            guard let tmp = class_getInstanceMethod(cacher, caching) else {
+            // get origin method, if not exists, ignore
+            guard let m2 = class_getInstanceMethod(cls, origin) else {
                 return
             }
             
             // copy caching method to object
-            guard class_addMethod(cls, caching, method_getImplementation(tmp), $0.value.types) else {
+            guard class_addMethod(cls, caching, method_getImplementation($0.value), method_getTypeEncoding($0.value)) else {
                 return
             }
             
-            // get the caching method and the origin method
+            // get added the caching method
             let m1 = class_getInstanceMethod(cls, caching)
-            let m2 = class_getInstanceMethod(cls, origin)
             
             // exchange method
             method_exchangeImplementations(m1, m2)
@@ -313,7 +331,6 @@ internal class Cacher: NSObject {
     fileprivate lazy var _caches: Dictionary<Format, NSMutableDictionary> = [:]
     
     fileprivate lazy var _caching: Queue = .init()
-    
     
     /// collection list cache
     fileprivate lazy var _collectionLists: Dictionary<CollectionType, CollectionList> = [:]
@@ -899,8 +916,21 @@ extension DispatchQueue {
     }
 }
 
-///  Adding cache support for asset
-private class __CacherOfAsset: NSObject {
+/// Adding base cache support
+private class __Cacher: NSObject {
+   
+    @nonobjc func cache(_ value: Any, for key: String) {
+        return _caching[key] = value
+    }
+    @nonobjc func cache(for key: String) -> Any? {
+        return _caching[key]
+    }
+    
+    private lazy var _caching: [String: Any] = [:]
+}
+
+/// Adding cache support for asset
+private class __CacherOfAsset: __Cacher {
     
     /// A cacher used to provide fast cache
     dynamic var __ub_cacher: __CacherOfAsset {
@@ -941,7 +971,7 @@ private class __CacherOfAsset: NSObject {
 }
 
 ///  Adding cache support for collection
-private class __CacherOfCollection: NSObject {
+private class __CacherOfCollection: __Cacher {
     
     /// A cacher used to provide fast cache
     dynamic var __ub_cacher: __CacherOfCollection {
@@ -1012,7 +1042,7 @@ private class __CacherOfCollection: NSObject {
 }
 
 ///  Adding cache support for collection list
-private class __CacherOfCollectionList: NSObject {
+private class __CacherOfCollectionList: __Cacher {
     
     /// A cacher used to provide fast cache
     dynamic var __ub_cacher: __CacherOfCollectionList {
@@ -1047,7 +1077,7 @@ private class __CacherOfCollectionList: NSObject {
 }
 
 ///  Adding cache support for asset
-private class __CacherOfChange: NSObject {
+private class __CacherOfChange: __Cacher {
     
     /// A cacher used to provide fast cache
     dynamic var __ub_cacher: __CacherOfChange {

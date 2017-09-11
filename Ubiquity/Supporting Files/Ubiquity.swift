@@ -27,7 +27,7 @@ internal extension BadgeView.Item {
         case .smartAlbumSelfPortraits: return .selfies
         case .smartAlbumFavorites: return .favorites
             
-        case .smartAlbumRecentlyAdded: return .recently
+        case .smartAlbumRecentlyAdded: return nil
             
         case .smartAlbumGeneric: return nil
         case .smartAlbumAllHidden: return nil

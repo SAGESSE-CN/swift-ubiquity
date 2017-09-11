@@ -195,14 +195,14 @@ internal class ExceptionContainerView: UIView, UIGestureRecognizerDelegate {
 internal protocol ExceptionHandling: class {
     
     /// Call before request authorization
-    func container(_ container: Container, willAuthorization source: UHSource)
+    func container(_ container: Container, willAuthorization source: Source)
     /// Call after completion of request authorization
-    func container(_ container: Container, didAuthorization source: UHSource, error: Error?)
+    func container(_ container: Container, didAuthorization source: Source, error: Error?)
     
     /// Call before request load
-    func container(_ container: Container, willLoad source: UHSource)
+    func container(_ container: Container, willLoad source: Source)
     /// Call after completion of load
-    func container(_ container: Container, didLoad source: UHSource, error: Error?)
+    func container(_ container: Container, didLoad source: Source, error: Error?)
     
 }
 
@@ -210,7 +210,7 @@ internal protocol ExceptionHandling: class {
 internal extension ExceptionHandling where Self: UIViewController {
     
     /// Initialize controller with container and source
-    func ub_initialize(with container: Container, source: UHSource) {
+    func ub_initialize(with container: Container, source: Source) {
         logger.trace?.write()
         
         // prepare the UI for authorization
@@ -257,7 +257,7 @@ internal extension ExceptionHandling where Self: UIViewController {
     }
     
     /// Displays or hides an exception
-    func ub_execption(with container: Container, source: UHSource, error: Error?, animated: Bool) {
+    func ub_execption(with container: Container, source: Source, error: Error?, animated: Bool) {
         logger.trace?.write()
         
         if error == nil {

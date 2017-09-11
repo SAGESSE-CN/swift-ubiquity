@@ -11,7 +11,7 @@ import UIKit
 /// the asset list in album
 internal class BrowserAlbumController: UICollectionViewController, Controller, ExceptionHandling, ChangeObserver, TransitioningDataSource, DetailControllerItemUpdateDelegate, UICollectionViewDelegateFlowLayout {
     
-    required init(container: Container, source: UHSource, sender: Any?) {
+    required init(container: Container, source: Source, sender: Any?) {
         // setup init data
         self.source = source
         self.container = container
@@ -467,102 +467,101 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         guard authorized else {
             return
         }
+        // fetch the source change
+        guard let details = source.changeDetails(forAssets: change) else {
+            return // no change
+        }
+        logger.trace?.write()
         
-//        // fetch the source change
-//        guard let details = source.changeDetails(for: change) else {
-//            return // no change
-//        }
-//        logger.trace?.write()
-//        
-//        // change notifications may be made on a background queue.
-//        // re-dispatch to the main queue to update the UI.
-//        DispatchQueue.main.async {
-//            // progressing
-//            self.library(library, didChange: change, details: details)
-//        }
+        // change notifications may be made on a background queue.
+        // re-dispatch to the main queue to update the UI.
+        DispatchQueue.main.async {
+            // progressing
+            self.library(library, didChange: change, details: details)
+        }
     }
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
     func library(_ library: Library, didChange change: Change, details: SourceChangeDetails) {
-//        // collectionView must be set
-//        guard let collectionView = collectionView, let newSource = details.after else {
-//            return
-//        }
-//        // keep the new fetch result for future use.
-//        let oldSource = self.source
-//        source = newSource
-//        
-//        // update header view & footer view
-//        _headerView?.source = newSource
-//        _footerView?.source = newSource
-//        
-//        // source did change, must update header cache
-//        defer {
-//            _updateHeaderCaches()
-//            _updateHeaderView()
-//        }
-//        
-//        // update collection asset count change
-//        guard newSource.count != 0 else {
-//            // new data source is empty, reload all data and reset error info
-//            self.controller(self, container: container, didDisplay: newSource, error: Exception.notData)
-//            self.collectionView?.reloadData()
-//            return
-//        }
-//        
-//        // the library is prepared
-//        self.prepared = true
-//        self.controller(self, container: container, didDisplay: newSource, error: nil)
-//        
-//        // the old source is empty?
-//        guard oldSource.count != 0 else {
-//            // old source is empty, reload all data
-//            collectionView.reloadData()
-//            return
-//        }
-//        
-//        // the aset has any change?
-//        guard details.hasAssetChanges else {
-//            return
-//        }
-//        
-//        // whether the change will support incremental updating?
-//        guard details.hasIncrementalChanges else {
-//            // does not support, forced to update all the data
-//            collectionView.reloadData()
-//            return
-//        }
-//        
-//        // update collection
-//        collectionView.performBatchUpdates({
-//            
-//            // For indexes to make sense, updates must be in this order:
-//            // delete, insert, reload, move
-//            details.deleteSections.map { collectionView.deleteSections($0) }
-//            details.insertSections.map { collectionView.insertSections($0) }
-//            details.reloadSections.map { collectionView.reloadSections($0) }
-//            
-//            details.removeItems.map { collectionView.deleteItems(at: $0) }
-//            details.insertItems.map { collectionView.insertItems(at: $0) }
-//            details.reloadItems.map { collectionView.reloadItems(at: $0) }
-//            
-//            // move
-//            details.enumerateMoves { from, to in
-//                collectionView.moveItem(at: from, to: to)
-//            }
-//            
-//        }, completion: nil)
+        // collectionView must be set
+        guard let collectionView = collectionView, let newSource = details.after else {
+            return
+        }
+        // keep the new fetch result for future use.
+        let oldSource = self.source
+        source = newSource
+        
+        // source did change, must update header cache
+        defer {
+            _updateHeaderCaches()
+            _updateHeaderView()
+        }
+        
+        // update collection asset count change
+        guard newSource.numberOfAssets != 0 else {
+            // new data source is empty, reload all data and reset error info
+            self.ub_execption(with: container, source: newSource, error: Exception.notData, animated: true)
+            self.collectionView?.reloadData()
+            return
+        }
+        
+        // the library is prepared
+        self.prepared = true
+        self.ub_execption(with: container, source: newSource, error: nil, animated: true)
+        
+        // the old source is empty?
+        guard oldSource.numberOfAssets != 0 else {
+            // old source is empty, reload all data
+            self.collectionView?.reloadData()
+            return
+        }
+        
+        // the aset has any change?
+        guard details.hasItemChanges else {
+            return
+        }
+        
+        // whether the change will support incremental updating?
+        guard details.hasIncrementalChanges else {
+            // does not support, forced to update all the data
+            self.collectionView?.reloadData()
+            return
+        }
+
+        // update collection
+        collectionView.performBatchUpdates({
+            
+            // For indexes to make sense, updates must be in this order:
+            // delete, insert, reload, move
+            
+            details.deleteSections.map { collectionView.deleteSections($0) }
+            details.insertSections.map { collectionView.insertSections($0) }
+            details.reloadSections.map { collectionView.reloadSections($0) }
+            
+            details.moveSections?.forEach { from, to in
+                collectionView.moveSection(from, toSection: to)
+            }
+            
+            details.removeItems.map { collectionView.deleteItems(at: $0) }
+            details.insertItems.map { collectionView.insertItems(at: $0) }
+            details.reloadItems.map { collectionView.reloadItems(at: $0) }
+            
+            details.moveItems?.forEach { from, to in
+                collectionView.moveItem(at: from, to: to)
+            }
+            
+        }, completion: nil)
     }
     
     // MARK: Extended
     
     /// Call before request authorization
-    open func container(_ container: Container, willAuthorization source: UHSource) {
+    open func container(_ container: Container, willAuthorization source: Source) {
         logger.trace?.write()
     }
     
     /// Call after completion of request authorization
-    open func container(_ container: Container, didAuthorization source: UHSource, error: Error?) {
+    open func container(_ container: Container, didAuthorization source: Source, error: Error?) {
         // the error message has been processed by the ExceptionHandling
         guard error == nil else {
             return
@@ -574,12 +573,12 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
     }
     
     /// Call before request load
-    open func container(_ container: Container, willLoad source: UHSource) {
+    open func container(_ container: Container, willLoad source: Source) {
         logger.trace?.write()
     }
     
     /// Call after completion of load
-    open func container(_ container: Container, didLoad source: UHSource, error: Error?) {
+    open func container(_ container: Container, didLoad source: Source, error: Error?) {
         // the error message has been processed by the ExceptionHandling
         guard let collectionView = collectionView, error == nil else {
             return
@@ -967,7 +966,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
     private(set) var transitioning: Bool = false
     
     private(set) var container: Container
-    private(set) var source: UHSource {
+    private(set) var source: Source {
         willSet {
             // update header view & footer view
             _headerView?.source = newValue

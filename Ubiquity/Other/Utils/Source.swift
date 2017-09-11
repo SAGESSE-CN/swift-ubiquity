@@ -8,525 +8,598 @@
 
 import UIKit
 
-///// Collection & Asset accessor
-//internal class Accessor {
-//    
-//    /// Generate empty accessor
-//    fileprivate init() {
-//        _accessor = nil
-//    }
-//    /// Generate accessor for collection
-//    init(collection: Collection) {
-//        _accessor = _AccessorForCollection(collection: collection)
-//    }
-//    /// Generate accessor for collection type
-//    init(collectionType: CollectionType) {
-//        _accessor = _AccessorForCollectionList(collectionType: collectionType)
-//    }
-//    /// Generate accessor for collection types
-//    init(collectionTypes: Array<CollectionType>) {
-//        _accessor = _AccessorForCollectionLists(collectionTypes: collectionTypes)
-//    }
-//    
-////    /// The accessor using the collection types
-////    var collectionTypes: Array<CollectionType> {
-////        return []
-////    }
-//    
-//    /// Reload accessor with container
-//    func reload(_ container: Container) {
-//        _accessor?.reload(container)
-//    }
-//    
-//    /// The number of collection.
-//    var numberOfSections: Int {
-//        return _accessor?.numberOfSections ?? 0
-//    }
-//    /// The number of assets at section.
-//    func numberOfItems(inSection section: Int) -> Int {
-//        return _accessor?.numberOfItems(inSection: section) ?? 0
-//    }
-//    
-//    
-//    private var _accessor: Accessor?
-//}
-//
-//private class _AccessorForCollection: Accessor {
-//    
-//    /// Generate accessor for collection
-//    override init(collection: Collection) {
-//        super.init()
-//    }
-//    
-//    /// Reload accessor with container
-//    override func reload(_ container: Container) {
-//    }
-//    
-//    /// The number of collection.
-//    override var numberOfSections: Int {
-//        return 0
-//    }
-//    /// The number of assets at section.
-//    override func numberOfItems(inSection section: Int) -> Int {
-//        return 0
-//    }
-//}
-//private class _AccessorForCollectionList: Accessor {
-//    
-//    /// Generate accessor for collection type
-//    override init(collectionType: CollectionType) {
-//        _collectionType = collectionType
-//        
-//        super.init()
-//    }
-//    
-//    /// Reload accessor with container
-//    override func reload(_ container: Container) {
-//        
-//        
-//        _collections = container.request(forCollectionList: _collectionType)
-//        
-////    var numberOfSections: Int {
-////        return _collectionList.count
-////    }
-////    func numberOfItems(inSection section: Int) -> Int {
-////        return _collectionList[section].count
-////    }
-////    
-////    func collection(at section: Int) -> Collection {
-////        return _collectionList[section]
-////    }
-////    
-////    func asset(at indexPath: IndexPath) -> Asset {
-////        return _collectionList[indexPath.section][indexPath.item]
-////    }
-////    
-////    func changeDetails(for change: Change) -> ChangeDetails? {
-////        return change.changeDetails(for: _collectionList)
-////    }
-////    
-////    private var _collectionList: CollectionList
-//        
-//    }
-//    
-//    /// The number of collection.
-//    override var numberOfSections: Int {
-//        return 0
-//    }
-//    /// The number of assets at section.
-//    override func numberOfItems(inSection section: Int) -> Int {
-//        return 0
-//    }
-//    
-//    private var _collections: CollectionList?
-//    private var _collectionType: CollectionType
-//}
-//private class _AccessorForCollectionLists: Accessor {
-//    
-//    override init(collectionTypes: Array<CollectionType>) {
-//        
-//        
-//        //self.collectionTypes = collectionTypes
-//        super.init()
-//    }
-//    
-//    /// Reload accessor with container
-//    override func reload(_ container: Container) {
-////        
-////        // load moment
-////        _AccessorForCollectionList(collectionType: .moment)
-////
-////        // load regular
-////        _AccessorForCollectionList(collectionType: .regular)
-////
-////        // load recently
-////        _AccessorForCollectionList(collectionType: .recentlyAdded)
-//    }
-//    
-//    /// The number of collection.
-//    override var numberOfSections: Int {
-//        return 0
-//    }
-//    /// The number of assets at section.
-//    override func numberOfItems(inSection section: Int) -> Int {
-//        return 0
-//    }
-//    
-//}
-//
-//
-//
-//
-//
-//internal class Source {
-//    
-//    init(collection: Collection) {
-//        // init data
-//        _adapter = CollectionAdapter(collection: collection)
-//        _collectionType = collection.ub_collectionType
-//        _collectionSubtype = collection.ub_collectionSubtype
-//        
-//        // config
-//        title = collection.ub_title
-//    }
-//    
-//    init(collectionType: CollectionType) {
-//        // init data
-//        _collectionType = collectionType
-//        _collectionSubtype = .smartAlbumUserLibrary
-//        
-//        switch collectionType {
-//        case .moment:
-//            title = "Moments"
-//            
-//        case .regular:
-//            title = "Photos"
-//            
-//        case .recentlyAdded:
-//            title = "Recently"
-//        }
-//    }
-//    
-//    var title: String?
-//    
-//    var collectionType: CollectionType {
-//        return _collectionType
-//    }
-//    
-//    var collectionSubtype: CollectionSubtype {
-//        return _collectionSubtype
-//    }
-//    
-//    /// In this is source the footer view need display?
-//    var isFooterViewHidden: Bool {
-//        // automatic hidden
-//        return false
-//    }
-//    
-//    /// In this is source the header view need display?
-//    var isHeaderViewHidden: Bool {
-//        // display header only in moment
-//        return _collectionType != .moment
-//    }
-//    
-//    
-//    var count: Int {
-//        // adapter must be set
-//        guard let adapter = _adapter else {
-//            return 0
-//        }
-//        
-//        // sum
-//        return (0 ..< adapter.numberOfSections).reduce(0) {
-//            $0 + adapter.numberOfItems(inSection: $1)
-//        }
-//    }
-//    
-//    func count(with type: AssetType) -> Int {
-//        // adapter must be set
-//        guard let adapter = _adapter else {
-//            return 0
-//        }
-//        
-//        // sum
-//        return (0 ..< adapter.numberOfSections).reduce(0) {
-//            $0 + adapter.collection(at: $1).ub_count(with: type)
-//        }
-//    }
-//    
-//    func load(with container: Container) {
-//        // data is loaded?
-//        guard _adapter == nil else {
-//            return
-//        }
-//        
-//        // setup
-//        _adapter = CollectionListAdapter(collectionList: container.request(forCollectionList: _collectionType))
-//    }
-//    
-//    func changeDetails(for change: Change) -> SourceChangeDetails? {
-//        // adapter must be set
-//        guard let adapter = _adapter else {
-//            return nil
-//        }
-//        
-//        // check sections change
-//        guard let details = adapter.changeDetails(for: change) else {
-//            return nil
-//        }
-//        
-//        // check items change
-//        let changes = (0 ..< adapter.numberOfSections).flatMap { section -> (Int, ChangeDetails)? in
-//            // the adapter is `CollectionAdapter`
-//            guard !(details.before is Collection) else {
-//                return (section, details)
-//            }
-//            
-//            // the section is deleted
-//            guard !(details.removedIndexes?.contains(section) ?? false) else {
-//                return nil
-//            }
-//            
-//            // the collection has any change?
-//            guard let details = change.ub_changeDetails(forCollection: adapter.collection(at: section)) else {
-//                return nil
-//            }
-//            
-//            // the collection is change at offset
-//            return (section, details)
-//        }
-//        
-//        // generate new chagne details for collectios
-//        let newDetails = SourceChangeDetails(before: self, after: {
-//            
-//            let source = Source(collectionType: collectionType)
-//            
-//            // config title
-//            source.title = title
-//            
-//            // only singe collection
-//            if let collection = details.after as? Collection {
-//                return Source(collection: collection)
-//            }
-//            // has more collections
-//            if let collectionList = details.after as? CollectionList {
-//                source._adapter = CollectionListAdapter(collectionList: collectionList)
-//            }
-//            
-//            return source
-//        }())
-//        
-//        // has more collections
-//        if details.before is CollectionList {
-//            // update section changes
-//            newDetails.insertSections = details.insertedIndexes
-//            newDetails.deleteSections = details.removedIndexes
-//            newDetails.hasIncrementalChanges = true
-//            
-//            // has insert or delete? 
-//            newDetails.hasAssetChanges = !(newDetails.insertSections?.isEmpty ?? true && newDetails.deleteSections?.isEmpty ?? true)
-//        }
-//        
-//        // was deleted?
-//        if details.after == nil {
-//            newDetails.wasDeleted = true
-//        }
-//        
-//        // apply changes
-//        changes.reversed().forEach { section, details in
-//            
-//            // keep the new fetch result for future use.
-//            guard details.after != nil else {
-//                // the section is deleted
-//                newDetails.hasIncrementalChanges = true
-//                newDetails.deleteSections?.update(with: section)
-//                return
-//            }
-//            
-//            // has asset changes?
-//            guard details.hasAssetChanges else {
-//                return
-//            }
-//            newDetails.hasAssetChanges = true
-//
-//            // if there are incremental diffs, animate them in the table view.
-//            guard details.hasIncrementalChanges else {
-//                // reload the table view if incremental diffs are not available.
-//                newDetails.reloadSections?.update(with: section)
-//                return
-//            }
-//            newDetails.hasIncrementalChanges = true
-//            
-//            // merge items changes
-//            newDetails.removeItems?.append(contentsOf: details.removedIndexes?.map({ .init(item: $0, section: section) }) ?? [])
-//            newDetails.insertItems?.append(contentsOf: details.insertedIndexes?.map({ .init(item: $0, section: section) }) ?? [])
-//            newDetails.reloadItems?.append(contentsOf: details.changedIndexes?.map({ .init(item: $0, section: section) }) ?? [])
-//            
-////            details.enumerateMoves { from, to in
-////                newDetails.hasMoves = true
-////                newDetails.moveItems?.append((.init(row: from, section: section), .init(row: to, section: section)))
-////            }
-//        }
-//        
-//        // clear invaild index path
-//        newDetails.clear()
-//        
-//        // success
-//        return newDetails
-//    }
-//    
-//    
-//    var numberOfSections: Int {
-//        return _adapter?.numberOfSections ?? 0
-//    }
-//    
-//    func numberOfItems(inSection section: Int) -> Int {
-//        return _adapter?.numberOfItems(inSection: section) ?? 0
-//    }
-//    
-//    func asset(at indexPath: IndexPath) -> Asset? {
-//        return _adapter?.asset(at: indexPath)
-//    }
-//    
-//    func collection(at section: Int) -> Collection? {
-//        // check boundary
-//        guard section < numberOfSections else {
-//            return nil
-//        }
-//        return _adapter?.collection(at: section)
-//    }
-//    
-//    private var _adapter: SourceAdapter?
-//    
-//    private var _collectionType: CollectionType
-//    private var _collectionSubtype: CollectionSubtype
-//}
-//
-//
-//
-internal class SourceChangeDetails {
-//    
-//    /// Create an change detail
-//    init(before: Source, after: Source?) {
-//        self.before = before
-//        self.after = after
-//    }
-//    
-//    /// the object in the state before this change
-//    var before: Source
-//    /// the object in the state after this change
-//    var after: Source?
-//    
-//    /// A Boolean value that indicates whether objects have been rearranged in the fetch result.
-//    var hasMoves: Bool = false
-//    // YES if the object was deleted
-//    var wasDeleted: Bool = false
-//    /// A Boolean value that indicates whether objects have been any change in result.
-//    var hasAssetChanges: Bool = false
-//    /// A Boolean value that indicates whether changes to the fetch result can be described incrementally.
-//    var hasIncrementalChanges: Bool = false
-//    
-//    /// The indexes from which objects have been removed from the fetch result.
-//    var removeItems: [IndexPath]? = []
-//    /// The indexes of objects in the fetch result whose content or metadata have been updated.
-//    var reloadItems: [IndexPath]? = []
-//    /// The indexes where new objects have been inserted in the fetch result.
-//    var insertItems: [IndexPath]? = []
-//    
-//    var insertSections: IndexSet? = IndexSet()
-//    var deleteSections: IndexSet? = IndexSet()
-//    var reloadSections: IndexSet? = IndexSet()
-//    
-//    /// The indexs where new object have move
-//    var moveItems: [(IndexPath, IndexPath)]?
-//    
-//    /// Runs the specified block for each case where an object has moved from one index to another in the fetch result.
-//    func enumerateMoves(_ handler: @escaping (IndexPath, IndexPath) -> Swift.Void) {
-//        moveItems?.forEach(handler)
-//    }
-//    
-//    func clear() {
-//        if insertSections?.isEmpty ?? true {
-//            insertSections = nil
-//        }
-//        if deleteSections?.isEmpty ?? true {
-//            deleteSections = nil
-//        }
-//        if reloadSections?.isEmpty ?? true {
-//            reloadSections = nil
-//        }
-//        if removeItems?.isEmpty ?? false {
-//            removeItems = nil
-//        }
-//        if insertItems?.isEmpty ?? false {
-//            insertItems = nil
-//        }
-//        if reloadItems?.isEmpty ?? false {
-//            reloadItems = nil
-//        }
-//        if moveItems?.isEmpty ?? true {
-//            moveItems = nil
-//            hasMoves = false
-//        }
-//    }
-//    
+
+public class Source: NSObject {
+    
+    /// Custom album filter. if return false, the collection will not be displayed.
+    /// Notice: that every change is filtered again 
+    public typealias CustomFilter = ((offset: Int, collectoin: Collection)) -> Bool
+    
+    /// A data source with collection.
+    public init(collection: Collection) {
+        super.init()
+        
+        // configure the source data
+        _filter = nil
+        _collections = [collection]
+        _collectionLists = nil
+        _collectionListTypes = nil
+        
+        // configure other
+        title = collection.ub_title
+    }
+    
+    /// A data source with collection list.
+    public convenience init(collectionList: CollectionList, filter: CustomFilter? = nil) {
+        self.init(collectionLists: [collectionList], filter: filter)
+    }
+    /// A data source with collection list type.
+    public convenience init(collectionType: CollectionType, filter: CustomFilter? = nil) {
+        self.init(collectionTypes: [collectionType], filter: filter)
+    }
+    
+    /// A data source with multiple collection lists.
+    public init(collectionLists: [CollectionList], filter: CustomFilter? = nil) {
+        super.init()
+        
+        // configure the source data
+        _filter = filter
+        _collections = nil
+        _collectionLists = collectionLists
+        _collectionListTypes = nil
+        
+        // configure title
+        title = _title(with: collectionLists.first?.ub_collectionType ?? .regular)
+    }
+    /// A data source with multiple collection list types.
+    public init(collectionTypes: [CollectionType], filter: CustomFilter? = nil) {
+        super.init()
+        
+        // configure the source data
+        _filter = filter
+        _collections = nil
+        _collectionLists = nil
+        _collectionListTypes = collectionTypes
+        
+        // configure title
+        title = _title(with: collectionTypes.first ?? .regular)
+    }
+    
+    ///
+    public var title: String?
+    
+    private func _title(with collectionType: CollectionType) -> String {
+        switch collectionType {
+        case .moment:
+            return "Moments"
+            
+        case .regular:
+            return "Photos"
+            
+        case .recentlyAdded:
+            return "Recently"
+        }
+    }
+    
+    /// The source contains all of the collection type.
+    public var collectionTypes: Set<CollectionType> {
+        // hit cache?
+        if let collectionTypes =  _cachedCollectionTypes {
+            return collectionTypes
+        }
+        var collectionTypes = Set<CollectionType>()
+        
+        _collectionListTypes?.forEach {
+            collectionTypes.insert($0)
+        }
+        _collectionLists?.forEach {
+            collectionTypes.insert($0.ub_collectionType)
+        }
+        _collections?.forEach {
+            collectionTypes.insert($0.ub_collectionType)
+        }
+        _filteredCollections?.forEach {
+            collectionTypes.insert($0.ub_collectionType)
+        }
+        
+        _cachedCollectionTypes = collectionTypes
+        
+        return collectionTypes
+    }
+    
+    /// The source contains all of the collection subtype.
+    public var collectionSubtypes: Set<CollectionSubtype> {
+        // hit cache?
+        if let collectionSubtypes =  _cachedCollectionSubtypes {
+            return collectionSubtypes
+        }
+        var collectionSubtypes = Set<CollectionSubtype>()
+        
+        _collections?.forEach {
+            collectionSubtypes.insert($0.ub_collectionSubtype)
+        }
+        _filteredCollections?.forEach {
+            collectionSubtypes.insert($0.ub_collectionSubtype)
+        }
+        
+        _cachedCollectionSubtypes = collectionSubtypes
+        
+        return collectionSubtypes
+    }
+    
+    
+    /// Load data with container.
+    internal func loadData(with container: Container, completion: @escaping (Error?) -> Void) {
+        logger.trace?.write()
+        
+        DispatchQueue.global().async {
+            
+            self._loadData(with: container)
+            
+            // must preload, or seriously affect the performance of the main thread
+            _ = self.numberOfAssets
+            
+            // teh load has been completed
+            completion(nil)
+        }
+    }
+    
+    
+    private func _loadData(with container: Container) {
+        
+        // fetch collection list with types if needed
+        _collectionListTypes.map {
+            _collectionLists = $0.flatMap {
+                container.request(forCollectionList: $0)
+            }
+        }
+        
+        // load data for filter
+        _loadCollections(with: _filter)
+        
+        // need to recalculate all cached info
+        _cachedAssetCount = nil
+        _cachedAssetsCounts = nil
+        _cachedCollectionSubtypes = nil
+        _cachedCollectionTypes = nil
+        
+        // in title no set and only one collection, take the title of collection
+    }
+    
+    /// Load filtered collections
+    private func _loadCollections(with filter: CustomFilter?) {
+        // get all the collection for collections & collection lists
+        var collections = (_collections.map { [$0] } ?? []) + (_collectionLists ?? []).flatMap { collectionList in
+            return (0 ..< collectionList.ub_count).map { index in
+                return collectionList.ub_collection(at: index)
+            }
+        }
+        
+        // filter collections if needed
+        // setting filters is a few cases, so check separately 
+        filter.map { filter in
+            // a self increasing clouser
+            let fetch = { () -> (() -> Int) in
+                var index = 0
+                return {
+                    index += 1
+                    return index - 1
+                }
+            }()
+            
+            // filter all collection
+            collections.enumerated().forEach {
+                collections[$0] = $1.filter { filter((fetch(), $0)) }
+            }
+        }
+        
+        // fetch collcetion lists
+        _filteredCollectionLists = (_collections.map { [$0] } ?? []) + (_collectionLists ?? []).flatMap { $0 }
+        
+        // fetch and filter success
+        _filteredCollectionsOfPlane = collections
+        _filteredCollections = collections.flatMap { $0 }
+    }
+    
+    /// Returns the number of all assets from the source.
+    public var numberOfAssets: Int {
+        // count hit cache.
+        if let count = _cachedAssetCount {
+            return count
+        }
+        // fetch assets count for all collections
+        let count = (0 ..< numberOfCollections).reduce(0) { $0 + (collection(at: $1)?.ub_count ?? 0) }
+        _cachedAssetCount = count
+        return count
+    }
+    /// Returns the number of all colltions from the source.
+    public var numberOfCollections: Int {
+       return _filteredCollections?.count ?? 0
+    }
+    /// Returns the number of all colltion lists from the source.
+    public var numberOfCollectionLists: Int {
+        return _filteredCollectionsOfPlane?.count ?? 0
+    }
+    
+    /// Returns the number of all assets for `type` from the source.
+    public func numberOfAssets(with type: AssetType) -> Int {
+        // count hit cache.
+        if let count = _cachedAssetsCounts?[type] {
+            return count
+        }
+        // is first cache.
+        if _cachedAssetsCounts == nil {
+            _cachedAssetsCounts = [:]
+        }
+        // fetch assets count for all collections
+        let count = (0 ..< numberOfCollections).reduce(0) { $0 + (collection(at: $1)?.ub_count(with: type) ?? 0) }
+        _cachedAssetsCounts?[type] = count
+        return count
+    }
+    /// Returns the number of all assets in collection.
+    public func numberOfAssets(inCollection index: Int) -> Int {
+        return collection(at: index)?.ub_count ?? 0
+    }
+    
+    /// Returns the number of all collections in collection list.
+    public func numberOfCollections(inCollectionList index: Int) -> Int {
+        return _filteredCollectionsOfPlane?[index].count ?? 0
+    }
+    
+    /// Retrieves assets from the specified asset collection.
+    public func asset(at index: IndexPath) -> Asset? {
+        return collection(at: index.section)?.ub_asset(at: index.item)
+    }
+    
+    /// Retrieves collection from the source.
+    public func collection(at index: Int) -> Collection? {
+        return _filteredCollections?[index]
+    }
+    /// Retrieves collection from the source.
+    public func collection(at index: Int, inCollectionList section: Int) -> Collection? {
+        return _filteredCollectionsOfPlane?[section][index]
+    }
+    
+    /// Retrieves collection list from the source.
+    public func collectionList(at index: Int) -> CollectionList? {
+        // may be is CollectionList and Arrary<Collection>.
+        return _filteredCollectionLists?[index] as? CollectionList
+    }
+    
+    /// Generate a new source with change.
+    private func _newSource(with change: Change) -> Source? {
+        // generate a new source
+        var hasChanges = false
+        let newSource = Source(collectionTypes: _collectionListTypes ?? [])
+
+        // copy source
+        newSource._identifier = _identifier
+        newSource._filter = _filter
+        newSource._collectionListTypes = _collectionListTypes
+        newSource._collectionLists = _collectionLists?.flatMap {
+            // if the collection list has not change, use the original collection list
+            guard let details = change.ub_changeDetails(forCollectionList: $0) else {
+                return $0
+            }
+            hasChanges = true
+            // if the collectoin list have change, use the changed collectoin list
+            // if after is nil, indicates that the collection list has been deleted
+            return details.after as? CollectionList
+        }
+        newSource._collections = _collections?.flatMap {
+            // if the collection has not change, use the original collection
+            guard let details = change.ub_changeDetails(forCollection: $0) else {
+                return $0
+            }
+            hasChanges = true
+            // if the collectoin have change, use the changed collectoin
+            // if after is nil, indicates that the collection has been deleted
+            return details.after as? Collection
+        }
+        
+        // if no difference is compared, the event is ignored
+        guard hasChanges else {
+            return nil
+        }
+        
+        /// Load filtered collections
+        newSource._loadCollections(with: _filter)
+        
+        // generate success
+        return newSource
+    }
+    
+    
+    public func changeDetails(forAssets change: Change) -> SourceChangeDetails? {
+        // hit cache?
+        let cachedKey = "source-assets-\(_identifier)"
+        if let cachedDetails = Cacher.cache(of: change, forKey: cachedKey) as? SourceChangeDetails {
+            return cachedDetails
+        }
+        
+        // generate a new source
+        guard let newSource = _newSource(with: change) else {
+            return nil
+        }
+        
+        // compare the difference between the collections changes
+        let collections = ub_diff(_filteredCollections ?? [], dest: newSource._filteredCollections ?? []) {
+            return ($0 === $1)
+        }
+        
+        // if no any changes, the event is ignore
+        guard !collections.isEmpty else {
+            return nil 
+        }
+        logger.debug?.write(collections)
+        
+        // generate new change details
+        let newDetails = SourceChangeDetails(before: self, after: newSource)
+        
+        // must be some changes
+        newDetails.hasItemChanges = true
+        newDetails.hasIncrementalChanges = true
+        
+        // handling collections change information
+        collections.forEach {
+            switch $0 {
+            case .move(let from, let to):
+                // move a section
+                newDetails.moveSections?.append((from, to))
+                
+            case .insert(_, let to):
+                // insert a new section
+                newDetails.insertSections?.insert(to)
+                
+            case .remove(let from, _):
+                // remove a section
+                newDetails.deleteSections?.insert(from)
+                
+            case .update(let from, _):
+                // update a section
+                // check the change information
+                guard let collection = _filteredCollections?[from] else {
+                    return
+                }
+                
+                // get the collection change details
+                guard let details = change.ub_changeDetails(forCollection: collection) else {
+                    return
+                }
+                
+                // if hasItemChanges is false, the collection is changed, but asset no any change
+                guard details.hasItemChanges else {
+                    return // ignore the event
+                }
+                
+                // if hasIncrementalChanges is false, the change can’t support incremental
+                guard details.hasIncrementalChanges else {
+                    newDetails.reloadSections?.insert(from)
+                    return 
+                }
+                
+                // convert to source change details
+                details.insertedIndexes?.forEach { newDetails.insertItems?.append(.init(item: $0, section: from)) }
+                details.removedIndexes?.forEach { newDetails.removeItems?.append(.init(item: $0, section: from)) }
+                details.changedIndexes?.forEach { newDetails.reloadItems?.append(.init(item: $0, section: from)) }
+                
+                details.movedIndexes?.forEach {
+                    newDetails.moveItems?.append((.init(item: $0, section: from), .init(item: $1, section: from)))
+                }
+            }
+        }
+        
+        // repair data conflict
+        newDetails.fix()
+        
+        // save to cacher
+        Cacher.cache(of: change, value: newDetails, forKey: cachedKey)
+        
+        // submit changes
+        return newDetails
+    }
+    public func changeDetails(forCollections change: Change) -> SourceChangeDetails? {
+        // hit cache?
+        let cachedKey = "source-collections-\(_identifier)"
+        if let cachedDetails = Cacher.cache(of: change, forKey: cachedKey) as? SourceChangeDetails {
+            return cachedDetails
+        }
+        
+        // generate a new source
+        guard let newSource = _newSource(with: change) else {
+            return nil
+        }
+        
+        // compare the difference between the collection list changes
+        let collectionLists = ub_diff(_filteredCollectionLists ?? [], dest: newSource._filteredCollectionLists ?? []) {
+            return ($0 as? CollectionList)?.ub_identifier == ($1 as? CollectionList)?.ub_identifier
+        }
+        
+        // compare the difference between the collections changes
+        let collections = ub_diff(_filteredCollections ?? [], dest: newSource._filteredCollections ?? []) {
+            return ($0 === $1)
+        }
+        
+        // if no any changes, the event is ignore
+        guard !collectionLists.isEmpty || !collections.isEmpty else {
+            return nil 
+        }
+        
+        logger.debug?.write(collectionLists, collections)
+        
+        // generate old index paths
+        let indexPaths: [IndexPath] = _filteredCollectionsOfPlane?.enumerated().flatMap { section, collections in
+            return collections.enumerated().flatMap { item, collection in
+                return IndexPath(item: item, section: section)
+            }
+        } ?? []
+        
+        // generate new index paths
+        let newIndexPaths: [IndexPath] = newSource._filteredCollectionsOfPlane?.enumerated().flatMap { section, collections in
+            return collections.enumerated().flatMap { item, collection in
+                return IndexPath(item: item, section: section)
+            }
+        } ?? []
+        
+        // generate new change details
+        let newDetails = SourceChangeDetails(before: self, after: newSource)
+        
+        // must be some changes
+        newDetails.hasItemChanges = true
+        newDetails.hasIncrementalChanges = true
+        
+        // handling collection lists change information
+        collectionLists.forEach {
+            switch $0 {
+            case .move(let from, let to):
+                // move a section
+                newDetails.moveSections?.append((from, to))
+                
+            case .insert(_, let to):
+                // insert a new section
+                newDetails.insertSections?.insert(to)
+                
+            case .remove(let from, _):
+                // remove a section
+                newDetails.deleteSections?.insert(from)
+                
+            case .update(let from, _):
+                // update a section
+                newDetails.reloadSections?.insert(from)
+            }
+        }
+        
+        // handling collections change information
+        collections.forEach {
+            switch $0 {
+            case .move(let from, let to):
+                // move a collection
+                newDetails.moveItems?.append((indexPaths[from], newIndexPaths[to]))
+                
+            case .insert(_, let to):
+                // insert a new collection
+                newDetails.insertItems?.append(newIndexPaths[to])
+                
+            case .remove(let from, _):
+                // remove a collection
+                newDetails.removeItems?.append(indexPaths[from])
+                
+            case .update(let from, _):
+                // udpate a collection
+                newDetails.reloadItems?.append(indexPaths[from])
+            }
+        }
+        
+        // repair data conflict
+        newDetails.fix()
+        
+        // save to cacher
+        Cacher.cache(of: change, value: newDetails, forKey: cachedKey)
+        
+        // submit changes
+        return newDetails
+    }
+    
+    /// Content identifier
+    private lazy var _identifier: String = UUID().uuidString
+    
+    private var _filter: CustomFilter?
+    
+    private var _collections: Array<Collection>?
+    private var _collectionLists: Array<CollectionList>?
+    private var _collectionListTypes: Array<CollectionType>?
+    
+    private var _filteredCollections: Array<Collection>?
+    private var _filteredCollectionLists: Array<Any>?
+    private var _filteredCollectionsOfPlane: Array<Array<Collection>>?
+    
+    private var _cachedAssetCount: Int?
+    private var _cachedAssetsCounts: [AssetType: Int]?
+    
+    private var _cachedCollectionTypes: Set<CollectionType>?
+    private var _cachedCollectionSubtypes: Set<CollectionSubtype>?
 }
-//
-//private protocol SourceAdapter {
-//    
-//    var title: String? { get }
-//    
-//    var numberOfSections: Int { get }
-//    
-//    func numberOfItems(inSection section: Int) -> Int
-//    
-//    func asset(at indexPath: IndexPath) -> Asset
-//    
-//    func collection(at section: Int) -> Collection
-//    
-//    func changeDetails(for change: Change) -> ChangeDetails?
-//}
-//
-//private class CollectionAdapter: SourceAdapter {
-//    
-//    init(collection: Collection) {
-//        _collection = collection
-//    }
-//    
-//    var title: String? {
-//        return _collection.ub_title
-//    }
-//    
-//    var numberOfSections: Int {
-//        return 1
-//    }
-//    func numberOfItems(inSection section: Int) -> Int {
-//        return _collection.ub_count
-//    }
-//    
-//    func collection(at section: Int) -> Collection {
-//        return _collection
-//    }
-//    
-//    func asset(at indexPath: IndexPath) -> Asset {
-//        return _collection.ub_asset(at: indexPath.item)
-//    }
-//    
-//    func changeDetails(for change: Change) -> ChangeDetails? {
-//        return change.ub_changeDetails(forCollection: _collection)
-//    }
-//    
-//    private var _collection: Collection
-//}
-//
-//private class CollectionListAdapter: SourceAdapter {
-//    
-//    init(collectionList: CollectionList) {
-//        _collectionList = collectionList
-//    }
-//    
-//    var title: String? {
-//        return nil
-//    }
-//    
-//    var numberOfSections: Int {
-//        return _collectionList.ub_count
-//    }
-//    func numberOfItems(inSection section: Int) -> Int {
-//        return _collectionList.ub_collection(at: section).ub_count
-//    }
-//    
-//    func collection(at section: Int) -> Collection {
-//        return _collectionList.ub_collection(at: section)
-//    }
-//    
-//    func asset(at indexPath: IndexPath) -> Asset {
-//        return _collectionList.ub_collection(at: indexPath.section).ub_asset(at: indexPath.item)
-//    }
-//    
-//    func changeDetails(for change: Change) -> ChangeDetails? {
-//        return change.ub_changeDetails(forCollectionList: _collectionList)
-//    }
-//    
-//    private var _collectionList: CollectionList
-//}
+
+public class SourceChangeDetails: NSObject {
+    
+    /// Create an change detail
+    init(before: Source, after: Source?) {
+        self.before = before
+        self.after = after
+    }
+    
+    /// the object in the state before this change
+    let before: Source
+    /// the object in the state after this change
+    let after: Source?
+    
+    /// A Boolean value that indicates whether objects have been any change in the source.
+    var hasItemChanges: Bool = false
+    /// A Boolean value that indicates whether changes to the source can be described incrementally.
+    var hasIncrementalChanges: Bool = false
+    
+    /// The indexes from which objects have been removed from the source.
+    var removeItems: [IndexPath]? = []
+    /// The indexes of objects in the source whose content or metadata have been updated.
+    var reloadItems: [IndexPath]? = []
+    /// The indexes where new objects have been inserted in the source.
+    var insertItems: [IndexPath]? = []
+    /// The indexs where new object have move
+    var moveItems: [(IndexPath, IndexPath)]? = []
+    
+    /// The indexes from which groups have been rmoved from the source.
+    var deleteSections: IndexSet? = []
+    /// The indexes of groups in the source whose content or metadata have been updated.
+    var reloadSections: IndexSet? = []
+    /// The indexes from which groups have been inserted from the source.
+    var insertSections: IndexSet? = []
+    /// The indexs where new object have move
+    var moveSections: [(Int, Int)]? = []
+    
+    // fixed invalid data
+    func fix() {
+        
+         // if the section has been deleted, clear all data about that section
+        deleteSections?.forEach { section in
+            moveItems = moveItems?.filter { $0.section != section && $1.section != section }
+            removeItems = removeItems?.filter { $0.section != section }
+            insertItems = insertItems?.filter { $0.section != section }
+            reloadItems = reloadItems?.filter { $0.section != section }
+        }
+        
+        // if the section has been reloaded, clear all data about that section
+        reloadSections?.forEach { section in
+            moveItems = moveItems?.filter { $0.section != section && $1.section != section }
+            removeItems = removeItems?.filter { $0.section != section }
+            insertItems = insertItems?.filter { $0.section != section }
+            reloadItems = reloadItems?.filter { $0.section != section }
+        }
+        
+        // if the section has been move, clear all data about that section
+        moveSections?.forEach { section, _ in
+            moveItems = moveItems?.filter { $0.section != section && $1.section != section }
+            removeItems = removeItems?.filter { $0.section != section }
+            insertItems = insertItems?.filter { $0.section != section }
+            reloadItems = reloadItems?.filter { $0.section != section }
+        }
+        
+        // clear invaild data
+        __clear(&removeItems)
+        __clear(&reloadItems)
+        __clear(&insertItems)
+        __clear(&moveItems)
+        __clear(&deleteSections)
+        __clear(&reloadSections)
+        __clear(&insertSections)
+        __clear(&moveSections)
+    }
+}
+
+// clear empty collection
+private func __clear<T: Swift.Collection>(_ seq: inout T?) {
+    // if the collection is emtpy, clear to nil
+    guard seq?.isEmpty ?? false else {
+        return
+    }
+    seq = nil
+}

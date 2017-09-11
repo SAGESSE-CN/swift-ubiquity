@@ -96,7 +96,12 @@ public class UHAssetCollection: NSObject {
 public class UHAssetCollectionList: NSObject {
     
     /// Generate a collection list with collectoin type
-    public init(collectionType: CollectionType) {
+    public convenience init(collectionType: CollectionType) {
+        self.init(identifier: UUID().uuidString, collectionType: collectionType)
+    }
+    /// Generate a collection list with identifier and collectoin type
+    public init(identifier: String, collectionType: CollectionType) {
+        self.identifier = identifier
         self.collectionType = collectionType
         self.collections = UHAssetCollectionList._collections(with: collectionType)
         super.init()
@@ -164,6 +169,9 @@ public class UHAssetCollectionList: NSObject {
         
         return collections
     }
+    
+    /// A unique string that persistently identifies the object.
+    public let identifier: String
     
     public var collections: Array<UHAssetCollection>
     public var collectionType: CollectionType
@@ -428,6 +436,11 @@ extension UHAssetCollection: Collection {
 }
 extension UHAssetCollectionList: CollectionList {
     
+    /// A unique string that persistently identifies the object.
+    public var ub_identifier: String {
+        return identifier
+    }
+    
     /// The type of the asset collection, such as an album or a moment.
     public var ub_collectionType: CollectionType {
         return collectionType
@@ -496,7 +509,7 @@ extension UHAssetChange: Change {
         }
         
         // update option info
-        newDetails.hasAssetChanges = assets != nil
+        newDetails.hasItemChanges = assets != nil
         newDetails.hasIncrementalChanges = assets?.hasIncrementalChanges ?? false
         newDetails.hasMoves = assets?.hasMoves ?? false
         
@@ -548,7 +561,7 @@ extension UHAssetChange: Change {
         }
         
         // generate new collection list.
-        let newCollectionList = UHAssetCollectionList(collectionType: collectionList.ub_collectionType)
+        let newCollectionList = UHAssetCollectionList(identifier: collectionList.identifier, collectionType: collectionList.ub_collectionType)
         
         // compare difference
         var diffs = ub_diff(collectionList.collections, dest: newCollectionList.collections)
@@ -593,7 +606,7 @@ extension UHAssetChange: Change {
         
         // always requires incremental change
         details.hasMoves = true
-        details.hasAssetChanges = true
+        details.hasItemChanges = true
         details.hasIncrementalChanges = true
         
         // process

@@ -57,7 +57,7 @@ internal class NavigationHeaderView: UICollectionReusableView {
         }
     }
     
-    var source: UHSource? {
+    var source: Source? {
         willSet {
             // The source is change?
             guard source !== newValue else {
@@ -66,11 +66,19 @@ internal class NavigationHeaderView: UICollectionReusableView {
             
             // update content 
             section.map {
+                guard $0 < newValue?.numberOfCollections ?? 0 else {
+                    _updateCollection(nil)
+                    return
+                }
                 _updateCollection(newValue?.collection(at: $0))
             }
             
             // update subheader
             _headers.forEach { key, value in
+                guard key < newValue?.numberOfCollections ?? 0 else {
+                    value._updateCollection(nil)
+                    return
+                }
                 value._updateCollection(newValue?.collection(at: key))
             }
         }

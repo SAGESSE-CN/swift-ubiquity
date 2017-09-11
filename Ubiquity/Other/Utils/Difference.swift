@@ -62,8 +62,15 @@ public enum DifferenceResult: CustomStringConvertible {
     }
 }
 
-/// Compare the differences between the two arrays 
+/// Compare the differences between the two arrays
 public func ub_diff<Element: Equatable>(_ src: Array<Element>, dest: Array<Element>) -> Array<DifferenceResult> {
+    return ub_diff(src, dest: dest) {
+        $0 == $1
+    }
+}
+
+/// Compare the differences between the two arrays
+public func ub_diff<Element>(_ src: Array<Element>, dest: Array<Element>, equal: (Element, Element) -> Bool) -> Array<DifferenceResult> {
     
     let slen = src.count
     let dlen = dest.count
@@ -81,7 +88,7 @@ public func ub_diff<Element: Equatable>(_ src: Array<Element>, dest: Array<Eleme
     for si in 1 ..< slen + 1 {
         for di in 1 ..< dlen + 1 {
             // comparative differences
-            if src[si - 1] == dest[di - 1] {
+            if equal(src[si - 1], dest[di - 1]) {
                 // equal
                 diffs[si][di] = diffs[si - 1][di - 1] + 1
             } else {
@@ -115,7 +122,7 @@ public func ub_diff<Element: Equatable>(_ src: Array<Element>, dest: Array<Eleme
             }
             break
         }
-        guard src[si - 1] != dest[di - 1] else {
+        guard !equal(src[si - 1], dest[di - 1]) else {
             // no change, ignore
             si -= 1
             di -= 1
@@ -145,7 +152,7 @@ public func ub_diff<Element: Equatable>(_ src: Array<Element>, dest: Array<Eleme
         let from = item.from
         let delElement = src[from]
         // can't merge to move item?
-        if let addIndex = adds.index(where: { dest[$0.to] == delElement }) {
+        if let addIndex = adds.index(where: { equal(dest[$0.to], delElement) }) {
             let addItem = adds.remove(at: addIndex)
             return .move(from: from, to: addItem.to)
         }

@@ -94,8 +94,8 @@ internal class ExceptionView: UIView, ExceptionDisplayable {
         // setup subview
         addSubview(view)
         addConstraints([
-            .ub_make(view, .left, .equal, self, .left, 20),
-            .ub_make(view, .right, .equal, self, .right, -20),
+            .ub_make(view, .left, .equal, self, .leftMargin),
+            .ub_make(view, .right, .equal, self, .rightMargin   ),
             .ub_make(view, .centerY, .equal, self, .centerY),
         ])
     }

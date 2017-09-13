@@ -43,8 +43,11 @@ internal class BrowserDetailLayout: UICollectionViewFlowLayout {
             return offset
         }
         let count = trunc(attr.center.x / collectionView.frame.width)
+        let origin = CGPoint(x: count * collectionView.frame.width, y: 0)
         
-        return .init(x: count * collectionView.frame.width, y: offset.y)
+        logger.debug?.write(origin)
+        
+        return origin
     }
     
     override func prepare(forCollectionViewUpdates updateItems: [UICollectionViewUpdateItem]) {

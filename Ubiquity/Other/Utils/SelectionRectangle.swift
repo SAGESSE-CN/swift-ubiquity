@@ -147,7 +147,7 @@ internal class SelectionRectangle: NSObject {
     }
     
     /// Comparing the difference between the two range
-    private func _diff<T: Comparable>(_ lhs: Range<T>, _ rhs: Range<T>) -> (added: (Range<T>, Bool)?, removed: (Range<T>, Bool)?) {
+    private func _diff<T>(_ lhs: Range<T>, _ rhs: Range<T>) -> (added: (Range<T>, Bool)?, removed: (Range<T>, Bool)?) {
         // default is empty
         var added: (Range<T>, Bool)?
         var removed: (Range<T>, Bool)?

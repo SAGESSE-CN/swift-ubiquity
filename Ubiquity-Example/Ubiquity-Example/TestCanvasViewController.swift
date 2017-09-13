@@ -7,6 +7,9 @@
 //
 
 import UIKit
+
+#if DEBUG
+
 @testable import Ubiquity
 
 class TestCanvasViewController: UIViewController, Ubiquity.CanvasViewDelegate {
@@ -15,6 +18,11 @@ class TestCanvasViewController: UIViewController, Ubiquity.CanvasViewDelegate {
         super.viewDidLoad()
         
         self.automaticallyAdjustsScrollViewInsets = false
+        
+        let cv = Ubiquity.CanvasView(frame: view.bounds)
+        containerView = cv
+        containerView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(cv)
         
         // Do any additional setup after loading the view.
         
@@ -67,5 +75,7 @@ class TestCanvasViewController: UIViewController, Ubiquity.CanvasViewDelegate {
     lazy var imageView: UIImageView = UIImageView()
     
     
-    @IBOutlet weak var containerView: Ubiquity.CanvasView!
+    var containerView: Ubiquity.CanvasView!
 }
+
+#endif

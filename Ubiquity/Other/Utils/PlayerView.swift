@@ -271,7 +271,7 @@ internal extension PlayerView {
         switch _status {
         case .preparing:
             // status is preparing, check can prepare complete
-            let duration = min(.init(PlayerView.minimumBufferTime), item.duration.seconds - item.currentTime().seconds)
+            let duration = min(TimeInterval(PlayerView.minimumBufferTime), item.duration.seconds - item.currentTime().seconds)
             let range = CMTimeRange(start: item.currentTime(), duration: .init(seconds: duration, preferredTimescale: item.duration.timescale))
             // if contains the range, is prepared
             guard ranges.contains(where: { $0.containsTimeRange(range) }) else {
@@ -284,7 +284,7 @@ internal extension PlayerView {
         case .stalling:
             // statis is stalling, check can restore playing
             let current = item.currentTime()
-            let duration = min(.init(PlayerView.stallingBufferTime), item.duration.seconds - current.seconds)
+            let duration = min(TimeInterval(PlayerView.stallingBufferTime), item.duration.seconds - current.seconds)
             let range = CMTimeRange(start: current, duration: .init(seconds: duration, preferredTimescale: item.duration.timescale))
             // if contains the range, can restore
             guard ranges.contains(where: { $0.containsTimeRange(range) }) else {

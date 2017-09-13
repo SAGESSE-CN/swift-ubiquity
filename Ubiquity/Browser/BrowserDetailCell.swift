@@ -101,7 +101,9 @@ internal class BrowserDetailCell: UICollectionViewCell, Displayable {
         
         // setup container view if needed
         if let containerView = _containerView {
+            
             containerView.delegate = self
+
             // add tap recognizer
             let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(_handleTap(_:)))
             let doubleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(_handleDoubleTap(_:)))

@@ -249,6 +249,11 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
             return .zero
         }
         var edg = UIEdgeInsets(top: collectionViewLayout.minimumLineSpacing, left: 0, bottom: 0, right: 0)
+
+        if #available(iOS 11.0, *) {
+            edg.left = collectionView.safeAreaInsets.left
+            edg.right = collectionView.safeAreaInsets.right
+        }
         
         // in header, top is 4
         if !prefersHeaderViewHidden {
@@ -855,7 +860,13 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         }
         
         // fetch current section
-        let offset = collectionView.contentOffset.y + collectionView.contentInset.top
+        var offset = collectionView.contentOffset.y + collectionView.contentInset.top
+        
+        // in iOS11, if activated `safeAreaInsets`, need to subtraction the area
+        if #available(iOS 11.0, *) {
+            offset += collectionView.safeAreaInsets.top
+        }
+        
         guard let (section, distance) = _header(at: offset) else {
             headerView.section = nil
             headerView.removeFromSuperview()
@@ -894,8 +905,6 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         guard let collectionView = collectionView, _headerView != nil else {
             return
         }
-        
-        logger.debug?.write()
         
         // fetch all header layout attributes
         _headers = (0 ..< collectionView.numberOfSections).map {

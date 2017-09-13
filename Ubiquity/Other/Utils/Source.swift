@@ -26,7 +26,8 @@ public class Source: NSObject {
         _collectionListTypes = nil
         
         // configure other
-        title = collection.ub_title
+        _title = nil
+        _defaultTitle = collection.ub_title
     }
     
     /// A data source with collection list.
@@ -49,7 +50,8 @@ public class Source: NSObject {
         _collectionListTypes = nil
         
         // configure title
-        title = _title(with: collectionLists.first?.ub_collectionType ?? .regular)
+        _title = nil
+        _defaultTitle = _defaultTitle(with: collectionLists.first?.ub_collectionType ?? .regular)
     }
     /// A data source with multiple collection list types.
     public init(collectionTypes: [CollectionType], filter: CustomFilter? = nil) {
@@ -62,23 +64,14 @@ public class Source: NSObject {
         _collectionListTypes = collectionTypes
         
         // configure title
-        title = _title(with: collectionTypes.first ?? .regular)
+        _title = nil
+        _defaultTitle = _defaultTitle(with: collectionTypes.first ?? .regular)
     }
     
-    ///
-    public var title: String?
-    
-    private func _title(with collectionType: CollectionType) -> String {
-        switch collectionType {
-        case .moment:
-            return "Moments"
-            
-        case .regular:
-            return "Photos"
-            
-        case .recentlyAdded:
-            return "Recently"
-        }
+    /// The source title.
+    public var title: String? {
+        set { return _title = newValue }
+        get { return _title ?? _defaultTitle }
     }
     
     /// The source contains all of the collection type.
@@ -162,8 +155,6 @@ public class Source: NSObject {
         _cachedAssetsCounts = nil
         _cachedCollectionSubtypes = nil
         _cachedCollectionTypes = nil
-        
-        // in title no set and only one collection, take the title of collection
     }
     
     /// Load filtered collections
@@ -199,6 +190,11 @@ public class Source: NSObject {
         // fetch and filter success
         _filteredCollectionsOfPlane = collections
         _filteredCollections = collections.flatMap { $0 }
+        
+        // in title no set and only one collection, take the title of collection
+        if let collection = _filteredCollections?.first, _filteredCollections?.count == 1 {
+            _defaultTitle = collection.ub_title
+        }
     }
     
     /// Returns the number of all assets from the source.
@@ -273,6 +269,8 @@ public class Source: NSObject {
         let newSource = Source(collectionTypes: _collectionListTypes ?? [])
 
         // copy source
+        newSource._title = _title
+        newSource._defaultTitle = _defaultTitle
         newSource._identifier = _identifier
         newSource._filter = _filter
         newSource._collectionListTypes = _collectionListTypes
@@ -331,7 +329,6 @@ public class Source: NSObject {
         guard !collections.isEmpty else {
             return nil 
         }
-        logger.debug?.write(collections)
         
         // generate new change details
         let newDetails = SourceChangeDetails(before: self, after: newSource)
@@ -392,6 +389,9 @@ public class Source: NSObject {
         // repair data conflict
         newDetails.fix()
         
+        // show debug info
+        logger.debug?.write(newDetails)
+        
         // save to cacher
         Cacher.cache(of: change, value: newDetails, forKey: cachedKey)
         
@@ -422,10 +422,8 @@ public class Source: NSObject {
         
         // if no any changes, the event is ignore
         guard !collectionLists.isEmpty || !collections.isEmpty else {
-            return nil 
+            return nil
         }
-        
-        logger.debug?.write(collectionLists, collections)
         
         // generate old index paths
         let indexPaths: [IndexPath] = _filteredCollectionsOfPlane?.enumerated().flatMap { section, collections in
@@ -493,6 +491,9 @@ public class Source: NSObject {
         // repair data conflict
         newDetails.fix()
         
+        // show debug info
+        logger.debug?.write(newDetails)
+        
         // save to cacher
         Cacher.cache(of: change, value: newDetails, forKey: cachedKey)
         
@@ -500,8 +501,25 @@ public class Source: NSObject {
         return newDetails
     }
     
+    /// using collection type to generate default title.
+    private func _defaultTitle(with collectionType: CollectionType) -> String {
+        switch collectionType {
+        case .moment:
+            return "Moments"
+            
+        case .regular:
+            return "Photos"
+            
+        case .recentlyAdded:
+            return "Recently"
+        }
+    }
+    
     /// Content identifier
     private lazy var _identifier: String = UUID().uuidString
+    
+    private var _title: String??
+    private var _defaultTitle: String?
     
     private var _filter: CustomFilter?
     
@@ -592,6 +610,32 @@ public class SourceChangeDetails: NSObject {
         __clear(&reloadSections)
         __clear(&insertSections)
         __clear(&moveSections)
+    }
+    
+    /// Display debug info
+    public override var description: String {
+        // generate debug information
+        let tmp = [
+            insertSections?.map { "S-AN/\($0)" },
+            reloadSections?.map { "S-R\($0)/\($0)" },
+            deleteSections?.map { "S-D\($0)/N" },
+            moveSections?.map { "S-M\($0)/\($1)" },
+            
+            insertItems?.map { "AN/\($0.section):\($0.item)" },
+            reloadItems?.map { "R\($0.section):\($0.item)/\($0.section):\($0.item)" },
+            removeItems?.map { "D\($0.section):\($0.item)/N" },
+            moveItems?.map { "M\($0.section):\($0.item)/\($1.section):\($1.item)" },
+        ]
+        
+        // convert to string
+        let str = tmp.flatMap { $0 }.flatMap { $0 }.reduce("") {
+            guard !$0.isEmpty else {
+                return $1
+            }
+            return $0 + ", " + $1
+        }
+        
+        return "\(super.description), diffs: [\(str)]"
     }
 }
 

@@ -123,7 +123,7 @@ fileprivate extension UINavigationController {
         }
     }
     
-    fileprivate func __ub_perform<T>(transitioning: UINavigationControllerTransitioningDelegate, operation: UINavigationControllerOperation, closure: ((Void) -> T)) -> T {
+    fileprivate func __ub_perform<T>(transitioning: UINavigationControllerTransitioningDelegate, operation: UINavigationControllerOperation, closure: (() -> T)) -> T {
         // generated a transitioning helper
         let helper = UINavigationControllerTransitioningHelper(transitioning: transitioning)
         // setup helper

@@ -252,6 +252,11 @@ extension CanvasView {
         
         clipsToBounds = true
         
+        // In iOS11, the default adjustment behavior need closed
+        if #available(iOS 11.0, *) {
+            _containerView.contentInsetAdjustmentBehavior = .never
+        }
+        
         _containerView.frame = bounds
         _containerView.delegate = self
         _containerView.clipsToBounds = false

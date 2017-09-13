@@ -9,7 +9,7 @@
 import Foundation
 
 /// Difference result
-public enum DifferenceResult: CustomStringConvertible {
+public enum DifferenceResult: CustomStringConvertible, Equatable {
     
     /// A moved item
     case move(from: Int, to: Int)
@@ -58,6 +58,33 @@ public enum DifferenceResult: CustomStringConvertible {
         case .insert(let from, let to): return "A\(c(from))/\(c(to))"
         case .update(let from, let to): return "R\(c(from))/\(c(to))"
         case .remove(let from, let to): return "D\(c(from))/\(c(to))"
+        }
+    }
+    
+    /// Returns a Boolean value indicating whether two values are equal.
+    ///
+    /// Equality is the inverse of inequality. For any values `a` and `b`,
+    /// `a == b` implies that `a != b` is `false`.
+    ///
+    /// - Parameters:
+    ///   - lhs: A value to compare.
+    ///   - rhs: Another value to compare.
+    public static func ==(lhs: DifferenceResult, rhs: DifferenceResult) -> Bool {
+        switch (lhs, rhs) {
+        case (.remove(let f1, _), .remove(let f2, _)):
+            return f1 == f2
+            
+        case (.move(let f1, let t1), .move(let f2, let t2)):
+            return f1 == f2 && t1 == t2
+            
+        case (.insert(_, let t1), .insert(_, let t2)):
+            return t1 == t2
+            
+        case (.update(let f1, let t1), .update(let f2, let t2)):
+            return f1 == f2 && t1 == t2
+            
+        default:
+            return false
         }
     }
 }

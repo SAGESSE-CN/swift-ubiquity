@@ -18,8 +18,14 @@ internal class BrowserAlbumLayout: UICollectionViewFlowLayout {
             return
         }
         
-        // recompute
-        let rect = UIEdgeInsetsInsetRect(collectionView.bounds, collectionView.contentInset)
+        // the size of the indent must be omitted 
+        var rect = UIEdgeInsetsInsetRect(collectionView.bounds, collectionView.contentInset)
+        
+        // in iOS11, there is a security zone concept that needs to be removed from insecure areas.
+        if #available(iOS 11.0, *) {
+            rect = UIEdgeInsetsInsetRect(rect, collectionView.safeAreaInsets)
+        }
+        
         let (size, spacing) = BrowserAlbumLayout._itemSize(with: rect)
         
         // setup

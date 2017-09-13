@@ -487,7 +487,7 @@ extension UHAssetChange: Change {
         // merge collection and result
         // must be create a new collection, otherwise the cache cannot be updated in time
         let newResult = assets?.fetchResultAfterChanges ?? result
-        let newCollection = UHAssetCollection(collection: contents?.objectAfterChanges as? PHAssetCollection ?? collection.collection)
+        let newCollection = UHAssetCollection(collection: contents?.objectAfterChanges ?? collection.collection)
         
         // if only the contents change,
         // check new collection and collection is eqqual, if true ignore the changes

@@ -303,7 +303,7 @@ internal class Logger {
             }
             // write a log
             internal override func write(_ log: Logger.Log) {
-                #if DEBUG && false
+                #if DEBUG && true
                     Console._queue.sync {
                         print(self.layout.format(with: log), terminator: "")
                     }

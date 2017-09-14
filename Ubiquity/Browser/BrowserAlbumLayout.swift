@@ -32,6 +32,9 @@ internal class BrowserAlbumLayout: UICollectionViewFlowLayout {
         itemSize = size
         minimumLineSpacing = spacing
         minimumInteritemSpacing = spacing
+        
+        // clear header cache
+        _cachedAllHeaderLayoutAttributes = nil
     }
     
     override func finalizeAnimatedBoundsChange() {
@@ -43,56 +46,60 @@ internal class BrowserAlbumLayout: UICollectionViewFlowLayout {
     }
     
     override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        // only when the change of access to the current center indexPath
         guard super.shouldInvalidateLayout(forBoundsChange: newBounds) else {
             return false
         }
         
-        // the bounds is change?
-        if let collectionView = collectionView, _invaildBounds?.size != newBounds.size {
-            let location = collectionView.convert(collectionView.center, from: collectionView.superview)
-            
-            // save center index path
-            _invaildBounds = newBounds
-            _invaildCenterIndexPath = collectionView.indexPathsForVisibleItems.reduce((nil, Int.max)) {
-                // get the cell center
-                guard let center = collectionView.layoutAttributesForItem(at: $1)?.center else {
-                    return $0
-                }
-                // compute the cell to point the disance
-                let disance = Int(fabs(sqrt(pow((center.x - location.x), 2) + pow((center.y - location.y), 2))))
-                // if the cell is more close to update it
-                guard disance < $0.1 else {
-                    return $0
-                }
-                return ($1, disance)
-            }.0
-            
-            // update layout 
-            invalidateLayout()
+        // if collectionview is not ready, ignore
+        guard let collectionView = collectionView, _invaildBounds?.size != newBounds.size else {
+            return true
         }
         
+        // get the collection view center point
+        let location = collectionView.convert(collectionView.center, from: collectionView.superview)
+        
+        // get the element closest to the center
+        _invaildBounds = newBounds
+        _invaildCenterIndexPath = collectionView.indexPathsForVisibleItems.reduce((nil, Int.max)) {
+            // get the cell center
+            guard let center = collectionView.layoutAttributesForItem(at: $1)?.center else {
+                return $0
+            }
+            // compute the cell to point the disance
+            let disance = Int(fabs(sqrt(pow((center.x - location.x), 2) + pow((center.y - location.y), 2))))
+            // if the cell is more close to update it
+            guard disance < $0.1 else {
+                return $0
+            }
+            return ($1, disance)
+        }.0
+        
+        
+        logger.debug?.write("center at \(String(describing: _invaildCenterIndexPath))")
+  
         return true
     }
     
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
         let offset = super.targetContentOffset(forProposedContentOffset: proposedContentOffset)
-        
+
         // only the process screen rotation
-        if let collectionView = collectionView, let indexPath = _invaildCenterIndexPath {
-            // must get the center on new layout
-            guard let location = collectionView.layoutAttributesForItem(at: indexPath)?.center else {
-                return offset
-            }
-            
-            let frame = collectionView.frame
-            let size = collectionViewContentSize
-            let edg = collectionView.contentInset
-            
-            // check top boundary & bottom boundary
-            return .init(x: offset.x, y: max(min(location.y - frame.midY,  size.height - frame.maxY + edg.bottom), -edg.top))
+        guard let collectionView = collectionView, let indexPath = _invaildCenterIndexPath else {
+            return offset
         }
         
-        return offset
+        // must get the center on new layout
+        guard let location = collectionView.layoutAttributesForItem(at: indexPath)?.center else {
+            return offset
+        }
+        
+        let frame = collectionView.frame
+        let size = collectionViewContentSize
+        let edg = collectionView.contentInset
+        
+        // check top boundary & bottom boundary
+        return .init(x: offset.x, y: max(min(location.y - frame.midY,  size.height - frame.maxY + edg.bottom), -edg.top))
     }
     
 //    override func initialLayoutAttributesForAppearingItem(at itemIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
@@ -111,6 +118,20 @@ internal class BrowserAlbumLayout: UICollectionViewFlowLayout {
 //        return layoutAttributesForSupplementaryView(ofKind: elementKind, at: decorationIndexPath)
 //    }
     
+    var allHeaderLayoutAttributes: [UICollectionViewLayoutAttributes?] {
+        // hit cache
+        if let allHeaderLayoutAttributes = _cachedAllHeaderLayoutAttributes {
+            return allHeaderLayoutAttributes
+        }
+        logger.trace?.write("item is \(itemSize), spacing is \(minimumLineSpacing)")
+        
+        // get all header layout attributes for layout
+        _cachedAllHeaderLayoutAttributes = (0 ..< (collectionView?.numberOfSections ?? 0)).map {
+             layoutAttributesForSupplementaryView(ofKind: UICollectionElementKindSectionHeader, at: .init(item: 0, section: $0))
+        }
+        
+        return _cachedAllHeaderLayoutAttributes ?? []
+    }
     
     private static func _itemSize(with rect: CGRect) -> (CGSize, CGFloat) {
         
@@ -138,5 +159,7 @@ internal class BrowserAlbumLayout: UICollectionViewFlowLayout {
     
     private var _invaildBounds: CGRect?
     private var _invaildCenterIndexPath: IndexPath?
+    
+    private var _cachedAllHeaderLayoutAttributes: [UICollectionViewLayoutAttributes?]?
 }
 

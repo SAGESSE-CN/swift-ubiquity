@@ -139,12 +139,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
             return
         }
         
-        // bounds is change?
-        if _cachedSize?.width != size.width {
-            _updateHeaderCaches()
-        }
-        
-        // update view
+      // update view
         _updateFooterView()
         _updateHeaderView()
         
@@ -239,7 +234,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         guard let collectionViewLayout = collectionViewLayout as? UICollectionViewFlowLayout else {
             return .zero
         }
-        
+       
         return collectionViewLayout.itemSize
     }
     
@@ -498,7 +493,6 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         
         // source did change, must update header cache
         defer {
-            _updateHeaderCaches()
             _updateHeaderView()
         }
         
@@ -799,7 +793,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
     /// Returns header at offset
     private func _header(at offset: CGFloat) -> (Int, CGFloat)? {
         // header layouts must be set
-        guard let headers = _headers, !headers.isEmpty else {
+        guard let headers = (collectionViewLayout as? BrowserAlbumLayout)?.allHeaderLayoutAttributes, !headers.isEmpty else {
             return nil
         }
         
@@ -810,12 +804,12 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         var start = min(_header, headers.count - 1)
         while start >= 0 {
             // the section has header view?
-            guard let rect = headers[start] else {
+            guard let attributes = headers[start] else {
                 start -= 1
                 continue
             }
             // is -n or 0?
-            guard (rect.minY - offset) < 0 else {
+            guard (attributes.frame.minY - offset) < 0 else {
                 start -= 1
                 continue
             }
@@ -831,17 +825,17 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         var end = start
         while end < headers.count {
             // the section has header view?
-            guard let rect = headers[end] else {
+            guard let attributes = headers[end] else {
                 end += 1
                 continue
             }
             // is +n
-            guard (rect.minY - offset) > 0 else {
+            guard (attributes.frame.minY - offset) > 0 else {
                 start = end
                 end += 1
                 continue
             }
-            distance = (rect.minY - offset)
+            distance = (attributes.frame.minY - offset)
             break
         }
         
@@ -874,13 +868,14 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         }
         
         // if header layout is nil, no header view
-        guard var header = _headers?[section] else {
+        guard let attributes = (collectionViewLayout as? BrowserAlbumLayout)?.allHeaderLayoutAttributes[section] else {
             headerView.section = nil
             headerView.removeFromSuperview()
             return
         }
         
         // update position
+        var header = attributes.frame
         header.origin.y = offset + min(distance - header.height, 0)
         
         // header view position is chnage?
@@ -897,22 +892,6 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         if headerView.superview == nil {
             collectionView.insertSubview(headerView, at: 0)
         }
-    }
-    
-    /// Update header view caches
-    private func _updateHeaderCaches() {
-        // collection view must be set
-        guard let collectionView = collectionView, _headerView != nil else {
-            return
-        }
-        
-        // fetch all header layout attributes
-        _headers = (0 ..< collectionView.numberOfSections).map {
-            collectionView.layoutAttributesForSupplementaryElement(ofKind: UICollectionElementKindSectionHeader, at: .init(item: 0, section: $0))?.frame
-        }
-        
-        // cache is change, must update header view
-        _updateHeaderView()
     }
     
     /// Update footer view & layout
@@ -956,7 +935,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
     /// Tap header view
     fileprivate dynamic func _hanleHeader(_ sender: Any) {
         // the section must be set
-        guard let section = _headerView?.section, let frame = _headers?[section] else {
+        guard let section = _headerView?.section, let frame = (collectionViewLayout as? BrowserAlbumLayout)?.allHeaderLayoutAttributes[section]?.frame else {
             return
         }
         logger.debug?.write(frame, section)
@@ -1026,7 +1005,6 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
     
     // header
     private var _header: Int = 0
-    private var _headers: [CGRect?]?
     private var _headerView: NavigationHeaderView?
     
     private var _cachedSize: CGSize?

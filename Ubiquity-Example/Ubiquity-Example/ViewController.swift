@@ -32,8 +32,8 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
     
     @IBAction func show(_ sender: Any) {
         
-        browse(sender)
-//        pick(sender)
+//        browse(sender)
+        pick(sender)
     }
     @IBAction func odissmis(_ sender: Any) {
         dismiss(animated: true, completion: nil)
@@ -54,7 +54,7 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
         let browser = Ubiquity.Browser(library: Ubiquity.UHAssetLibrary())
         
         // create an view controller for albums
-        //let controller = browser.instantiateViewController(with: .albumsList, source: .init(collectionType: .regular))
+        let controller = browser.instantiateViewController(with: .albumsList, source: .init(collectionType: .regular))
         //let controller = browser.instantiateViewController(with: .albumsList, source: .init(collectionType: .moment))
         //let controller = browser.instantiateViewController(with: .albumsList, source: .init(collectionTypes: [.moment, .regular])) // has a bug in add section & remove section
         //let controller = browser.instantiateViewController(with: .albumsList, source: .init(collectionTypes: [.moment, .regular, .recentlyAdded]))
@@ -64,7 +64,7 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
         //let controller = browser.instantiateViewController(with: .albumsList, source: .init(collection: browser.request(forCollectionList: .regular).ub_collection(at: 0)))
         
         //let controller = browser.instantiateViewController(with: .albums, source: .init(collectionType: .regular))
-        let controller = browser.instantiateViewController(with: .albums, source: .init(collectionType: .moment))
+        //let controller = browser.instantiateViewController(with: .albums, source: .init(collectionType: .moment))
         //let controller = browser.instantiateViewController(with: .albums, source: .init(collectionTypes: [.moment, .regular, .recentlyAdded]))
         //let controller = browser.instantiateViewController(with: .albums, source: .init(collectionType: .regular, filter: { $0.offset == 0 }))
         
@@ -79,13 +79,14 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
         // configure
         picker.delegate = self
         
-//        // display
-//        let controlelr = picker.initialViewController(with: .albumsList(collectionListType: .regular))
-//        
-//        controlelr.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(odissmis(_:)))
-//        
-//        // display controller
-//        present(controlelr, animated: true, completion: nil)
+        // display
+//        let controller = picker.instantiateViewController(with: .albumsList, source: .init(collectionType: .regular))
+        let controller = picker.instantiateViewController(with: .albums, source: .init(collectionType: .moment))
+
+        controller.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(odissmis(_:)))
+        
+        // display controller
+        present(controller, animated: true, completion: nil)
     }
     
     

@@ -227,18 +227,18 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
     
     /// Selection hanlder
     private dynamic func _selectionHandler(_ sender: UIPanGestureRecognizer) {
-        //logger.debug?.write(sender.location(in: collectionView))
+        //logger.trace?.write()
         
         // if selection region can select, try to prepare region
         guard _selectionRectangle.isSelectable
             || _selectionRectangle.begin(at: sender.location(in: collectionView)) else {
             return
         }
-        
+
         // update the selected items
         _selectionLastUpdateTimestamp = nil
         _selectionRectangle.update(at: sender.location(in: collectionView))
-        
+
         // if the gesture recognizer is ended?
         if sender.state == .cancelled || sender.state == .failed || sender.state == .ended {
             // yes, stop auto scroll
@@ -246,12 +246,12 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
             _selectionRectangle.end()
             return
         }
-        
+
         // compute origin
         let origin = sender.location(in: view)
-        
+
         // compute mininum visable rect
-        let item = BrowserAlbumLayout.minimumItemSize.height 
+        let item = BrowserAlbumLayout.minimumItemSize.height
         let inset = UIEdgeInsetsMake(topLayoutGuide.length + item, 0, bottomLayoutGuide.length + item, 0)
         let bounds = UIEdgeInsetsInsetRect(view.bounds, inset)
         
@@ -261,14 +261,14 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
             _selectionScroller.speed = -((bounds.minY - origin.y) / inset.top)
             return
         }
-        
+
         // if y greater than bounds, scroll down automatically
         if origin.y > bounds.maxY {
             // update scroll speed(is down) & start auto scroll
             _selectionScroller.speed = +((origin.y - bounds.maxY) / inset.bottom)
             return
         }
-        
+
         // stop auto scroll
         _selectionScroller.speed = 0
     }

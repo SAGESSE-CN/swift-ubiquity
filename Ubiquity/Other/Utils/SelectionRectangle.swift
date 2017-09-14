@@ -8,8 +8,7 @@
 
 import UIKit
 
-@objc
-internal protocol SelectionRectangleDelegate: class {
+@objc internal protocol SelectionRectangleDelegate: class {
     
     /// Start rectangle select
     @objc optional func selectionRectangle(_ selectionRectangle: SelectionRectangle, shouldBeginSelection indexPath: IndexPath) -> Bool
@@ -24,8 +23,7 @@ internal protocol SelectionRectangleDelegate: class {
     @objc optional func selectionRectangle(_ selectionRectangle: SelectionRectangle, didDeselectItem indexPath: IndexPath)
 }
 
-@objc
-internal class SelectionRectangle: NSObject {
+@objc internal class SelectionRectangle: NSObject {
     
     /// The rectangle selector delegate
     weak var delegate: SelectionRectangleDelegate?

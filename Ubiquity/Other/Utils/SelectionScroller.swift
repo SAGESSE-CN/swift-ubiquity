@@ -8,16 +8,14 @@
 
 import UIKit
 
-@objc
-internal protocol SelectionScrollerDelegate: class {
+@objc internal protocol SelectionScrollerDelegate: class {
     
     /// Update contetn offset for timeover
     @objc optional func selectionScroller(_ selectionScroller: SelectionScroller, shouldAutoScroll timestamp: CFTimeInterval, offset: CGPoint) -> Bool
     @objc optional func selectionScroller(_ selectionScroller: SelectionScroller, didAutoScroll timestamp: CFTimeInterval, offset: CGPoint)
 }
 
-@objc
-internal class SelectionScroller: NSObject {
+@objc internal class SelectionScroller: NSObject {
 
     override init() {
         super.init()
@@ -54,8 +52,16 @@ internal class SelectionScroller: NSObject {
         }
         
         // compute new offset
-        let edg = scrollView.contentInset
-        let y = max(min(scrollView.contentOffset.y + 16 * speed, scrollView.contentSize.height - scrollView.bounds.height + edg.bottom), -edg.top)
+        var top = scrollView.contentInset.top
+        var bottom = scrollView.contentInset.bottom
+        
+        // in iOS11, if activated `safeAreaInsets`, need to add the area
+        if #available(iOS 11.0, *) {
+            top += scrollView.safeAreaInsets.top
+            bottom += scrollView.safeAreaInsets.bottom
+        }
+        
+        let y = max(min(scrollView.contentOffset.y + 16 * speed, scrollView.contentSize.height - scrollView.bounds.height + bottom), -top)
         
         // offset has any change?
         guard scrollView.contentOffset.y != y else {

@@ -241,9 +241,6 @@ public class UHAssetLibrary: NSObject, Photos.PHPhotoLibraryChangeObserver {
         }
     }
     
-    /// Allows maximum one-time loading image bytes
-    public static var maximumLoadBytes: Int = 100 * 1024 * 1024 // 100MiB
-    
     internal lazy var cache: PHCachingImageManager = PHCachingImageManager()
     internal lazy var library: PHPhotoLibrary = {
         let library = PHPhotoLibrary.shared()
@@ -728,16 +725,22 @@ extension UHAssetLibrary: Library {
             let bytes = width * height * 4
             
             // the requested image size has exceeded the limit size?
-            if bytes >= UHAssetLibrary.maximumLoadBytes {
+            if bytes >= Image.largeImageMinimumBytes {
                 // exceeds preset maximun bytes
                 logger.info?.write("request HD/SD image, decode bytes is \(Float(bytes) / 1024 / 1024)MiB")
                 
                 // send data request
                 request.targetSize = UIScreen.main.bounds.size
                 request.contentMode = .aspectFill
-//                request.data = cache.requestImageData(for: asset, options: option) { imageData, dataUTI, orientation, responseObject in
-//                    
-//                }
+                request.data = cache.requestImageData(for: asset, options: option) { imageData, dataUTI, orientation, responseObject in
+                    
+                    let response = UHAssetResponse(responseObject)
+                    
+                    let image = imageData.map { Image(data: $0) } ?? nil
+                    image?.generateLargeImage { _ in
+                        resultHandler(image, response)
+                    }
+                }
             }
             
             // for GIF special loading methods are required

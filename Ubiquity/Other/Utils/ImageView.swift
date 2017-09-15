@@ -8,43 +8,50 @@
 
 import UIKit
 
-internal class ImageLayer: CATiledLayer, CALayerDelegate {
-    
-    internal override init() {
-        super.init()
-        _setup()
-    }
-    internal override init(layer: Any) {
-        super.init(layer: layer)
-        _setup()
-    }
-    internal required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        _setup()
-    }
+internal class ImageTiledLayer: CATiledLayer, CALayerDelegate {
     
     /// Animation duration for after tile loading finishes
     override class func fadeDuration() -> CFTimeInterval {
         return 0.02
     }
+}
+
+internal class ImageTiledView: UIView {
     
-    /// limit the maximum tile zoom level
-    var tileMaximumZoomLevel: Int = 4
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        _setup()
+    }
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        _setup()
+    }
     
-    internal var image: Image? {
+    var image: Image? {
         willSet {
             setNeedsDisplay()
         }
     }
     
-    /// Render each tile
-    internal func draw(_ layer: CALayer, in ctx: CGContext) {
-        
-        // get the current need display rect
-        let rect = ctx.boundingBoxOfClipPath
-        
+    /// limit the maximum tile zoom level
+    var maximumZoomLevel: CGFloat {
+        return _maximumZoomLevel
+    }
+    
+    /// The display tiled size
+    var tileSize: CGSize {
+        set { return _update(forTile: newValue) }
+        get { return _tileSize }
+    }
+    
+    override func draw(_ rect: CGRect) {
+        // only ImageTiledLayer events are handled
+        guard let ctx = UIGraphicsGetCurrentContext() else {
+            return
+        }
+
         // limit the maximum tile size, because if the tile beyond this size you can't see it
-        guard (1 / ctx.ctm.a / contentsScale) <= CGFloat(tileMaximumZoomLevel + 1) else {
+        guard (1 / ctx.ctm.a) <= CGFloat(maximumZoomLevel + 0.5) else {
             return
         }
         
@@ -63,137 +70,186 @@ internal class ImageLayer: CATiledLayer, CALayerDelegate {
         // drawing cropped image
         ctx.draw(cropped, in: .init(origin: .zero, size: rect.size))
         
-        //#if DEBUG
-        //    ctx.setFillColor(UIColor.black.withAlphaComponent(0.2).cgColor)
-        //    ctx.fill(.init(origin: .zero, size: rect.size))
-        //#endif
+//        #if DEBUG
+//            ctx.setFillColor(UIColor.black.withAlphaComponent(0.2).cgColor)
+//            ctx.fill(.init(origin: .zero, size: rect.size))
+//        #endif
     }
     
-    /// Setup layer configure
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        // the cost of rendering is very large, so do not call setNeedsDisplay if it is not necessary
+        if _cachedBounds?.size != bounds.size {
+            _cachedBounds = bounds
+            
+            // it must be redraw
+            setNeedsDisplay()
+        }
+    }
+    
+    override class var layerClass: AnyClass {
+        return ImageTiledLayer.self
+    }
+    
+    /// Update the tile configuration information
+    private func _update(forTile size: CGSize) {
+        // convert to absolute size
+        let newSize = tileSize.applying(.init(scaleX: contentScaleFactor, y: contentScaleFactor))
+        let newLevel = Image.largeImageMinimumSize.width / tileSize.width / contentScaleFactor
+        
+        logger.debug?.write("\(size) => \(newSize)/\(newLevel)")
+        
+        // update ivar
+        _tileSize = size
+        _maximumZoomLevel = newLevel
+        
+        // update layer
+        _cachedLayer?.tileSize = newSize
+    }
+    
     private func _setup() {
         
-        delegate = self
+        // update cache info
+        _cachedLayer = layer as? ImageTiledLayer
+        _cachedBounds = bounds
         
-        tileSize = .init(width: 512, height: 512)
-        tileMaximumZoomLevel = 4 // 2048x2048
+        // configure tile layer
+        _update(forTile: _tileSize)
         
-        levelsOfDetail = 1
-        levelsOfDetailBias = 2
+        _cachedLayer?.levelsOfDetail = 1
+        _cachedLayer?.levelsOfDetailBias = 2
+        
+        // configure self
+        backgroundColor = .clear
+        isUserInteractionEnabled = false
     }
+    
+    private var _cachedLayer: ImageTiledLayer?
+    private var _cachedBounds: CGRect?
+    
+    private lazy var _tileSize: CGSize = .init(width: 256, height: 256)
+    private lazy var _maximumZoomLevel: CGFloat = 2
 }
 
 public class ImageView: UIImageView {
     
-    
     public override var image: UIImage? {
-        willSet {
-            // value is changed?
-            guard newValue !== image else {
-                return
-            }
+        set { return _update(forNormal: newValue, animated: false) }
+        get { return _image }
+    }
+    
+    public var placeholderImage: UIImage? {
+        set { return _update(forPlaceholder: newValue, animated: false) }
+        get { return _placeholderImage }
+    }
+    
+    private func _update(forNormal newValue: UIImage?, animated: Bool) {
+        // the image is changed?
+        guard _image !== newValue else {
+            return
+        }
+        logger.trace?.write()
+        
+        // update ivar
+        _image = newValue
+        
+        // custom views are displayed only when needed
+        guard let image = newValue as? Image, image.type != nil else {
+            // need to call it to hide the custom view
+            _update(forCustomizeView: nil, animated: animated)
             
-            guard let image = newValue as? Image, image.isLarged else {
-                return
-            }
+            // update image using the super method
+            // if image is empty, display placeholderImage
+            return super.image = newValue ?? placeholderImage
+        }
+        
+        // destory old custom view and create new custom view
+        _update(forCustomizeView: image, animated: animated)
+    }
+    
+    private func _update(forPlaceholder newValue: UIImage?, animated: Bool) {
+        // the image is changed?
+        let oldValue = _placeholderImage
+        guard oldValue !== newValue else {
+            return
+        }
+        logger.trace?.write()
+        
+        // update ivar
+        _placeholderImage = newValue
+        
+        // only when you are using placeholderImage will you update it
+        guard super.image === oldValue else {
+            return
+        }
+        super.image = newValue
+    }
+    
+    private func _update(forCustomizeView newValue: Image?, animated: Bool) {
+        logger.trace?.write()
+
+        // hiden tiled view for large image
+        if let tiledView = _tiledView {
             
-            DispatchQueue.global().async {
-                
-                guard let nr = image.renderer.scaling(to: .init(x: 0, y: 0, width: 2048, height: 2048)) else {
+            tiledView.image = nil
+            tiledView.removeFromSuperview()
+            
+            // disconnect, but there is no hidden, because it may need to hide animation
+            _tiledView = nil
+        }
+        // hide animated view for animated image
+        if let animatedView = _animatedView {
+            
+            animatedView.image = nil
+            animatedView.removeFromSuperview()
+            
+            // disconnect, but there is no hidden, because it may need to hide animation
+            _animatedView = nil
+        }
+        
+        // is there a new image
+        guard let newValue = newValue else {
+            return
+        }
+        
+        // since the custom is asynchronous, must first display placeholderImage
+        if !newValue.largeImageIsLoaded {
+            super.image = placeholderImage
+        }
+
+        // load large image
+        newValue.generateLargeImage { largeImage in
+            // this may not be in the main thread
+            DispatchQueue.main.async {
+                // if the image version has been changed, ignore the event
+                guard newValue === self.image else {
                     return
                 }
                 
-                DispatchQueue.main.async {
-                    self.layer.contents = nr
-                }
+                // continue update custom view
+                self._update(forCustomizeView: newValue, largeImage: largeImage, animated: animated)
             }
-            
-            
-            let tiled = ImageLayer()
-////            let renderer = ImageRenderer()
-//            
-            tiled.image = newValue as? Image
-//
-////            tiled.levelsOfDetail = 1
-////            tiled.levelsOfDetailBias = 3
-////            tiled.frame = bounds
-////            tiled.delegate = renderer
-////            
-////            _tiledRender = renderer
-//            
-//            
-//            
-            layer.addSublayer(tiled)
-//
-            _tiledLayer = tiled
         }
     }
-    public var placeholderImage: UIImage?
-    
-    
-//    public override var contentScaleFactor: CGFloat {
-//        willSet {
-//            guard let renderer = _tiledRender else {
-//                return
-//            }
-//            _tiledLayer?.tileSize = renderer.tileSize.applying(.init(scaleX: contentScaleFactor, y: contentScaleFactor))
-//        }
-//    }
-    
-    public override func layoutSubviews() {
-        super.layoutSubviews()
+    private func _update(forCustomizeView newValue: Image, largeImage: UIImage?, animated: Bool) {
+        logger.trace?.write()
         
-        // the layout is change?
-        if _tiledLayer?.frame != bounds {
-            _tiledLayer?.frame = bounds
-        }
+        // if the larger image load fails, continue to display the placeholderImage
+        super.image = largeImage ?? placeholderImage
+        
+//        // 隐藏旧的附加视图
+//        let view = ImageTiledView(frame: self.bounds)
+//        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+//        view.image = newValue
+//        self.addSubview(view)
+//        _tiledView = view
     }
     
-    private var _tiledLayer: ImageLayer?
-    private var _tiledRender: ImageRenderer?
+    private var _image: UIImage?
+    private var _placeholderImage: UIImage?
+    
+    private var _tiledView: ImageTiledView?
+    private var _animatedView: ImageTiledView?
 }
-
-
-
-//class TestLargeLayer: CATiledLayer {
-//    
-//    
-//}
-//
-//class TestLargeImageView: UIView {
-//    
-//    override class var layerClass: AnyClass {
-//        return TestLargeLayer.self
-//    }
-//    
-//    override init(frame: CGRect) {
-//        super.init(frame: frame)
-//        _setup()
-//    }
-//    required init?(coder aDecoder: NSCoder) {
-//        super.init(coder: aDecoder)
-//        _setup()
-//    }
-//    
-//    var image: UIImage?
-//    
-//    
-//    
-////        let scale = context.ctm.a / tiledLayer.contentsScale
-////        let column = Int(rect.minX * scale / tileSize.width + 0.5)
-////        let row = Int(rect.minY * scale / tileSize.height + 0.5)
-////        
-////        let str = "\(rect)\n\(ceil(scale * 200) / 200)\n[\(row), \(column)]" as NSString
-////        logger.debug?.write(rect.size)
-//    
-//    private func _setup() {
-//        
-//        // configure tile
-//        tiledLayer.tileSize = tileSize.applying(.init(scaleX: contentScaleFactor, y: contentScaleFactor))
-//        tiledLayer.levelsOfDetail = 1
-//        tiledLayer.levelsOfDetailBias = 3
-//        
-//        
-//        backgroundColor = .clear
-//    }
-//}
 

@@ -185,6 +185,7 @@ class TextLargetImageLoader: UIViewController, UIScrollViewDelegate {
         
         imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         imageView.image = image
+        imageView.placeholderImage = #imageLiteral(resourceName: "ser")
         
         scrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         scrollView.contentSize = size

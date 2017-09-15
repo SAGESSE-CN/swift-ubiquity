@@ -25,6 +25,7 @@ class TestAnimatedImageViewController: UIViewController {
         let image = Ubiquity.Image(data: data)
         let imageView = Ubiquity.ImageView(image: image)
         imageView.frame = view.bounds
+        imageView.contentMode = .scaleAspectFit
         imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(imageView)
     }

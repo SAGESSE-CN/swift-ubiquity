@@ -9,6 +9,11 @@
 import UIKit
 import ImageIO
 
+enum ImageCustomType {
+    case larged
+    case animated
+}
+
 public class Image: UIImage {
     
     public /*not inherited*/ init?(named name: String) {
@@ -63,6 +68,11 @@ public class Image: UIImage {
         fatalError("init(itemProviderData:typeIdentifier:) has not been implemented")
     }
 
+    /// The definition a size of the standard large image, defaults is 2048x2048
+    public static let largeImageMinimumSize: CGSize = .init(width: 2048, height: 2048)
+    
+    /// The definition a bytes of the standard large image, defaults is 100MiB
+    public static var largeImageMinimumBytes: Int = 100 * 1024 * 1024 // 100MiB
     
     public override var size: CGSize {
         // cgImage must be set
@@ -74,12 +84,11 @@ public class Image: UIImage {
     
     public override var cgImage: CGImage? {
         // if it's large image, don't use cgImage directly 
-        guard isLarged else {
+        guard type != nil else {
             return super.cgImage
         }
-        return nil
+        return _largeImage?.cgImage
     }
-    
     
 //
 //
@@ -117,13 +126,32 @@ public class Image: UIImage {
         let bytes = image.bytesPerRow * image.height
         
         // if the image decode bytes has exceeded the limit, the image is large iamge
-        isLarged = (bytes >= UHAssetLibrary.maximumLoadBytes)
+        if bytes >= Image.largeImageMinimumBytes {
+            type = .larged
+        }
     }
     
     private func _check(data: Data) {
     }
-    
 
+    internal var largeImageIsLoaded: Bool {
+        return _largeImage != nil
+    }
+    
+    internal func generateLargeImage(_ completion: @escaping (UIImage?) -> ()) {
+        // the request hit cache
+        if let largeImage = _largeImage {
+            completion(largeImage)
+            return
+        }
+        // generate large image for async
+        DispatchQueue.global().async {
+            let image = self.renderer.scaling(to: .init(origin: .zero, size: Image.largeImageMinimumSize))
+            self._largeImage = image.map { UIImage(cgImage: $0) }
+            completion(self._largeImage)
+        }
+    }
+    
     /// A image renderer
     internal lazy var renderer: ImageRenderer = ImageRenderer(image: self)
     
@@ -133,7 +161,9 @@ public class Image: UIImage {
     }
     
     /// The image is large image
-    internal var isLarged: Bool = false
+    internal var type: ImageCustomType?
+    
+    private var _largeImage: UIImage?
 }
 
 /// A image renderer
@@ -147,6 +177,7 @@ internal class ImageRenderer: NSObject {
     /// The renderer associated image
     internal unowned let image: Image
     
+    
     /// Create an image scaling within the specified `rect`.
     internal func scaling(to rect: CGRect) -> CGImage? {
         
@@ -154,6 +185,8 @@ internal class ImageRenderer: NSObject {
         guard let image = image.raw else {
             return nil
         }
+        
+        
         
 //        guard let data = image.data else {
 //            return nil
@@ -179,6 +212,12 @@ internal class ImageRenderer: NSObject {
         
         // calculate the scaled rect 
         let scale = min(rect.width / .init(image.width), rect.height / .init(image.height))
+        
+        // image in internal not scale
+        guard scale < 1.0 else {
+            return image
+        }
+        
         let size = CGSize(width: .init(image.width) * scale, height: .init(image.height) * scale)
         
         // begin drawing image 

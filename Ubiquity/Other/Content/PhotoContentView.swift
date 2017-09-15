@@ -9,7 +9,7 @@
 import UIKit
 
 /// display photo resources
-internal class PhotoContentView: AnimatedImageView, Displayable {
+internal class PhotoContentView: ImageView, Displayable {
 
     /// The displayer delegate
     weak var delegate: AnyObject?
@@ -113,7 +113,8 @@ internal class PhotoContentView: AnimatedImageView, Displayable {
         //logger.trace?.write("\(asset.ub_identifier) => \(contents?.size ?? .zero)")
         
         // update contents
-        self.ub_setImage(contents ?? self.image, animated: true)
+        self.image = contents ?? self.image
+        //self.ub_setImage(contents ?? self.image, animated: true)
     }
     
     private func _updateContentsProgress(_ progress: Double, response: Response, asset: Asset) {

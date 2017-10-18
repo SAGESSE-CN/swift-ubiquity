@@ -178,27 +178,31 @@ class TextLargetImageLoader: UIViewController, UIScrollViewDelegate {
         
         let image = Ubiquity.Image(data: data)
         let size = image?.size ?? .zero
-        let scale = max(size.width, 1) / view.bounds.width
+        let scale = view.bounds.width / max(size.width, 1)
         
         let imageView = Ubiquity.ImageView(frame: .init(x: 0, y: 0, width: size.width, height: size.height))
-        let scrollView = UIScrollView(frame: view.bounds)
+//        let scrollView = UIScrollView(frame: view.bounds)
         
         imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         imageView.image = image
         imageView.placeholderImage = #imageLiteral(resourceName: "ser")
         
-        scrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        scrollView.contentSize = size
-        scrollView.delegate = self
-        scrollView.addSubview(imageView)
+//        scrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+//        scrollView.contentSize = size
+//        scrollView.delegate = self
+//        scrollView.addSubview(imageView)
+//
+//        view.addSubview(scrollView)
+//
+//        _contentView = imageView
+//
+//        scrollView.minimumZoomScale = 1 / scale
+//        scrollView.maximumZoomScale = 1
+//        scrollView.zoomScale = scrollView.minimumZoomScale
         
-        view.addSubview(scrollView)
+        imageView.frame = .init(x: 0, y: 88, width: size.width * scale, height: size.height * scale)
         
-        _contentView = imageView
-        
-        scrollView.minimumZoomScale = 1 / scale
-        scrollView.maximumZoomScale = 1
-        scrollView.zoomScale = scrollView.minimumZoomScale
+        view.addSubview(imageView)
     }
     
     override func viewDidAppear(_ animated: Bool) {

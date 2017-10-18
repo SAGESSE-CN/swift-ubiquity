@@ -124,7 +124,7 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable, Transitionin
         }
         
         // update contents
-        _imageView?.image = contents?.ub_withOrientation(self.orientation)
+        _imageView?.image = contents//?.ub_withOrientation(self.orientation)
         _allowsInvaildContents = false
         
         // update badge icon

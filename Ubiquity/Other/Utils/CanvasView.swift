@@ -132,34 +132,18 @@ import UIKit
         })
     }
     func zoom(to rect: CGRect, with orientation: UIImageOrientation, animated: Bool) {
-        guard let view = _contentView else {
-            return
-        }
-        // get contentView widht and height
-        let width = max(_contentSize(for: orientation).width, 1)
-        let height = max(_contentSize(for: orientation).height, 1)
-        // calc minimum scale ratio & maximum scale roatio
-        let nscale = min(min(bounds.width / width, bounds.height / height), 1)
-        let nmscale = max(1 / nscale, 2)
-        // calc current scale
-        let oscale = min(min(rect.width, width) / (width * nscale), min(rect.height, height) / (height * nscale))
-        
-        // reset default size
-        view.bounds = CGRect(x: 0, y: 0, width: _round(width * nscale), height: _round(height * nscale))
-        
-        // reset zoom position
-        _containerView.minimumZoomScale = 1
-        _containerView.maximumZoomScale = nmscale
-        _containerView.zoomScale = max(min(oscale, _containerView.maximumZoomScale), _containerView.minimumZoomScale)
-        _containerView.contentOffset = .zero
-        
-        // reset center
-        view.center = CGPoint(x: max(view.frame.width, bounds.width) / 2, y: max(view.frame.height, bounds.height) / 2)
-        
         // cache
         _bounds = bounds
-        _containerView.frame = bounds
         _orientation = orientation
+        
+        _containerView.frame = bounds
+        _contentView?.frame.size = contentSize
+        
+        // update init size
+        _updateScale(false)
+        _updateOffset(false)
+        
+        _containerView.zoomScale = min(rect.width / max(contentSize.width, 1), rect.height / max(contentSize.height, 1))
     }
     
     func setOrientation(_ orientation: UIImageOrientation, animated: Bool) {
@@ -218,6 +202,55 @@ import UIKit
 //        _containerView.layoutIfNeeded()
 //    }
     
+    /// get content with orientation
+    fileprivate func _contentSize(for orientation: UIImageOrientation) -> CGSize {
+        if _isLandscape(for: orientation) {
+            return CGSize(width: contentSize.height, height: contentSize.width)
+        }
+        return contentSize
+    }
+    
+    fileprivate func _updateScale(_ converting: Bool) {
+        // get width and height and scale for orientation
+        let size = _contentSize(for: _orientation)
+        let display = _contentView?.frame.size ?? .zero
+        
+        let scale = min(min(bounds.width / max(size.width, 1), bounds.height / max(size.height, 1)), 1)
+        var correcting = max(max(display.width / max(size.width, 1), display.height / max(size.height, 1)), 0)
+
+        // automatic fix scale for current
+        if converting && _containerView.zoomScale >= _containerView.maximumZoomScale {
+            correcting = 1 // max
+        }
+        if converting && _containerView.zoomScale <= _containerView.minimumZoomScale {
+            correcting = scale // min
+        }
+        
+        // update zoome sacle
+        _containerView.minimumZoomScale = scale
+        _containerView.maximumZoomScale = 1
+        _containerView.zoomScale = correcting
+        //_containerView.contentSize = display
+    }
+    fileprivate func _updateOffset(_ converting: Bool) {
+        // if contentView is not set, ignore
+        guard let view = _contentView else {
+            return
+        }
+
+        let offset = _containerView.contentOffset
+
+        // reset center
+        _contentView?.center = CGPoint(x: max(view.frame.width, bounds.width) / 2, y: max(view.frame.height, bounds.height) / 2)
+        _containerView.contentOffset = {
+
+            let x = max(min(offset.x + ((_bounds?.width ?? 0) - bounds.width) / 2, _containerView.contentSize.width - bounds.width), 0)
+            let y = max(min(offset.y + ((_bounds?.height ?? 0) - bounds.height) / 2, _containerView.contentSize.height - bounds.height), 0)
+
+            return CGPoint(x: x, y: y)
+        }()
+    }
+
     fileprivate var _bounds: CGRect?
     fileprivate var _targetOffset: CGPoint?
     fileprivate var _isRotationing: Bool = false
@@ -277,14 +310,7 @@ extension CanvasView {
         return trunc(val * 2) / 2
     }
     
-    /// get content with orientation
-    fileprivate func _contentSize(for orientation: UIImageOrientation) -> CGSize {
-        if _isLandscape(for: orientation) {
-            return CGSize(width: contentSize.height, height: contentSize.width)
-        }
-        return contentSize
-    }
-    
+
     /// convert orientation to angle
     fileprivate func _angle(for orientation: UIImageOrientation) -> CGFloat {
         switch orientation {
@@ -332,26 +358,26 @@ extension CanvasView {
         let view = _contentView
         let width = max(_contentSize(for: newOrientation).width, 1)
         let height = max(_contentSize(for: newOrientation).height, 1)
-        // calc minimum scale ratio
-        let nscale = min(min(bounds.width / width, bounds.height / height), 1)
-        let nmscale = max(1 / nscale, 2)
         
-        let nbounds = CGRect(x: 0, y: 0, width: _round(width * nscale), height: _round(height * nscale))
-        let transform = CGAffineTransform(rotationAngle: angle)
+        // calc minimum scale ratio
+        let newScale = min(min(bounds.width / width, bounds.height / height), 1)
+        let newBounds = CGRect(x: 0, y: 0, width: _round(width * newScale), height: _round(height * newScale))
+        let newTransform = CGAffineTransform(rotationAngle: angle)
         
         let animations: () -> Void = { [_containerView] in
             // orientation is change?
             if oldOrientation != newOrientation {
                 // changed
-                _containerView.transform = transform
+                _containerView.transform = newTransform
                 _containerView.frame = self.bounds
                 
-                _containerView.minimumZoomScale = 1
-                _containerView.maximumZoomScale = nmscale
-                _containerView.zoomScale = 1
+                _containerView.minimumZoomScale = newScale
+                _containerView.maximumZoomScale = 1
+                _containerView.zoomScale = _containerView.minimumZoomScale
                 _containerView.contentOffset = .zero
+                _containerView.contentSize = newBounds.size
                 
-                view?.frame = nbounds.applying(transform)
+                view?.frame = newBounds.applying(newTransform)
                 view?.center = CGPoint(x: _containerView.bounds.midX, y: _containerView.bounds.midY)
                 
             } else {
@@ -365,8 +391,8 @@ extension CanvasView {
                 
                 _containerView.transform = .identity
                 _containerView.frame = self.bounds
-                
-                view?.frame = nbounds
+
+                view?.frame = newBounds
                 view?.center = CGPoint(x: _containerView.bounds.midX, y: _containerView.bounds.midY)
             }
             
@@ -414,56 +440,16 @@ extension CanvasView {
         super.layoutSubviews()
         
         // size is change?
-        guard _bounds?.size != bounds.size else {
-            return
-        }
-        guard let view = _contentView else {
-            return
-        }
-        // get current offset
-        let offset = _containerView.contentOffset
-        // update frame(can't use autoresingmask, becase get current offset before change)
-        _containerView.frame = bounds
-        // get contentView widht and height
-        let width = max(_contentSize(for: _orientation).width, 1)
-        let height = max(_contentSize(for: _orientation).height, 1)
-        // calc minimum scale ratio & maximum scale roatio
-        let nscale = min(min(bounds.width / width, bounds.height / height), 1)
-        let nmscale = max(1 / nscale, 2)
-        // calc current scale
-        var oscale = max(view.frame.width / (width * nscale), view.frame.height / (height * nscale))
-        
-        // check boundary
-        if _containerView.zoomScale >= _containerView.maximumZoomScale {
-            oscale = nmscale // max
-        }
-        if _containerView.zoomScale <= _containerView.minimumZoomScale {
-            oscale = 1 // min
-        }
-        
-        // reset default size
-        view.bounds = CGRect(x: 0, y: 0, width: _round(width * nscale), height: _round(height * nscale))
-        
-        // reset zoom position
-        _containerView.minimumZoomScale = 1
-        _containerView.maximumZoomScale = nmscale
-        _containerView.zoomScale = max(min(oscale, _containerView.maximumZoomScale), _containerView.minimumZoomScale)
-        _containerView.contentOffset = {
+        if _bounds?.size != bounds.size {
+            _bounds = bounds
+            _containerView.frame = bounds
             
-            let x = max(min(offset.x + ((_bounds?.width ?? 0) - bounds.width) / 2, _containerView.contentSize.width - bounds.width), 0)
-            let y = max(min(offset.y + ((_bounds?.height ?? 0) - bounds.height) / 2, _containerView.contentSize.height - bounds.height), 0)
+            _updateScale(true)
+            _updateOffset(true)
             
-            return CGPoint(x: x, y: y)
-        }()
-        
-        // reset center
-        view.center = CGPoint(x: max(view.frame.width, bounds.width) / 2, y: max(view.frame.height, bounds.height) / 2)
-        
-        // need to notice delegate when update the bounds
-        scrollViewDidScroll(_containerView)
-        
-        // cache
-        _bounds = bounds
+            // need to notice delegate when update the bounds
+            scrollViewDidScroll(_containerView)
+        }
     }
     override func forwardingTarget(for aSelector: Selector!) -> Any? {
         return _containerView

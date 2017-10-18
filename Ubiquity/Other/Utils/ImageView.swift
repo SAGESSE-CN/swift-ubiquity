@@ -49,6 +49,8 @@ internal class ImageTiledView: UIView {
         guard let ctx = UIGraphicsGetCurrentContext() else {
             return
         }
+        
+        logger.debug?.write(rect, bounds)
 
         // limit the maximum tile size, because if the tile beyond this size you can't see it
         guard (1 / ctx.ctm.a) <= CGFloat(maximumZoomLevel + 0.5) else {
@@ -238,12 +240,13 @@ public class ImageView: UIImageView {
         // if the larger image load fails, continue to display the placeholderImage
         super.image = largeImage ?? placeholderImage
         
-//        // 隐藏旧的附加视图
-//        let view = ImageTiledView(frame: self.bounds)
-//        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-//        view.image = newValue
-//        self.addSubview(view)
-//        _tiledView = view
+        // 隐藏旧的附加视图
+        let view = ImageTiledView(frame: self.bounds)
+        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.image = newValue
+        view.contentMode = contentMode
+        self.addSubview(view)
+        _tiledView = view
     }
     
     private var _image: UIImage?

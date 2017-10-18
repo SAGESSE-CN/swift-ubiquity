@@ -154,6 +154,7 @@ public class Image: UIImage {
     
     /// A image renderer
     internal lazy var renderer: ImageRenderer = ImageRenderer(image: self)
+    internal lazy var orientation: UIImageOrientation = .up
     
     /// The image raw cgImage
     internal var raw: CGImage? {
@@ -185,8 +186,6 @@ internal class ImageRenderer: NSObject {
         guard let image = image.raw else {
             return nil
         }
-        
-        
         
 //        guard let data = image.data else {
 //            return nil

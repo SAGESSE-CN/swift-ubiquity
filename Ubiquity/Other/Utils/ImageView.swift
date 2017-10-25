@@ -50,8 +50,6 @@ internal class ImageTiledView: UIView {
             return
         }
         
-        logger.debug?.write(rect, bounds)
-
         // limit the maximum tile size, because if the tile beyond this size you can't see it
         guard (1 / ctx.ctm.a) <= CGFloat(maximumZoomLevel + 0.5) else {
             return
@@ -77,6 +75,20 @@ internal class ImageTiledView: UIView {
 //            ctx.fill(.init(origin: .zero, size: rect.size))
 //        #endif
     }
+    
+//    var affineTransform: CGAffineTransform {
+//        guard let size = image?.size else {
+//            return .identity
+//        }
+//        if let affineTransform = _affineTransform {
+//            return affineTransform
+//        }
+//        let affineTransform = CGAffineTransform(scaleX: size.width / bounds.width, y: size.height / bounds.height)
+//        _affineTransform = affineTransform
+//        return affineTransform
+//    }
+//
+//    private var _affineTransform: CGAffineTransform?
     
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -245,10 +257,26 @@ public class ImageView: UIImageView {
         view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.image = newValue
         view.contentMode = contentMode
+        view.transform = .init(scaleX: self.bounds.width / newValue.size.width, y: self.bounds.height / newValue.size.height )
+        view.frame = self.bounds
         self.addSubview(view)
         _tiledView = view
+        
+        logger.debug?.write(self.bounds, newValue.size)
     }
-    
+
+    public override var frame: CGRect {
+        didSet {
+            logger.debug?.write(bounds)
+            
+            guard let image = _tiledView?.image else {
+                return
+            }
+            _tiledView?.transform = .init(scaleX: bounds.width / image.size.width, y: bounds.height / image.size.height )
+            _tiledView?.frame = bounds
+        }
+    }
+
     private var _image: UIImage?
     private var _placeholderImage: UIImage?
     

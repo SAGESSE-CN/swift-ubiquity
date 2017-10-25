@@ -132,18 +132,21 @@ import UIKit
         })
     }
     func zoom(to rect: CGRect, with orientation: UIImageOrientation, animated: Bool) {
+        let size = _contentSize(for: orientation)
+
         // cache
         _bounds = bounds
         _orientation = orientation
         
         _containerView.frame = bounds
-        _contentView?.frame.size = contentSize
+        _containerView.zoomScale = 1
+        _contentView?.frame.size = size
         
         // update init size
         _updateScale(false)
         _updateOffset(false)
         
-        _containerView.zoomScale = min(rect.width / max(contentSize.width, 1), rect.height / max(contentSize.height, 1))
+        _containerView.zoomScale = min(rect.width / max(size.width, 1), rect.height / max(size.height, 1))
     }
     
     func setOrientation(_ orientation: UIImageOrientation, animated: Bool) {

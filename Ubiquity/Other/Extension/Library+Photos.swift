@@ -864,17 +864,13 @@ private func _convert(forMode mode: RequestContentMode) -> PHImageContentMode {
 
 /// covnert `RequestOptions` to `PHImageRequestOptions`
 private func _convert(forImage options: RequestOptions?) -> PHImageRequestOptions? {
-    // if the option is nil, create a failure
-    guard let options = options else {
-        return nil
-    }
     let newOptions = PHImageRequestOptions()
     
     // need request from remote service?
-    newOptions.isNetworkAccessAllowed = options.isNetworkAccessAllowed
+    newOptions.isNetworkAccessAllowed = options?.isNetworkAccessAllowed ?? true
     
     // if you provide the progress query handler
-    if let progressHandler = options.progressHandler {
+    if let progressHandler = options?.progressHandler {
         // convert result info to response
         newOptions.progressHandler = { progress, _, _, responseObject in
             progressHandler(progress, UHAssetResponse(responseObject))
@@ -886,17 +882,13 @@ private func _convert(forImage options: RequestOptions?) -> PHImageRequestOption
 
 /// covnert `RequestOptions` to `PHVideoRequestOptions`
 private func _convert(forVideo options: RequestOptions?) -> PHVideoRequestOptions? {
-    // if the option is nil, create a failure
-    guard let options = options else {
-        return nil
-    }
     let newOptions = PHVideoRequestOptions()
     
     // need request from remote service?
-    newOptions.isNetworkAccessAllowed = options.isNetworkAccessAllowed
+    newOptions.isNetworkAccessAllowed = options?.isNetworkAccessAllowed ?? true
     
     // if you provide the progress query handler
-    if let progressHandler = options.progressHandler {
+    if let progressHandler = options?.progressHandler {
         // convert result info to response
         newOptions.progressHandler = { progress, _, _, responseObject in
             progressHandler(progress, UHAssetResponse(responseObject))

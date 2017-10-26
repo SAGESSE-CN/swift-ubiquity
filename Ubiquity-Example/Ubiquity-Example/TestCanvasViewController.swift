@@ -22,29 +22,29 @@ class TestCanvasViewController: UIViewController, Ubiquity.CanvasViewDelegate {
         let cv = Ubiquity.CanvasView(frame: view.bounds)
         containerView = cv
         containerView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        view.addSubview(cv)
+        view.insertSubview(cv, at: 0)
         
         // Do any additional setup after loading the view.
 
         
-//        imageView.frame = CGRect(x: 0, y: 0, width: 1600, height: 1200)
-//        imageView.image = UIImage(named: "t1_g.jpg")
-        imageView.frame = .init(x: 0, y: 0, width: 16198, height: 11674)
-        imageView.image = {
-            guard let path = Bundle.main.url(forResource: "《塞尔达传说：荒野之息》导航地图", withExtension: "jpg") else {
-                return nil
-            }
-            guard let data = try? Data(contentsOf: path, options: .mappedIfSafe) else {
-                return nil
-            }
-
-            return Ubiquity.Image(data: data)
-        }()
+        imageView.frame = CGRect(x: 0, y: 0, width: 1600, height: 1200)
+        imageView.image = UIImage(named: "t1_g.jpg")
+//        imageView.frame = .init(x: 0, y: 0, width: 16198, height: 11674)
+//        imageView.image = {
+//            guard let path = Bundle.main.url(forResource: "《塞尔达传说：荒野之息》导航地图", withExtension: "jpg") else {
+//                return nil
+//            }
+//            guard let data = try? Data(contentsOf: path, options: .mappedIfSafe) else {
+//                return nil
+//            }
+//
+//            return Ubiquity.Image(data: data)
+//        }()
         
         containerView.delegate = self
         //containerView.contentSize = CGSize(width: 240, height: 180)
-        containerView.contentSize = CGSize(width: 16198, height: 11674)
-//        containerView.contentSize = CGSize(width: 1600, height: 1200)
+//        containerView.contentSize = CGSize(width: 16198, height: 11674)
+        containerView.contentSize = CGSize(width: 1600, height: 1200)
         containerView.addSubview(imageView)
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapHandler(_:)))

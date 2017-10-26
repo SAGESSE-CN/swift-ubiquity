@@ -444,11 +444,13 @@ extension CanvasView {
         
         // size is change?
         if _bounds?.size != bounds.size {
-            _bounds = bounds
             _containerView.frame = bounds
             
             _updateScale(true)
             _updateOffset(true)
+            
+            // offset needs for mapping, it is necessary to update the bounds after updating the offset
+            _bounds = bounds
             
             // need to notice delegate when update the bounds
             scrollViewDidScroll(_containerView)

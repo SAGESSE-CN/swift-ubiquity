@@ -6,6 +6,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -131,13 +132,37 @@
                     <view key="view" contentMode="scaleToFill" id="Shr-E6-PVd">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4tg-aT-h64">
+                                <rect key="frame" x="0.0" y="333.5" width="375" height="0.5"/>
+                                <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="0.5" id="7cK-NK-GeY"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Gkk-Gw-aKa">
+                                <rect key="frame" x="187.5" y="64" width="0.5" height="554"/>
+                                <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="0.5" id="cU3-Oj-CXM"/>
+                                </constraints>
+                            </view>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="bottomMargin" secondItem="Gkk-Gw-aKa" secondAttribute="bottom" id="4Z5-PL-cQr"/>
+                            <constraint firstItem="Gkk-Gw-aKa" firstAttribute="top" secondItem="Vh9-7r-JGS" secondAttribute="bottom" id="HLP-mp-hdR"/>
+                            <constraint firstItem="Gkk-Gw-aKa" firstAttribute="centerX" secondItem="Shr-E6-PVd" secondAttribute="centerX" id="MJD-iG-hMt"/>
+                            <constraint firstItem="4tg-aT-h64" firstAttribute="leading" secondItem="Shr-E6-PVd" secondAttribute="leading" id="RNv-Sd-1UP"/>
+                            <constraint firstAttribute="trailing" secondItem="4tg-aT-h64" secondAttribute="trailing" id="YSu-jO-sQi"/>
+                            <constraint firstItem="4tg-aT-h64" firstAttribute="centerY" secondItem="Shr-E6-PVd" secondAttribute="centerY" id="zjm-ap-7EZ"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Canvas Loader" id="laa-Eg-CIM"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="jek-Eu-dGh" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2673" y="803"/>
+            <point key="canvasLocation" x="2672.8000000000002" y="802.848575712144"/>
         </scene>
         <!--Animated Image Loader-->
         <scene sceneID="K7b-Iu-7dx">

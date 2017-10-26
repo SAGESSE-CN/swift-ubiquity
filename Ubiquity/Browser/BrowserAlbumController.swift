@@ -139,6 +139,8 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        self.navigationController?.setToolbarHidden(false, animated: true)
     }
     
     override func viewWillLayoutSubviews() {
@@ -150,7 +152,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
             return
         }
         
-      // update view
+        // update view
         _updateFooterView()
         _updateHeaderView()
         
@@ -613,16 +615,18 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         if source.collectionSubtypes.contains(.smartAlbumUserLibrary) || source.collectionTypes.contains(.moment) {
             // if the contentOffset over boundary
             let size = collectionViewLayout.collectionViewContentSize
-            let bottom = collectionView.contentInset.bottom - _footerViewInset.bottom
+            let height = view.frame.height - bottomLayoutGuide.length
             
             // reset vaild contentOffset in collectionView internal
-            collectionView.contentOffset.y = size.height - (collectionView.frame.height - bottom)
+            collectionView.contentOffset.y = size.height - height
         }
         
         // the library is prepared
         prepared = true
         
         _targetContentOffset = collectionView.contentOffset
+        
+        logger.debug?.write(collectionView.contentOffset)
         
         // update content offset
         scrollViewDidScroll(collectionView)

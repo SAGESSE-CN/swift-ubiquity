@@ -9,7 +9,8 @@
 import UIKit
 
 /// navigation controller transitioning delegate
-@objc internal protocol  UINavigationControllerTransitioningDelegate: UIViewControllerTransitioningDelegate {
+@objc
+internal protocol  UINavigationControllerTransitioningDelegate: UIViewControllerTransitioningDelegate {
     
     @objc optional func animationController(forPush pushed: UIViewController, from: UIViewController, source: UINavigationController) -> UIViewControllerAnimatedTransitioning?
 
@@ -48,56 +49,37 @@ internal extension UIViewController {
 
     
     // contains the navigation controller transitioning animation
-    weak var ub_transitioningDelegate: UINavigationControllerTransitioningDelegate? {
-        set { return transitioningDelegate = __ub_file_init(newValue) }
+    @objc internal weak var ub_transitioningDelegate: UINavigationControllerTransitioningDelegate? {
+        set { return transitioningDelegate = __ub_delegate(newValue) }
         get { return transitioningDelegate as? UINavigationControllerTransitioningDelegate }
+    }
+    
+    /// A Boolean value that indicates whether enabled controller warp protection.
+    @objc internal var ub_warp: Bool {
+        set { return objc_setAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_warp).hashValue), __ub_warp(newValue), .OBJC_ASSOCIATION_ASSIGN) }
+        get { return objc_getAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_warp).hashValue)) as? Bool ?? false }
     }
 }
 
-extension UIViewController {
-    
-    /// A Boolean value that indicates whether enabled controller warp protection.
-    internal var ub_warp: Bool {
-        set { return objc_setAssociatedObject(self, UnsafePointer(bitPattern: #selector(ub_warp(_:)).hashValue), ub_warp(newValue), .OBJC_ASSOCIATION_ASSIGN) }
-        get { return objc_getAssociatedObject(self, UnsafePointer(bitPattern: #selector(ub_warp(_:)).hashValue)) as? Bool ?? false }
-    }
-    
-    /// Hook presetn view controller event
-    private dynamic func ub_warp(_ warp: Bool) -> Bool {
-        
-        // replace the implementation method to ensure that the method is called only once
-        let getter: @convention(block) (AnyObject, Bool) -> Bool = { _, warp in
-            return warp
-        }
-        
-        let method1 = class_getInstanceMethod(UIViewController.self, #selector(ub_warp(_:)))
-        let method2 = class_getInstanceMethod(UIViewController.self, #selector(ub_present(_:animated:completion:)))
-        let method3 = class_getInstanceMethod(UIViewController.self, #selector(present(_:animated:completion:)))
-        
-        // exchange method
-        method_setImplementation(method1, imp_implementationWithBlock(unsafeBitCast(getter, to: AnyObject.self)))
-        method_exchangeImplementations(method2, method3)
-        
-        return warp
-    }
-    
+
+/// Add wrap support
+fileprivate extension UIViewController {
     /// Process presetn view controller event
-    private dynamic func ub_present(_ viewControllerToPresent: UIViewController, animated: Bool, completion: (() -> Void)?) {
+    fileprivate dynamic func __ub_present(_ viewControllerToPresent: UIViewController, animated: Bool, completion: (() -> Void)?) {
         // check whether the enabled warp protection
         guard viewControllerToPresent.ub_warp else {
-            return ub_present(viewControllerToPresent, animated: animated, completion: completion)
+            return __ub_present(viewControllerToPresent, animated: animated, completion: completion)
         }
         
         // generate a navgation controller
         let navgationController = NavigationController(rootViewController: viewControllerToPresent)
         
         // show
-        return ub_present(navgationController, animated: animated, completion: completion)
+        return __ub_present(navgationController, animated: animated, completion: completion)
     }
 }
 
-
-/// navigation controller custom transitioning support
+/// Add custom transtion support
 fileprivate extension UINavigationController {
     
     fileprivate dynamic func __ub_pushViewController(_ viewController: UIViewController, animated: Bool) {
@@ -184,8 +166,17 @@ fileprivate class UINavigationControllerTransitioningHelper: NSObject, UINavigat
     unowned var transitioning: UINavigationControllerTransitioningDelegate
 }
 
+private var __ub_warp = ub_once(Bool.self) {
+    
+    let cls = UIViewController.self
+    
+    let m1 = class_getInstanceMethod(cls, #selector(cls.present(_:animated:completion:)))
+    let m2 = class_getInstanceMethod(cls, #selector(cls.__ub_present(_:animated:completion:)))
+    
+    method_exchangeImplementations(m1, m2)
+}
 
-private var __ub_file_init: (UIViewControllerTransitioningDelegate?) -> UIViewControllerTransitioningDelegate? = {
+private var __ub_delegate = ub_once(UIViewControllerTransitioningDelegate?.self) {
     
     let cls = UINavigationController.self
     
@@ -197,6 +188,6 @@ private var __ub_file_init: (UIViewControllerTransitioningDelegate?) -> UIViewCo
     
     method_exchangeImplementations(m11, m12)
     method_exchangeImplementations(m21, m22)
-    
-    return { $0 }
-}()
+}
+
+

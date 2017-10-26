@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class BrowserDetailController: UICollectionViewController, Controller, ChangeObserver, TransitioningDataSource, DetailControllerItemUpdateDelegate, DetailControllerItemRotationDelegate, UIGestureRecognizerDelegate, UICollectionViewDelegateFlowLayout {
+internal class BrowserDetailController: UICollectionViewController, Controller, ChangeObserver, TransitioningDataSource, IndicatorViewDelegate, IndicatorViewDataSource, DetailControllerItemUpdateDelegate, DetailControllerItemRotationDelegate, UIGestureRecognizerDelegate, UICollectionViewDelegateFlowLayout {
     
     required init(container: Container, source: Source, sender: Any?) {
         // setup init data
@@ -53,7 +53,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     }
     
     override var prefersToolbarHidden: Bool {
-        return true
+        return false
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -105,10 +105,10 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
             collectionView?.register($1, forCellWithReuseIdentifier: $0)
         }
         
-//        // setup indicator 
-//        indicatorItem.indicatorView.delegate = self
-//        indicatorItem.indicatorView.dataSource = self
-//        indicatorItem.indicatorView.register(IndicatorViewCell.dynamic(with: UIImageView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
+        // setup indicator
+        indicatorItem.indicatorView.delegate = self
+        indicatorItem.indicatorView.dataSource = self
+        indicatorItem.indicatorView.register(IndicatorViewCell.class(with: UIImageView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
 //        //indicatorItem.indicatorView.register(IndicatorViewCell.dynamic(with: UIScrollView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
         
         // setup title view
@@ -291,6 +291,88 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return view.frame.size
+    }
+    
+    // MARK: Indicator View Configure
+    
+    func numberOfSections(in indicator: IndicatorView) -> Int {
+        return source.numberOfCollections
+    }
+    
+    func indicator(_ indicator: IndicatorView, numberOfItemsInSection section: Int) -> Int {
+        return source.numberOfAssets(inCollection: section)
+    }
+    
+    func indicator(_ indicator: IndicatorView, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let asset = source.asset(at: indexPath)
+        return .init(width: asset?.ub_pixelWidth ?? 0, height: asset?.ub_pixelHeight ?? 0)
+    }
+    
+    func indicator(_ indicator: IndicatorView, cellForItemAt indexPath: IndexPath) -> IndicatorViewCell {
+        logger.trace?.write(indexPath)
+        return indicator.dequeueReusableCell(withReuseIdentifier: "ASSET-IMAGE", for: indexPath)
+    }
+    
+    
+    func indicator(_ indicator: IndicatorView, willDisplay cell: IndicatorViewCell, forItemAt indexPath: IndexPath) {
+        logger.trace?.write(indexPath)
+        
+//        guard let asset = _source.asset(at: indexPath) else {
+//            return
+//        }
+//        
+//        let size = CGSize(width: 20, height: 38).ub_fitWithScreen
+//        let options = SourceOptions()
+//        
+//        if let imageView = cell.contentView as? UIImageView {
+//            imageView.contentMode = .scaleAspectFill
+//            //imageView.image = container.item(at: indexPath).image
+//            
+//            //imageView.ub_setImage(nil, animated: false)
+//            imageView.image = nil
+//            _container.ub_requestImage(for: asset, size: size, mode: .aspectFill, options: options) { image, info in
+//                imageView.image = image
+//                //imageView.ub_setImage(image, animated: true)
+//            }
+//        }
+        
+        // set default background color
+        cell.contentView.backgroundColor = .random//.ub_init(hex: 0xf0f0f0)
+    }
+    
+    func indicatorWillBeginDragging(_ indicator: IndicatorView) {
+        logger.trace?.write()
+        
+        collectionView?.isScrollEnabled = false
+        interactiveDismissGestureRecognizer.isEnabled = false
+    }
+    func indicatorDidEndDragging(_ indicator: IndicatorView) {
+        logger.trace?.write()
+        
+        collectionView?.isScrollEnabled = true
+        interactiveDismissGestureRecognizer.isEnabled = true
+    }
+    
+    func indicator(_ indicator: IndicatorView, didSelectItemAt indexPath: IndexPath) {
+        logger.trace?.write(indexPath)
+//
+//        //        guard !isInteractiving else {
+//        //            return // 正在交互
+//        //        }
+//
+//        // index path is changed
+//        guard indexPath != _itemIndexPath else {
+//            return
+//        }
+//
+//        _updateCurrentItem(at: indexPath)
+//
+//        _performWithoutContentOffsetChange {
+//            // prevent possible animations
+//            UIView.performWithoutAnimation {
+//                collectionView?.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
+//            }
+//        }
     }
     
     // MARK: Dismiss Gesture Recognizer
@@ -671,7 +753,6 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         // save
         _orientationes[asset.ub_identifier] = orientation
     }
-    
     
     // MARK: Event
     

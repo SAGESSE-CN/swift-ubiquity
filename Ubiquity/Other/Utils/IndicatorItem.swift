@@ -19,9 +19,9 @@ internal class IndicatorItem: ExtendedItem {
         fatalError("init(coder:) has not been implemented")
     }
     
-//    internal var indicatorView: IndicatorView {
-//        return _indicatorView
-//    }
-//    
+    internal var indicatorView: IndicatorView {
+        return _indicatorView
+    }
+    
     private var _indicatorView: IndicatorView
 }

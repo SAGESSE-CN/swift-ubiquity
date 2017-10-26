@@ -291,7 +291,7 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Gkk-Gw-aKa">
-                                <rect key="frame" x="187.5" y="64" width="0.5" height="554"/>
+                                <rect key="frame" x="187.5" y="64" width="0.5" height="510"/>
                                 <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="0.5" id="cU3-Oj-CXM"/>
@@ -353,7 +353,7 @@
         <!--Navigation Controller-->
         <scene sceneID="s9a-KE-DGc">
             <objects>
-                <navigationController storyboardIdentifier="X1" automaticallyAdjustsScrollViewInsets="NO" useStoryboardIdentifierAsRestorationIdentifier="YES" id="Ghq-4e-xjI" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="X1" automaticallyAdjustsScrollViewInsets="NO" useStoryboardIdentifierAsRestorationIdentifier="YES" toolbarHidden="NO" id="Ghq-4e-xjI" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" systemItem="favorites" id="RyF-E1-Hla"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="Whb-RP-aWQ">
@@ -361,6 +361,10 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
+                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="fhx-nH-CBf" customClass="ExtendedToolbar" customModule="Ubiquity">
+                        <rect key="frame" x="0.0" y="574" width="375" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </toolbar>
                     <connections>
                         <segue destination="BIC-XQ-RJL" kind="relationship" relationship="rootViewController" id="Egt-Hg-rGc"/>
                     </connections>

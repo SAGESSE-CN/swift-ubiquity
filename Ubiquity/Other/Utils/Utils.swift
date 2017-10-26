@@ -105,4 +105,9 @@ internal func ub_image(named: String) -> UIImage? {
     return UIImage(named: named, in: _bundle, compatibleWith: nil)
 }
 
+internal func ub_once<T>(_: T.Type, invkoing: () -> ()) -> (T) -> T {
+    invkoing()
+    return { $0 }
+}
+
 private weak var _bundle: Bundle? = Bundle(for: Container.self)

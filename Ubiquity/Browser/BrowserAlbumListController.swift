@@ -70,6 +70,8 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        self.navigationController?.setToolbarHidden(false, animated: true)
+
         // start clear
         _selectItem.map {
             tableView?.deselectRow(at: $0, animated: animated)

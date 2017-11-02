@@ -37,4 +37,8 @@ internal protocol SelectionStatusUpdateDelegate: class {
     func selectionStatus(_ selectionStatus: SelectionStatus, didDeselectItem status: Asset, sender: AnyObject)
 }
 
+internal protocol ContainerOptionsDelegate: class {
+    
+    func container(_ container: Container, options: String, didChange value: Any?)
+}
 

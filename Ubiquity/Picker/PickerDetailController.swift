@@ -8,16 +8,32 @@
 
 import UIKit
 
-internal class PickerDetailController: BrowserDetailController, SelectionStatusUpdateDelegate {
+internal class PickerDetailController: BrowserDetailController, SelectionStatusUpdateDelegate, ContainerOptionsDelegate {
 
     override func loadView() {
         super.loadView()
         
+        // if it is not picker, ignore
+        guard let picker = container as? Picker else {
+            return
+        }
+
         // setup selection view
         _selectedView.addTarget(self, action: #selector(_select(_:)), for: .touchUpInside)
+        _selectedView.isHidden = !picker.allowsSelection
         
         // setup right
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: _selectedView)
+    }
+    
+    // MARK: Options change
+    
+    func container(_ container: Container, options: String, didChange value: Any?) {
+        // if it is not picker, ignore
+        guard let picker = container as? Picker, options == "allowsSelection" else {
+            return
+        }
+        _selectedView.isHidden = !picker.allowsSelection
     }
     
     // MARK: Item change
@@ -91,6 +107,5 @@ internal class PickerDetailController: BrowserDetailController, SelectionStatusU
         _selectedView.layer.add(ani, forKey: "selected")
     }
     
-    // selection view
     private lazy var _selectedView: SelectionStatusView = .init(frame: .init(x: 0, y: 0, width: 24, height: 24))
 }

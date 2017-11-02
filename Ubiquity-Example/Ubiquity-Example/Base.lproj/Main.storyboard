@@ -7,13 +7,14 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--Ubiquity-->
         <scene sceneID="87b-Yu-8Sf">
             <objects>
-                <tableViewController id="BIC-XQ-RJL" customClass="ViewController" customModule="Ubiquity_Example" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController id="BIC-XQ-RJL" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="hVB-Ko-pd1">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -93,7 +94,7 @@
                     <navigationItem key="navigationItem" title="Ubiquity" id="6SP-Lh-OdR">
                         <barButtonItem key="rightBarButtonItem" title="Show" id="HhU-Tf-gGK">
                             <connections>
-                                <action selector="show:" destination="BIC-XQ-RJL" id="ZEg-nL-D4S"/>
+                                <segue destination="EbR-mO-iRb" kind="show" id="rjj-yJ-STU"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -101,6 +102,83 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="K5S-pk-RHR" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1750" y="38"/>
+        </scene>
+        <!--Show Options-->
+        <scene sceneID="orz-Ul-5Xo">
+            <objects>
+                <viewController extendedLayoutIncludesOpaqueBars="YES" automaticallyAdjustsScrollViewInsets="NO" hidesBottomBarWhenPushed="YES" id="EbR-mO-iRb" customClass="ViewController" customModule="Ubiquity_Example" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="6Fx-z7-6LY"/>
+                        <viewControllerLayoutGuide type="bottom" id="Rmd-kQ-Ltp"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Vsz-cP-ddz">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zuo-4W-K3D">
+                                <rect key="frame" x="16" y="80" width="343" height="571"/>
+                                <subviews>
+                                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="odp-eM-cln">
+                                        <rect key="frame" x="0.0" y="76" width="257.5" height="29"/>
+                                        <segments>
+                                            <segment title="Albums"/>
+                                            <segment title="Moments"/>
+                                            <segment title="Custom"/>
+                                        </segments>
+                                    </segmentedControl>
+                                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="imp-PY-v9W">
+                                        <rect key="frame" x="0.0" y="38" width="171.5" height="29"/>
+                                        <segments>
+                                            <segment title="Present"/>
+                                            <segment title="Push"/>
+                                        </segments>
+                                    </segmentedControl>
+                                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="CBB-Qu-ffu">
+                                        <rect key="frame" x="0.0" y="0.0" width="171.5" height="29"/>
+                                        <segments>
+                                            <segment title="Browser"/>
+                                            <segment title="Picker"/>
+                                        </segments>
+                                    </segmentedControl>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstItem="odp-eM-cln" firstAttribute="width" secondItem="zuo-4W-K3D" secondAttribute="width" multiplier="3/4" id="5aI-8x-OYW"/>
+                                    <constraint firstItem="CBB-Qu-ffu" firstAttribute="width" secondItem="zuo-4W-K3D" secondAttribute="width" multiplier="1/2" id="IcB-Ui-mdx"/>
+                                    <constraint firstItem="odp-eM-cln" firstAttribute="leading" secondItem="zuo-4W-K3D" secondAttribute="leading" id="MP8-e7-0Pv"/>
+                                    <constraint firstItem="imp-PY-v9W" firstAttribute="leading" secondItem="zuo-4W-K3D" secondAttribute="leading" id="RVg-Sf-vCF"/>
+                                    <constraint firstItem="imp-PY-v9W" firstAttribute="width" secondItem="zuo-4W-K3D" secondAttribute="width" multiplier="1/2" id="biw-Y2-1wl"/>
+                                    <constraint firstItem="CBB-Qu-ffu" firstAttribute="leading" secondItem="zuo-4W-K3D" secondAttribute="leading" id="btd-CB-U8X"/>
+                                    <constraint firstItem="odp-eM-cln" firstAttribute="top" secondItem="imp-PY-v9W" secondAttribute="bottom" constant="10" id="dN1-kx-3ZV"/>
+                                    <constraint firstItem="imp-PY-v9W" firstAttribute="top" secondItem="CBB-Qu-ffu" secondAttribute="bottom" constant="10" id="xAq-MC-BGn"/>
+                                    <constraint firstItem="CBB-Qu-ffu" firstAttribute="top" secondItem="zuo-4W-K3D" secondAttribute="top" id="zc2-UC-BWz"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="zuo-4W-K3D" firstAttribute="top" secondItem="6Fx-z7-6LY" secondAttribute="bottom" constant="16" id="K8i-mT-R0k"/>
+                            <constraint firstItem="Rmd-kQ-Ltp" firstAttribute="top" secondItem="zuo-4W-K3D" secondAttribute="bottom" constant="16" id="e1g-vf-MTY"/>
+                            <constraint firstItem="zuo-4W-K3D" firstAttribute="trailing" secondItem="Vsz-cP-ddz" secondAttribute="trailingMargin" id="hCv-6E-cPR"/>
+                            <constraint firstItem="zuo-4W-K3D" firstAttribute="leading" secondItem="Vsz-cP-ddz" secondAttribute="leadingMargin" id="k35-ox-v8r"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Show Options" id="p4C-fx-xdz">
+                        <barButtonItem key="rightBarButtonItem" systemItem="done" id="SyA-kn-CQT">
+                            <connections>
+                                <action selector="confirm:" destination="EbR-mO-iRb" id="JWi-7P-FKF"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="page" destination="odp-eM-cln" id="atQ-Si-IAx"/>
+                        <outlet property="style" destination="imp-PY-v9W" id="bEw-ml-kvq"/>
+                        <outlet property="type" destination="CBB-Qu-ffu" id="kMN-2r-5Nf"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="UjZ-h2-yT6" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2672.8000000000002" y="38.23088455772114"/>
         </scene>
         <!--Large Image Loader-->
         <scene sceneID="tIw-qj-FUg">

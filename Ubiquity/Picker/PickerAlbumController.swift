@@ -8,10 +8,15 @@
 
 import UIKit
 
-internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerDelegate, SelectionRectangleDelegate, UIGestureRecognizerDelegate, SelectionStatusUpdateDelegate {
+internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerDelegate, SelectionRectangleDelegate, UIGestureRecognizerDelegate, SelectionStatusUpdateDelegate, ContainerOptionsDelegate {
     
     override func loadView() {
         super.loadView()
+        
+        // if it is not picker, ignore
+        guard let picker = container as? Picker else {
+            return
+        }
         
         // setup block selection
         _selectionScroller.delegate = self
@@ -20,10 +25,13 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
         _selectionRectangle.collectionView = collectionView
         _selectionGestureRecognizer.delegate = self
         _selectionGestureRecognizer.addTarget(self, action: #selector(_selectionHandler(_:)))
-        
+
         // add selection gesture recognizer
         collectionView?.panGestureRecognizer.require(toFail: _selectionGestureRecognizer)
         collectionView?.addGestureRecognizer(_selectionGestureRecognizer)
+        
+        // configure selection for picker
+        _selectionGestureRecognizer.isEnabled = picker.allowsSelection
     }
     
     /// The library has some change
@@ -54,6 +62,25 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
         }
         
         return true
+    }
+    
+    
+    // MARK: Options change
+    
+    func container(_ container: Container, options: String, didChange value: Any?) {
+        // update all cell that is being displayed
+        collectionView?.visibleCells.forEach {
+            guard let reciver = ($0 as? ContainerOptionsDelegate) else {
+                return
+            }
+            reciver.container(container, options: options, didChange: value)
+        }
+        
+        // if it is not picker, ignore
+        guard let picker = container as? Picker, options == "allowsSelection" else {
+            return
+        }
+        _selectionGestureRecognizer.isEnabled = picker.allowsSelection
     }
     
     // MARK: Rectangle Selection
@@ -284,6 +311,5 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
     private lazy var _selectionScroller: SelectionScroller = .init()
     private lazy var _selectionRectangle: SelectionRectangle = .init()
     private lazy var _selectionGestureRecognizer: UIPanGestureRecognizer = .init()
-    
 }
 

@@ -15,7 +15,7 @@ import UIKit
 
 //import WebKit
 
-class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.PickerDelegate {
+class ViewController: UIViewController, Ubiquity.PickerDelegate {
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -24,75 +24,79 @@ class ViewController: UITableViewController, UIActionSheetDelegate, Ubiquity.Pic
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         #if DEBUG
             UIApplication.shared.delegate?.window??.showsFPS = true
         #endif
     }
     
-    @IBAction func show(_ sender: Any) {
-        
-        browse(sender)
-//        pick(sender)
-    }
-    @IBAction func odissmis(_ sender: Any) {
+    @IBOutlet weak var type: UISegmentedControl!
+    @IBOutlet weak var style: UISegmentedControl!
+    @IBOutlet weak var page: UISegmentedControl!
+    
+    @IBAction func cancel(_ sender: Any) {
         dismiss(animated: true, completion: nil)
     }
     
-    override func show(_ vc: UIViewController, sender: Any?) {
-        vc.hidesBottomBarWhenPushed = true
+    @IBAction func confirm(_ sender: Any) {
         
-        navigationController?.view.backgroundColor = .white
-        navigationController?.pushViewController(vc, animated: true)
-    }
-    
-    @IBAction func browse(_ sender: Any) {
+        let library: Library
+        let container: Container
+        let controller: UIViewController
         
-        
+        library = Ubiquity.UHAssetLibrary()
         
         // create an image browser
-        let browser = Ubiquity.Browser(library: Ubiquity.UHAssetLibrary())
+        switch type.selectedSegmentIndex {
+        case 1:
+            let picker = Ubiquity.Picker(library: library)
+            picker.delegate = self
+            //picker.allowsSelection = false
+            //picker.allowsMultipleSelection = false
+            container = picker
+
+        default:
+            let browser = Ubiquity.Browser(library: library)
+            container = browser
+        }
         
         // create an view controller for albums
-        let controller = browser.instantiateViewController(with: .albumsList, source: .init(collectionType: .regular))
-        //let controller = browser.instantiateViewController(with: .albumsList, source: .init(collectionType: .moment))
-        //let controller = browser.instantiateViewController(with: .albumsList, source: .init(collectionTypes: [.moment, .regular])) // has a bug in add section & remove section
-        //let controller = browser.instantiateViewController(with: .albumsList, source: .init(collectionTypes: [.moment, .regular, .recentlyAdded]))
-        //let controller = browser.instantiateViewController(with: .albumsList, source: .init(collectionType: .regular))
-        //let controller = browser.instantiateViewController(with: .albumsList, source: .init(collectionType: .regular, filter: { $0.offset == 0 }))
-        //let controller = browser.instantiateViewController(with: .albumsList, source: .init(collectionTypes: [.regular, .moment], filter: { $0.offset == 0 }))
-        //let controller = browser.instantiateViewController(with: .albumsList, source: .init(collection: browser.request(forCollectionList: .regular).ub_collection(at: 0)))
-        
-        //let controller = browser.instantiateViewController(with: .albums, source: .init(collectionType: .regular))
-        //let controller = browser.instantiateViewController(with: .albums, source: .init(collectionType: .moment))
-        //let controller = browser.instantiateViewController(with: .albums, source: .init(collectionTypes: [.moment, .regular, .recentlyAdded]))
-        //let controller = browser.instantiateViewController(with: .albums, source: .init(collectionType: .regular, filter: { $0.offset == 0 }))
-        //let controller = browser.instantiateViewController(with: .albums, source: .init(collectionType: .regular, filter: { (offset, collection) in
-        //    return collection.ub_collectionSubtype == .smartAlbumFavorites
-        //}))
+        switch page.selectedSegmentIndex {
+        case 0: // albums
+            controller = container.instantiateViewController(with: .albumsList, source: .init(collectionType: .regular))
+            //controller = container.instantiateViewController(with: .albumsList, source: .init(collectionType: .moment))
+            //controller = container.instantiateViewController(with: .albumsList, source: .init(collectionTypes: [.moment, .regular])) // has a bug in add section & remove section
+            //controller = container.instantiateViewController(with: .albumsList, source: .init(collectionTypes: [.moment, .regular, .recentlyAdded]))
+            //controller = container.instantiateViewController(with: .albumsList, source: .init(collectionType: .regular))
+            //controller = container.instantiateViewController(with: .albumsList, source: .init(collectionType: .regular, filter: { $0.offset == 0 }))
+            //controller = container.instantiateViewController(with: .albumsList, source: .init(collectionTypes: [.regular, .moment], filter: { $0.offset == 0 }))
+            //controller = container.instantiateViewController(with: .albumsList, source: .init(collection: browser.request(forCollectionList: .regular).ub_collection(at: 0)))
+            
+        case 1: // moment
+            //controller = container.instantiateViewController(with: .albums, source: .init(collectionType: .regular))
+            controller = container.instantiateViewController(with: .albums, source: .init(collectionType: .moment))
+            //controller = container.instantiateViewController(with: .albums, source: .init(collectionTypes: [.moment, .regular, .recentlyAdded]))
+            //controller = container.instantiateViewController(with: .albums, source: .init(collectionType: .regular, filter: { $0.offset == 0 }))
 
-        // display controller
-        show(controller, sender: nil)
-    }
-    
-    @IBAction func pick(_ sender: Any) {
-        
-        let picker = Ubiquity.Picker(library: Ubiquity.UHAssetLibrary())
-        
-        // configure
-        picker.delegate = self
-        
-        // display
-//        let controller = picker.instantiateViewController(with: .albumsList, source: .init(collectionType: .regular))
-        let controller = picker.instantiateViewController(with: .albums, source: .init(collectionType: .moment))
-
-        controller.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(odissmis(_:)))
+            
+        default:
+            controller = container.instantiateViewController(with: .albums, source: .init(collectionType: .regular, filter: { (offset, collection) in
+                return collection.ub_collectionSubtype == .smartAlbumFavorites
+            }))
+        }
         
         // display controller
-        present(controller, animated: true, completion: nil)
+        switch style.selectedSegmentIndex {
+        case 0:
+            controller.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(cancel(_:)))
+            present(controller, animated: true, completion: nil)
+
+        default:
+            navigationItem.backBarButtonItem = UIBarButtonItem(title: "Back", style: .done, target: nil, action: nil)
+            show(controller, sender: nil)
+        }
     }
-    
-    
+
     func picker(_ picker: Picker, shouldSelectItem asset: Asset) -> Bool {
         // the asset should selected
         return true

@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class PickerAlbumCell: BrowserAlbumCell {
+internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -24,8 +24,17 @@ internal class PickerAlbumCell: BrowserAlbumCell {
     override func willDisplay(with asset: Asset, container: Container, orientation: UIImageOrientation) {
         super.willDisplay(with: asset, container: container, orientation: orientation)
         
+        // if it is not picker, ignore
+        guard let picker = container as? Picker else {
+            return
+        }
+
         // update cell selection status
-        _updateStatus((container as? Picker)?.statusOfItem(with: asset), animated: false)
+        _updateStatus(picker.statusOfItem(with: asset), animated: false)
+
+        // update options for picker
+        _selectedView.isHidden = !picker.allowsSelection
+        _selectedBackgroundView.isHidden = !picker.allowsSelection || !_selectedView.isSelected
     }
     
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
@@ -35,28 +44,40 @@ internal class PickerAlbumCell: BrowserAlbumCell {
         }
         
         // extend response region
-        guard view === contentView, UIEdgeInsetsInsetRect(_selectedView.frame, UIEdgeInsetsMake(-8, -8, -8, -8)).contains(point) else {
+        guard !_selectedView.isHidden, view === contentView, UIEdgeInsetsInsetRect(_selectedView.frame, UIEdgeInsetsMake(-8, -8, -8, -8)).contains(point) else {
             return view
         }
         
-        // hit
         return _selectedView
+    }
+    
+    // MARK: Options change
+    
+    func container(_ container: Container, options: String, didChange value: Any?) {
+        // if it is not picker, ignore
+        guard let picker = container as? Picker, options == "allowsSelection" else {
+            return
+        }
+        // the selection of whether to support the cell
+        _selectedView.isHidden = !picker.allowsSelection
+        _selectedBackgroundView.isHidden = !picker.allowsSelection || !_selectedView.isSelected
     }
     
     private dynamic func _select(_ sender: Any) {
         // the asset must be set
-        guard let asset = asset else {
+        // if it is not picker, ignore
+        guard let asset = asset, let picker = container as? Picker else {
             return
         }
         
         // check old status
         if status == nil {
             // select asset
-            _updateStatus((container as? Picker)?.selectItem(with: asset, sender: self), animated: true)
+            _updateStatus(picker.selectItem(with: asset, sender: self), animated: true)
             
         } else {
             // deselect asset
-            _updateStatus((container as? Picker)?.deselectItem(with: asset, sender: self), animated: true)
+            _updateStatus(picker.deselectItem(with: asset, sender: self), animated: true)
         }
     }
     

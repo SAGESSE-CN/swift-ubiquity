@@ -15,4 +15,7 @@ import UIKit
     public override init(library: Library) {
         super.init(library: library)
     }
+    
+    /// default is YES. Controls whether a asset can be edit
+    open var allowsEditing: Bool = false
 }

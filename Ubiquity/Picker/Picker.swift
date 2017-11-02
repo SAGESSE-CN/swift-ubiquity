@@ -36,6 +36,23 @@ import UIKit
     /// The picker delegate
     open weak var delegate: PickerDelegate?
     
+    /// default is YES. Controls whether a asset can be selected
+    open var allowsSelection: Bool = true {
+        didSet {
+            _forEach(ContainerOptionsDelegate.self) {
+                $0.container(self, options: "allowsSelection", didChange: allowsSelection)
+            }
+        }
+    }
+    
+    /// default is YES. Controls whether multiple assets can be selected simultaneously
+    open var allowsMultipleSelection: Bool = true {
+        didSet {
+            _forEach(ContainerOptionsDelegate.self) {
+                $0.container(self, options: "allowsMultipleSelection", didChange: allowsMultipleSelection)
+            }
+        }
+    }
     
     // MARK: Library Change
     
@@ -145,8 +162,8 @@ import UIKit
         delegate?.picker?(self, didSelectItem: asset)
         
         // tell all observers
-        observers.forEach {
-            ($0 as? SelectionStatusUpdateDelegate)?.selectionStatus(status, didSelectItem: asset, sender: sender)
+        _forEach(SelectionStatusUpdateDelegate.self) {
+            $0.selectionStatus(status, didSelectItem: asset, sender: sender)
         }
     }
     private func _item(didDeselect asset: Asset, status: SelectionStatus, sender: AnyObject) {
@@ -155,8 +172,14 @@ import UIKit
         delegate?.picker?(self, didDeselectItem: asset)
         
         // tell all observers
+        _forEach(SelectionStatusUpdateDelegate.self) {
+            $0.selectionStatus(status, didDeselectItem: asset, sender: sender)
+        }
+    }
+    
+    private func _forEach<T>(_ _: T.Type, _ body: (T) -> Void) {
         observers.forEach {
-            ($0 as? SelectionStatusUpdateDelegate)?.selectionStatus(status, didDeselectItem: asset, sender: sender)
+            ($0 as? T).map(body)
         }
     }
     

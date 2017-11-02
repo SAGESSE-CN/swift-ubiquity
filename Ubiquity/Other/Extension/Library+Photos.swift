@@ -228,7 +228,7 @@ public class UHAssetLibrary: NSObject, Photos.PHPhotoLibraryChangeObserver {
     }
     deinit {
         // remove change observer
-        library.unregisterChangeObserver(self)
+        _library?.unregisterChangeObserver(self)
     }
     
     /// This callback is invoked on an arbitrary serial queue. If you need this to be handled on a specific queue, you should redispatch appropriately
@@ -241,14 +241,28 @@ public class UHAssetLibrary: NSObject, Photos.PHPhotoLibraryChangeObserver {
         }
     }
     
-    internal lazy var cache: PHCachingImageManager = PHCachingImageManager()
-    internal lazy var library: PHPhotoLibrary = {
+    internal var cache: PHCachingImageManager {
+        if let cache = _cache {
+            return cache
+        }
+        let cache = PHCachingImageManager()
+        _cache = cache
+        return cache
+    }
+    internal var library: PHPhotoLibrary {
+        if let library = _library {
+            return library
+        }
         let library = PHPhotoLibrary.shared()
+        _library = library
         library.register(self)
         return library
-    }()
+    }
     
     internal lazy var observers: WSet<ChangeObserver> = []
+    
+    private var _cache: PHCachingImageManager?
+    private var _library: PHPhotoLibrary?
 }
 
 

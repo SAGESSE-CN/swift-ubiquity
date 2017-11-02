@@ -72,8 +72,6 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
     
     override func loadView() {
         super.loadView()
-        // setup controller
-        title = "Detail"
         
         // setup view
         view.clipsToBounds = true

@@ -118,40 +118,103 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zuo-4W-K3D">
                                 <rect key="frame" x="16" y="80" width="343" height="571"/>
                                 <subviews>
-                                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="odp-eM-cln">
-                                        <rect key="frame" x="0.0" y="76" width="257.5" height="29"/>
-                                        <segments>
-                                            <segment title="Albums"/>
-                                            <segment title="Moments"/>
-                                            <segment title="Custom"/>
-                                        </segments>
-                                    </segmentedControl>
-                                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="imp-PY-v9W">
-                                        <rect key="frame" x="0.0" y="38" width="171.5" height="29"/>
-                                        <segments>
-                                            <segment title="Present"/>
-                                            <segment title="Push"/>
-                                        </segments>
-                                    </segmentedControl>
-                                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="CBB-Qu-ffu">
-                                        <rect key="frame" x="0.0" y="0.0" width="171.5" height="29"/>
-                                        <segments>
-                                            <segment title="Browser"/>
-                                            <segment title="Picker"/>
-                                        </segments>
-                                    </segmentedControl>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lUc-hf-aVd">
+                                        <rect key="frame" x="0.0" y="111" width="343" height="104"/>
+                                        <subviews>
+                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="CBB-Qu-ffu">
+                                                <rect key="frame" x="0.0" y="0.0" width="194.5" height="29"/>
+                                                <segments>
+                                                    <segment title="Browser"/>
+                                                    <segment title="Picker"/>
+                                                </segments>
+                                            </segmentedControl>
+                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="imp-PY-v9W">
+                                                <rect key="frame" x="0.0" y="38" width="194.5" height="29"/>
+                                                <segments>
+                                                    <segment title="Present"/>
+                                                    <segment title="Push"/>
+                                                </segments>
+                                            </segmentedControl>
+                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="odp-eM-cln">
+                                                <rect key="frame" x="0.0" y="76" width="291.5" height="29"/>
+                                                <segments>
+                                                    <segment title="Albums"/>
+                                                    <segment title="Moments"/>
+                                                    <segment title="Custom"/>
+                                                </segments>
+                                            </segmentedControl>
+                                        </subviews>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <constraints>
+                                            <constraint firstItem="odp-eM-cln" firstAttribute="top" secondItem="imp-PY-v9W" secondAttribute="bottom" constant="10" id="8hl-Kc-uUK"/>
+                                            <constraint firstItem="imp-PY-v9W" firstAttribute="leading" secondItem="lUc-hf-aVd" secondAttribute="leading" id="GEa-8u-1WZ"/>
+                                            <constraint firstItem="CBB-Qu-ffu" firstAttribute="top" secondItem="lUc-hf-aVd" secondAttribute="top" id="GJE-40-A3Q"/>
+                                            <constraint firstItem="CBB-Qu-ffu" firstAttribute="leading" secondItem="lUc-hf-aVd" secondAttribute="leading" id="IlQ-dI-47a"/>
+                                            <constraint firstItem="odp-eM-cln" firstAttribute="width" secondItem="lUc-hf-aVd" secondAttribute="width" multiplier="3/4" constant="34.375" id="W3b-iu-5L1"/>
+                                            <constraint firstAttribute="bottom" secondItem="odp-eM-cln" secondAttribute="bottom" id="esZ-6t-3lf"/>
+                                            <constraint firstItem="CBB-Qu-ffu" firstAttribute="width" secondItem="lUc-hf-aVd" secondAttribute="width" multiplier="1/2" constant="22.75" id="gWI-AP-Acj"/>
+                                            <constraint firstItem="imp-PY-v9W" firstAttribute="width" secondItem="lUc-hf-aVd" secondAttribute="width" multiplier="1/2" constant="22.75" id="u7S-KO-5YI"/>
+                                            <constraint firstItem="imp-PY-v9W" firstAttribute="top" secondItem="CBB-Qu-ffu" secondAttribute="bottom" constant="10" id="ws3-8F-m2K"/>
+                                            <constraint firstItem="odp-eM-cln" firstAttribute="leading" secondItem="lUc-hf-aVd" secondAttribute="leading" id="xIQ-7n-kde"/>
+                                        </constraints>
+                                    </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TOB-Xd-buL">
+                                        <rect key="frame" x="0.0" y="0.0" width="343" height="101"/>
+                                        <subviews>
+                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cPR-zn-TC8">
+                                                <rect key="frame" x="294" y="35" width="51" height="31"/>
+                                            </switch>
+                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="60n-ae-pZu">
+                                                <rect key="frame" x="294" y="70" width="51" height="31"/>
+                                            </switch>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="allowsMultipleSelection:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1ww-r1-kkk">
+                                                <rect key="frame" x="0.0" y="75" width="184" height="21"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="allowsEditing:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6P4-Ss-NZb">
+                                                <rect key="frame" x="0.0" y="5" width="105" height="21"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wkK-HY-1na">
+                                                <rect key="frame" x="294" y="0.0" width="51" height="31"/>
+                                            </switch>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="allowsSelection:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="upl-lF-OgS">
+                                                <rect key="frame" x="0.0" y="40" width="123" height="21"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <constraints>
+                                            <constraint firstItem="cPR-zn-TC8" firstAttribute="top" secondItem="wkK-HY-1na" secondAttribute="bottom" constant="4" id="3Ib-o4-0nA"/>
+                                            <constraint firstItem="upl-lF-OgS" firstAttribute="leading" secondItem="TOB-Xd-buL" secondAttribute="leading" id="Cs8-r9-I1B"/>
+                                            <constraint firstItem="1ww-r1-kkk" firstAttribute="leading" secondItem="TOB-Xd-buL" secondAttribute="leading" id="EXV-lS-O00"/>
+                                            <constraint firstAttribute="trailing" secondItem="wkK-HY-1na" secondAttribute="trailing" id="Edc-3i-zu4"/>
+                                            <constraint firstAttribute="trailing" secondItem="60n-ae-pZu" secondAttribute="trailing" id="Egs-lR-d9i"/>
+                                            <constraint firstItem="wkK-HY-1na" firstAttribute="top" secondItem="TOB-Xd-buL" secondAttribute="top" id="Gxf-dm-ubG"/>
+                                            <constraint firstItem="6P4-Ss-NZb" firstAttribute="leading" secondItem="TOB-Xd-buL" secondAttribute="leading" id="HNZ-hH-gf7"/>
+                                            <constraint firstAttribute="trailing" secondItem="cPR-zn-TC8" secondAttribute="trailing" id="OL7-dF-wbr"/>
+                                            <constraint firstItem="60n-ae-pZu" firstAttribute="top" secondItem="cPR-zn-TC8" secondAttribute="bottom" constant="4" id="RSd-wx-7Jh"/>
+                                            <constraint firstItem="cPR-zn-TC8" firstAttribute="centerY" secondItem="upl-lF-OgS" secondAttribute="centerY" id="Sn4-aV-97c"/>
+                                            <constraint firstItem="60n-ae-pZu" firstAttribute="centerY" secondItem="1ww-r1-kkk" secondAttribute="centerY" id="cud-Wy-bB2"/>
+                                            <constraint firstAttribute="bottom" secondItem="60n-ae-pZu" secondAttribute="bottom" id="fWa-TK-YdD"/>
+                                            <constraint firstItem="wkK-HY-1na" firstAttribute="centerY" secondItem="6P4-Ss-NZb" secondAttribute="centerY" id="laq-is-GRP"/>
+                                        </constraints>
+                                    </view>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstItem="odp-eM-cln" firstAttribute="width" secondItem="zuo-4W-K3D" secondAttribute="width" multiplier="3/4" id="5aI-8x-OYW"/>
-                                    <constraint firstItem="CBB-Qu-ffu" firstAttribute="width" secondItem="zuo-4W-K3D" secondAttribute="width" multiplier="1/2" id="IcB-Ui-mdx"/>
-                                    <constraint firstItem="odp-eM-cln" firstAttribute="leading" secondItem="zuo-4W-K3D" secondAttribute="leading" id="MP8-e7-0Pv"/>
-                                    <constraint firstItem="imp-PY-v9W" firstAttribute="leading" secondItem="zuo-4W-K3D" secondAttribute="leading" id="RVg-Sf-vCF"/>
-                                    <constraint firstItem="imp-PY-v9W" firstAttribute="width" secondItem="zuo-4W-K3D" secondAttribute="width" multiplier="1/2" id="biw-Y2-1wl"/>
-                                    <constraint firstItem="CBB-Qu-ffu" firstAttribute="leading" secondItem="zuo-4W-K3D" secondAttribute="leading" id="btd-CB-U8X"/>
-                                    <constraint firstItem="odp-eM-cln" firstAttribute="top" secondItem="imp-PY-v9W" secondAttribute="bottom" constant="10" id="dN1-kx-3ZV"/>
-                                    <constraint firstItem="imp-PY-v9W" firstAttribute="top" secondItem="CBB-Qu-ffu" secondAttribute="bottom" constant="10" id="xAq-MC-BGn"/>
-                                    <constraint firstItem="CBB-Qu-ffu" firstAttribute="top" secondItem="zuo-4W-K3D" secondAttribute="top" id="zc2-UC-BWz"/>
+                                    <constraint firstItem="lUc-hf-aVd" firstAttribute="top" secondItem="TOB-Xd-buL" secondAttribute="bottom" constant="10" id="4Ex-Xc-lub"/>
+                                    <constraint firstAttribute="trailing" secondItem="lUc-hf-aVd" secondAttribute="trailing" id="Ben-hn-kmZ"/>
+                                    <constraint firstItem="TOB-Xd-buL" firstAttribute="top" secondItem="zuo-4W-K3D" secondAttribute="top" id="Ln0-Hl-hY6"/>
+                                    <constraint firstAttribute="trailing" secondItem="TOB-Xd-buL" secondAttribute="trailing" id="S4a-4Z-7XM"/>
+                                    <constraint firstItem="lUc-hf-aVd" firstAttribute="leading" secondItem="zuo-4W-K3D" secondAttribute="leading" id="f4K-Np-3ax"/>
+                                    <constraint firstItem="TOB-Xd-buL" firstAttribute="leading" secondItem="zuo-4W-K3D" secondAttribute="leading" id="mWl-VY-prc"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -171,6 +234,9 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="allowsEditing" destination="wkK-HY-1na" id="PJA-gq-SGy"/>
+                        <outlet property="allowsMultipleSelection" destination="60n-ae-pZu" id="TL5-aK-m9w"/>
+                        <outlet property="allowsSelection" destination="cPR-zn-TC8" id="pgc-MU-Mrq"/>
                         <outlet property="page" destination="odp-eM-cln" id="atQ-Si-IAx"/>
                         <outlet property="style" destination="imp-PY-v9W" id="bEw-ml-kvq"/>
                         <outlet property="type" destination="CBB-Qu-ffu" id="kMN-2r-5Nf"/>

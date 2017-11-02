@@ -34,6 +34,10 @@ class ViewController: UIViewController, Ubiquity.PickerDelegate {
     @IBOutlet weak var style: UISegmentedControl!
     @IBOutlet weak var page: UISegmentedControl!
     
+    @IBOutlet weak var allowsEditing: UISwitch!
+    @IBOutlet weak var allowsSelection: UISwitch!
+    @IBOutlet weak var allowsMultipleSelection: UISwitch!
+    
     @IBAction func cancel(_ sender: Any) {
         dismiss(animated: true, completion: nil)
     }
@@ -51,8 +55,8 @@ class ViewController: UIViewController, Ubiquity.PickerDelegate {
         case 1:
             let picker = Ubiquity.Picker(library: library)
             picker.delegate = self
-            //picker.allowsSelection = false
-            //picker.allowsMultipleSelection = false
+            picker.allowsSelection = allowsSelection.isOn
+            picker.allowsMultipleSelection = allowsMultipleSelection.isOn
             container = picker
 
         default:

@@ -39,6 +39,10 @@ import UIKit
     /// default is YES. Controls whether a asset can be selected
     open var allowsSelection: Bool = true {
         didSet {
+            guard oldValue != allowsSelection else {
+                return
+            }
+            // tell all observers in options did change
             _forEach(ContainerOptionsDelegate.self) {
                 $0.container(self, options: "allowsSelection", didChange: allowsSelection)
             }
@@ -48,6 +52,10 @@ import UIKit
     /// default is YES. Controls whether multiple assets can be selected simultaneously
     open var allowsMultipleSelection: Bool = true {
         didSet {
+            guard oldValue != allowsMultipleSelection else {
+                return
+            }
+            // tell all observers in options did change
             _forEach(ContainerOptionsDelegate.self) {
                 $0.container(self, options: "allowsMultipleSelection", didChange: allowsMultipleSelection)
             }

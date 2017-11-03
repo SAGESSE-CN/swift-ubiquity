@@ -291,7 +291,7 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Gkk-Gw-aKa">
-                                <rect key="frame" x="187.5" y="64" width="0.5" height="510"/>
+                                <rect key="frame" x="187.5" y="64" width="0.5" height="559"/>
                                 <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="0.5" id="cU3-Oj-CXM"/>
@@ -333,23 +333,6 @@
             </objects>
             <point key="canvasLocation" x="1460" y="803"/>
         </scene>
-        <!--Tab Bar Controller-->
-        <scene sceneID="hze-dF-flK">
-            <objects>
-                <tabBarController id="91z-7B-evL" sceneMemberID="viewController">
-                    <tabBar key="tabBar" contentMode="scaleToFill" id="bfc-HP-t6i">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="49"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                    </tabBar>
-                    <connections>
-                        <segue destination="Ghq-4e-xjI" kind="relationship" relationship="viewControllers" id="5v8-gC-Efc"/>
-                    </connections>
-                </tabBarController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="gtN-uo-0PK" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="201" y="37"/>
-        </scene>
         <!--Navigation Controller-->
         <scene sceneID="s9a-KE-DGc">
             <objects>
@@ -362,7 +345,7 @@
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="fhx-nH-CBf" customClass="ExtendedToolbar" customModule="Ubiquity">
-                        <rect key="frame" x="0.0" y="574" width="375" height="44"/>
+                        <rect key="frame" x="0.0" y="623" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </toolbar>
                     <connections>

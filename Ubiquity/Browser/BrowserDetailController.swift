@@ -582,7 +582,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         source = newSource
         
         // must be clear the layout attributes cache
-        clearItemCache()
+        _clearItemCache()
         
         // update collection asset count change
         guard newSource.numberOfAssets != 0 else {
@@ -750,7 +750,7 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         }
     }
     
-    internal func clearItemCache() {
+    fileprivate func _clearItemCache() {
         
         // the item layout
         _cachedItemLayoutAttributes = nil

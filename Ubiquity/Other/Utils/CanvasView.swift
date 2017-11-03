@@ -146,6 +146,10 @@ import UIKit
         _updateScale(false)
         _updateOffset(false)
         
+        // if the content is too small, ignore it
+        guard rect.width < size.width || rect.height < size.height else {
+            return
+        }
         _containerView.zoomScale = min(rect.width / max(size.width, 1), rect.height / max(size.height, 1))
     }
     
@@ -213,27 +217,43 @@ import UIKit
         return contentSize
     }
     
+    fileprivate func _maximumZoomScale(for orientation: UIImageOrientation) -> CGFloat {
+        return 1.25
+    }
+    fileprivate func _minimumZoomScale(for orientation: UIImageOrientation) -> CGFloat {
+        let size = _contentSize(for: orientation)
+        let scale = min(min(bounds.width / max(size.width, 1), bounds.height / max(size.height, 1)), 1)
+        
+        // if scale is closer to width , recomputing scale
+        if fabs(bounds.width - size.width * scale) < 2 {
+            return bounds.width / max(size.width, 1)
+        }
+
+        return scale
+    }
+    
     fileprivate func _updateScale(_ converting: Bool) {
         // get width and height and scale for orientation
         let size = _contentSize(for: _orientation)
         let display = _contentView?.frame.size ?? .zero
         
-        let scale = min(min(bounds.width / max(size.width, 1), bounds.height / max(size.height, 1)), 1)
-        var correcting = max(max(display.width / max(size.width, 1), display.height / max(size.height, 1)), 0)
+        let minimumZoomScale = _minimumZoomScale(for: _orientation)
+        let maximumZoomScale = _maximumZoomScale(for: _orientation)
+        
+        var zoomScale = max(max(display.width / max(size.width, 1), display.height / max(size.height, 1)), 0)
 
         // automatic fix scale for current
         if converting && _containerView.zoomScale >= _containerView.maximumZoomScale {
-            correcting = 1 // max
+            zoomScale = maximumZoomScale // max
         }
         if converting && _containerView.zoomScale <= _containerView.minimumZoomScale {
-            correcting = scale // min
+            zoomScale = minimumZoomScale // min
         }
         
         // update zoome sacle
-        _containerView.minimumZoomScale = scale
-        _containerView.maximumZoomScale = 1
-        _containerView.zoomScale = correcting
-        //_containerView.contentSize = display
+        _containerView.minimumZoomScale = minimumZoomScale
+        _containerView.maximumZoomScale = maximumZoomScale
+        _containerView.zoomScale = zoomScale
     }
     fileprivate func _updateOffset(_ converting: Bool) {
         // if contentView is not set, ignore
@@ -308,11 +328,6 @@ extension CanvasView {
         super.addSubview(_containerView)
         super.addGestureRecognizer(_rotationGestureRecognizer)
     }
-    
-    fileprivate func _round(_ val: CGFloat) -> CGFloat {
-        return trunc(val * 2) / 2
-    }
-    
 
     /// convert orientation to angle
     fileprivate func _angle(for orientation: UIImageOrientation) -> CGFloat {
@@ -363,8 +378,10 @@ extension CanvasView {
         let height = max(_contentSize(for: newOrientation).height, 1)
         
         // calc minimum scale ratio
-        let newScale = min(min(bounds.width / width, bounds.height / height), 1)
-        let newBounds = CGRect(x: 0, y: 0, width: _round(width * newScale), height: _round(height * newScale))
+        let minimumZoomScale = _minimumZoomScale(for: newOrientation)
+        let maximumZoomScale = _maximumZoomScale(for: newOrientation)
+
+        let newBounds = CGRect(x: 0, y: 0, width: width * minimumZoomScale, height: height * minimumZoomScale)
         let newTransform = CGAffineTransform(rotationAngle: angle)
         
         let animations: () -> Void = { [_containerView] in
@@ -374,8 +391,8 @@ extension CanvasView {
                 _containerView.transform = newTransform
                 _containerView.frame = self.bounds
                 
-                _containerView.minimumZoomScale = newScale
-                _containerView.maximumZoomScale = 1
+                _containerView.minimumZoomScale = minimumZoomScale
+                _containerView.maximumZoomScale = maximumZoomScale
                 _containerView.zoomScale = _containerView.minimumZoomScale
                 _containerView.contentOffset = .zero
                 _containerView.contentSize = newBounds.size

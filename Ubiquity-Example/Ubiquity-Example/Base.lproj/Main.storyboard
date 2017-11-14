@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="91z-7B-evL">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="91z-7B-evL">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -30,7 +30,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Large Image Loader" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="qR5-se-Gf8">
-                                                    <rect key="frame" x="16" y="0.0" width="344" height="43.5"/>
+                                                    <rect key="frame" x="16" y="0.0" width="343" height="43.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -50,7 +50,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Animated Image Loader" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="u3k-sK-z3y">
-                                                    <rect key="frame" x="16" y="0.0" width="344" height="43.5"/>
+                                                    <rect key="frame" x="16" y="0.0" width="343" height="43.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -70,7 +70,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Canvas Loader" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="8cS-3u-4w7">
-                                                    <rect key="frame" x="16" y="0.0" width="344" height="43.5"/>
+                                                    <rect key="frame" x="16" y="0.0" width="343" height="43.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -121,21 +121,21 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lUc-hf-aVd">
                                         <rect key="frame" x="0.0" y="111" width="343" height="104"/>
                                         <subviews>
-                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="CBB-Qu-ffu">
+                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="CBB-Qu-ffu">
                                                 <rect key="frame" x="0.0" y="0.0" width="194.5" height="29"/>
                                                 <segments>
                                                     <segment title="Browser"/>
                                                     <segment title="Picker"/>
                                                 </segments>
                                             </segmentedControl>
-                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="imp-PY-v9W">
+                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="imp-PY-v9W">
                                                 <rect key="frame" x="0.0" y="38" width="194.5" height="29"/>
                                                 <segments>
                                                     <segment title="Present"/>
                                                     <segment title="Push"/>
                                                 </segments>
                                             </segmentedControl>
-                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="odp-eM-cln">
+                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="odp-eM-cln">
                                                 <rect key="frame" x="0.0" y="76" width="291.5" height="29"/>
                                                 <segments>
                                                     <segment title="Albums"/>
@@ -151,11 +151,14 @@
                                             <constraint firstItem="CBB-Qu-ffu" firstAttribute="top" secondItem="lUc-hf-aVd" secondAttribute="top" id="GJE-40-A3Q"/>
                                             <constraint firstItem="CBB-Qu-ffu" firstAttribute="leading" secondItem="lUc-hf-aVd" secondAttribute="leading" id="IlQ-dI-47a"/>
                                             <constraint firstItem="odp-eM-cln" firstAttribute="width" secondItem="lUc-hf-aVd" secondAttribute="width" multiplier="3/4" constant="34.375" id="W3b-iu-5L1"/>
+                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="odp-eM-cln" secondAttribute="trailing" constant="20" symbolic="YES" id="bNV-fk-PFC"/>
                                             <constraint firstAttribute="bottom" secondItem="odp-eM-cln" secondAttribute="bottom" id="esZ-6t-3lf"/>
                                             <constraint firstItem="CBB-Qu-ffu" firstAttribute="width" secondItem="lUc-hf-aVd" secondAttribute="width" multiplier="1/2" constant="22.75" id="gWI-AP-Acj"/>
                                             <constraint firstItem="imp-PY-v9W" firstAttribute="width" secondItem="lUc-hf-aVd" secondAttribute="width" multiplier="1/2" constant="22.75" id="u7S-KO-5YI"/>
+                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="imp-PY-v9W" secondAttribute="trailing" constant="20" symbolic="YES" id="vnb-xN-Hwf"/>
                                             <constraint firstItem="imp-PY-v9W" firstAttribute="top" secondItem="CBB-Qu-ffu" secondAttribute="bottom" constant="10" id="ws3-8F-m2K"/>
                                             <constraint firstItem="odp-eM-cln" firstAttribute="leading" secondItem="lUc-hf-aVd" secondAttribute="leading" id="xIQ-7n-kde"/>
+                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="CBB-Qu-ffu" secondAttribute="trailing" constant="20" symbolic="YES" id="ygF-ve-fhP"/>
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TOB-Xd-buL">
@@ -196,12 +199,15 @@
                                             <constraint firstItem="1ww-r1-kkk" firstAttribute="leading" secondItem="TOB-Xd-buL" secondAttribute="leading" id="EXV-lS-O00"/>
                                             <constraint firstAttribute="trailing" secondItem="wkK-HY-1na" secondAttribute="trailing" id="Edc-3i-zu4"/>
                                             <constraint firstAttribute="trailing" secondItem="60n-ae-pZu" secondAttribute="trailing" id="Egs-lR-d9i"/>
+                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="6P4-Ss-NZb" secondAttribute="trailing" constant="20" symbolic="YES" id="FBo-IR-oJf"/>
+                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="1ww-r1-kkk" secondAttribute="trailing" constant="20" symbolic="YES" id="Gvj-bA-fmN"/>
                                             <constraint firstItem="wkK-HY-1na" firstAttribute="top" secondItem="TOB-Xd-buL" secondAttribute="top" id="Gxf-dm-ubG"/>
                                             <constraint firstItem="6P4-Ss-NZb" firstAttribute="leading" secondItem="TOB-Xd-buL" secondAttribute="leading" id="HNZ-hH-gf7"/>
                                             <constraint firstAttribute="trailing" secondItem="cPR-zn-TC8" secondAttribute="trailing" id="OL7-dF-wbr"/>
                                             <constraint firstItem="60n-ae-pZu" firstAttribute="top" secondItem="cPR-zn-TC8" secondAttribute="bottom" constant="4" id="RSd-wx-7Jh"/>
                                             <constraint firstItem="cPR-zn-TC8" firstAttribute="centerY" secondItem="upl-lF-OgS" secondAttribute="centerY" id="Sn4-aV-97c"/>
                                             <constraint firstItem="60n-ae-pZu" firstAttribute="centerY" secondItem="1ww-r1-kkk" secondAttribute="centerY" id="cud-Wy-bB2"/>
+                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="upl-lF-OgS" secondAttribute="trailing" constant="20" symbolic="YES" id="d5r-EZ-7Ta"/>
                                             <constraint firstAttribute="bottom" secondItem="60n-ae-pZu" secondAttribute="bottom" id="fWa-TK-YdD"/>
                                             <constraint firstItem="wkK-HY-1na" firstAttribute="centerY" secondItem="6P4-Ss-NZb" secondAttribute="centerY" id="laq-is-GRP"/>
                                         </constraints>

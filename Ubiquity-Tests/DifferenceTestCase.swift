@@ -61,4 +61,7 @@ class DifferenceTestCase: XCTestCase {
     func testInsertAndRemove() {
     }
     
+    func testRemoveAndUpdate() {
+        XCTAssertEqual(ub_diff([0,1,2,3,4,5,6,7,8], dest: [0,1,0,4,0,6,7,8]), [.remove(from: 2, to: -1), .update(from: 3, to: 2), .update(from: 5, to: 4)])
+    }
 }

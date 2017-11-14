@@ -96,8 +96,8 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
 //        guard let collectionList = source.collectionList(at: section), collectionList.ub_collectionType != .regular else {
 //            return source.numberOfCollections(inCollectionList: section)
 //        }
-//        
-//        // in other albums, display on collection 
+//
+//        // in other albums, display on collection
 //        return min(source.numberOfCollections(inCollectionList: section), 1)
     }
     
@@ -138,7 +138,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         guard let collection = source.collection(at: indexPath.row, inCollectionList: indexPath.section) else {
             return
         }
-        logger.debug?.write("show album with: \(collection.ub_title ?? ""), at: \(indexPath)")
+        logger.debug?.write("show album with: \"\(collection.ub_title ?? "<Empty>")\", at: \(indexPath)")
         
         // try generate album controller for factory
         let controller = container.instantiateViewController(with: .albums, source: .init(collection: collection), sender: indexPath)
@@ -174,6 +174,8 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         // keep the new fetch result for future use.
         source = newSource
         
+        logger.debug?.write(time(nil))
+        
         // check new albums count
         guard newSource.numberOfCollections != 0 else {
             // display error and update tableview 
@@ -192,28 +194,30 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
             return
         }
         
-        tableView.beginUpdates()
-        
-        // For indexes to make sense, updates must be in this order:
-        // delete, insert, reload, move
-        
-        details.deleteSections.map { tableView.deleteSections($0, with: .automatic) }
-        details.insertSections.map { tableView.insertSections($0, with: .automatic) }
-        details.reloadSections.map { tableView.reloadSections($0, with: .automatic) }
-        
-        details.moveSections?.forEach { from, to in
-            tableView.moveSection(from, toSection: to)
+        UIView.animate(withDuration: 0.25) {
+            tableView.beginUpdates()
+            
+            // For indexes to make sense, updates must be in this order:
+            // delete, insert, reload, move
+            
+            details.deleteSections.map { tableView.deleteSections($0, with: .automatic) }
+            details.insertSections.map { tableView.insertSections($0, with: .automatic) }
+            details.reloadSections.map { tableView.reloadSections($0, with: .automatic) }
+            
+            details.moveSections?.forEach { from, to in
+                tableView.moveSection(from, toSection: to)
+            }
+            
+            details.removeItems.map { tableView.deleteRows(at: $0, with: .automatic) }
+            details.insertItems.map { tableView.insertRows(at: $0, with: .automatic) }
+            details.reloadItems.map { tableView.reloadRows(at: $0, with: .automatic) }
+            
+            details.moveItems?.forEach { from, to in
+                tableView.moveRow(at: from, to: to)
+            }
+            
+            tableView.endUpdates()
         }
-        
-        details.removeItems.map { tableView.deleteRows(at: $0, with: .automatic) }
-        details.insertItems.map { tableView.insertRows(at: $0, with: .automatic) }
-        details.reloadItems.map { tableView.reloadRows(at: $0, with: .automatic) }
-        
-        details.moveItems?.forEach { from, to in
-            tableView.moveRow(at: from, to: to)
-        }
-        
-        tableView.endUpdates()
     }
     
     

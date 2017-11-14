@@ -303,15 +303,15 @@ internal class Logger {
             }
             // write a log
             internal override func write(_ log: Logger.Log) {
-                #if DEBUG && false
+//                #if DEBUG && false
                     Console._queue.sync {
                         print(self.layout.format(with: log), terminator: "")
                     }
-                #else
-                    Console._queue.async {
-                        print(self.layout.format(with: log), terminator: "")
-                    }
-                #endif
+//                #else
+//                    Console._queue.async {
+//                        print(self.layout.format(with: log), terminator: "")
+//                    }
+//                #endif
             }
             
             private static var _queue: DispatchQueue = .init(label: "logger.appender.console", qos: .background)

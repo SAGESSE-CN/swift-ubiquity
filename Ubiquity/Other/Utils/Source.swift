@@ -635,7 +635,7 @@ public class SourceChangeDetails: NSObject {
             return $0 + ", " + $1
         }
         
-        return "\(super.description), diffs: [\(str)]"
+        return "\(super.description), title: \"\(self.before.title ?? "<Empty>")\", diffs: [\(str)]"
     }
 }
 

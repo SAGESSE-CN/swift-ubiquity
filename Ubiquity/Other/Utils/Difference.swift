@@ -125,8 +125,23 @@ public func ub_diff<Element>(_ src: Array<Element>, dest: Array<Element>, equal:
         }
     }
     
+//    print("  ", terminator: "")
+//    dest.forEach {
+//        print($0, terminator: " ")
+//    }
+//    print()
+//    for si in 1 ..< slen + 1 {
+//        print(src[si - 1], terminator: " ")
+//        for di in 1 ..< dlen + 1 {
+//            // comparative differences
+//            print(diffs[si][di], terminator: " ")
+//        }
+//        print()
+//    }
+    
     var si = slen
     var di = dlen
+    var matching = false // match a remove & add group
     
     var rms: [(from: Int, to: Int)] = []
     var adds: [(from: Int, to: Int)] = []
@@ -153,18 +168,42 @@ public func ub_diff<Element>(_ src: Array<Element>, dest: Array<Element>, equal:
             // no change, ignore
             si -= 1
             di -= 1
+            matching = false
             continue
         }
         // check the weight
-        if diffs[si - 1][di] > diffs[si][di - 1] {
-            // is remove
+        let weight = (x: diffs[si - 1][di], y: diffs[si][di - 1])
+        
+        // the item is remove?
+        guard !(weight.x > weight.y) else {
             rms.append((from: si - 1, to: di - 1))
             si -= 1
-        } else {
-            // is add
+            matching = false
+            continue
+        }
+        
+        // the item is add?
+        guard !(weight.x < weight.y) else {
             adds.append((from: si - 1, to: di - 1))
             di -= 1
+            matching = false
+            continue
         }
+        
+        // the item is automatic match
+        guard !(matching) else {
+            // remove
+            rms.append((from: si - 1, to: di - 1))
+            si -= 1
+            matching = false
+            continue
+        }
+        
+        // add
+        adds.append((from: si - 1, to: di - 1))
+        di -= 1
+        matching = true
+        
     } while si > 0 || di > 0
     
     var results: [DifferenceResult] = []
@@ -172,7 +211,7 @@ public func ub_diff<Element>(_ src: Array<Element>, dest: Array<Element>, equal:
     results.reserveCapacity(rms.count + adds.count)
     
     // move(f,t): f = remove(f), t = insert(t), new move(f,t): f = remove(f), t = insert(f)
-    // update(f,t): f = remove(f), t = insert(t), new update(f,t): f = remove(f), t = insert(f)
+    // update: remove.from == insert.from && remove.to == insert.to - 1
     
     // automatic merge delete and update items
     results.append(contentsOf: rms.map({ item in
@@ -184,7 +223,7 @@ public func ub_diff<Element>(_ src: Array<Element>, dest: Array<Element>, equal:
             return .move(from: from, to: addItem.to)
         }
         // can't merge to update item?
-        if let addIndex = adds.index(where: { $0.to == from }) {
+        if let addIndex = adds.index(where: { item.from == $0.from && item.to == $0.to - 1 }) {
             let addItem = adds[addIndex]
             //let addElement = dest[addItem.to]
             
@@ -194,6 +233,7 @@ public func ub_diff<Element>(_ src: Array<Element>, dest: Array<Element>, equal:
         }
         return .remove(from: item.from, to: -1)
     }))
+    
     // automatic merge insert items
     results.append(contentsOf: adds.map({ item in
         return .insert(from: -1, to: item.to)

@@ -54,7 +54,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         
         tableView.estimatedRowHeight = 0
         tableView.estimatedSectionHeaderHeight = 0
-        tableView.estimatedSectionFooterHeight = 1 / UIScreen.main.scale
+        tableView.estimatedSectionFooterHeight = 0
     }
     
     override func viewDidLoad() {

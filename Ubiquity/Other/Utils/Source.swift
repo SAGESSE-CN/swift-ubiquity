@@ -29,6 +29,11 @@ public class Source: NSObject {
         _title = nil
         _defaultTitle = collection.ub_title
     }
+
+    /// A custom filter for source
+    public var filter: CustomFilter? {
+        return _filter
+    }
     
     /// A data source with collection list.
     public convenience init(collectionList: CollectionList, filter: CustomFilter? = nil) {
@@ -51,7 +56,7 @@ public class Source: NSObject {
         
         // configure title
         _title = nil
-        _defaultTitle = _defaultTitle(with: collectionLists.first?.ub_collectionType ?? .regular)
+        _defaultTitle = ub_defaultTitle(with: collectionLists.map({ $0.ub_collectionType }))
     }
     /// A data source with multiple collection list types.
     public init(collectionTypes: [CollectionType], filter: CustomFilter? = nil) {
@@ -65,7 +70,7 @@ public class Source: NSObject {
         
         // configure title
         _title = nil
-        _defaultTitle = _defaultTitle(with: collectionTypes.first ?? .regular)
+        _defaultTitle = ub_defaultTitle(with: collectionTypes)
     }
     
     /// The source title.
@@ -501,20 +506,6 @@ public class Source: NSObject {
         return newDetails
     }
     
-    /// using collection type to generate default title.
-    private func _defaultTitle(with collectionType: CollectionType) -> String {
-        switch collectionType {
-        case .moment:
-            return "Moments"
-            
-        case .regular:
-            return "Photos"
-            
-        case .recentlyAdded:
-            return "Recently"
-        }
-    }
-    
     /// Content identifier
     private lazy var _identifier: String = UUID().uuidString
     
@@ -536,6 +527,121 @@ public class Source: NSObject {
     
     private var _cachedCollectionTypes: Set<CollectionType>?
     private var _cachedCollectionSubtypes: Set<CollectionSubtype>?
+}
+
+public class SourceFolding: NSObject, Collection {
+    
+    /// Create a collection list folding object
+    public init(collectionList: CollectionList) {
+        self.collectionList = collectionList
+        super.init()
+    }
+    
+    /// Collection list in folding
+    public let collectionList: CollectionList
+    
+    /// Returns the number of all colltions from the source.
+    public var numberOfCollections: Int {
+        return collectionList.ub_count
+    }
+    /// Returns the number of folded colltions from the source.
+    public var numberOfFoldedCollections: Int {
+        return min(collectionList.ub_count, 1)
+    }
+    
+    /// Retrieves collection from the collection list.
+    public func collection(at index: Int) -> Collection? {
+        return self
+    }
+    
+    // MARK: Collection
+    
+    /// The localized title of the collection.
+    public var ub_title: String? {
+        if _cachedTitle == nil {
+            _cachedTitle = ub_defaultTitle(with: collectionList.ub_collectionType)
+        }
+        return _cachedTitle
+    }
+    /// The localized subtitle of the collection.
+    public var ub_subtitle: String? {
+        return nil
+    }
+    /// A unique string that persistently identifies the object.
+    public var ub_identifier: String {
+        return collectionList.ub_identifier
+    }
+    
+    /// The type of the asset collection, such as an album or a moment.
+    public var ub_collectionType: CollectionType {
+        return collectionList.ub_collectionType
+    }
+    /// The subtype of the asset collection.
+    public var ub_collectionSubtype: CollectionSubtype {
+        return .smartAlbumGeneric
+    }
+    
+    /// The number of assets in the asset collection.
+    public var ub_count: Int {
+        // count hit cache.
+        if let count = _cachedAssetCount {
+            return count
+        }
+        // fetch assets count for all collections
+        let count = (0 ..< numberOfCollections).reduce(0) { $0 + (collectionList.ub_collection(at: $1).ub_count) }
+        _cachedAssetCount = count
+        return count
+    }
+    /// The number of assets in the asset collection.
+    public func ub_count(with type: AssetType) -> Int {
+        // count hit cache.
+        if let count = _cachedAssetsCounts?[type] {
+            return count
+        }
+        // is first cache.
+        if _cachedAssetsCounts == nil {
+            _cachedAssetsCounts = [:]
+        }
+        // fetch assets count for all collections
+        let count = (0 ..< numberOfCollections).reduce(0) { $0 + (collectionList.ub_collection(at: $1).ub_count(with: type)) }
+        _cachedAssetsCounts?[type] = count
+        return count
+    }
+    /// Retrieves assets from the specified asset collection.
+    public func ub_asset(at index: Int) -> Asset {
+        // asset hit cache.
+        if let asset = _cachedAsset?[index] {
+            return asset
+        }
+        // is first cache.
+        if _cachedAsset == nil {
+            _cachedAsset = [:]
+        }
+        
+        // find section 
+        var item = index
+        for section in 0 ..< numberOfCollections {
+            let collection = collectionList.ub_collection(at: section)
+            
+            guard item < collection.ub_count else {
+                item -= collection.ub_count
+                continue
+            }
+            
+            let asset = collection.ub_asset(at: item)
+            _cachedAsset?[index] = asset
+            return asset
+        }
+        
+        // find fail
+        fatalError()
+    }
+    
+    private var _cachedTitle: String?
+    
+    private var _cachedAsset: [Int: Asset]?
+    private var _cachedAssetCount: Int?
+    private var _cachedAssetsCounts: [AssetType: Int]?
 }
 
 public class SourceChangeDetails: NSObject {

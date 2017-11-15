@@ -69,7 +69,7 @@ class ViewController: UIViewController, Ubiquity.PickerDelegate {
         case 0: // albums
             //controller = container.instantiateViewController(with: .albumsList, source: .init(collectionType: .regular))
             //controller = container.instantiateViewController(with: .albumsList, source: .init(collectionType: .moment))
-            controller = container.instantiateViewController(with: .albumsList, source: .init(collectionTypes: [.moment, .regular])) // has a bug in add section & remove section
+            controller = container.instantiateViewController(with: .albumsList, source: .init(collectionTypes: [.moment, .regular]))
             //controller = container.instantiateViewController(with: .albumsList, source: .init(collectionTypes: [.moment, .regular, .recentlyAdded]))
             //controller = container.instantiateViewController(with: .albumsList, source: .init(collectionType: .regular))
             //controller = container.instantiateViewController(with: .albumsList, source: .init(collectionType: .regular, filter: { $0.offset == 0 }))

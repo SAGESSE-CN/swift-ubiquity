@@ -72,6 +72,26 @@ internal func ub_string(for time: TimeInterval) -> String {
     return formater.string(from: .init(timeIntervalSince1970: time))
 }
 
+internal func ub_defaultTitle(with collectionType: CollectionType) -> String {
+    switch collectionType {
+    case .moment:
+        return "Moments"
+        
+    case .regular:
+        return "Photos"
+        
+    case .recentlyAdded:
+        return "Recently"
+    }
+}
+internal func ub_defaultTitle(with collectionTypes: [CollectionType]) -> String {
+    // if there are multiple groups, only photos is displayed 
+    if let first = collectionTypes.first, collectionTypes.count == 1 {
+        return ub_defaultTitle(with: first)
+    }
+    return ub_defaultTitle(with: .regular)
+}
+
 internal func ub_identifier(with media: AssetType) -> String {
     switch media {
     case .image:   return "ASSET-IMAGE"

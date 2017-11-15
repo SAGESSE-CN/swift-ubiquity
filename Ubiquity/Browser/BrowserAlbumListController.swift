@@ -18,7 +18,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         self.container = container
         
         // continue init the UI
-        super.init(nibName: nil, bundle: nil)
+        super.init(style: .grouped)
         super.title = source.title
         
         // listen albums any change
@@ -48,6 +48,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         
         // setup table view
         tableView.register(BrowserAlbumListCell.self, forCellReuseIdentifier: "ASSET")
+        tableView.register(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: "LINE")
         tableView.separatorStyle = .none
         tableView.backgroundColor = .white
     }
@@ -66,15 +67,15 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         super.viewWillAppear(animated)
         
         // start clear
-        _cachedSelectItem.map {
+        _selectItem.map {
             tableView?.deselectRow(at: $0, animated: animated)
-        }
+        } 
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
         // cancel clear
-        _cachedSelectItem.map {
+        _selectItem.map {
             tableView?.selectRow(at: $0, animated: animated, scrollPosition: .none)
         }
     }
@@ -86,32 +87,48 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        // if the section has folding item, only show folded collections
+        if let folding = foldingLists?[section] {
+            return folding.numberOfFoldedCollections
+        }
+
+        // in other albums, display all collection
         return source.numberOfCollections(inCollectionList: section)
-//        // if has regular albums, only display on collection in other collection list
-//        guard source.numberOfCollectionLists > 1, source.collectionTypes.contains(.regular) else {
-//            return source.numberOfCollections(inCollectionList: section)
-//        }
-//        
-//        // in regular albums, display all collections
-//        guard let collectionList = source.collectionList(at: section), collectionList.ub_collectionType != .regular else {
-//            return source.numberOfCollections(inCollectionList: section)
-//        }
-//
-//        // in other albums, display on collection
-//        return min(source.numberOfCollections(inCollectionList: section), 1)
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 88
     }
+    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 0.5
+    }
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 0.001
+    }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         return tableView.dequeueReusableCell(withIdentifier: "ASSET", for: indexPath)
     }
+    override func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        // in last section, footer is hidden
+        guard section < tableView.numberOfSections - 1 else {
+            return nil
+        }
+        
+        // fetch footer view for dequeue
+        let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "LINE")
+        footerView?.contentView.backgroundColor = .lightGray
+        return footerView
+    }
     
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         // cell must king of `BrowserAlbumListCell`
-        guard let collection = source.collection(at: indexPath.row, inCollectionList: indexPath.section), let cell = cell as? BrowserAlbumListCell else {
+        guard let cell = cell as? BrowserAlbumListCell else {
+            return
+        }
+        // if there is a collection in the fold, use it first
+        let folded = foldingLists?[indexPath.section]?.collection(at: indexPath.item)
+        guard let collection = folded ?? source.collection(at: indexPath.row, inCollectionList: indexPath.section) else {
             return
         }
         
@@ -134,19 +151,19 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         logger.trace?.write(indexPath)
         
-        // get selected collection
-        guard let collection = source.collection(at: indexPath.row, inCollectionList: indexPath.section) else {
+        if let target = foldingLists?[indexPath.section].map({ Source(collectionList: $0.collectionList, filter: source.filter) }) {
+            // display album for collection list
+            _show(with: target, at: indexPath)
+            _selectItem = indexPath
             return
         }
-        logger.debug?.write("show album with: \"\(collection.ub_title ?? "<Empty>")\", at: \(indexPath)")
         
-        // try generate album controller for factory
-        let controller = container.instantiateViewController(with: .albums, source: .init(collection: collection), sender: indexPath)
-        
-        _cachedSelectItem = indexPath
-       
-        // show next page
-        show(controller, sender: indexPath)
+        if let target = source.collection(at: indexPath.row, inCollectionList: indexPath.section).map({ Source(collection: $0) }) {
+            // display album for collection
+            _show(with: target, at: indexPath)
+            _selectItem = indexPath
+            return
+        }
     }
     
     // MARK: Library change
@@ -173,6 +190,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         }
         // keep the new fetch result for future use.
         source = newSource
+        foldingLists = _folding(with: newSource)
         
         logger.debug?.write(time(nil))
         
@@ -192,6 +210,25 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
             // reload the table view if incremental diffs are not available.
             tableView.reloadData()
             return
+        }
+        
+        // if folded collection list has any change, reload all
+        foldingLists?.forEach { (section, folding) in
+            
+            let filter = { (indexPath: IndexPath) -> Bool in
+                if indexPath.section == section {
+                    if details.reloadSections == nil {
+                        details.reloadSections = []
+                    }
+                    details.reloadSections?.insert(section)
+                    return false
+                }
+                return true
+            }
+            
+            details.reloadItems = details.reloadItems?.filter(filter)
+            details.insertItems = details.insertItems?.filter(filter)
+            details.removeItems = details.removeItems?.filter(filter)
         }
         
         UIView.animate(withDuration: 0.25) {
@@ -258,9 +295,46 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         
         // refresh UI
         self.source = source
+        self.foldingLists = _folding(with: source)
         self.tableView?.reloadData()
     }
     
+    /// show alubms with source
+    private func _show(with source: Source, at indexPath: IndexPath) {
+        // try generate album controller for factory
+        let controller = container.instantiateViewController(with: .albums, source: source, sender: indexPath)
+        show(controller, sender: indexPath)
+    }
+    
+    /// generate folding lists
+    private func _folding(with source: Source) -> [Int: SourceFolding] {
+        var folding = [Int: SourceFolding]()
+
+        // do not fold when there is only one list
+        guard source.numberOfCollectionLists > 1 else {
+            return folding
+        }
+        
+        // foreach all collection list
+        for section in 0 ..< source.numberOfCollectionLists {
+            // if collectoin list is empty, ignore
+            guard let collectionList = source.collectionList(at: section) else {
+                continue
+            }
+            
+            // if collection list is regular, ignore
+            guard collectionList.ub_collectionType != .regular else {
+                continue
+            }
+            
+            // generate a list folding
+            folding[section] = SourceFolding(collectionList: collectionList)
+        }
+        
+        return folding
+    }
+    
+    private(set) var foldingLists: [Int: SourceFolding]?
     
     private(set) var container: Container
     private(set) var source: Source {
@@ -270,7 +344,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         }
     }
     
-    private var _cachedSelectItem: IndexPath?
+    private var _selectItem: IndexPath?
     private var _cachedTitle: String?
 }
 

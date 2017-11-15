@@ -78,9 +78,20 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
             let headerView = NavigationHeaderView(frame: .init(x: 0, y: 0, width: view.frame.width, height: 48))
             
             // config
-            headerView.effect = UIBlurEffect(style: .extraLight)
             headerView.layer.zPosition = -0.5
             headerView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(_hanleHeader(_:))))
+            
+            // header style follow navgationbar style
+            if let style = navigationController?.navigationBar.barStyle, style != .default {
+                // drak theme
+                headerView.effect = UIBlurEffect(style: .dark)
+                headerView.textColor = navigationController?.navigationBar.titleTextAttributes?[NSForegroundColorAttributeName] as? UIColor ?? .white
+                
+            } else {
+                // light theme
+                headerView.effect = UIBlurEffect(style: .extraLight)
+                headerView.textColor = navigationController?.navigationBar.titleTextAttributes?[NSForegroundColorAttributeName] as? UIColor ?? .black
+            }
             
             // link to screen
             _headerView = headerView

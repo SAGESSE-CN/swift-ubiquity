@@ -51,6 +51,10 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         tableView.register(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: "LINE")
         tableView.separatorStyle = .none
         tableView.backgroundColor = .white
+        
+        tableView.estimatedRowHeight = 0
+        tableView.estimatedSectionHeaderHeight = 0
+        tableView.estimatedSectionFooterHeight = 1 / UIScreen.main.scale
     }
     
     override func viewDidLoad() {
@@ -100,7 +104,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         return 88
     }
     override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 0.5
+        return 1 / UIScreen.main.scale
     }
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 0.001
@@ -133,7 +137,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         }
         
         cell.accessoryType = .disclosureIndicator
-        cell.backgroundColor = .white
+        cell.backgroundColor = tableView.backgroundColor
         
         // update data for displaying
         cell.willDisplay(with: collection, container: container)

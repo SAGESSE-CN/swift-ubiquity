@@ -22,6 +22,13 @@ internal class NavigationHeaderView: UICollectionReusableView {
     
     weak var parent: NavigationHeaderView?
     
+    var textColor: UIColor? {
+        willSet {
+            _titleLabel.textColor = newValue
+            _subtitleLabel.textColor = newValue
+        }
+    }
+    
     var effect: UIVisualEffect? {
         willSet {
             // has any effect?

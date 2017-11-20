@@ -318,7 +318,7 @@ internal class Cacher: NSObject {
     fileprivate let _library: Library
     
     /// must limit the number of threads
-    fileprivate let _token: DispatchSemaphore = .init(value: 4)
+    fileprivate let _token: DispatchSemaphore = .init(value: 2)
     fileprivate let _dispatch: (util: DispatchQueue, cache: DispatchQueue, request: DispatchQueue) = (
         .init(label: "ubiquity-dispatch-util", qos: .userInteractive),
         .init(label: "ubiquity-dispatch-cache", qos: .background),
@@ -429,7 +429,7 @@ internal extension Cacher {
                 // sync to util queue
                 let completed = self._dispatch.util.sync { () -> Bool in
                     // fetch require process tasks
-                    self._caching.fetch(8) {
+                    self._caching.fetch(4) {
                         self._startCaching(with: $0, with: $1)
                     }
                     // all cache is complete?

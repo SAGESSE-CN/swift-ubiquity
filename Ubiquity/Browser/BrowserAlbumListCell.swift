@@ -40,7 +40,7 @@ internal class BrowserAlbumListCell: UITableViewCell {
         _subtitleLabel.text = ub_string(for: count)
         
         // setup badge icon & background
-        if let icon = BadgeView.Item.ub_init(subtype: collection.ub_collectionSubtype) {
+        if let icon = BadgeItem(subtype: collection.ub_collectionSubtype) {
             // show icon
             _badgeView.leftItem = icon
             _badgeView.backgroundImage = BadgeView.ub_backgroundImage

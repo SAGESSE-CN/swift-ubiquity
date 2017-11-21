@@ -18,7 +18,7 @@ internal class SelectionStatusView: UIButton, SelectionStatusObserver {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        _setup()
+        _configure()
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -66,7 +66,7 @@ internal class SelectionStatusView: UIButton, SelectionStatusObserver {
         layer.add(ani, forKey: "change")
     }
     
-    private func _setup() {
+    private func _configure() {
         
         // title
         titleLabel?.font = UIFont.systemFont(ofSize: 14)

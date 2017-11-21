@@ -12,11 +12,11 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable, Transitionin
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     deinit {
         // if the cell is displaying, hidden after then destroyed
@@ -191,7 +191,7 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable, Transitionin
     }
     
     /// Init UI
-    private func _setup() {
+    private func _configure() {
         
         // setup badge view
         let badgeView = BadgeView()

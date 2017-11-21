@@ -14,13 +14,13 @@ internal class IndicatorViewCell: TilingViewCell {
         let viewClass = ((type(of: self).contentViewClass as? UIView.Type) ?? UIView.self)
         _contentView = viewClass.init()
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         let viewClass = ((type(of: self).contentViewClass as? UIView.Type) ?? UIView.self)
         _contentView = viewClass.init()
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     
@@ -34,7 +34,7 @@ internal class IndicatorViewCell: TilingViewCell {
         }
     }
     
-    private func _setup() {
+    private func _configure() {
         
         _contentView.frame = bounds
         _contentView.clipsToBounds = true

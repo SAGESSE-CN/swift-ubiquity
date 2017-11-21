@@ -529,60 +529,60 @@ public class Source: NSObject {
     private var _cachedCollectionSubtypes: Set<CollectionSubtype>?
 }
 
-public class SourceFolding: NSObject, Collection {
+internal class SourceFolding: NSObject, Collection {
     
     /// Create a collection list folding object
-    public init(collectionList: CollectionList) {
+    internal init(collectionList: CollectionList) {
         self.collectionList = collectionList
         super.init()
     }
     
     /// Collection list in folding
-    public let collectionList: CollectionList
+    internal let collectionList: CollectionList
     
     /// Returns the number of all colltions from the source.
-    public var numberOfCollections: Int {
+    internal var numberOfCollections: Int {
         return collectionList.ub_count
     }
     /// Returns the number of folded colltions from the source.
-    public var numberOfFoldedCollections: Int {
+    internal var numberOfFoldedCollections: Int {
         return min(collectionList.ub_count, 1)
     }
     
     /// Retrieves collection from the collection list.
-    public func collection(at index: Int) -> Collection? {
+    internal func collection(at index: Int) -> Collection? {
         return self
     }
     
     // MARK: Collection
     
     /// The localized title of the collection.
-    public var ub_title: String? {
+    internal var ub_title: String? {
         if _cachedTitle == nil {
             _cachedTitle = ub_defaultTitle(with: collectionList.ub_collectionType)
         }
         return _cachedTitle
     }
     /// The localized subtitle of the collection.
-    public var ub_subtitle: String? {
+    internal var ub_subtitle: String? {
         return nil
     }
     /// A unique string that persistently identifies the object.
-    public var ub_identifier: String {
+    internal var ub_identifier: String {
         return collectionList.ub_identifier
     }
     
     /// The type of the asset collection, such as an album or a moment.
-    public var ub_collectionType: CollectionType {
+    internal var ub_collectionType: CollectionType {
         return collectionList.ub_collectionType
     }
     /// The subtype of the asset collection.
-    public var ub_collectionSubtype: CollectionSubtype {
+    internal var ub_collectionSubtype: CollectionSubtype {
         return .smartAlbumGeneric
     }
     
     /// The number of assets in the asset collection.
-    public var ub_count: Int {
+    internal var ub_count: Int {
         // count hit cache.
         if let count = _cachedAssetCount {
             return count
@@ -593,7 +593,7 @@ public class SourceFolding: NSObject, Collection {
         return count
     }
     /// The number of assets in the asset collection.
-    public func ub_count(with type: AssetType) -> Int {
+    internal func ub_count(with type: AssetType) -> Int {
         // count hit cache.
         if let count = _cachedAssetsCounts?[type] {
             return count
@@ -608,7 +608,7 @@ public class SourceFolding: NSObject, Collection {
         return count
     }
     /// Retrieves assets from the specified asset collection.
-    public func ub_asset(at index: Int) -> Asset {
+    internal func ub_asset(at index: Int) -> Asset {
         // asset hit cache.
         if let asset = _cachedAsset?[index] {
             return asset
@@ -647,41 +647,41 @@ public class SourceFolding: NSObject, Collection {
 public class SourceChangeDetails: NSObject {
     
     /// Create an change detail
-    init(before: Source, after: Source?) {
+    public init(before: Source, after: Source?) {
         self.before = before
         self.after = after
     }
     
     /// the object in the state before this change
-    let before: Source
+    public let before: Source
     /// the object in the state after this change
-    let after: Source?
+    public let after: Source?
     
     /// A Boolean value that indicates whether objects have been any change in the source.
-    var hasItemChanges: Bool = false
+    public var hasItemChanges: Bool = false
     /// A Boolean value that indicates whether changes to the source can be described incrementally.
-    var hasIncrementalChanges: Bool = false
+    public var hasIncrementalChanges: Bool = false
     
     /// The indexes from which objects have been removed from the source.
-    var removeItems: [IndexPath]? = []
+    public var removeItems: [IndexPath]? = []
     /// The indexes of objects in the source whose content or metadata have been updated.
-    var reloadItems: [IndexPath]? = []
+    public var reloadItems: [IndexPath]? = []
     /// The indexes where new objects have been inserted in the source.
-    var insertItems: [IndexPath]? = []
+    public var insertItems: [IndexPath]? = []
     /// The indexs where new object have move
-    var moveItems: [(IndexPath, IndexPath)]? = []
+    public var moveItems: [(IndexPath, IndexPath)]? = []
     
     /// The indexes from which groups have been rmoved from the source.
-    var deleteSections: IndexSet? = []
+    public var deleteSections: IndexSet? = []
     /// The indexes of groups in the source whose content or metadata have been updated.
-    var reloadSections: IndexSet? = []
+    public var reloadSections: IndexSet? = []
     /// The indexes from which groups have been inserted from the source.
-    var insertSections: IndexSet? = []
+    public var insertSections: IndexSet? = []
     /// The indexs where new object have move
-    var moveSections: [(Int, Int)]? = []
+    public var moveSections: [(Int, Int)]? = []
     
     // fixed invalid data
-    func fix() {
+    internal func fix() {
         
          // if the section has been deleted, clear all data about that section
         deleteSections?.forEach { section in

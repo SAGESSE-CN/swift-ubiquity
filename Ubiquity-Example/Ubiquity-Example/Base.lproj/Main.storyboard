@@ -122,24 +122,27 @@
                                         <rect key="frame" x="0.0" y="111" width="343" height="104"/>
                                         <subviews>
                                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="CBB-Qu-ffu">
-                                                <rect key="frame" x="0.0" y="0.0" width="194.5" height="29"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="257.5" height="29"/>
                                                 <segments>
                                                     <segment title="Browser"/>
                                                     <segment title="Picker"/>
+                                                    <segment title="Editor"/>
                                                 </segments>
                                             </segmentedControl>
-                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="imp-PY-v9W">
-                                                <rect key="frame" x="0.0" y="38" width="194.5" height="29"/>
+                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="2" translatesAutoresizingMaskIntoConstraints="NO" id="imp-PY-v9W">
+                                                <rect key="frame" x="0.0" y="38" width="257.5" height="29"/>
                                                 <segments>
                                                     <segment title="Present"/>
                                                     <segment title="Push"/>
+                                                    <segment title="Popover"/>
                                                 </segments>
                                             </segmentedControl>
-                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="odp-eM-cln">
-                                                <rect key="frame" x="0.0" y="76" width="291.5" height="29"/>
+                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="2" translatesAutoresizingMaskIntoConstraints="NO" id="odp-eM-cln">
+                                                <rect key="frame" x="0.0" y="76" width="343" height="29"/>
                                                 <segments>
                                                     <segment title="Albums"/>
                                                     <segment title="Moments"/>
+                                                    <segment title="Recently"/>
                                                     <segment title="Custom"/>
                                                 </segments>
                                             </segmentedControl>
@@ -150,15 +153,12 @@
                                             <constraint firstItem="imp-PY-v9W" firstAttribute="leading" secondItem="lUc-hf-aVd" secondAttribute="leading" id="GEa-8u-1WZ"/>
                                             <constraint firstItem="CBB-Qu-ffu" firstAttribute="top" secondItem="lUc-hf-aVd" secondAttribute="top" id="GJE-40-A3Q"/>
                                             <constraint firstItem="CBB-Qu-ffu" firstAttribute="leading" secondItem="lUc-hf-aVd" secondAttribute="leading" id="IlQ-dI-47a"/>
-                                            <constraint firstItem="odp-eM-cln" firstAttribute="width" secondItem="lUc-hf-aVd" secondAttribute="width" multiplier="3/4" constant="34.375" id="W3b-iu-5L1"/>
-                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="odp-eM-cln" secondAttribute="trailing" constant="20" symbolic="YES" id="bNV-fk-PFC"/>
+                                            <constraint firstItem="odp-eM-cln" firstAttribute="width" secondItem="lUc-hf-aVd" secondAttribute="width" id="W3b-iu-5L1"/>
                                             <constraint firstAttribute="bottom" secondItem="odp-eM-cln" secondAttribute="bottom" id="esZ-6t-3lf"/>
-                                            <constraint firstItem="CBB-Qu-ffu" firstAttribute="width" secondItem="lUc-hf-aVd" secondAttribute="width" multiplier="1/2" constant="22.75" id="gWI-AP-Acj"/>
-                                            <constraint firstItem="imp-PY-v9W" firstAttribute="width" secondItem="lUc-hf-aVd" secondAttribute="width" multiplier="1/2" constant="22.75" id="u7S-KO-5YI"/>
-                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="imp-PY-v9W" secondAttribute="trailing" constant="20" symbolic="YES" id="vnb-xN-Hwf"/>
+                                            <constraint firstItem="CBB-Qu-ffu" firstAttribute="width" secondItem="lUc-hf-aVd" secondAttribute="width" multiplier="3/4" id="gWI-AP-Acj"/>
+                                            <constraint firstItem="imp-PY-v9W" firstAttribute="width" secondItem="lUc-hf-aVd" secondAttribute="width" multiplier="3/4" id="u7S-KO-5YI"/>
                                             <constraint firstItem="imp-PY-v9W" firstAttribute="top" secondItem="CBB-Qu-ffu" secondAttribute="bottom" constant="10" id="ws3-8F-m2K"/>
                                             <constraint firstItem="odp-eM-cln" firstAttribute="leading" secondItem="lUc-hf-aVd" secondAttribute="leading" id="xIQ-7n-kde"/>
-                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="CBB-Qu-ffu" secondAttribute="trailing" constant="20" symbolic="YES" id="ygF-ve-fhP"/>
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TOB-Xd-buL">

@@ -13,6 +13,8 @@ public enum ControllerType {
     case albums
     case albumsList
     
+    case popover
+    
     case detail
 }
 
@@ -51,39 +53,6 @@ internal class Factory {
     }
 
     private var _contents: Dictionary<String, AnyClass?> = [:]
-}
-
-internal class FactoryAlbums: Factory {
-    
-    override init(controller: Controller.Type = BrowserAlbumController.self, cell: UIView.Type = BrowserAlbumCell.self) {
-        super.init(controller: controller, cell: cell)
-        
-        // setup default
-        register(UIImageView.self, for: .audio)
-        register(UIImageView.self, for: .image)
-        register(UIImageView.self, for: .video)
-        register(UIImageView.self, for: .unknown)
-    }
-}
-
-internal class FactoryAlbumsList: Factory {
-    
-    override init(controller: Controller.Type = BrowserAlbumListController.self, cell: UIView.Type = BrowserAlbumListCell.self) {
-        super.init(controller: controller, cell: cell)
-    }
-}
-
-internal class FactoryDetail: Factory {
-    
-    override init(controller: Controller.Type = BrowserDetailController.self, cell: UIView.Type = BrowserDetailCell.self) {
-        super.init(controller: controller, cell: cell)
-        
-        // setup default
-        register(PhotoContentView.self, for: .audio)
-        register(PhotoContentView.self, for: .image)
-        register(VideoContentView.self, for: .video)
-        register(PhotoContentView.self, for: .unknown)
-    }
 }
 
 

@@ -34,11 +34,11 @@ import UIKit
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     weak var delegate: IndicatorViewDelegate?
@@ -301,7 +301,7 @@ import UIKit
         return size
     }
     
-    fileprivate func _setup() {
+    fileprivate func _configure() {
         //backgroundColor = .random
         
         _tilingView.delegate = self

@@ -63,11 +63,11 @@ import UIKit
 //    
 //    override init(frame: CGRect) {
 //        super.init(frame: frame)
-//        _setup()
+//        _configure()
 //    }
 //    required init?(coder aDecoder: NSCoder) {
 //        super.init(coder: aDecoder)
-//        _setup()
+//        _configure()
 //    }
 //    
 //    override func layoutSubviews() {
@@ -497,7 +497,7 @@ import UIKit
 //    }
 //    
 //    
-//    private func _setup() {
+//    private func _configure() {
 //        
 //        _collectionViewLayout.scrollDirection = .horizontal
 //        _collectionViewLayout.minimumLineSpacing = 0

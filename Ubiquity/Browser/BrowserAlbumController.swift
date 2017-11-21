@@ -116,7 +116,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         }
         
         // setup colleciton view
-        collectionView?.backgroundColor = .white
+        collectionView?.backgroundColor = view.backgroundColor
         collectionView?.alwaysBounceVertical = true
         collectionView?.register(NavigationHeaderView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "HEADER")
         

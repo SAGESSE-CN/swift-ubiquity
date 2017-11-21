@@ -12,11 +12,11 @@ internal class NavigationFooterView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     /// Displayed source
@@ -68,7 +68,7 @@ internal class NavigationFooterView: UIView {
     }
     
     // Init UI
-    private func _setup() {
+    private func _configure() {
         
         _titleLabel.font = UIFont.systemFont(ofSize: 17)
         _titleLabel.textColor = .black

@@ -31,11 +31,11 @@ import Ubiquity
 //    
 //    override init(frame: CGRect) {
 //        super.init(frame: frame)
-//        _setup()
+//        _configure()
 //    }
 //    required init?(coder aDecoder: NSCoder) {
 //        super.init(coder: aDecoder)
-//        _setup()
+//        _configure()
 //    }
 //    
 //    // MARK: Properties
@@ -84,7 +84,7 @@ import Ubiquity
 ////        let str = "\(rect)\n\(ceil(scale * 200) / 200)\n[\(row), \(column)]" as NSString
 ////        logger.debug?.write(rect.size)
 //    
-//    private func _setup() {
+//    private func _configure() {
 //        
 //        // configure tile
 //        tiledLayer.tileSize = tileSize.applying(.init(scaleX: contentScaleFactor, y: contentScaleFactor))

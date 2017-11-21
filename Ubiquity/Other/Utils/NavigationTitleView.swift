@@ -12,11 +12,11 @@ internal class NavigationTitleView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     var barStyle: UIBarStyle = .default {
@@ -104,7 +104,7 @@ internal class NavigationTitleView: UIView {
         _updateLayoutIfNeeded()
     }
     
-    private func _setup() {
+    private func _configure() {
         
         autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleTopMargin, .flexibleBottomMargin]
         

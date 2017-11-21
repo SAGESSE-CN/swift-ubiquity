@@ -52,11 +52,11 @@ internal class BadgeView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     var leftItem: BadgeItem? {
@@ -240,7 +240,7 @@ internal class BadgeView: UIView {
         }
     }
     
-    private func _setup() {
+    private func _configure() {
         
         register(BadgeItemTextView.self, forViewWithReuseIdentifier: "Text")
         register(BadgeItemImageView.self, forViewWithReuseIdentifier: "Image")

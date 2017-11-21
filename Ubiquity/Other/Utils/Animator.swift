@@ -215,7 +215,7 @@ extension Animator {
             self.animator = animator
             self.containerView = SnapshotContainerView()
             super.init(frame: .zero)
-            _setup()
+            _configure()
         }
         required init?(coder aDecoder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
@@ -224,7 +224,7 @@ extension Animator {
             return SnapshotLayer.self
         }
         
-        private func _setup() {
+        private func _configure() {
             // config
             containerView.clipsToBounds = true
             containerView.backgroundColor = .clear

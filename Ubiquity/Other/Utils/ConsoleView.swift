@@ -144,11 +144,11 @@ internal class ConsoleView: UIControl {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     override var isSelected: Bool {
@@ -208,7 +208,7 @@ internal class ConsoleView: UIControl {
         return super.point(inside: point, with: event)
     }
     
-    private func _setup() {
+    private func _configure() {
         
         let image = ub_image(named: "ubiquity_button_play")
         
@@ -264,11 +264,11 @@ internal class ConsoleVideoButton: UIControl {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -283,7 +283,7 @@ internal class ConsoleVideoButton: UIControl {
         _imageView.sizeToFit()
         _foregroundView.image = image
     }
-    private func _setup() {
+    private func _configure() {
         
         _imageView.alpha = 0.3
         _imageView.isUserInteractionEnabled = false
@@ -321,11 +321,11 @@ internal class ConsoleVideoBackgroundView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     var image: UIImage? {
@@ -357,7 +357,7 @@ internal class ConsoleVideoBackgroundView: UIView {
         context.clear(rect)
     }
     
-    private func _setup() {
+    private func _configure() {
         super.backgroundColor = .clear
     }
     

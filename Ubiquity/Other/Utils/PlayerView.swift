@@ -75,7 +75,7 @@ internal class PlayerView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -320,7 +320,7 @@ internal extension PlayerView {
     }
     
     /// setup env
-    fileprivate func _setup() {
+    fileprivate func _configure() {
         
         let center = NotificationCenter.default
         

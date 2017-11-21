@@ -13,11 +13,11 @@ internal class DisplayView: UIView, Displayable {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     ///
@@ -81,7 +81,7 @@ internal class DisplayView: UIView, Displayable {
         _contentView.addSubview(view)
     }
     
-    private func _setup() {
+    private func _configure() {
         
         // setup content view
         _contentView.frame = bounds

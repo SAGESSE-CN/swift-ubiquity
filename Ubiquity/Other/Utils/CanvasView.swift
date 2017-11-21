@@ -44,6 +44,15 @@ import UIKit
 
 @objc internal class CanvasView: UIView {
     
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        _configure()
+    }
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        _configure()
+    }
+    
     public weak var delegate: CanvasViewDelegate?
     
     /// default CGPointZero
@@ -209,6 +218,34 @@ import UIKit
 //        _containerView.layoutIfNeeded()
 //    }
     
+    
+    override func addSubview(_ view: UIView) {
+        // always allows add to self
+        _containerView.addSubview(view)
+    }
+    
+    // update subview layout
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        // size is change?
+        if _bounds?.size != bounds.size {
+            _containerView.frame = bounds
+            
+            _updateScale(true)
+            _updateOffset(true)
+            
+            // offset needs for mapping, it is necessary to update the bounds after updating the offset
+            _bounds = bounds
+            
+            // need to notice delegate when update the bounds
+            scrollViewDidScroll(_containerView)
+        }
+    }
+    override func forwardingTarget(for aSelector: Selector!) -> Any? {
+        return _containerView
+    }
+    
     /// get content with orientation
     fileprivate func _contentSize(for orientation: UIImageOrientation) -> CGSize {
         if _isLandscape(for: orientation) {
@@ -250,6 +287,8 @@ import UIKit
             zoomScale = minimumZoomScale // min
         }
         
+        logger.trace?.write("size: \(size), scale: \(zoomScale)/\(minimumZoomScale)/\(maximumZoomScale)")
+        
         // update zoome sacle
         _containerView.minimumZoomScale = minimumZoomScale
         _containerView.maximumZoomScale = maximumZoomScale
@@ -273,7 +312,32 @@ import UIKit
             return CGPoint(x: x, y: y)
         }()
     }
+    
+    fileprivate func _configure() {
+        
+        clipsToBounds = true
+        
+        _containerView.frame = bounds
+        _containerView.delegate = self
+        _containerView.clipsToBounds = false
+        _containerView.delaysContentTouches = false
+        _containerView.canCancelContentTouches = false
+        _containerView.showsVerticalScrollIndicator = false
+        _containerView.showsHorizontalScrollIndicator = false
+        //_containerView.alwaysBounceVertical = true
+        //_containerView.alwaysBounceHorizontal = true
 
+        // In iOS11, the default adjustment behavior need closed
+        if #available(iOS 11.0, *) {
+            _containerView.contentInsetAdjustmentBehavior = .never
+        }
+        
+        _rotationGestureRecognizer.delegate = self
+        
+        super.addSubview(_containerView)
+        super.addGestureRecognizer(_rotationGestureRecognizer)
+    }
+    
     fileprivate var _bounds: CGRect?
     fileprivate var _targetOffset: CGPoint?
     fileprivate var _isRotationing: Bool = false
@@ -290,45 +354,10 @@ import UIKit
     fileprivate lazy var _containerView: CanvasContainerView = CanvasContainerView()
     
     fileprivate lazy var _rotationGestureRecognizer: UIRotationGestureRecognizer = UIRotationGestureRecognizer(target: self, action: #selector(rotationHandler(_:)))
-    
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        _commonInit()
-    }
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        _commonInit()
-    }
 }
 
 extension CanvasView {
     
-    fileprivate func _commonInit() {
-        
-        clipsToBounds = true
-        
-        // In iOS11, the default adjustment behavior need closed
-        if #available(iOS 11.0, *) {
-            _containerView.contentInsetAdjustmentBehavior = .never
-        }
-        
-        _containerView.frame = bounds
-        _containerView.delegate = self
-        _containerView.clipsToBounds = false
-        _containerView.delaysContentTouches = false
-        _containerView.canCancelContentTouches = false
-        _containerView.showsVerticalScrollIndicator = false
-        _containerView.showsHorizontalScrollIndicator = false
-        //_containerView.alwaysBounceVertical = true
-        //_containerView.alwaysBounceHorizontal = true
-        
-        _rotationGestureRecognizer.delegate = self
-        
-        super.addSubview(_containerView)
-        super.addGestureRecognizer(_rotationGestureRecognizer)
-    }
-
     /// convert orientation to angle
     fileprivate func _angle(for orientation: UIImageOrientation) -> CGFloat {
         switch orientation {
@@ -449,33 +478,7 @@ extension CanvasView {
             self.delegate?.canvasViewDidEndRotationing?(self, with: self._contentView, atOrientation: self._orientation)
         }
     }
-    
-    override func addSubview(_ view: UIView) {
-        // always allows add to self
-        _containerView.addSubview(view)
-    }
-    
-    // update subview layout
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        // size is change?
-        if _bounds?.size != bounds.size {
-            _containerView.frame = bounds
-            
-            _updateScale(true)
-            _updateOffset(true)
-            
-            // offset needs for mapping, it is necessary to update the bounds after updating the offset
-            _bounds = bounds
-            
-            // need to notice delegate when update the bounds
-            scrollViewDidScroll(_containerView)
-        }
-    }
-    override func forwardingTarget(for aSelector: Selector!) -> Any? {
-        return _containerView
-    }
+
 }
 
 ///

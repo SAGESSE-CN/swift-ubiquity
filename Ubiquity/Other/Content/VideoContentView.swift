@@ -14,11 +14,11 @@ internal class VideoContentView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     weak var delegate: AnyObject? {
@@ -27,7 +27,7 @@ internal class VideoContentView: UIView {
         }
     }
     
-    private func _setup() {
+    private func _configure() {
         
         // setup thumb view
         _thumbView.frame = bounds

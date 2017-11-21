@@ -21,7 +21,7 @@ internal class ExceptionView: UIView, ExceptionDisplayable {
         super.init(frame: .zero)
         
         // init UI
-        _setup()
+        _configure()
         
         guard let error = error as? Exception else {
             return
@@ -54,7 +54,7 @@ internal class ExceptionView: UIView, ExceptionDisplayable {
         get { return _subtitleLabel.text }
     }
     
-    private func _setup() {
+    private func _configure() {
         
         let view = UIView()
         
@@ -110,12 +110,12 @@ internal class ExceptionContainerView: UIView, UIGestureRecognizerDelegate {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         
-        _setup()
+        _configure()
     }
     
     /// Marks the currently actived version
@@ -179,7 +179,7 @@ internal class ExceptionContainerView: UIView, UIGestureRecognizerDelegate {
         }
     }
     
-    private func _setup() {
+    private func _configure() {
         
         // adds a pan gesture recognizer to intercept UIScrollView pan events
         let tap = UIPanGestureRecognizer()

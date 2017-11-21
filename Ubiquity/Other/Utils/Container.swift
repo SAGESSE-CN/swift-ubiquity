@@ -236,23 +236,45 @@ import UIKit
             return factory
         }
         
+        let factory: Factory
+        
         // create factory
         switch page {
-        case .albums:
-            let factory = FactoryAlbums()
-            _factorys[page] = factory
-            return factory
-            
         case .albumsList:
-            let factory = FactoryAlbumsList()
-            _factorys[page] = factory
-            return factory
+            factory = Factory(controller: BrowserAlbumListController.self, cell: BrowserAlbumListCell.self)
+
+        case .albums:
+            factory = Factory(controller: BrowserAlbumController.self, cell: BrowserAlbumCell.self)
             
+            // setup default
+            factory.register(UIImageView.self, for: .audio)
+            factory.register(UIImageView.self, for: .image)
+            factory.register(UIImageView.self, for: .video)
+            factory.register(UIImageView.self, for: .unknown)
+            
+        case .popover:
+            factory = Factory(controller: BrowserPopoverController.self, cell: BrowserAlbumCell.self)
+            
+            // setup default
+            factory.register(UIImageView.self, for: .audio)
+            factory.register(UIImageView.self, for: .image)
+            factory.register(UIImageView.self, for: .video)
+            factory.register(UIImageView.self, for: .unknown)
+
         case .detail:
-            let factory = FactoryDetail()
-            _factorys[page] = factory
-            return factory
+            factory = Factory(controller: BrowserDetailController.self, cell: BrowserDetailCell.self)
+            
+            // setup default
+            factory.register(PhotoContentView.self, for: .audio)
+            factory.register(PhotoContentView.self, for: .image)
+            factory.register(VideoContentView.self, for: .video)
+            factory.register(PhotoContentView.self, for: .unknown)
         }
+        
+        // cache
+        _factorys[page] = factory
+        
+        return factory
     }
     
     /// Generate a exception display page

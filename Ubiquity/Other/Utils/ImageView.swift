@@ -20,11 +20,11 @@ internal class ImageTiledView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     var image: Image? {
@@ -122,7 +122,7 @@ internal class ImageTiledView: UIView {
         _cachedLayer?.tileSize = newSize
     }
     
-    private func _setup() {
+    private func _configure() {
         
         // update cache info
         _cachedLayer = layer as? ImageTiledLayer

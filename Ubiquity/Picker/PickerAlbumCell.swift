@@ -12,12 +12,12 @@ internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     /// Will display the asset
@@ -102,7 +102,7 @@ internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
     }
     
     // Init UI
-    private func _setup() {
+    private func _configure() {
         
         // setup selected view
         _selectedView.frame = .init(x: bounds.width - _inset.right - 24, y: _inset.top, width: 24, height: 24)

@@ -114,11 +114,11 @@ class ScrubberView: UIView {
     
     init(frame: CGRect, duration: TimeInterval) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     deinit {
         // must manually clear
@@ -218,7 +218,7 @@ class ScrubberView: UIView {
     }
     
     
-    private func _setup() {
+    private func _configure() {
         
         _indicatorView.frame = .init(x: 0, y: 0, width: frame.height / 2, height: frame.height)
         _indicatorView.backgroundColor = .init(white: 1, alpha: 0.5)
@@ -270,11 +270,11 @@ class ScrubberIndicatorView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     var text: String? {
@@ -290,7 +290,7 @@ class ScrubberIndicatorView: UIView {
         _label.center = .init(x: bounds.midX, y: bounds.minY - _label.bounds.midY - 5)
     }
     
-    private func _setup() {
+    private func _configure() {
         
         _line.backgroundColor = UIColor(red: 0.25, green: 0.51, blue: 0.75, alpha: 1).cgColor
         layer.addSublayer(_line)

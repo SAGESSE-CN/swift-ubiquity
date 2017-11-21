@@ -19,11 +19,11 @@ internal class ThumbView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     override func layoutSubviews() {
@@ -69,7 +69,7 @@ internal class ThumbView: UIView {
         }
     }
     
-    private func _setup() {
+    private func _configure() {
         
         // setup layer
         (0 ..< 3).forEach { index in

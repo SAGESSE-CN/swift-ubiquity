@@ -12,11 +12,11 @@ internal class BrowserDetailCell: UICollectionViewCell, Displayable {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     deinit {
         // if the cell is displaying, hidden after then destroyed
@@ -93,7 +93,7 @@ internal class BrowserDetailCell: UICollectionViewCell, Displayable {
         _console?.center = _consoleCenter
     }
     
-    private func _setup() {
+    private func _configure() {
         
         // make detail & container view
         _detailView = (type(of: self).contentViewClass as? UIView.Type)?.init()

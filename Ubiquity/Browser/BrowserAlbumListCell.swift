@@ -12,11 +12,11 @@ internal class BrowserAlbumListCell: UITableViewCell {
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     /// Will display the collection
@@ -102,7 +102,7 @@ internal class BrowserAlbumListCell: UITableViewCell {
         _thumbView.images = images
     }
     
-    private func _setup() {
+    private func _configure() {
         
         // setup thumb
         _thumbView.frame = .init(x: 0, y: 0, width: 70, height: 70)

@@ -12,12 +12,12 @@ internal class NavigationHeaderView: UICollectionReusableView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     weak var parent: NavigationHeaderView?
@@ -81,12 +81,17 @@ internal class NavigationHeaderView: UICollectionReusableView {
             }
             
             // update subheader
-            _headers.forEach { key, value in
-                guard key < newValue?.numberOfCollections ?? 0 else {
-                    value._updateCollection(nil)
-                    return
+            let headers = _headers.values
+            _headers = [:]
+            headers.forEach { header in
+                header.section.map {
+                    _headers[$0] = header
+                    guard $0 < newValue?.numberOfCollections ?? 0 else {
+                        header._updateCollection(nil)
+                        return
+                    }
+                    header._updateCollection(newValue?.collection(at: $0))
                 }
-                value._updateCollection(newValue?.collection(at: key))
             }
         }
     }
@@ -200,7 +205,7 @@ internal class NavigationHeaderView: UICollectionReusableView {
         }
     }
     
-    private func _setup() {
+    private func _configure() {
         
         // setup title
         _titleLabel.font = .systemFont(ofSize: 15)

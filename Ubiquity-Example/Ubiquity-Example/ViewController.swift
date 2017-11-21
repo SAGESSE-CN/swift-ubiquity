@@ -15,7 +15,7 @@ import UIKit
 
 //import WebKit
 
-class ViewController: UIViewController, Ubiquity.PickerDelegate {
+class ViewController: UIViewController, Ubiquity.PickerDelegate, UIPopoverPresentationControllerDelegate {
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -81,7 +81,9 @@ class ViewController: UIViewController, Ubiquity.PickerDelegate {
             controller = container.instantiateViewController(with: .albums, source: .init(collectionType: .moment))
             //controller = container.instantiateViewController(with: .albums, source: .init(collectionTypes: [.moment, .regular, .recentlyAdded]))
             //controller = container.instantiateViewController(with: .albums, source: .init(collectionType: .regular, filter: { $0.offset == 0 }))
-
+            
+        case 2: // recently
+            controller = container.instantiateViewController(with: .popover, source: .init(collectionType: .recentlyAdded))
             
         default:
             controller = container.instantiateViewController(with: .albums, source: .init(collectionType: .regular, filter: { (offset, collection) in
@@ -95,10 +97,23 @@ class ViewController: UIViewController, Ubiquity.PickerDelegate {
             controller.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(cancel(_:)))
             present(controller, animated: true, completion: nil)
 
-        default:
+        case 1:
             navigationItem.backBarButtonItem = UIBarButtonItem(title: "Back", style: .done, target: nil, action: nil)
             show(controller, sender: nil)
+
+        default:
+           
+            controller.preferredContentSize = .init(width: view.frame.width, height: 160)
+            controller.modalPresentationStyle = .popover
+            controller.popoverPresentationController?.barButtonItem = self.navigationItem.rightBarButtonItem
+            controller.popoverPresentationController?.delegate = self
+            
+            present(controller, animated: true, completion: nil)
         }
+    }
+    
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return .none
     }
 
     func picker(_ picker: Picker, shouldSelectItem asset: Asset) -> Bool {

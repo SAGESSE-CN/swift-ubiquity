@@ -183,11 +183,11 @@ internal class ProgressView: UIControl {
    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     var fillColor: UIColor? {
@@ -252,7 +252,7 @@ internal class ProgressView: UIControl {
         return ProgressLayer.self
     }
     
-    private func _setup() {
+    private func _configure() {
         
         backgroundColor = .clear
         
@@ -272,15 +272,15 @@ internal class ProgressLayer: CAShapeLayer {
     
     override init() {
         super.init()
-        _setup()
+        _configure()
     }
     override init(layer: Any) {
         super.init(layer: layer)
-        _setup()
+        _configure()
     }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _setup()
+        _configure()
     }
     
     @NSManaged var radius: CGFloat
@@ -403,7 +403,7 @@ internal class ProgressLayer: CAShapeLayer {
         return _cacheIconPath!
     }
     
-    private func _setup() {
+    private func _configure() {
         
         lineCap = kCALineCapRound
         lineJoin = kCALineJoinRound

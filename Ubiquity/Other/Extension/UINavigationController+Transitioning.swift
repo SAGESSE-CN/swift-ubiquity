@@ -87,6 +87,9 @@ extension UIViewController {
         guard viewControllerToPresent.ub_warp else {
             return ub_present(viewControllerToPresent, animated: animated, completion: completion)
         }
+        guard viewControllerToPresent.modalPresentationStyle != .popover else {
+            return ub_present(viewControllerToPresent, animated: animated, completion: completion)
+        }
         
         // generate a navgation controller
         let navgationController = NavigationController(rootViewController: viewControllerToPresent)

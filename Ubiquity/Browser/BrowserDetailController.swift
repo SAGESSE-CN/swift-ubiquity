@@ -96,6 +96,11 @@ internal class BrowserDetailController: UICollectionViewController, Controller, 
         collectionView?.allowsSelection = false
         collectionView?.backgroundColor = .white
         
+        // in the iOS11 if there is no disable adjustment, `scrollToItem(at:, at:, animated:)` will location to a wrong position
+        if #available(iOS 11.0, *) {
+            collectionView?.contentInsetAdjustmentBehavior = .never
+        }
+        
         // must set up an empty view
         // otherwise in the performBatchUpdates header/footer create failure led to the crash
         collectionView?.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "HEADER")

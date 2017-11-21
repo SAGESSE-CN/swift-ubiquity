@@ -39,6 +39,6 @@ internal protocol SelectionStatusUpdateDelegate: class {
 
 internal protocol ContainerOptionsDelegate: class {
     
-    func container(_ container: Container, options: String, didChange value: Any?)
+    func ub_container(_ container: Container, options: String, didChange value: Any?)
 }
 

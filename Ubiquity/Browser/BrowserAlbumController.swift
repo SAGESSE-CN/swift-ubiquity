@@ -9,55 +9,30 @@
 import UIKit
 
 /// the asset list in album
-internal class BrowserAlbumController: UICollectionViewController, Controller, ExceptionHandling, ChangeObserver, TransitioningDataSource, DetailControllerItemUpdateDelegate, UICollectionViewDelegateFlowLayout {
+internal class BrowserAlbumController: SourceController, Controller, DetailControllerItemUpdateDelegate, UICollectionViewDelegateFlowLayout {
     
     required init(container: Container, source: Source, sender: Any?) {
-        // setup init data
-        self.source = source
-        self.container = container
+        super.init(container: container, source: source, factory: container.factory(with: .albums))
         
-        // continue init the UI
-        super.init(collectionViewLayout: BrowserAlbumLayout())
-        
-        // if not configure title
-        // the title will follow data source change
-        super.title = source.title
-        
-        // if the navigation bar disable translucent will have an error offset, enabled `extendedLayoutIncludesOpaqueBars` can solve the problem 
+        // if the navigation bar disable translucent will have an error offset, enabled `extendedLayoutIncludesOpaqueBars` can solve the problem
         self.extendedLayoutIncludesOpaqueBars = true
         self.automaticallyAdjustsScrollViewInsets = true
-        
-        // add change observer for library
-        self.container.addChangeObserver(self)
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    deinit {
-        // clear all cache request when destroyed
-        _clearCachingAssets()
-        
-        // cancel listen change
-        container.removeChangeObserver(self)
-    }
-    
-    override var title: String? {
-        willSet {
-            _cachedTitle = newValue
-        }
-    }
-    
     /// Specifies whether the view controller prefers the header view to be hidden or shown.
-    open var prefersHeaderViewHidden: Bool {
+    var prefersHeaderViewHidden: Bool {
         return !source.collectionTypes.contains(.moment)
     }
     
     /// Specifies whether the view controller prefers the footer view to be hidden or shown.
-    open var prefersFooterViewHidden: Bool {
+    var prefersFooterViewHidden: Bool {
         return false
     }
+    
     
     override func loadView() {
         super.loadView()
@@ -65,11 +40,8 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         // the collectionView must king of `BrowserAlbumView`
         object_setClass(collectionView, BrowserAlbumView.self)
         
-        // setup controller
-        view.backgroundColor = .white
-        
-        // setup next page back item
-        navigationItem.backBarButtonItem = UIBarButtonItem(title: "Back", style: .done, target: nil, action: nil)
+        collectionView?.alwaysBounceVertical = true
+        collectionView?.register(NavigationHeaderView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "HEADER")
         
         // the header view is enabled?
         if !prefersHeaderViewHidden {
@@ -114,32 +86,8 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
             // link to screen
             _footerView = footerView
         }
-        
-        // setup colleciton view
-        collectionView?.backgroundColor = view.backgroundColor
-        collectionView?.alwaysBounceVertical = true
-        collectionView?.register(NavigationHeaderView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "HEADER")
-        
-        // fetch all register cell for albums.
-        container.factory(with: .albums).contents.forEach {
-            // forward to collection view
-            collectionView?.register($1, forCellWithReuseIdentifier: $0)
-        }
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        // delay exec, order to prevent the view not initialized
-        DispatchQueue.main.async {
-            // initialize controller with container and source
-            self.ub_initialize(with: self.container, source: self.source)
-        }
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
@@ -150,7 +98,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
             return
         }
         
-      // update view
+        // update view
         _updateFooterView()
         _updateHeaderView()
         
@@ -158,71 +106,11 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         _cachedSize = size
     }
     
-    // MARK: Collection View Scroll
-    
-    /// The collectionView did scroll
-    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        // the library is prepared?
-        guard prepared else {
-            return
-        }
-        
-        // if isTracking is true, is a draging
-        if scrollView.isTracking {
-            // on draging, update target content offset
-           _targetContentOffset = scrollView.contentOffset
-        }
-        
-        // update all for content offset did change
-        _updateHeaderView()
-        _updateCachingAssets()
-    }
-    
-    /// The scroll view can scroll to top?
-    override func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
-        // update target content offset
-        _targetContentOffset = .init(x: -scrollView.contentInset.left, y: -scrollView.contentInset.top)
-        
-        // if transitions animation is started, can't scroll
-        return !transitioning
-    }
-    
-    override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        // update target content offset
-        _targetContentOffset = scrollView.contentOffset
-    }
-    
-    override func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        // update target content offset
-        _targetContentOffset = targetContentOffset.move()
-    }
-    
     // MARK: Collection View Configure
     
-    /// Returns the section numbers
-    override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        // without authorization, shows blank
-        guard authorized else {
-            return 0
-        }
-        return source.numberOfCollections
-    }
-    
-    /// Return the items number in section
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // without authorization, shows blank
-        guard authorized else {
-            return 0
-        }
-        return source.numberOfAssets(inCollection: section)
-    }
-    
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        // generate the reuse identifier
-        let type = source.asset(at: indexPath)?.ub_type ?? .unknown
-        
-        // generate cell for media type
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ub_identifier(with: type), for: indexPath)
+        // generate the cell for indexPath
+        let cell = super.collectionView(collectionView, cellForItemAt: indexPath)
         
         // the zPosition of cell must be below header view
         cell.layer.zPosition = -1
@@ -240,13 +128,25 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         return view
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        // collectionViewLayout must king of `UICollectionViewFlowLayout`
-        guard let collectionViewLayout = collectionViewLayout as? UICollectionViewFlowLayout else {
-            return .zero
+    override func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
+        // the view must king of `NavigationHeaderView`
+        guard let view = view as? NavigationHeaderView else {
+            return
         }
-       
-        return collectionViewLayout.itemSize
+        
+        // update data
+        view.parent = _headerView
+        view.section = indexPath.section
+    }
+    override func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
+        // the view must king of `NavigationHeaderView`
+        guard let view = view as? NavigationHeaderView else {
+            return
+        }
+        
+        // clear data
+        view.parent = nil
+        view.section = nil
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
@@ -255,7 +155,7 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
             return .zero
         }
         var edg = UIEdgeInsets(top: collectionViewLayout.minimumLineSpacing, left: 0, bottom: 0, right: 0)
-
+        
         if #available(iOS 11.0, *) {
             edg.left = collectionView.safeAreaInsets.left
             edg.right = collectionView.safeAreaInsets.right
@@ -295,46 +195,6 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         return .init(width: 0, height: 48)
     }
     
-    override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        // the cell must king of `Displayable`
-        guard let displayer = cell as? Displayable, let asset = source.asset(at: indexPath), prepared else {
-            return
-        }
-        
-        // show asset with container and orientation
-        displayer.willDisplay(with: asset, container: container, orientation: .up)
-    }
-    
-    override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        // the cell must king of `Displayable`
-        guard let displayer = cell as? Displayable, prepared else {
-            return
-        }
-        
-        displayer.endDisplay(with: container)
-    }
-    
-    override func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
-        // the view must king of `NavigationHeaderView`
-        guard let view = view as? NavigationHeaderView else {
-            return
-        }
-        
-        // update data
-        view.parent = _headerView
-        view.section = indexPath.section
-    }
-    override func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
-        // the view must king of `NavigationHeaderView`
-        guard let view = view as? NavigationHeaderView else {
-            return
-        }
-        
-        // clear data
-        view.parent = nil
-        view.section = nil
-    }
-    
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         logger.debug?.write("show detail with: \(indexPath)")
         
@@ -352,10 +212,53 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         show(controller, sender: indexPath)
     }
     
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        super.scrollViewDidScroll(scrollView)
+        
+        // the library is prepared?
+        guard prepared else {
+            return
+        }
+        _updateHeaderView()
+    }
+    
+    override func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
+        // must call the parent class for caching
+        _ = super.scrollViewShouldScrollToTop(scrollView)
+        
+        // if transitions animation is started, can't scroll
+        return !_transitioning
+        
+    }
+    
+    // MARK: Detail Display Notification
+    
+    /// Display item will change
+    func detailController(_ detailController: Any, willShowItem indexPath: IndexPath) {
+        // if is, this suggests that are displaying
+        if collectionView?.indexPathsForVisibleItems.contains(indexPath) ?? false {
+            return
+        }
+        logger.debug?.write("over screen, scroll to \(indexPath)")
+        
+        // the indexPath is valid?
+        guard indexPath.section < source.numberOfCollections && indexPath.item < source.numberOfAssets(inCollection: indexPath.section) else {
+            return
+        }
+        
+        // no displaying, scroll to item
+        collectionView?.scrollToItem(at: indexPath, at: .centeredVertically, animated: false)
+        collectionView?.layoutIfNeeded()
+    }
+    
+    /// Display item did change
+    func detailController(_ detailController: Any, didShowItem indexPath: IndexPath) {
+    }
+    
     // MARK: Animatable Transitioning
     
     /// Returns transitioning view.
-    func ub_transitionView(using animator: Animator, for operation: Animator.Operation) -> TransitioningView? {
+    override func ub_transitionView(using animator: Animator, for operation: Animator.Operation) -> TransitioningView? {
         // the indexPath must be set
         guard let indexPath = animator.indexPath else {
             return nil
@@ -367,19 +270,19 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
     }
     
     /// Return a Boolean value that indicates whether users allows transition.
-    func ub_transitionShouldStart(using animator: Animator, for operation: Animator.Operation) -> Bool {
-        logger.trace?.write()
+    override func ub_transitionShouldStart(using animator: Animator, for operation: Animator.Operation) -> Bool {
         return true
     }
     
     /// Return A Boolean value that indicates whether users allows interactive animation transition.
-    func ub_transitionShouldStartInteractive(using animator: Animator, for operation: Animator.Operation) -> Bool {
-        logger.trace?.write()
-        return false
+    override func ub_transitionShouldStartInteractive(using animator: Animator, for operation: Animator.Operation) -> Bool {
+        return super.ub_transitionShouldStartInteractive(using: animator, for: operation)
     }
     
     /// Transitions the context has been prepared.
-    func ub_transitionDidPrepare(using animator: Animator, context: TransitioningContext) {
+    override func ub_transitionDidPrepare(using animator: Animator, context: TransitioningContext) {
+        super.ub_transitionDidPrepare(using: animator, context: context)
+        
         // the indexPath & collectionView must be set
         guard let collectionView = collectionView, let indexPath = animator.indexPath  else {
             return
@@ -420,11 +323,13 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         cell.isHidden = true
         
         // current transitions animation is started
-        transitioning = true
+        _transitioning = true
     }
     
     /// Transitions the animation will end.
-    func ub_transitionWillEnd(using animator: Animator, context: TransitioningContext, transitionCompleted: Bool) {
+    override func ub_transitionWillEnd(using animator: Animator, context: TransitioningContext, transitionCompleted: Bool) {
+        super.ub_transitionWillEnd(using: animator, context: context, transitionCompleted: transitionCompleted)
+        
         // the indexPath must be set & only process for disappear
         guard let indexPath = animator.indexPath, context.ub_operation.disappear else {
             return
@@ -456,7 +361,9 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
     }
     
     /// Transitions the animation has been end.
-    func ub_transitionDidEnd(using animator: Animator, transitionCompleted: Bool) {
+    override func ub_transitionDidEnd(using animator: Animator, transitionCompleted: Bool) {
+        super.ub_transitionDidEnd(using: animator, transitionCompleted: transitionCompleted)
+        
         // the cell must exist, otherwise it is not show
         guard let indexPath = animator.indexPath, let cell = collectionView?.cellForItem(at: indexPath) else {
             return
@@ -467,339 +374,51 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         cell.isHidden = false
         
         // current transitions animation is end
-        transitioning = false
+        _transitioning = false
     }
+    
     
     // MARK: Library Change Notification
     
-    /// Tells your observer that a set of changes has occurred in the Photos library.
-    func library(_ library: Library, didChange change: Change) {
-        // if the library no authorized, ignore all change
-        guard authorized else {
-            return
-        }
-        // fetch the source change
-        guard let details = source.changeDetails(forAssets: change) else {
-            return // no change
-        }
-        logger.trace?.write()
+    override func ub_library(_ library: Library, didChange change: Change, source: Source, changeDetails: SourceChangeDetails) {
+        // must update header & footer before update the data source.
+        _headerView?.source = source
+        _footerView?.source = source
         
-        // change notifications may be made on a background queue.
-        // re-dispatch to the main queue to update the UI.
-        DispatchQueue.main.async {
-            // progressing
-            self.library(library, didChange: change, details: details)
-        }
-    }
-    
-    /// Tells your observer that a set of changes has occurred in the Photos library.
-    func library(_ library: Library, didChange change: Change, details: SourceChangeDetails) {
-        // collectionView must be set
-        guard let collectionView = collectionView, let newSource = details.after else {
-            return
-        }
-        // keep the new fetch result for future use.
-        let oldSource = self.source
-        source = newSource
+        super.ub_library(library, didChange: change, source: source, changeDetails: changeDetails)
         
-        // source did change, must update header cache
-        defer {
-            _updateHeaderView()
-        }
-        
-        // update collection asset count change
-        guard newSource.numberOfAssets != 0 else {
-            // new data source is empty, reload all data and reset error info
-            self.ub_execption(with: container, source: newSource, error: Exception.notData, animated: true)
-            self.collectionView?.reloadData()
-            return
-        }
-        
-        // the library is prepared
-        self.prepared = true
-        self.ub_execption(with: container, source: newSource, error: nil, animated: true)
-        
-        // the old source is empty?
-        guard oldSource.numberOfAssets != 0 else {
-            // old source is empty, reload all data
-            self.collectionView?.reloadData()
-            return
-        }
-        
-        // the aset has any change?
-        guard details.hasItemChanges else {
-            return
-        }
-        
-        // whether the change will support incremental updating?
-        guard details.hasIncrementalChanges else {
-            // does not support, forced to update all the data
-            self.collectionView?.reloadData()
-            return
-        }
-
-        // update collection
-        collectionView.performBatchUpdates({
-            
-            // For indexes to make sense, updates must be in this order:
-            // delete, insert, reload, move
-            
-            details.deleteSections.map { collectionView.deleteSections($0) }
-            details.insertSections.map { collectionView.insertSections($0) }
-            details.reloadSections.map { collectionView.reloadSections($0) }
-            
-            details.moveSections?.forEach { from, to in
-                collectionView.moveSection(from, toSection: to)
-            }
-            
-            details.removeItems.map { collectionView.deleteItems(at: $0) }
-            details.insertItems.map { collectionView.insertItems(at: $0) }
-            details.reloadItems.map { collectionView.reloadItems(at: $0) }
-            
-            details.moveItems?.forEach { from, to in
-                collectionView.moveItem(at: from, to: to)
-            }
-            
-        }, completion: nil)
-    }
-    
-    // MARK: Extended
-    
-    /// Call before request authorization
-    open func container(_ container: Container, willAuthorization source: Source) {
-        logger.trace?.write()
-    }
-    
-    /// Call after completion of request authorization
-    open func container(_ container: Container, didAuthorization source: Source, error: Error?) {
-        // the error message has been processed by the ExceptionHandling
-        guard error == nil else {
-            return
-        }
-        logger.trace?.write(error ?? "")
-        
-        // the library authorized successed
-        authorized = true
-    }
-    
-    /// Call before request load
-    open func container(_ container: Container, willLoad source: Source) {
-        logger.trace?.write()
-    }
-    
-    /// Call after completion of load
-    open func container(_ container: Container, didLoad source: Source, error: Error?) {
-        // the error message has been processed by the ExceptionHandling
-        guard let collectionView = collectionView, error == nil else {
-            return
-        }
-        logger.trace?.write(error ?? "")
-        
-        // check for assets count
-        guard source.numberOfAssets != 0 else {
-            // count is zero, no data
-            ub_execption(with: container, source: source, error: Exception.notData, animated: true)
-            return
-        }
-        
-        // refresh UI
-        self.source = source
-        self.collectionView?.reloadData()
-        
-        // scroll after update footer
+        // update header & footer layout
+        _updateHeaderView()
         _updateFooterView()
-        
-        // scroll to init position if needed
-        if source.collectionSubtypes.contains(.smartAlbumUserLibrary) || source.collectionTypes.contains(.moment) {
-            // if the contentOffset over boundary
-            let size = collectionViewLayout.collectionViewContentSize
-            let bottom = collectionView.contentInset.bottom - _footerViewInset.bottom
-            
-            // reset vaild contentOffset in collectionView internal
-            collectionView.contentOffset.y = size.height - (collectionView.frame.height - bottom)
-        }
-        
-        // the library is prepared
-        prepared = true
-        
-        _targetContentOffset = collectionView.contentOffset
-        
-        // update content offset
-        scrollViewDidScroll(collectionView)
     }
     
-    // MARK: Detail Display Notification
+    // MARK: Contents Loading
     
-    /// Display item will change
-    func detailController(_ detailController: Any, willShowItem indexPath: IndexPath) {
-        // if is, this suggests that are displaying
-        if collectionView?.indexPathsForVisibleItems.contains(indexPath) ?? false {
-            return
-        }
-        logger.debug?.write("over screen, scroll to \(indexPath)")
+    override func ub_container(_ container: Container, willPrepare source: Source) {
+        super.ub_container(container, willPrepare: source)
         
-        // the indexPath is valid?
-        guard indexPath.section < source.numberOfCollections && indexPath.item < source.numberOfAssets(inCollection: indexPath.section) else {
-            return
+        //
+        collectionView.map {
+            // update header view & footer view
+            _headerView?.source = source
+            _footerView?.source = source
+            
+            // scroll after update footer
+            _updateFooterView()
+            
+            // scroll to init position if needed
+            if source.collectionSubtypes.contains(.smartAlbumUserLibrary) || source.collectionTypes.contains(.moment) {
+                // if the contentOffset over boundary
+                let size = collectionViewLayout.collectionViewContentSize
+                let bottom = $0.contentInset.bottom - _footerViewInset.bottom
+                
+                // reset vaild contentOffset in collectionView internal
+                $0.contentOffset.y = size.height - ($0.frame.height - bottom)
+            }
         }
-
-        // no displaying, scroll to item
-        collectionView?.scrollToItem(at: indexPath, at: .centeredVertically, animated: false)
-        collectionView?.layoutIfNeeded()
     }
     
-    /// Display item did change
-    func detailController(_ detailController: Any, didShowItem indexPath: IndexPath) {
-    }
-    
-    // MARK: Assets Cache
-    
-    /// Fetch assets in rect
-    private func _assetsOfCaching(in rect: CGRect) -> [Asset] {
-        return collectionViewLayout.layoutAttributesForElements(in: rect)?.flatMap {
-            guard $0.representedElementCategory == .cell else {
-                return nil
-            }
-            return source.asset(at: $0.indexPath)
-        } ?? []
-    }
-    
-    /// Fetch change details
-    private func _changeDetails(_ new: [CGRect], _ old: [CGRect]) -> (added: [CGRect], removed: [CGRect]) {
-        // calculates the area after subtracting the two rect
-        func _subtract(_ r1: CGRect, _ r2: CGRect) -> [CGRect] {
-            // if not intersect, do not calculate
-            guard r1.intersects(r2) else {
-                return [r1]
-            }
-            var result = [CGRect]()
-            
-            if r2.minY > r1.minY {
-                result.append(.init(x: r1.minX, y: r1.minY, width: r1.width, height: r2.minY - r1.minY))
-            }
-            if r1.maxY > r2.maxY {
-                result.append(.init(x: r1.minX, y: r2.maxY, width: r1.width, height: r1.maxY - r2.maxY))
-            }
-            
-            return result
-        }
-        // union all rectangles
-        func _union(_ rects: [CGRect]) -> [CGRect] {
-            
-            var result = [CGRect]()
-            // must sort, otherwise there will be break rect
-            rects.sorted(by: { $0.minY < $1.minY }).forEach { rect in
-                // is intersects?
-                guard let last = result.last, last.intersects(rect) else {
-                    result.append(rect)
-                    return
-                }
-                result[result.count - 1] = last.union(rect)
-            }
-            
-            return result
-        }
-        // intersection all rectangles
-        func _intersection(_ rects: [CGRect]) -> [CGRect] {
-            
-            var result = [CGRect]()
-            // must sort, otherwise there will be break rect
-            rects.sorted(by: { $0.minY < $1.minY }).forEach { rect in
-                // is intersects?
-                guard let last = result.last, last.intersects(rect) else {
-                    result.append(rect)
-                    return
-                }
-                result[result.count - 1] = last.intersection(rect)
-            }
-            
-            return result
-        }
-        
-        // step1: merge
-        let newRects = _union(new)
-        let oldRects = _union(old)
-        
-        // step2: split
-        return (
-            newRects.flatMap { new in
-                _intersection(oldRects.flatMap { old in
-                    _subtract(new, old)
-                })
-            },
-            oldRects.flatMap { old in
-                _intersection(newRects.flatMap { new in
-                    _subtract(old, new)
-                })
-            }
-        )
-    }
-    
-    /// Clear all cached assets
-    private func _clearCachingAssets() {
-        // stop cache all
-        container.stopCachingImagesForAllAssets()
-        
-        // reset
-        _previousPreheatRect = .zero
-    }
-
-    /// Update all cached assets with content offset
-    private func _updateCachingAssets() {
-        // collectionView must be set
-        guard let collectionView = collectionView, prepared else {
-            return
-        }
-        
-        // The preheat window is twice the height of the visible rect.
-        let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
-        let targetVisibleRect = CGRect(origin: _targetContentOffset, size: collectionView.bounds.size)
-        
-        let preheatRect = visibleRect.insetBy(dx: 0, dy: -0.5 * visibleRect.height)
-        let targetPreheatRect = targetVisibleRect.insetBy(dx: 0, dy: -0.5 * targetVisibleRect.height)
-
-        var changes = [(new: CGRect, old: CGRect)]()
-        
-        // Update only if the visible area is significantly different from the last preheated area.
-        let delta = abs(preheatRect.midY - _previousPreheatRect.midY)
-        if delta > view.bounds.height / 3 {
-            // need change
-            changes.append((preheatRect, _previousPreheatRect))
-            // Store the preheat rect to compare against in the future.
-            _previousPreheatRect = preheatRect
-        }
-        
-        // Update only if the taget visible area is significantly different from the last preheated area.
-        let targetDelta = abs(targetPreheatRect.midY - _previousTargetPreheatRect.midY)
-        if targetDelta > view.bounds.height / 3 {
-            // need change
-            changes.append((targetPreheatRect, _previousTargetPreheatRect))
-            // Store the preheat rect to compare against in the future.
-            _previousTargetPreheatRect = targetPreheatRect
-        }
-        
-        // is change?
-        guard !changes.isEmpty else {
-            return
-        }
-        //logger.debug?.write("preheatRect is change: \(changes)")
-        
-        // Compute the assets to start caching and to stop caching.
-        let details = _changeDetails(changes.map { $0.new }, changes.map { $0.old })
-        
-        let added = details.added.flatMap { _assetsOfCaching(in: $0) }
-        let removed = details.removed.flatMap { _assetsOfCaching(in: $0) }.filter { asset in
-            return !added.contains {
-                return $0 === asset
-            }
-        }
-        
-        // Update the assets the PHCachingImageManager is caching.
-        container.startCachingImages(for: added, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: nil)
-        container.stopCachingImages(for: removed, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: nil)
-    }
-    
-    // MARK: Show header & footer view
+    // MARK: Private Method & Property
     
     /// Returns header at offset
     private func _header(at offset: CGFloat) -> (Int, CGFloat)? {
@@ -955,46 +574,6 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
         collectionView?.scrollRectToVisible(frame, animated: true)
     }
     
-    
-    // MARK: Property
-    
-    
-    // library status
-    private(set) var prepared: Bool = false
-    private(set) var authorized: Bool = false
-    private(set) var transitioning: Bool = false
-    
-    private(set) var container: Container
-    private(set) var source: Source {
-        willSet {
-            // update header view & footer view
-            _headerView?.source = newValue
-            _footerView?.source = newValue
-            
-            // only when in did not set the title will be updated
-            super.title = _cachedTitle ?? newValue.title
-        }
-    }
-    
-    // Minimum interval between each item allowed
-    static var minimumItemSpacing: CGFloat {
-        set { return BrowserAlbumLayout.minimumItemSpacing = newValue }
-        get { return BrowserAlbumLayout.minimumItemSpacing }
-    }
-    
-    // Minimum size of each item allowed
-    static var minimumItemSize: CGSize  {
-        set { return BrowserAlbumLayout.minimumItemSize = newValue }
-        get { return BrowserAlbumLayout.minimumItemSize }
-    }
-    
-    // MARK: Ivar
-    
-    // cache
-    private var _targetContentOffset: CGPoint = .zero
-    private var _previousPreheatRect: CGRect = .zero
-    private var _previousTargetPreheatRect: CGRect = .zero
-    
     // footer
     private var _footerView: NavigationFooterView?
     private var _footerViewInset: UIEdgeInsets = .zero {
@@ -1019,5 +598,6 @@ internal class BrowserAlbumController: UICollectionViewController, Controller, E
     private var _headerView: NavigationHeaderView?
     
     private var _cachedSize: CGSize?
-    private var _cachedTitle: String?
+    private var _transitioning: Bool = false
 }
+

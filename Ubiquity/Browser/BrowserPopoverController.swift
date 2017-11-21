@@ -8,57 +8,34 @@
 
 import UIKit
 
-internal class BrowserPopoverController: UICollectionViewController, Controller {
-
+internal class BrowserPopoverController: SourceController, Controller, UICollectionViewDelegateFlowLayout {
+    
     required init(container: Container, source: Source, sender: Any?) {
-        // setup init data
-        self.source = source
-        self.container = container
-        
-        // continue init the UI
-        super.init(collectionViewLayout: UICollectionViewFlowLayout())
-        super.title = source.title
-//
-//        // listen albums any change
-//        self.container.addChangeObserver(self)
+        super.init(container: container, source: source, factory: container.factory(with: .popover))
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    deinit {
-//        // clear all cache request when destroyed
-//        _clearCachingAssets()
-//
-//        // cancel listen change
-//        container.removeChangeObserver(self)
-    }
-    
     override func loadView() {
         super.loadView()
         
-        // setup controller
-        view.backgroundColor = .white
+        // the collectionView must king of `BrowserAlbumView`
+        object_setClass(collectionView, BrowserAlbumView.self)
         
-        // setup colleciton view
-        collectionView?.backgroundColor = view.backgroundColor
         collectionView?.alwaysBounceHorizontal = true
-        
-        // fetch all register cell for albums.
-        container.factory(with: .popover).contents.forEach {
-            // forward to collection view
-            collectionView?.register($1, forCellWithReuseIdentifier: $0)
-        }
     }
-
-    // library status
-    private(set) var prepared: Bool = false
-    private(set) var authorized: Bool = false
     
-    private(set) var container: Container
-    private(set) var source: Source {
-        willSet {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        guard let asset = source.asset(at: indexPath) else {
+            return .zero
         }
+        
+        let width = CGFloat(asset.ub_pixelWidth)
+        let height = CGFloat(asset.ub_pixelHeight)
+        let scale = view.frame.height / max(height, 1)
+        
+        return CGSize(width: width * scale, height: view.frame.height)
     }
 }

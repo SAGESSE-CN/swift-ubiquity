@@ -57,3 +57,8 @@ private func __ub_badgeItem(named: String, render: UIImageRenderingMode = .alway
     let icon = ub_image(named: named)?.withRenderingMode(render)
     return .image(icon)
 }
+
+
+internal func ub_reuseIdentifier(with asset: Asset?) -> String {
+    return ub_identifier(with: asset?.ub_type ?? .unknown)
+}

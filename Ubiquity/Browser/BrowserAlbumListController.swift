@@ -173,7 +173,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
     // MARK: Library change
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
-    func library(_ library: Library, didChange change: Change) {
+    func ub_library(_ library: Library, didChange change: Change) {
         // the source is changed?
         guard let details = source.changeDetails(forCollections: change) else {
             return
@@ -183,11 +183,11 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         // change notifications may be made on a background queue.
         // re-dispatch to the main queue to update the UI.
         DispatchQueue.main.async {
-            self.library(library, didChange: change, details: details)
+            self.ub_library(library, didChange: change, details: details)
         }
     }
     /// Tells your observer that a set of changes has occurred in the Photos library.
-    func library(_ library: Library, didChange change: Change, details: SourceChangeDetails) {
+    func ub_library(_ library: Library, didChange change: Change, details: SourceChangeDetails) {
         // get table view and new data source
         guard let tableView = tableView, let newSource = details.after else {
             return
@@ -265,12 +265,12 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
     // MARK: Extended
     
     /// Call before request authorization
-    open func container(_ container: Container, willAuthorization source: Source) {
+    open func ub_container(_ container: Container, willAuthorization source: Source) {
         logger.trace?.write()
     }
     
     /// Call after completion of request authorization
-    open func container(_ container: Container, didAuthorization source: Source, error: Error?) {
+    open func ub_container(_ container: Container, didAuthorization source: Source, error: Error?) {
         // the error message has been processed by the ExceptionHandling
         guard error == nil else {
             return
@@ -279,12 +279,12 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
     }
     
     /// Call before request load
-    open func container(_ container: Container, willLoad source: Source) {
+    open func ub_container(_ container: Container, willLoad source: Source) {
         logger.trace?.write()
     }
     
     /// Call after completion of load
-    open func container(_ container: Container, didLoad source: Source, error: Error?) {
+    open func ub_container(_ container: Container, didLoad source: Source, error: Error?) {
         // the error message has been processed by the ExceptionHandling
         guard error == nil else {
             return

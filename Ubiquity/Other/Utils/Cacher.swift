@@ -197,7 +197,7 @@ internal class Cacher: NSObject {
     }
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
-    open func library(_ library: Library, didChange change: Change) {
+    open func ub_library(_ library: Library, didChange change: Change) {
         // update all collection
         _ = Cacher.bridging(of: change)
         _collectionLists.forEach { type, collectionList in

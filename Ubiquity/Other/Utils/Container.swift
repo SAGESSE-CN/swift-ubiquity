@@ -141,21 +141,21 @@ import UIKit
     }
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
-    open func library(_ library: Library, didChange change: Change) {
+    open func ub_library(_ library: Library, didChange change: Change) {
         // ignoring is begin?
         guard _dispatch == nil else {
             _dispatch?.async {
-                self.library(library, didChange: change)
+                self.ub_library(library, didChange: change)
             }
             return
         }
         
         // update cache for library change
-        self.cacher.library(library, didChange: change)
+        self.cacher.ub_library(library, didChange: change)
         
         // notifity all observers
         self.observers.forEach {
-            $0.library(library, didChange: change)
+            $0.ub_library(library, didChange: change)
         }
     }
     
@@ -241,30 +241,38 @@ import UIKit
         // create factory
         switch page {
         case .albumsList:
-            factory = Factory(controller: BrowserAlbumListController.self, cell: BrowserAlbumListCell.self)
+            factory = Factory(controller: BrowserAlbumListController.self)
+            
+            factory.cell = BrowserAlbumListCell.self
 
         case .albums:
-            factory = Factory(controller: BrowserAlbumController.self, cell: BrowserAlbumCell.self)
+            factory = Factory(controller: BrowserAlbumController.self)
             
-            // setup default
+            factory.cell = BrowserAlbumCell.self
+            factory.layout = BrowserAlbumLayout.self
+            
             factory.register(UIImageView.self, for: .audio)
             factory.register(UIImageView.self, for: .image)
             factory.register(UIImageView.self, for: .video)
             factory.register(UIImageView.self, for: .unknown)
             
         case .popover:
-            factory = Factory(controller: BrowserPopoverController.self, cell: BrowserAlbumCell.self)
+            factory = Factory(controller: BrowserPopoverController.self)
             
-            // setup default
+            factory.cell = BrowserAlbumCell.self
+            factory.layout = BrowserPopoverLayout.self
+            
             factory.register(UIImageView.self, for: .audio)
             factory.register(UIImageView.self, for: .image)
             factory.register(UIImageView.self, for: .video)
             factory.register(UIImageView.self, for: .unknown)
 
         case .detail:
-            factory = Factory(controller: BrowserDetailController.self, cell: BrowserDetailCell.self)
+            factory = Factory(controller: BrowserDetailController.self)
             
-            // setup default
+            factory.cell = BrowserDetailCell.self
+            factory.layout = BrowserDetailLayout.self
+            
             factory.register(PhotoContentView.self, for: .audio)
             factory.register(PhotoContentView.self, for: .image)
             factory.register(VideoContentView.self, for: .video)

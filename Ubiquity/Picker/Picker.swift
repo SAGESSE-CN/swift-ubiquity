@@ -44,7 +44,7 @@ import UIKit
             }
             // tell all observers in options did change
             _forEach(ContainerOptionsDelegate.self) {
-                $0.container(self, options: "allowsSelection", didChange: allowsSelection)
+                $0.ub_container(self, options: "allowsSelection", didChange: allowsSelection)
             }
         }
     }
@@ -57,7 +57,7 @@ import UIKit
             }
             // tell all observers in options did change
             _forEach(ContainerOptionsDelegate.self) {
-                $0.container(self, options: "allowsMultipleSelection", didChange: allowsMultipleSelection)
+                $0.ub_container(self, options: "allowsMultipleSelection", didChange: allowsMultipleSelection)
             }
         }
     }
@@ -65,8 +65,8 @@ import UIKit
     // MARK: Library Change
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
-    open override func library(_ library: Library, didChange change: Change) {
-        super.library(library, didChange: change)
+    open override func ub_library(_ library: Library, didChange change: Change) {
+        super.ub_library(library, didChange: change)
         
         // if event is ignoring, don't clear the selected item
         guard !isIgnoringChangeEvents else {

@@ -35,8 +35,8 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
     }
     
     /// The library has some change
-    override func library(_ library: Library, didChange change: Change, details: SourceChangeDetails) {
-        super.library(library, didChange: change, details: details)
+    override func ub_library(_ library: Library, didChange change: Change, source: Source, changeDetails: SourceChangeDetails) {
+        super.ub_library(library, didChange: change, source: source, changeDetails: changeDetails)
         
         // clear selector cache
         _selectionRectangle.clear()
@@ -67,13 +67,13 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
     
     // MARK: Options change
     
-    func container(_ container: Container, options: String, didChange value: Any?) {
+    func ub_container(_ container: Container, options: String, didChange value: Any?) {
         // update all cell that is being displayed
         collectionView?.visibleCells.forEach {
             guard let reciver = ($0 as? ContainerOptionsDelegate) else {
                 return
             }
-            reciver.container(container, options: options, didChange: value)
+            reciver.ub_container(container, options: options, didChange: value)
         }
         
         // if it is not picker, ignore

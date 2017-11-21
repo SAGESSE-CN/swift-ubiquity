@@ -10,9 +10,9 @@ import UIKit
 
 internal class BrowserDetailLayout: UICollectionViewFlowLayout {
     
-    init(direction: UICollectionViewScrollDirection) {
+    override init() {
         super.init()
-        self.scrollDirection = direction
+        self.scrollDirection = .horizontal
     }
     
     required init?(coder aDecoder: NSCoder) {

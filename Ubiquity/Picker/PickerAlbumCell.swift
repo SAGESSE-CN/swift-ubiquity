@@ -53,7 +53,7 @@ internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
     
     // MARK: Options change
     
-    func container(_ container: Container, options: String, didChange value: Any?) {
+    func ub_container(_ container: Container, options: String, didChange value: Any?) {
         // if it is not picker, ignore
         guard let picker = container as? Picker, options == "allowsSelection" else {
             return

@@ -84,6 +84,9 @@ class ViewController: UIViewController, Ubiquity.PickerDelegate, UIPopoverPresen
             
         case 2: // recently
             controller = container.instantiateViewController(with: .popover, source: .init(collectionType: .recentlyAdded))
+            //controller = container.instantiateViewController(with: .popover, source: .init(collectionType: .regular, filter: { $0.offset == 0 }))
+            //controller = container.instantiateViewController(with: .popover, source: .init(collectionType: .moment))
+
             
         default:
             controller = container.instantiateViewController(with: .albums, source: .init(collectionType: .regular, filter: { (offset, collection) in

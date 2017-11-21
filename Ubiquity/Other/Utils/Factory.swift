@@ -18,40 +18,44 @@ public enum ControllerType {
     case detail
 }
 
-
 internal protocol Controller {
     
     /// Base controller craete method
-    //init(container: Container, factory: Factory, source: Source, sender: Any)
     init(container: Container, source: Source, sender: Any?)
 }
 
-
-internal class Factory {
+internal class Factory: NSObject {
     
-    init(controller: Controller.Type, cell: UIView.Type) {
+    init(controller: Controller.Type) {
         self.controller = controller
-        self.cell = cell
+        super.init()
     }
     
-    var cell: UIView.Type
-    
-    var contents: Dictionary<String, AnyClass> {
-        var result = Dictionary<String, AnyClass>()
-        _contents.forEach {
-            result[$0] = _makeClass(cell, $1)
-        }
-        return result
+    func `class`(for key: String) -> AnyClass? {
+        // Use KVC get member properties
+        return value(forKey: key) as? AnyClass
     }
     
-    var controller: Controller.Type
-    
+    func `mapping`(for key: String) -> Dictionary<String, AnyClass> {
+        return `class`(for: key).map { cls in
+            var result = Dictionary<String, AnyClass>()
+            _contents.forEach {
+                result[$0] = _makeClass(cls, $1)
+            }
+            return result
+        } ?? [:]
+    }
     
     func register(_ contentClass: AnyClass?, for media: AssetType) {
         // update content class
         _contents[ub_identifier(with: media)] = contentClass
     }
-
+    
+    var controller: Controller.Type
+    
+    dynamic var cell: AnyClass?
+    dynamic var layout: AnyClass?
+    
     private var _contents: Dictionary<String, AnyClass?> = [:]
 }
 

@@ -69,7 +69,7 @@ import Foundation
 public protocol ChangeObserver: class {
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
-    func library(_ library: Library, didChange change: Change)
+    func ub_library(_ library: Library, didChange change: Change)
 }
 
 

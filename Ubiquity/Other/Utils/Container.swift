@@ -257,10 +257,10 @@ import UIKit
             factory.register(UIImageView.self, for: .unknown)
             
         case .popover:
-            factory = Factory(controller: BrowserPopoverController.self)
+            factory = Factory(controller: BrowserPreviewController.self)
             
             factory.cell = BrowserAlbumCell.self
-            factory.layout = BrowserPopoverLayout.self
+            factory.layout = BrowserPreviewLayout.self
             
             factory.register(UIImageView.self, for: .audio)
             factory.register(UIImageView.self, for: .image)

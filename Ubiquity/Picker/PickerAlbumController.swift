@@ -278,7 +278,7 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
         let origin = sender.location(in: view)
 
         // compute mininum visable rect
-        let item = BrowserAlbumLayout.minimumItemSize.height
+        let item = Settings.default.minimumItemSize.height
         let inset = UIEdgeInsetsMake(topLayoutGuide.length + item, 0, bottomLayoutGuide.length + item, 0)
         let bounds = UIEdgeInsetsInsetRect(view.bounds, inset)
         

@@ -28,6 +28,20 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable, Transitionin
         endDisplay(with: container)
     }
     
+    /// The current displayed content size.
+    var contentSize: CGSize = .zero
+
+    /// The current display content inset.
+    var contentInset: UIEdgeInsets = .zero
+    
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        // update content size.
+        contentSize = .init(width: frame.width * UIScreen.main.scale, height: frame.height * UIScreen.main.scale)
+    }
+    
     // MARK: Asset Display
     
     /// the displayer delegate
@@ -45,7 +59,7 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable, Transitionin
         _allowsInvaildContents = true
         
         // setup content
-        self.request = container.request(forImage: asset, size: BrowserAlbumLayout.thumbnailItemSize, mode: .aspectFill, options: .init()) { [weak self, weak asset] contents, response in
+        self.request = container.request(forImage: asset, size: contentSize, mode: .aspectFill, options: .init()) { [weak self, weak asset] contents, response in
             // if the asset is nil, the asset has been released
             guard let asset = asset else {
                 return
@@ -211,6 +225,10 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable, Transitionin
         isOpaque = true
         clipsToBounds = true
         backgroundColor = contentView.backgroundColor
+        
+        // setup default value
+        contentSize = .init(width: frame.width * UIScreen.main.scale, height: frame.height * UIScreen.main.scale)
+        contentInset = .init(top: 4.5, left: 4.5, bottom: 4.5, right: 4.5)
         
         // mapping
         _imageView = contentView as? UIImageView

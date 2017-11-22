@@ -86,7 +86,7 @@ internal class BrowserDetailController: SourceController, Controller, DetailCont
         
         // must set up an empty view
         // otherwise in the performBatchUpdates header/footer create failure led to the crash
-        collectionView?.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "HEADER")
+        collectionView?.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "Empty")
         
         // in the iOS11 if there is no disable adjustment, `scrollToItem(at:, at:, animated:)` will location to a wrong position
         if #available(iOS 11.0, *) {
@@ -173,7 +173,7 @@ internal class BrowserDetailController: SourceController, Controller, DetailCont
     
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         // generate header view.
-        return collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "HEADER", for: indexPath)
+        return collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "Empty", for: indexPath)
     }
     override func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
         // hidden header view

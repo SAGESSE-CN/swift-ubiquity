@@ -135,18 +135,13 @@ internal class BrowserAlbumLayout: UICollectionViewFlowLayout {
     
     private static func _itemSize(with rect: CGRect) -> (CGSize, CGFloat) {
         
-        let column = trunc((rect.width + minimumItemSpacing) / (minimumItemSize.width + minimumItemSpacing))
-        let width = trunc(((rect.width + minimumItemSpacing) / column - minimumItemSpacing) * 2) / 2
+        
+        let column = trunc((rect.width + Settings.default.minimumItemSpacing) / (Settings.default.minimumItemSize.width + Settings.default.minimumItemSpacing))
+        let width = trunc(((rect.width + Settings.default.minimumItemSpacing) / column - Settings.default.minimumItemSpacing) * 2) / 2
         let spacing = (rect.width - width * column) / (column - 1)
         
         return (.init(width: width, height: width), spacing)
     }
-    
-    // Minimum interval between each item allowed
-    static var minimumItemSpacing: CGFloat = 2
-    
-    // Minimum size of each item allowed
-    static var minimumItemSize: CGSize = .init(width: 78, height: 78)
     
     // Thumbnail size of the item
     static let thumbnailItemSize: CGSize = {

@@ -105,12 +105,11 @@ class ViewController: UIViewController, Ubiquity.PickerDelegate, UIPopoverPresen
             show(controller, sender: nil)
 
         default:
-           
             controller.preferredContentSize = .init(width: view.frame.width, height: 160)
             controller.modalPresentationStyle = .popover
             controller.popoverPresentationController?.barButtonItem = self.navigationItem.rightBarButtonItem
             controller.popoverPresentationController?.delegate = self
-            
+
             present(controller, animated: true, completion: nil)
         }
     }

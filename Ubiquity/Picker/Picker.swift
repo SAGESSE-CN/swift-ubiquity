@@ -31,6 +31,10 @@ import UIKit
         // setup details
         register(PickerDetailCell.self, forCell: .detail)
         register(PickerDetailController.self, forController: .detail)
+        
+        // setup popover
+        register(PickerPreviewCell.self, forCell: .popover)
+        register(PickerPreviewController.self, forController: .popover)
     }
     
     /// The picker delegate

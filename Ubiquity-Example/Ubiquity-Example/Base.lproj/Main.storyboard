@@ -149,13 +149,16 @@
                                         </subviews>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <constraints>
+                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="CBB-Qu-ffu" secondAttribute="trailing" constant="20" symbolic="YES" id="2Nr-YQ-NUu"/>
                                             <constraint firstItem="odp-eM-cln" firstAttribute="top" secondItem="imp-PY-v9W" secondAttribute="bottom" constant="10" id="8hl-Kc-uUK"/>
                                             <constraint firstItem="imp-PY-v9W" firstAttribute="leading" secondItem="lUc-hf-aVd" secondAttribute="leading" id="GEa-8u-1WZ"/>
                                             <constraint firstItem="CBB-Qu-ffu" firstAttribute="top" secondItem="lUc-hf-aVd" secondAttribute="top" id="GJE-40-A3Q"/>
                                             <constraint firstItem="CBB-Qu-ffu" firstAttribute="leading" secondItem="lUc-hf-aVd" secondAttribute="leading" id="IlQ-dI-47a"/>
+                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="odp-eM-cln" secondAttribute="trailing" id="Uzc-B5-FM1"/>
                                             <constraint firstItem="odp-eM-cln" firstAttribute="width" secondItem="lUc-hf-aVd" secondAttribute="width" id="W3b-iu-5L1"/>
                                             <constraint firstAttribute="bottom" secondItem="odp-eM-cln" secondAttribute="bottom" id="esZ-6t-3lf"/>
                                             <constraint firstItem="CBB-Qu-ffu" firstAttribute="width" secondItem="lUc-hf-aVd" secondAttribute="width" multiplier="3/4" id="gWI-AP-Acj"/>
+                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="imp-PY-v9W" secondAttribute="trailing" constant="20" symbolic="YES" id="h2E-qh-M2V"/>
                                             <constraint firstItem="imp-PY-v9W" firstAttribute="width" secondItem="lUc-hf-aVd" secondAttribute="width" multiplier="3/4" id="u7S-KO-5YI"/>
                                             <constraint firstItem="imp-PY-v9W" firstAttribute="top" secondItem="CBB-Qu-ffu" secondAttribute="bottom" constant="10" id="ws3-8F-m2K"/>
                                             <constraint firstItem="odp-eM-cln" firstAttribute="leading" secondItem="lUc-hf-aVd" secondAttribute="leading" id="xIQ-7n-kde"/>

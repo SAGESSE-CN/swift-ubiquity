@@ -1,5 +1,5 @@
 //
-//  TXPContainerViewController.swift
+//  DebugingCanvasViewController.swift
 //  Example
 //
 //  Created by SAGESSE on 03/11/2016.
@@ -8,24 +8,19 @@
 
 import UIKit
 
-#if DEBUG
-
-@testable import Ubiquity
-
-class TestCanvasViewController: UIViewController, Ubiquity.CanvasViewDelegate {
+internal class DebugingCanvasViewController: UIViewController, CanvasViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.automaticallyAdjustsScrollViewInsets = false
         
-        let cv = Ubiquity.CanvasView(frame: view.bounds)
+        let cv = CanvasView(frame: view.bounds)
         containerView = cv
         containerView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.insertSubview(cv, at: 0)
         
         // Do any additional setup after loading the view.
-
         
         imageView.frame = CGRect(x: 0, y: 0, width: 1600, height: 1200)
         imageView.image = UIImage(named: "t1_g.jpg")
@@ -54,6 +49,24 @@ class TestCanvasViewController: UIViewController, Ubiquity.CanvasViewDelegate {
         containerView.addGestureRecognizer(tap)
     }
     
+    @IBAction func reset(_ sender: Any) {
+        guard let command = Shared.default["Command"] as? String else {
+            return
+        }
+        switch command {
+        case "reset":
+            let x = (imageView.frame.width - containerView.frame.width) / 2
+            let y = (max(imageView.frame.height, containerView.frame.height) - containerView.frame.height) / 2
+            containerView.setContentOffset(.init(x: x, y: y), animated: true)
+            
+        case "reload":
+            containerView.setZoomScale(containerView.minimumZoomScale, animated: true)
+
+        default:
+            break
+        }
+    }
+    
     func tapHandler(_ sender: UITapGestureRecognizer) {
         
         let pt = sender.location(in: imageView)
@@ -68,12 +81,7 @@ class TestCanvasViewController: UIViewController, Ubiquity.CanvasViewDelegate {
         }
     }
     
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
-    func viewForZooming(in canvasView: CanvasView) -> UIView? {
+     func viewForZooming(in canvasView: CanvasView) -> UIView? {
         return imageView
     }
     
@@ -81,13 +89,13 @@ class TestCanvasViewController: UIViewController, Ubiquity.CanvasViewDelegate {
         return true
     }
     func canvasViewDidEndRotationing(_ canvasView: CanvasView, with view: UIView?, atOrientation orientation: UIImageOrientation) {
-        //imageView.image = imageView.image?.ub_withOrientation(orientation)
+        imageView.image = imageView.image.map {
+            UIImage(cgImage: $0.cgImage!, scale: $0.scale, orientation: orientation)
+        }
     }
     
-    lazy var imageView: UIImageView = ImageView()
+    lazy var imageView: UIImageView = UIImageView()
     
-    
-    var containerView: Ubiquity.CanvasView!
+    var containerView: CanvasView!
 }
 
-#endif

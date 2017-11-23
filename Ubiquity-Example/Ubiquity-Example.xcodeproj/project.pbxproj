@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0C03FFD71F6927CB00D02E83 /* TestCanvasViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CE49EA81E7B97CE0058F5F8 /* TestCanvasViewController.swift */; };
+		0C05A2BE1FC670880084CDAB /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C05A2BD1FC670880084CDAB /* Logger.swift */; };
 		0C1004041F1CA60100D7B09A /* TestIndicatorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C224C411EAC55F7001ABB47 /* TestIndicatorViewController.swift */; };
 		0C1E4F791F5B337F00299E64 /* TextLargetImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1E4F781F5B337F00299E64 /* TextLargetImageLoader.swift */; };
 		0C30A7891F5FD5EF00E5980B /* 019@2x.gif in Resources */ = {isa = PBXBuildFile; fileRef = 0C30A7881F5FD5EF00E5980B /* 019@2x.gif */; };
@@ -15,12 +15,28 @@
 		0CAB22701F31A91E000171A0 /* XViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CAB226F1F31A91E000171A0 /* XViewController.swift */; };
 		0CB104C61EEFF589002CB7FA /* Ubiquity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CE49E4C1E7A411D0058F5F8 /* Ubiquity.framework */; };
 		0CB104C71EEFF589002CB7FA /* Ubiquity.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0CE49E4C1E7A411D0058F5F8 /* Ubiquity.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		0CB709591FC747F700E1DD4A /* ExampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB709581FC747F100E1DD4A /* ExampleTests.swift */; };
+		0CB7095C1FC7485500E1DD4A /* CanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB7095B1FC7485500E1DD4A /* CanvasView.swift */; };
+		0CC50E811FC727DF008B1614 /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC50E801FC727DF008B1614 /* Shared.swift */; };
+		0CC50E821FC727DF008B1614 /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC50E801FC727DF008B1614 /* Shared.swift */; };
+		0CC50E861FC74742008B1614 /* DebugingCanvasViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC50E841FC74742008B1614 /* DebugingCanvasViewController.swift */; };
+		0CC50E881FC74742008B1614 /* DebugingTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC50E851FC74742008B1614 /* DebugingTableViewController.swift */; };
 		0CE49E221E7A3F690058F5F8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CE49E211E7A3F690058F5F8 /* AppDelegate.swift */; };
 		0CE49E271E7A3F690058F5F8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0CE49E251E7A3F690058F5F8 /* Main.storyboard */; };
 		0CE49E291E7A3F690058F5F8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0CE49E281E7A3F690058F5F8 /* Assets.xcassets */; };
 		0CE49E2C1E7A3F690058F5F8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0CE49E2A1E7A3F690058F5F8 /* LaunchScreen.storyboard */; };
 		0CE49EA71E7B978E0058F5F8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CE49EA61E7B978E0058F5F8 /* ViewController.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0C05A2AA1FC66D520084CDAB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0CE49E161E7A3F690058F5F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0CE49E1D1E7A3F690058F5F8;
+			remoteInfo = "Ubiquity-Example";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		0CB104C81EEFF589002CB7FA /* Embed Frameworks */ = {
@@ -37,6 +53,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0C05A2A51FC66D520084CDAB /* Ubiquity-Example-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Ubiquity-Example-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C05A2BD1FC670880084CDAB /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		0C16F87A1EA663E700C788C5 /* TestLayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestLayerViewController.swift; sourceTree = "<group>"; };
 		0C1E4F781F5B337F00299E64 /* TextLargetImageLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextLargetImageLoader.swift; sourceTree = "<group>"; };
 		0C224C411EAC55F7001ABB47 /* TestIndicatorViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestIndicatorViewController.swift; sourceTree = "<group>"; };
@@ -44,6 +62,12 @@
 		0C30A78A1F5FD60400E5980B /* TestAnimatedImageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestAnimatedImageViewController.swift; sourceTree = "<group>"; };
 		0C5DCB7B1EC0C45F009FA343 /* TestVideoFilmstripViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestVideoFilmstripViewController.swift; sourceTree = "<group>"; wrapsLines = 0; };
 		0CAB226F1F31A91E000171A0 /* XViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XViewController.swift; sourceTree = "<group>"; };
+		0CB709571FC747F100E1DD4A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = "Ubiquity-Example-Tests/Info.plist"; sourceTree = "<group>"; };
+		0CB709581FC747F100E1DD4A /* ExampleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ExampleTests.swift; path = "Ubiquity-Example-Tests/ExampleTests.swift"; sourceTree = "<group>"; };
+		0CB7095B1FC7485500E1DD4A /* CanvasView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CanvasView.swift; path = ../../../Ubiquity/Other/Utils/CanvasView.swift; sourceTree = "<group>"; };
+		0CC50E801FC727DF008B1614 /* Shared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared.swift; sourceTree = "<group>"; };
+		0CC50E841FC74742008B1614 /* DebugingCanvasViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugingCanvasViewController.swift; sourceTree = "<group>"; };
+		0CC50E851FC74742008B1614 /* DebugingTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugingTableViewController.swift; sourceTree = "<group>"; };
 		0CE49E1E1E7A3F690058F5F8 /* Ubiquity-Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ubiquity-Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0CE49E211E7A3F690058F5F8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0CE49E261E7A3F690058F5F8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -52,10 +76,16 @@
 		0CE49E2D1E7A3F690058F5F8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0CE49E4C1E7A411D0058F5F8 /* Ubiquity.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Ubiquity.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0CE49EA61E7B978E0058F5F8 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; wrapsLines = 0; };
-		0CE49EA81E7B97CE0058F5F8 /* TestCanvasViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestCanvasViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		0C05A2A21FC66D520084CDAB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0CE49E1B1E7A3F690058F5F8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -67,11 +97,39 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0CB709561FC747E200E1DD4A /* Example-Tests */ = {
+			isa = PBXGroup;
+			children = (
+				0CB709581FC747F100E1DD4A /* ExampleTests.swift */,
+				0CB709571FC747F100E1DD4A /* Info.plist */,
+			);
+			name = "Example-Tests";
+			sourceTree = "<group>";
+		};
+		0CB7095A1FC7480100E1DD4A /* Reference */ = {
+			isa = PBXGroup;
+			children = (
+				0CB7095B1FC7485500E1DD4A /* CanvasView.swift */,
+			);
+			name = Reference;
+			sourceTree = "<group>";
+		};
+		0CC50E831FC74742008B1614 /* Debuging */ = {
+			isa = PBXGroup;
+			children = (
+				0CB7095A1FC7480100E1DD4A /* Reference */,
+				0CC50E841FC74742008B1614 /* DebugingCanvasViewController.swift */,
+				0CC50E851FC74742008B1614 /* DebugingTableViewController.swift */,
+			);
+			path = Debuging;
+			sourceTree = "<group>";
+		};
 		0CE49E151E7A3F690058F5F8 = {
 			isa = PBXGroup;
 			children = (
 				0CE49E501E7A41310058F5F8 /* Frameworks */,
 				0CE49E201E7A3F690058F5F8 /* Example */,
+				0CB709561FC747E200E1DD4A /* Example-Tests */,
 				0CE49E1F1E7A3F690058F5F8 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -80,6 +138,7 @@
 			isa = PBXGroup;
 			children = (
 				0CE49E1E1E7A3F690058F5F8 /* Ubiquity-Example.app */,
+				0C05A2A51FC66D520084CDAB /* Ubiquity-Example-Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -87,8 +146,10 @@
 		0CE49E201E7A3F690058F5F8 /* Example */ = {
 			isa = PBXGroup;
 			children = (
+				0CC50E831FC74742008B1614 /* Debuging */,
+				0CC50E801FC727DF008B1614 /* Shared.swift */,
+				0C05A2BD1FC670880084CDAB /* Logger.swift */,
 				0C30A7881F5FD5EF00E5980B /* 019@2x.gif */,
-				0CE49EA81E7B97CE0058F5F8 /* TestCanvasViewController.swift */,
 				0C16F87A1EA663E700C788C5 /* TestLayerViewController.swift */,
 				0C224C411EAC55F7001ABB47 /* TestIndicatorViewController.swift */,
 				0CE49E211E7A3F690058F5F8 /* AppDelegate.swift */,
@@ -117,6 +178,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		0C05A2A41FC66D520084CDAB /* Ubiquity-Example-Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0C05A2AC1FC66D520084CDAB /* Build configuration list for PBXNativeTarget "Ubiquity-Example-Tests" */;
+			buildPhases = (
+				0C05A2A11FC66D520084CDAB /* Sources */,
+				0C05A2A21FC66D520084CDAB /* Frameworks */,
+				0C05A2A31FC66D520084CDAB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0C05A2AB1FC66D520084CDAB /* PBXTargetDependency */,
+			);
+			name = "Ubiquity-Example-Tests";
+			productName = "Ubiquity-Example-Tests";
+			productReference = 0C05A2A51FC66D520084CDAB /* Ubiquity-Example-Tests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		0CE49E1D1E7A3F690058F5F8 /* Ubiquity-Example */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0CE49E301E7A3F690058F5F8 /* Build configuration list for PBXNativeTarget "Ubiquity-Example" */;
@@ -141,10 +220,16 @@
 		0CE49E161E7A3F690058F5F8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0820;
+				LastSwiftUpdateCheck = 0910;
 				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = SAGESSE;
 				TargetAttributes = {
+					0C05A2A41FC66D520084CDAB = {
+						CreatedOnToolsVersion = 9.1;
+						DevelopmentTeam = FN2B5W3WWQ;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 0CE49E1D1E7A3F690058F5F8;
+					};
 					0CE49E1D1E7A3F690058F5F8 = {
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = FN2B5W3WWQ;
@@ -166,11 +251,19 @@
 			projectRoot = "";
 			targets = (
 				0CE49E1D1E7A3F690058F5F8 /* Ubiquity-Example */,
+				0C05A2A41FC66D520084CDAB /* Ubiquity-Example-Tests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		0C05A2A31FC66D520084CDAB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0CE49E1C1E7A3F690058F5F8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -185,21 +278,42 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0C05A2A11FC66D520084CDAB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0CB709591FC747F700E1DD4A /* ExampleTests.swift in Sources */,
+				0CC50E821FC727DF008B1614 /* Shared.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0CE49E1A1E7A3F690058F5F8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0CC50E811FC727DF008B1614 /* Shared.swift in Sources */,
 				0C1E4F791F5B337F00299E64 /* TextLargetImageLoader.swift in Sources */,
 				0CE49EA71E7B978E0058F5F8 /* ViewController.swift in Sources */,
 				0CAB22701F31A91E000171A0 /* XViewController.swift in Sources */,
+				0CC50E881FC74742008B1614 /* DebugingTableViewController.swift in Sources */,
 				0CE49E221E7A3F690058F5F8 /* AppDelegate.swift in Sources */,
+				0CC50E861FC74742008B1614 /* DebugingCanvasViewController.swift in Sources */,
 				0C1004041F1CA60100D7B09A /* TestIndicatorViewController.swift in Sources */,
-				0C03FFD71F6927CB00D02E83 /* TestCanvasViewController.swift in Sources */,
+				0CB7095C1FC7485500E1DD4A /* CanvasView.swift in Sources */,
 				0C30A78B1F5FD60400E5980B /* TestAnimatedImageViewController.swift in Sources */,
+				0C05A2BE1FC670880084CDAB /* Logger.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0C05A2AB1FC66D520084CDAB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0CE49E1D1E7A3F690058F5F8 /* Ubiquity-Example */;
+			targetProxy = 0C05A2AA1FC66D520084CDAB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		0CE49E251E7A3F690058F5F8 /* Main.storyboard */ = {
@@ -221,6 +335,48 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		0C05A2AD1FC66D520084CDAB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = FN2B5W3WWQ;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "Ubiquity-Example-Tests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "SA.Ubiquity-Example-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Ubiquity-Example";
+			};
+			name = Debug;
+		};
+		0C05A2AE1FC66D520084CDAB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = FN2B5W3WWQ;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "Ubiquity-Example-Tests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "SA.Ubiquity-Example-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Ubiquity-Example";
+			};
+			name = Release;
+		};
 		0CE49E2E1E7A3F690058F5F8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -357,6 +513,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0C05A2AC1FC66D520084CDAB /* Build configuration list for PBXNativeTarget "Ubiquity-Example-Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0C05A2AD1FC66D520084CDAB /* Debug */,
+				0C05A2AE1FC66D520084CDAB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		0CE49E191E7A3F690058F5F8 /* Build configuration list for PBXProject "Ubiquity-Example" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

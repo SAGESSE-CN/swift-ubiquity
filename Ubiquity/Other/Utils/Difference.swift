@@ -90,14 +90,14 @@ public enum DifferenceResult: CustomStringConvertible, Equatable {
 }
 
 /// Compare the differences between the two arrays
-public func ub_diff<Element: Equatable>(_ src: Array<Element>, dest: Array<Element>) -> Array<DifferenceResult> {
-    return ub_diff(src, dest: dest) {
+public func diff<Element: Equatable>(_ src: Array<Element>, dest: Array<Element>) -> Array<DifferenceResult> {
+    return diff(src, dest: dest) {
         $0 == $1
     }
 }
 
 /// Compare the differences between the two arrays
-public func ub_diff<Element>(_ src: Array<Element>, dest: Array<Element>, equal: (Element, Element) -> Bool) -> Array<DifferenceResult> {
+public func diff<Element>(_ src: Array<Element>, dest: Array<Element>, equal: (Element, Element) -> Bool) -> Array<DifferenceResult> {
     
     let slen = src.count
     let dlen = dest.count

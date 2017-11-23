@@ -575,7 +575,7 @@ extension UHAssetChange: Change {
         let newCollectionList = UHAssetCollectionList(identifier: collectionList.identifier, collectionType: collectionList.ub_collectionType)
         
         // compare difference
-        var diffs = ub_diff(collectionList.collections, dest: newCollectionList.collections)
+        var diffs = diff(collectionList.collections, dest: newCollectionList.collections)
         
         // check collection the change
         (0 ..< newCollectionList.ub_count).forEach {

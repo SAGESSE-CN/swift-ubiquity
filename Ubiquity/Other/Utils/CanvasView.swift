@@ -116,6 +116,7 @@ import UIKit
         guard let view = _contentView else {
             return setZoomScale(scale, animated: animated)
         }
+        logger.trace?.write(scale, point, animated)
         
         let width = view.bounds.width * scale
         let height = view.bounds.height * scale
@@ -580,33 +581,4 @@ extension CanvasView: UIScrollViewDelegate {
 }
 
 internal class CanvasContainerView: UIScrollView {
-    
-    override var contentOffset: CGPoint {
-        set {
-            if !isLockContentOffset {
-                super.contentOffset = newValue
-            }
-            _lockedContentOffset = newValue
-        }
-        get {
-            return super.contentOffset
-        }
-    }
-    
-    var isLockContentOffset: Bool = false {
-        willSet {
-            guard isLockContentOffset != newValue else {
-                return
-            }
-            let offset = contentOffset
-//            if !newValue {
-//                let x = max(min(_lockedContentOffset.x, contentSize.width), 0)
-//                let y = max(min(_lockedContentOffset.y, contentSize.height), 0)
-//                super.contentOffset = CGPoint(x: x, y: y)
-//            }
-            _lockedContentOffset = offset
-        }
-    }
-    
-    var _lockedContentOffset: CGPoint = .zero
 }

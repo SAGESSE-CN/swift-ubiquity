@@ -24,6 +24,10 @@ class ViewController: UIViewController, Ubiquity.PickerDelegate, UIPopoverPresen
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        NotificationCenter.default.addObserver(forName: .init("test"), object: nil, queue: nil) { [logger] in
+            logger.debug?.write($0.object ?? "")
+        }
 
         #if DEBUG
             UIApplication.shared.delegate?.window??.showsFPS = true
@@ -41,6 +45,7 @@ class ViewController: UIViewController, Ubiquity.PickerDelegate, UIPopoverPresen
     @IBAction func cancel(_ sender: Any) {
         dismiss(animated: true, completion: nil)
     }
+    
     
     @IBAction func confirm(_ sender: Any) {
         

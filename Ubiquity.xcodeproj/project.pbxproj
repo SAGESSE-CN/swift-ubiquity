@@ -14,6 +14,7 @@
 		0C05A2701FC560A50084CDAB /* PickerPopoverController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C05A26F1FC560A50084CDAB /* PickerPopoverController.swift */; };
 		0C05A2721FC560CF0084CDAB /* PickerPreviewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C05A2711FC560CF0084CDAB /* PickerPreviewCell.swift */; };
 		0C05A2741FC590410084CDAB /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C05A2731FC590410084CDAB /* Settings.swift */; };
+		0C05A2851FC669A10084CDAB /* CacherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C05A2751FC6665C0084CDAB /* CacherTests.swift */; };
 		0C189CE41F299BE800E2699D /* SelectionScroller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C189CE31F299BE800E2699D /* SelectionScroller.swift */; };
 		0C189CE61F29AFDA00E2699D /* CADisplayLink+Block.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C189CE51F29AFDA00E2699D /* CADisplayLink+Block.swift */; };
 		0C19D22A1F5D360900A2A36B /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F6D1F0DF5FC00A13786 /* Collection.swift */; };
@@ -39,7 +40,7 @@
 		0C3AC3381F2844DC0066DA1B /* ubiquity_checkbox_normal@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0C3AC3361F2844DC0066DA1B /* ubiquity_checkbox_normal@2x.png */; };
 		0C3AC3391F2844DC0066DA1B /* ubiquity_checkbox_selected@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0C3AC3371F2844DC0066DA1B /* ubiquity_checkbox_selected@2x.png */; };
 		0C56FD5E1F67E98D00BE768D /* Cacher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F791F0E26BF00A13786 /* Cacher.swift */; };
-		0C56FD611F68D88E00BE768D /* DifferenceTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C56FD5F1F68D86600BE768D /* DifferenceTestCase.swift */; };
+		0C56FD611F68D88E00BE768D /* DifferenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C56FD5F1F68D86600BE768D /* DifferenceTests.swift */; };
 		0C580E0D1F2201170099E1EF /* Factory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C580E0C1F2201170099E1EF /* Factory.swift */; };
 		0C5DCB7E1EC5C680009FA343 /* UIResponder+Fullscreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5DCB7D1EC5C680009FA343 /* UIResponder+Fullscreen.swift */; };
 		0C776DEB1F165F6400D242E8 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C776DEA1F165F6400D242E8 /* Utils.swift */; };
@@ -136,6 +137,7 @@
 		0C05A26F1FC560A50084CDAB /* PickerPopoverController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerPopoverController.swift; sourceTree = "<group>"; };
 		0C05A2711FC560CF0084CDAB /* PickerPreviewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerPreviewCell.swift; sourceTree = "<group>"; };
 		0C05A2731FC590410084CDAB /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		0C05A2751FC6665C0084CDAB /* CacherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacherTests.swift; sourceTree = "<group>"; };
 		0C189CE31F299BE800E2699D /* SelectionScroller.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectionScroller.swift; sourceTree = "<group>"; };
 		0C189CE51F29AFDA00E2699D /* CADisplayLink+Block.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CADisplayLink+Block.swift"; sourceTree = "<group>"; };
 		0C19D22C1F5D71CE00A2A36B /* Change.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Change.swift; sourceTree = "<group>"; };
@@ -160,7 +162,7 @@
 		0C30A78E1F5FDA3400E5980B /* ImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageView.swift; sourceTree = "<group>"; };
 		0C3AC3361F2844DC0066DA1B /* ubiquity_checkbox_normal@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ubiquity_checkbox_normal@2x.png"; sourceTree = "<group>"; };
 		0C3AC3371F2844DC0066DA1B /* ubiquity_checkbox_selected@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ubiquity_checkbox_selected@2x.png"; sourceTree = "<group>"; };
-		0C56FD5F1F68D86600BE768D /* DifferenceTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DifferenceTestCase.swift; sourceTree = "<group>"; };
+		0C56FD5F1F68D86600BE768D /* DifferenceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DifferenceTests.swift; sourceTree = "<group>"; };
 		0C580E0C1F2201170099E1EF /* Factory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Factory.swift; sourceTree = "<group>"; };
 		0C5DCB7D1EC5C680009FA343 /* UIResponder+Fullscreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIResponder+Fullscreen.swift"; sourceTree = "<group>"; };
 		0C776DEA1F165F6400D242E8 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
@@ -434,7 +436,8 @@
 		0CE49E381E7A3FE50058F5F8 /* Ubiquity-Tests */ = {
 			isa = PBXGroup;
 			children = (
-				0C56FD5F1F68D86600BE768D /* DifferenceTestCase.swift */,
+				0C05A2751FC6665C0084CDAB /* CacherTests.swift */,
+				0C56FD5F1F68D86600BE768D /* DifferenceTests.swift */,
 				0CE49E391E7A3FE50058F5F8 /* UbiquityTests.swift */,
 				0CE49E3B1E7A3FE50058F5F8 /* Info.plist */,
 			);
@@ -547,7 +550,7 @@
 		0CE49D6F1E7A3DAA0058F5F8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0820;
+				LastSwiftUpdateCheck = 0910;
 				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = SAGESSE;
 				TargetAttributes = {
@@ -716,8 +719,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0C56FD611F68D88E00BE768D /* DifferenceTestCase.swift in Sources */,
+				0C56FD611F68D88E00BE768D /* DifferenceTests.swift in Sources */,
 				0CE49E3A1E7A3FE50058F5F8 /* UbiquityTests.swift in Sources */,
+				0C05A2851FC669A10084CDAB /* CacherTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

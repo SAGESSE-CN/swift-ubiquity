@@ -326,7 +326,7 @@ public class Source: NSObject {
         }
         
         // compare the difference between the collections changes
-        let collections = ub_diff(_filteredCollections ?? [], dest: newSource._filteredCollections ?? []) {
+        let collections = diff(_filteredCollections ?? [], dest: newSource._filteredCollections ?? []) {
             return ($0 === $1)
         }
         
@@ -416,12 +416,12 @@ public class Source: NSObject {
         }
         
         // compare the difference between the collection list changes
-        let collectionLists = ub_diff(_filteredCollectionLists ?? [], dest: newSource._filteredCollectionLists ?? []) {
+        let collectionLists = diff(_filteredCollectionLists ?? [], dest: newSource._filteredCollectionLists ?? []) {
             return ($0 as? CollectionList)?.ub_identifier == ($1 as? CollectionList)?.ub_identifier
         }
         
         // compare the difference between the collections changes
-        let collections = ub_diff(_filteredCollections ?? [], dest: newSource._filteredCollections ?? []) {
+        let collections = diff(_filteredCollections ?? [], dest: newSource._filteredCollections ?? []) {
             return ($0 === $1)
         }
         

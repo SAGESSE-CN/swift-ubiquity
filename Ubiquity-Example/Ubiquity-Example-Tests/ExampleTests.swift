@@ -134,7 +134,11 @@ class ExampleTests: XCTestCase {
         /*M=CR*/scrollView.swipeLeft()
         /*M=CR*/XCTAssertEqual(contentView.frame.maxX, scrollView.frame.width, accuracy: 1)
         /*M=CR*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.height / 2, accuracy: 1)
-
+        
+        /*M=T*/command("reset")
+        /*M=T*/scrollView.coordinate(withPosition: .top).tap()
+        /*M=T*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.width / 2, accuracy: 1)
+        /*M=T*/XCTAssertEqual(contentView.frame.minY, 0, accuracy: 1)
         
         // ======== Zoom Scale ========
         

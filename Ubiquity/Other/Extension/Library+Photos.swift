@@ -17,8 +17,9 @@ public typealias UHAssetChange = PHChange
 public class UHAssetCollection: NSObject {
     
     // Generate a collection for Photos.
-    public init(collection: PHAssetCollection) {
+    public init(collection: PHAssetCollection, collectionType: CollectionType) {
         self.collection = collection
+        self.collectionType = collectionType
     }
     
     /// Returns a Boolean value that indicates whether the receiver and a given object are equal.
@@ -69,6 +70,8 @@ public class UHAssetCollection: NSObject {
         return result
     }
     
+    /// The collection type
+    public var collectionType: CollectionType
     
     /// The mapping the collection
     public let collection: PHAssetCollection
@@ -113,7 +116,7 @@ public class UHAssetCollectionList: NSObject {
         
         // convert to `_PHCollection`
         return (0 ..< result.count).flatMap { index in
-            return .init(collection: result.object(at: index))
+            return .init(collection: result.object(at: index), collectionType: .regular)
         }
     }
     private static func _collections(with collectionType: CollectionType) -> Array<UHAssetCollection> {
@@ -124,14 +127,17 @@ public class UHAssetCollectionList: NSObject {
             
             // merge to result
             return (0 ..< result.count).flatMap { index in
-                return .init(collection: result.object(at: index))
+                return .init(collection: result.object(at: index), collectionType: .moment)
             }
         }
         
         // process recently added
         if collectionType == .recentlyAdded {
             // smart album -> recently
-            return _collections(with: .smartAlbum, .smartAlbumRecentlyAdded, true)
+            return _collections(with: .smartAlbum, .smartAlbumRecentlyAdded, true).map {
+                $0.collectionType = .recentlyAdded
+                return $0
+            }
         }
         
         // the new collections
@@ -424,7 +430,7 @@ extension UHAssetCollection: Collection {
     
     /// The type of the asset collection, such as an album or a moment.
     public var ub_collectionType: CollectionType {
-        return .regular
+        return collectionType
     }
     
     /// The subtype of the asset collection.
@@ -498,7 +504,7 @@ extension UHAssetChange: Change {
         // merge collection and result
         // must be create a new collection, otherwise the cache cannot be updated in time
         let newResult = assets?.fetchResultAfterChanges ?? result
-        let newCollection = UHAssetCollection(collection: contents?.objectAfterChanges ?? collection.collection)
+        let newCollection = UHAssetCollection(collection: contents?.objectAfterChanges ?? collection.collection, collectionType: collection.collectionType)
         
         // if only the contents change,
         // check new collection and collection is eqqual, if true ignore the changes

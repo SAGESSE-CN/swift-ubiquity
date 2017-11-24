@@ -27,9 +27,10 @@ internal class SourceController: UICollectionViewController, ChangeObserver, Tra
     /// Whether the current library has been authorization.
     private(set) var authorized: Bool = false
     
-    ///
+    /// Whether you need to caching.
     var isCachingEnabled: Bool = true
     
+    ///  Whether you need to fast loading.
     var isFastLoading: Bool = false {
         willSet {
             prepared = true

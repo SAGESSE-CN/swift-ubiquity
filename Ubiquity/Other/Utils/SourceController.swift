@@ -137,9 +137,11 @@ internal class SourceController: UICollectionViewController, ChangeObserver, Tra
         guard let displayer = cell as? Displayable, let asset = source.asset(at: indexPath), prepared else {
             return
         }
+        // gets the picture direction of the current display
+        let orientation = ub_container(container, orientationForAsset: asset)
 
         // show asset with container and orientation
-        displayer.willDisplay(with: asset, container: container, orientation: .up)
+        displayer.willDisplay(with: asset, container: container, orientation: orientation)
     }
     
     override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
@@ -244,6 +246,12 @@ internal class SourceController: UICollectionViewController, ChangeObserver, Tra
             _targetContentOffset = $0.contentOffset
             ub_cachingUpdate()
         }
+    }
+    
+    // MARK: Contents Rotation
+    
+    func ub_container(_ container: Container, orientationForAsset asset: Asset) -> UIImageOrientation {
+        return .up
     }
     
     // MARK: Contents Caching

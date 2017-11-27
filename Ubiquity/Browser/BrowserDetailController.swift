@@ -15,7 +15,7 @@ internal class BrowserDetailController: SourceController, Controller, DetailCont
     }
     
     override var prefersToolbarHidden: Bool {
-        return true
+        return false
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -103,6 +103,42 @@ internal class BrowserDetailController: SourceController, Controller, DetailCont
         navigationItem.titleView = _titleView
     }
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // setup title color for navgation bar
+        _titleView.barStyle = navigationController?.navigationBar.barStyle ?? .default
+        _titleView.titleTextAttributes = navigationController?.navigationBar.titleTextAttributes
+        
+        UIView.performWithoutAnimation {
+            // update current item
+            _updateCurrentItem(at: displayedIndexPath)
+            
+            collectionView?.scrollToItem(at: displayedIndexPath, at: .centeredHorizontally, animated: false)
+            //            indicatorItem.indicatorView.scrollToItem(at: _itemIndexPath, animated: false)
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+        
+        super.viewWillAppear(animated)
+        
+        //        UIView.animate(withDuration: 0.25) {
+        ////            self.tabBarController?.tabBar.alpha = 0
+        //            self.navigationController?.setToolbarHidden(false, animated: animated)
+        //        }
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+        
+        //        UIView.animate(withDuration: 0.25) {
+        //            self.navigationController?.setToolbarHidden(true, animated: animated)
+        ////            self.tabBarController?.tabBar.alpha = 1
+        //        }
+    }
+
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         
@@ -170,6 +206,19 @@ internal class BrowserDetailController: SourceController, Controller, DetailCont
     }
     
     // MARK: Collection View Configure
+    
+    override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        super.collectionView(collectionView, willDisplay: cell, forItemAt: indexPath)
+        
+        // only process the `BrowserDetailCell`
+        guard let cell = cell as? BrowserDetailCell else {
+            return
+        }
+        
+        // update configure
+        cell.delegate = self
+        cell.updateContentInset(_systemContentInset, forceUpdate: false)
+    }
     
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         // generate header view.
@@ -467,6 +516,10 @@ internal class BrowserDetailController: SourceController, Controller, DetailCont
             
             self.setNeedsStatusBarAppearanceUpdate()
         }
+    }
+    
+    override func ub_container(_ container: Container, orientationForAsset asset: Asset) -> UIImageOrientation {
+        return _orientationes[asset.ub_identifier] ?? .up
     }
     
     override func ub_container(_ container: Container, willPrepare source: Source) {

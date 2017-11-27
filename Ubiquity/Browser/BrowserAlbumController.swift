@@ -88,6 +88,11 @@ internal class BrowserAlbumController: SourceController, Controller, DetailContr
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.navigationController?.setToolbarHidden(false, animated: true)
+    }
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
@@ -410,10 +415,10 @@ internal class BrowserAlbumController: SourceController, Controller, DetailContr
             if source.collectionSubtypes.contains(.smartAlbumUserLibrary) || source.collectionTypes.contains(.moment) {
                 // if the contentOffset over boundary
                 let size = collectionViewLayout.collectionViewContentSize
-                let bottom = $0.contentInset.bottom - _footerViewInset.bottom
+                let height = view.frame.height - bottomLayoutGuide.length
                 
                 // reset vaild contentOffset in collectionView internal
-                $0.contentOffset.y = size.height - ($0.frame.height - bottom)
+                $0.contentOffset.y = size.height - height
             }
         }
     }

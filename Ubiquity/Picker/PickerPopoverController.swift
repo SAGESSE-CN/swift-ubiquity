@@ -11,9 +11,8 @@ import UIKit
 internal class PickerPreviewController: BrowserPreviewController {
     
     
-    
-    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        super.scrollViewDidScroll(scrollView)
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
         
         // forword change event to visable cells
         collectionView?.visibleCells.forEach {
@@ -24,5 +23,4 @@ internal class PickerPreviewController: BrowserPreviewController {
             cell.contentOffsetDidChange()
         }
     }
-    
 }

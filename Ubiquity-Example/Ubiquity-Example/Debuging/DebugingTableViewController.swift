@@ -8,6 +8,18 @@
 
 import UIKit
 
+@objc protocol DebugingRemoteDelegate {
+    // ..
+    func debugger(_ server: Shared, remote: Shared, didRecive data: Any?)
+}
+
+extension UIViewController: DebugingRemoteDelegate {
+    func debugger(_ server: Shared, remote: Shared, didRecive data: Any?) {
+        childViewControllers.forEach {
+            $0.debugger(server, remote: remote, didRecive: data)
+        }
+    }
+}
 
 class DebugingTableViewController: UITableViewController {
     
@@ -16,6 +28,15 @@ class DebugingTableViewController: UITableViewController {
         
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
+        
+        _shared.recive { [weak self] c, d in
+            self.map {
+                $0.navigationController?.debugger($0._shared, remote: c, didRecive: d)
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
+                c.send("ready")
+            }
+        }
     }
     
     @IBAction func command(_ sender: Any) {
@@ -24,4 +45,6 @@ class DebugingTableViewController: UITableViewController {
     @IBAction func close(_ sender: Any) {
         dismiss(animated: true, completion: nil)
     }
+    
+    private lazy var _shared: Shared = .listen("127.0.0.1", port: 8096)
 }

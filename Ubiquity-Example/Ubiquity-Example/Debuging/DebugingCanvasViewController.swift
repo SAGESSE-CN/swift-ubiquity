@@ -49,8 +49,8 @@ internal class DebugingCanvasViewController: UIViewController, CanvasViewDelegat
         containerView.addGestureRecognizer(tap)
     }
     
-    @IBAction func reset(_ sender: Any) {
-        guard let command = Shared.default["Command"] as? String else {
+    override func debugger(_ server: Shared, remote: Shared, didRecive data: Any?) {
+        guard let command = data as? String else {
             return
         }
         switch command {
@@ -61,7 +61,7 @@ internal class DebugingCanvasViewController: UIViewController, CanvasViewDelegat
             
         case "reload":
             containerView.setZoomScale(containerView.minimumZoomScale, animated: true)
-
+            
         default:
             break
         }

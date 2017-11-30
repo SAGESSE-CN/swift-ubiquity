@@ -67,11 +67,11 @@ class ExampleTests: XCTestCase {
         // UI tests must launch the application that they test. Doing this in setup will make sure it happens for each test method.
         application.launch()
 
-        // Create shared data.
-        shared = Shared.default
-
         // Click the three title to enter the debug mode
         application.navigationBars.element.tap(withNumberOfTaps: 3, numberOfTouches: 1)
+        
+        // Create data session.
+        shared = .connect("127.0.0.1", port: 8096)
     }
     
     override func tearDown() {
@@ -80,8 +80,9 @@ class ExampleTests: XCTestCase {
     }
     
     func command(_ message: String) {
-        shared["Command"] = message
-        application.navigationBars.buttons["Refresh"].tap()
+        
+        shared.send(message)
+        shared.wait()
     }
     
     func testCanvas() {
@@ -137,7 +138,7 @@ class ExampleTests: XCTestCase {
         
         /*M=T*/command("reset")
         /*M=T*/scrollView.coordinate(withPosition: .top).tap()
-        /*M=T*/scrollView.coordinate(withPosition: .top).tap()
+        /*M=T*/Thread.sleep(forTimeInterval: 2)
         /*M=T*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.width / 2, accuracy: 1)
         /*M=T*/XCTAssertEqual(contentView.frame.minY, 0, accuracy: 1)
         
@@ -282,12 +283,14 @@ class ExampleTests: XCTestCase {
         /*SD=0*/XCTAssertEqual(contentView.frame.maxY, content.maxY, accuracy: 1)
         
         /*SD=L*/XCUIDevice.shared.orientation = .landscapeLeft
+        /*SD=L*/Thread.sleep(forTimeInterval: 1)
         /*SD=L*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.midX, accuracy: 1)
         /*SD=L*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.midY, accuracy: 1)
         /*SD=L*/XCTAssertEqual(contentView.frame.height, scrollView.frame.height, accuracy: 2)
         /*SD=L*/XCTAssertEqual(contentView.frame.width / max(contentView.frame.height, 1), rato, accuracy: 0.1)
         
         /*SD=P*/XCUIDevice.shared.orientation = .portrait
+        /*SD=P*/Thread.sleep(forTimeInterval: 1)
         /*SD=P*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.midX, accuracy: 1)
         /*SD=P*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.midY, accuracy: 1)
         /*SD=P*/XCTAssertEqual(contentView.frame.width, scrollView.frame.width, accuracy: 2)

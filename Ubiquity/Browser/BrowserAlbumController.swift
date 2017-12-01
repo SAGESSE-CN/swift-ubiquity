@@ -440,6 +440,10 @@ internal class BrowserAlbumController: SourceController, Controller, DetailContr
         while start >= 0 {
             // the section has header view?
             guard let attributes = headers[start] else {
+                // If the first header is empty, break
+                guard start != 0 else {
+                    break
+                }
                 start -= 1
                 continue
             }

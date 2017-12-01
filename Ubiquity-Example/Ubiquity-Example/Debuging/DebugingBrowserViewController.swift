@@ -11,6 +11,14 @@ import UIKit
 import Ubiquity
 
 class DebugingBrowserAsset: Ubiquity.UHLocalAsset {
+    override init(identifier: String) {
+        super.init(identifier: identifier)
+        
+        self.pixelWidth = 1600
+        self.pixelHeight = 1200
+        self.title = identifier
+        self.subtitle = "1600x1200"
+    }
 }
 
 class DebugingBrowserCollection: Ubiquity.UHLocalAssetCollection {
@@ -23,7 +31,14 @@ class DebugingBrowserCollection: Ubiquity.UHLocalAssetCollection {
     }
     
     override var count: Int {
-        return _index
+        return _index % 8
+    }
+    
+    override func count(with type: AssetType) -> Int {
+        if type == .image {
+            return count
+        }
+        return 0
     }
     
     /// Retrieves assets from the specified asset collection.
@@ -46,7 +61,7 @@ class DebugingBrowserCollectionList: Ubiquity.UHLocalAssetCollectionList {
         if _cmds.contains("cl-empty") {
             return 0
         }
-        return 8
+        return 16
     }
     /// Retrieves collection from the specified collection list.
     override func collection(at index: Int) -> Ubiquity.UHLocalAssetCollection {

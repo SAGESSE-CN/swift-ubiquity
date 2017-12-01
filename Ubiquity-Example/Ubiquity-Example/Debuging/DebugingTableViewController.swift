@@ -27,7 +27,8 @@ class DebugingTableViewController: UITableViewController {
         super.viewDidLoad()
         
         // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
+        view.accessibilityLabel = "Server"
+        view.accessibilityValue = _shared.address.base64EncodedString()
         
         _shared.recive { [weak self] c, d in
             self.map {
@@ -39,12 +40,9 @@ class DebugingTableViewController: UITableViewController {
         }
     }
     
-    @IBAction func command(_ sender: Any) {
-    }
-    
     @IBAction func close(_ sender: Any) {
         dismiss(animated: true, completion: nil)
     }
     
-    private lazy var _shared: Shared = .listen("127.0.0.1", port: 8096)
+    private lazy var _shared: Shared = .listen("127.0.0.1")
 }

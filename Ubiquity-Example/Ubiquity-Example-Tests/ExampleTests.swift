@@ -48,6 +48,13 @@ extension XCUIElement {
     }
 }
 
+func equal(_ lhs: CGRect, _ rhs: CGRect, accuracy: CGFloat) -> Bool {
+    return fabs(lhs.minX - rhs.minX) <= accuracy
+        && fabs(lhs.minY - rhs.minY) <= accuracy
+        && fabs(lhs.maxX - rhs.maxX) <= accuracy
+        && fabs(lhs.maxY - rhs.maxY) <= accuracy
+}
+
 class ExampleTests: XCTestCase {
     
     
@@ -71,7 +78,10 @@ class ExampleTests: XCTestCase {
         application.navigationBars.element.tap(withNumberOfTaps: 3, numberOfTouches: 1)
         
         // Create data session.
-        shared = .connect("127.0.0.1", port: 8096)
+        shared = application.tables["Server"].value.map {
+            .connect(Data(base64Encoded: $0 as! String)!)
+        }
+        shared.send("test")
         
         // Reset the device orientation.
         XCUIDevice.shared.orientation = .portrait
@@ -80,36 +90,37 @@ class ExampleTests: XCTestCase {
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
+        
+        Thread.sleep(forTimeInterval: 1)
     }
     
     func command(_ message: String) {
-        
         shared.send(message)
         shared.wait()
     }
-    
+
     func testCanvas() {
         self.application.tables/*@START_MENU_TOKEN@*/.staticTexts["Canvas"]/*[[".cells.staticTexts[\"Canvas\"]",".staticTexts[\"Canvas\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
-        
+
         let application = XCUIApplication()
-        
+
         let scrollView = application.scrollViews.element
         let contentView = scrollView.children(matching: .image).element
-        let content = contentView.frame
+        let content = contentView.frame 
         let rato = content.width / max(content.height, 1)
         let mw = max(scrollView.frame.width, scrollView.frame.height)
-        
+
         XCTAssert(scrollView.exists)
         XCTAssert(contentView.exists)
 
         // ======== Move ========
-        
+
         /*M=0*/command("reload")
         /*M=0*/XCTAssertEqual(contentView.frame.minX, content.minX, accuracy: 1)
         /*M=0*/XCTAssertEqual(contentView.frame.minY, content.minY, accuracy: 1)
         /*M=0*/XCTAssertEqual(contentView.frame.maxX, content.maxX, accuracy: 1)
         /*M=0*/XCTAssertEqual(contentView.frame.maxY, content.maxY, accuracy: 1)
-        
+
         /*M=0*/application.doubleTap()
         /*M=0*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.midX, accuracy: 1)
         /*M=0*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.midY, accuracy: 1)
@@ -126,7 +137,7 @@ class ExampleTests: XCTestCase {
         /*M=TC*/scrollView.swipeDown()
         /*M=TC*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.width / 2, accuracy: 1)
         /*M=TC*/XCTAssertEqual(contentView.frame.minY, 0, accuracy: 1)
-        
+
         /*M=CL*/command("reset")
         /*M=CL*/scrollView.swipeRight()
         /*M=CL*/scrollView.swipeRight()
@@ -138,21 +149,21 @@ class ExampleTests: XCTestCase {
         /*M=CR*/scrollView.swipeLeft()
         /*M=CR*/XCTAssertEqual(contentView.frame.maxX, scrollView.frame.width, accuracy: 1)
         /*M=CR*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.height / 2, accuracy: 1)
-        
+
         /*M=T*/command("reset")
         /*M=T*/scrollView.coordinate(withPosition: .top).tap()
         /*M=T*/Thread.sleep(forTimeInterval: 2)
         /*M=T*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.width / 2, accuracy: 1)
         /*M=T*/XCTAssertEqual(contentView.frame.minY, 0, accuracy: 1)
-        
+
         // ======== Zoom Scale ========
-        
+
         /*ZS=0*/command("reload")
         /*ZS=0*/XCTAssertEqual(contentView.frame.minX, content.minX, accuracy: 1)
         /*ZS=0*/XCTAssertEqual(contentView.frame.minY, content.minY, accuracy: 1)
         /*ZS=0*/XCTAssertEqual(contentView.frame.maxX, content.maxX, accuracy: 1)
         /*ZS=0*/XCTAssertEqual(contentView.frame.maxY, content.maxY, accuracy: 1)
-        
+
         /*ZS=5*/command("reload")
         /*ZS=5*/contentView.pinch(withScale: 5.0, velocity: +2)
         /*ZS=5*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.midX, accuracy: 1)
@@ -222,55 +233,55 @@ class ExampleTests: XCTestCase {
         /*ZS=BCE*/XCTAssertEqual(contentView.frame.maxY, scrollView.frame.height, accuracy: 1)
 
         // ======== Rotation ========
-        
+
         /*R=0*/command("reload")
         /*R=0*/XCTAssertEqual(contentView.frame.minX, content.minX, accuracy: 1)
         /*R=0*/XCTAssertEqual(contentView.frame.minY, content.minY, accuracy: 1)
         /*R=0*/XCTAssertEqual(contentView.frame.maxX, content.maxX, accuracy: 1)
         /*R=0*/XCTAssertEqual(contentView.frame.maxY, content.maxY, accuracy: 1)
-        
+
         /*R=90*/contentView.rotate(CGFloat.pi / 2, withVelocity: 5)
         /*R=90*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.midX, accuracy: 1)
         /*R=90*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.midY, accuracy: 1)
         /*R=90*/XCTAssertEqual(contentView.frame.width, scrollView.frame.width, accuracy: 2)
         /*R=90*/XCTAssertEqual(contentView.frame.height / max(contentView.frame.width, 1), rato, accuracy: 0.1)
-        
+
         /*R=180*/contentView.rotate(CGFloat.pi / 2, withVelocity: 5)
         /*R=180*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.midX, accuracy: 1)
         /*R=180*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.midY, accuracy: 1)
         /*R=180*/XCTAssertEqual(contentView.frame.width, scrollView.frame.width, accuracy: 2)
         /*R=180*/XCTAssertEqual(contentView.frame.width / max(contentView.frame.height, 1), rato, accuracy: 0.1)
-        
+
         /*R=270*/contentView.rotate(CGFloat.pi / 2, withVelocity: 5)
         /*R=270*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.midX, accuracy: 1)
         /*R=270*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.midY, accuracy: 1)
         /*R=270*/XCTAssertEqual(contentView.frame.width, scrollView.frame.width, accuracy: 2)
         /*R=270*/XCTAssertEqual(contentView.frame.height / max(contentView.frame.width, 1), rato, accuracy: 0.1)
-        
+
         /*R=360*/contentView.rotate(CGFloat.pi / 2, withVelocity: 5)
         /*R=360*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.midX, accuracy: 1)
         /*R=360*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.midY, accuracy: 1)
         /*R=360*/XCTAssertEqual(contentView.frame.width, scrollView.frame.width, accuracy: 2)
         /*R=360*/XCTAssertEqual(contentView.frame.width / max(contentView.frame.height, 1), rato, accuracy: 0.1)
-        
+
         /*R=270*/contentView.rotate(-CGFloat.pi / 2, withVelocity: -5)
         /*R=270*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.midX, accuracy: 1)
         /*R=270*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.midY, accuracy: 1)
         /*R=270*/XCTAssertEqual(contentView.frame.width, scrollView.frame.width, accuracy: 2)
         /*R=270*/XCTAssertEqual(contentView.frame.height / max(contentView.frame.width, 1), rato, accuracy: 0.1)
-        
+
         /*R=180*/contentView.rotate(-CGFloat.pi / 2, withVelocity: -5)
         /*R=180*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.midX, accuracy: 1)
         /*R=180*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.midY, accuracy: 1)
         /*R=180*/XCTAssertEqual(contentView.frame.width, scrollView.frame.width, accuracy: 2)
         /*R=180*/XCTAssertEqual(contentView.frame.width / max(contentView.frame.height, 1), rato, accuracy: 0.1)
-        
+
         /*R=0*/contentView.rotate(-CGFloat.pi, withVelocity: -5)
         /*R=0*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.midX, accuracy: 1)
         /*R=0*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.midY, accuracy: 1)
         /*R=0*/XCTAssertEqual(contentView.frame.width, scrollView.frame.width, accuracy: 2)
         /*R=0*/XCTAssertEqual(contentView.frame.width / max(contentView.frame.height, 1), rato, accuracy: 0.1)
-        
+
         /*R=0*/contentView.rotate(CGFloat.pi / 4, withVelocity: 5)
         /*R=0*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.midX, accuracy: 1)
         /*R=0*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.midY, accuracy: 1)
@@ -278,20 +289,20 @@ class ExampleTests: XCTestCase {
         /*R=0*/XCTAssertEqual(contentView.frame.width / max(contentView.frame.height, 1), rato, accuracy: 0.1)
 
         // ========  Screen Direction  ========
-        
+
         /*SD=0*/command("reload")
         /*SD=0*/XCTAssertEqual(contentView.frame.minX, content.minX, accuracy: 1)
         /*SD=0*/XCTAssertEqual(contentView.frame.minY, content.minY, accuracy: 1)
         /*SD=0*/XCTAssertEqual(contentView.frame.maxX, content.maxX, accuracy: 1)
         /*SD=0*/XCTAssertEqual(contentView.frame.maxY, content.maxY, accuracy: 1)
-        
+
         /*SD=L*/XCUIDevice.shared.orientation = .landscapeLeft
         /*SD=L*/Thread.sleep(forTimeInterval: 1)
         /*SD=L*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.midX, accuracy: 1)
         /*SD=L*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.midY, accuracy: 1)
         /*SD=L*/XCTAssertEqual(contentView.frame.height, scrollView.frame.height, accuracy: 2)
         /*SD=L*/XCTAssertEqual(contentView.frame.width / max(contentView.frame.height, 1), rato, accuracy: 0.1)
-        
+
         /*SD=P*/XCUIDevice.shared.orientation = .portrait
         /*SD=P*/Thread.sleep(forTimeInterval: 1)
         /*SD=P*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.midX, accuracy: 1)
@@ -343,6 +354,55 @@ class ExampleTests: XCTestCase {
 
         self.application.navigationBars.buttons["Debuging"].tap()
     }
+    
+//    func testBrowser() {
+//        self.application.tables.staticTexts["Browser"].tap()
+//
+//        let window = self.application.windows.element(boundBy: 0)
+//
+//        XCTAssert(window.exists)
+//
+//        self.application.tables.staticTexts["Album List(Empty)"].tap()
+//
+//        print(window.staticTexts["Exception Title Label"].value)
+//        print(window.staticTexts["Exception Subtitle Label"].value)
+////        XCTAssertTrue(equal(window.tables["Exception View"].frame, window.frame, accuracy: 2))
+////        XCUIDevice.shared.orientation = .landscapeLeft
+////        Thread.sleep(forTimeInterval: 1)
+////        XCTAssertTrue(equal(window.tables["Exception View"].frame, window.frame, accuracy: 2))
+////        XCUIDevice.shared.orientation = .portrait
+//        self.application.navigationBars.buttons["Browser"].tap()
+//
+////        self.application.tables.staticTexts["Album List(Error)"].tap()
+//////        XCTAssertTrue(equal(window.tables["Exception View"].frame, window.frame, accuracy: 2))
+//////        XCUIDevice.shared.orientation = .landscapeLeft
+//////        Thread.sleep(forTimeInterval: 1)
+//////        XCTAssertTrue(equal(window.tables["Exception View"].frame, window.frame, accuracy: 2))
+//////        XCUIDevice.shared.orientation = .portrait
+////        self.application.navigationBars.buttons["Browser"].tap()
+//
+//
+////
+////        let app2 = app
+////        let app = app2
+////        let noPhotosOrVideosYouCanSyncPhotosAndVideosOntoYourIphoneUsingItunesTable = app.tables["No Photos or Videos, You can sync photos and videos onto your iPhone using iTunes."]
+////        noPhotosOrVideosYouCanSyncPhotosAndVideosOntoYourIphoneUsingItunesTable.tap()
+////        noPhotosOrVideosYouCanSyncPhotosAndVideosOntoYourIphoneUsingItunesTable.swipeUp()
+////        app.children(matching: .window).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element.children(matching: .other).element(boundBy: 0).tap()
+////
+////        let browserButton = app.navigationBars["Photos"].buttons["Browser"]
+////        browserButton.tap()
+////
+////        let tablesQuery = app2.tables
+////        tablesQuery/*@START_MENU_TOKEN@*/.staticTexts["Album List(Error)"]/*[[".cells.staticTexts[\"Album List(Error)\"]",".staticTexts[\"Album List(Error)\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
+////        browserButton.tap()
+////        tablesQuery/*@START_MENU_TOKEN@*/.staticTexts["Album List"]/*[[".cells.staticTexts[\"Album List\"]",".staticTexts[\"Album List\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
+////        tablesQuery/*@START_MENU_TOKEN@*/.staticTexts["Collection<0>"].press(forDuration: 0.7);/*[[".cells.staticTexts[\"Collection<0>\"]",".tap()",".press(forDuration: 0.7);",".staticTexts[\"Collection<0>\"]"],[[[-1,3,1],[-1,0,1]],[[-1,2],[-1,1]]],[0,0]]@END_MENU_TOKEN@*/
+////        app.navigationBars["Collection<0>"].buttons["Photos"].tap()
+////
+//
+//        self.application.navigationBars.buttons["Debuging"].tap()
+//    }
     
     private var application: XCUIApplication!
     private var shared: Shared!

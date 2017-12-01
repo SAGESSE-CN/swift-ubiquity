@@ -12,6 +12,7 @@
 		0C1E4F791F5B337F00299E64 /* TextLargetImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1E4F781F5B337F00299E64 /* TextLargetImageLoader.swift */; };
 		0C30A7891F5FD5EF00E5980B /* 019@2x.gif in Resources */ = {isa = PBXBuildFile; fileRef = 0C30A7881F5FD5EF00E5980B /* 019@2x.gif */; };
 		0C30A78B1F5FD60400E5980B /* TestAnimatedImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C30A78A1F5FD60400E5980B /* TestAnimatedImageViewController.swift */; };
+		0C5459D71FD132FB0055AE40 /* DebugingBrowserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5459D61FD132FB0055AE40 /* DebugingBrowserViewController.swift */; };
 		0CAB22701F31A91E000171A0 /* XViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CAB226F1F31A91E000171A0 /* XViewController.swift */; };
 		0CB104C61EEFF589002CB7FA /* Ubiquity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CE49E4C1E7A411D0058F5F8 /* Ubiquity.framework */; };
 		0CB104C71EEFF589002CB7FA /* Ubiquity.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0CE49E4C1E7A411D0058F5F8 /* Ubiquity.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -60,6 +61,7 @@
 		0C224C411EAC55F7001ABB47 /* TestIndicatorViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestIndicatorViewController.swift; sourceTree = "<group>"; };
 		0C30A7881F5FD5EF00E5980B /* 019@2x.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "019@2x.gif"; sourceTree = "<group>"; };
 		0C30A78A1F5FD60400E5980B /* TestAnimatedImageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestAnimatedImageViewController.swift; sourceTree = "<group>"; };
+		0C5459D61FD132FB0055AE40 /* DebugingBrowserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugingBrowserViewController.swift; sourceTree = "<group>"; };
 		0C5DCB7B1EC0C45F009FA343 /* TestVideoFilmstripViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestVideoFilmstripViewController.swift; sourceTree = "<group>"; wrapsLines = 0; };
 		0CAB226F1F31A91E000171A0 /* XViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XViewController.swift; sourceTree = "<group>"; };
 		0CB709571FC747F100E1DD4A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = "Ubiquity-Example-Tests/Info.plist"; sourceTree = "<group>"; };
@@ -120,6 +122,7 @@
 				0CB7095A1FC7480100E1DD4A /* Reference */,
 				0CC50E841FC74742008B1614 /* DebugingCanvasViewController.swift */,
 				0CC50E851FC74742008B1614 /* DebugingTableViewController.swift */,
+				0C5459D61FD132FB0055AE40 /* DebugingBrowserViewController.swift */,
 			);
 			path = Debuging;
 			sourceTree = "<group>";
@@ -297,6 +300,7 @@
 				0CAB22701F31A91E000171A0 /* XViewController.swift in Sources */,
 				0CC50E881FC74742008B1614 /* DebugingTableViewController.swift in Sources */,
 				0CE49E221E7A3F690058F5F8 /* AppDelegate.swift in Sources */,
+				0C5459D71FD132FB0055AE40 /* DebugingBrowserViewController.swift in Sources */,
 				0CC50E861FC74742008B1614 /* DebugingCanvasViewController.swift in Sources */,
 				0C1004041F1CA60100D7B09A /* TestIndicatorViewController.swift in Sources */,
 				0CB7095C1FC7485500E1DD4A /* CanvasView.swift in Sources */,

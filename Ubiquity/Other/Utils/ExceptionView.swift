@@ -36,7 +36,7 @@ internal class ExceptionView: UIView, ExceptionDisplayable {
         case .denied,
              .restricted:
             title = "No Access Permissions"
-            subtitle = "" // 此应用程序没有权限访问您的照片\n在\"设置-隐私-图片\"中开启后即可查看
+            subtitle = "Application does not have permission to access your photo." // 此应用程序没有权限访问您的照片\n在\"设置-隐私-图片\"中开启后即可查看
         }
     }
     
@@ -59,8 +59,8 @@ internal class ExceptionView: UIView, ExceptionDisplayable {
         let view = UIView()
         
         view.backgroundColor = .clear
-        view.isUserInteractionEnabled = false
         view.translatesAutoresizingMaskIntoConstraints = false
+        view.isUserInteractionEnabled = false
         
         _titleLabel.font = UIFont.systemFont(ofSize: 28)
         _titleLabel.textColor = .lightGray
@@ -95,7 +95,7 @@ internal class ExceptionView: UIView, ExceptionDisplayable {
         addSubview(view)
         addConstraints([
             .ub_make(view, .left, .equal, self, .leftMargin),
-            .ub_make(view, .right, .equal, self, .rightMargin   ),
+            .ub_make(view, .right, .equal, self, .rightMargin),
             .ub_make(view, .centerY, .equal, self, .centerY),
         ])
     }
@@ -359,8 +359,13 @@ internal extension ExceptionHandling where Self: UIViewController {
                     return view.addConstraint(.ub_make(containerView, .top, .equal, view, .top))
                 }
                 
-                // multiplier must be negative, because in scroll view, bounds.origin(0, 0) is bounds.origin(contentInset.left, contentInset.top)
-                view.addConstraint(.ub_make(containerView, .top, .equal, topLayoutGuide, .bottom, multiplier: -1))
+                if #available(iOS 11.0, *) {
+                    // in iOS 11+, `topLayoutGuide` is deprecated
+                    view.addConstraint(.ub_make(containerView, .top, .equal, topLayoutGuide, .top, multiplier: 1))
+                } else {
+                    // multiplier must be negative, because in scroll view, bounds.origin(0, 0) is bounds.origin(contentInset.left, contentInset.top)
+                    view.addConstraint(.ub_make(containerView, .top, .equal, topLayoutGuide, .bottom, multiplier: -1))
+                }
             }
         }
         get {

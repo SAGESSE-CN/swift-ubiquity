@@ -11,16 +11,29 @@ import UIKit
 
 public class Shared: NSObject {
 
-    public static func listen(_ address: String, port: UInt16) -> Shared {
+    public static func listen(_ address: String, port: UInt16 = 0) -> Shared {
         let shared = Shared(address: address, port: port)
         
-        var reused = true
-        // Settings allow reuse of local addresses and ports.
-        setsockopt(CFSocketGetNative(shared._socket), SOL_SOCKET, SO_REUSEADDR, &reused, socklen_t(MemoryLayout.size(ofValue: reused)))
+        if port != 0 {
+            var reused = true
+            // Settings allow reuse of local addresses and ports.
+            setsockopt(CFSocketGetNative(shared._socket), SOL_SOCKET, SO_REUSEADDR, &reused, socklen_t(MemoryLayout.size(ofValue: reused)))
+            
+            // Bind address for socket.
+            CFSocketSetAddress(shared._socket, shared._address)
+        } else {
+            // Bind address for socket.
+            CFSocketSetAddress(shared._socket, shared._address)
+
+            // Copy reveal address for socket.
+            shared._address = CFSocketCopyAddress(shared._socket)
+        }
         
-        // Bind address for socket.
-        CFSocketSetAddress(shared._socket, shared._address)
-        
+        return shared
+    }
+    
+    public static func connect(_ address: Data) -> Shared {
+        let shared = Shared(address: address as CFData)
         return shared
     }
     public static func connect(_ address: String, port: UInt16)  -> Shared {
@@ -56,7 +69,6 @@ public class Shared: NSObject {
                 return CFSocketCreate(kCFAllocatorDefault, PF_INET, SOCK_DGRAM, IPPROTO_UDP, CFSocketCallBackType.dataCallBack.rawValue, _SharedDataCallBack, $0)
             }
         }()
-        
         _configure()
     }
     private init(address: CFData, socket: CFSocket) {
@@ -116,6 +128,10 @@ public class Shared: NSObject {
         return data.flatMap {
             return NSKeyedUnarchiver.unarchiveObject(with: $0)
         }
+    }
+    
+    var address: Data {
+        return _address as Data
     }
 
     private var _address: CFData

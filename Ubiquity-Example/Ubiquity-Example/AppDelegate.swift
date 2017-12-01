@@ -69,8 +69,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
 //        window?.layer.speed = 0.5
 //        window?.layer.speed = 0.1
-
-        
 //class A: NSObject {
 //    func xa () {
 //    }

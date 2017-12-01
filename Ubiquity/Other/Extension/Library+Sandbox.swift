@@ -160,7 +160,7 @@ open class UHLocalAssetLibrary: NSObject {
     }
     
     /// Cancels an asynchronous request
-    func cancel(with request: UHLocalAssetRequest) {
+    open func cancel(with request: UHLocalAssetRequest) {
         fatalError()
     }
     
@@ -181,110 +181,110 @@ open class UHLocalAssetLibrary: NSObject {
 extension UHLocalAsset: Asset {
     
     /// The localized title of the asset.
-    public var ub_title: String? {
+    open var ub_title: String? {
         return title
     }
     /// The localized subtitle of the asset.
-    public var ub_subtitle: String? {
+    open var ub_subtitle: String? {
         return subtitle
     }
     /// A unique string that persistently identifies the object.
-    public var ub_identifier: String {
+    open var ub_identifier: String {
         return identifier
     }
     /// The version of the asset, identifying asset change.
-    public var ub_version: Int {
+    open var ub_version: Int {
         return version
     }
     
     /// The width, in pixels, of the asset’s image or video data.
-    public var ub_pixelWidth: Int {
+    open var ub_pixelWidth: Int {
         return pixelWidth
     }
     
     /// The height, in pixels, of the asset’s image or video data.
-    public var ub_pixelHeight: Int {
+    open var ub_pixelHeight: Int {
         return pixelHeight
     }
     
     /// The duration, in seconds, of the video asset.
     /// For photo assets, the duration is always zero.
-    public var ub_duration: TimeInterval {
+    open var ub_duration: TimeInterval {
         return duration
     }
     
     /// The asset allows play operation
-    public var ub_allowsPlay: Bool {
+    open var ub_allowsPlay: Bool {
         return type == .video
     }
     
     /// The type of the asset, such as video or audio.
-    public var ub_type: AssetType {
+    open var ub_type: AssetType {
         return type
     }
     /// The subtypes of the asset, an option of type `AssetSubtype`
-    public var ub_subtype: UInt {
+    open var ub_subtype: UInt {
         return subtype.rawValue
     }
 }
 extension UHLocalAssetCollection: Collection {
     
     /// The localized title of the collection.
-    public var ub_title: String? {
+    open var ub_title: String? {
         return title
     }
     /// The localized subtitle of the collection.
-    public var ub_subtitle: String? {
+    open var ub_subtitle: String? {
         return subtitle
     }
     
     /// A unique string that persistently identifies the object.
-    public var ub_identifier: String {
+    open var ub_identifier: String {
         return identifier
     }
     
     /// The type of the asset collection, such as an album or a moment.
-    public var ub_collectionType: CollectionType {
+    open var ub_collectionType: CollectionType {
         return .regular
     }
     
     /// The subtype of the asset collection.
-    public var ub_collectionSubtype: CollectionSubtype {
+    open var ub_collectionSubtype: CollectionSubtype {
         return .smartAlbumGeneric
     }
     
     /// The number of assets in the asset collection.
-    public var ub_count: Int {
+    open var ub_count: Int {
         return count
     }
     /// The number of assets in the asset collection.
-    public func ub_count(with type: AssetType) -> Int {
+    open func ub_count(with type: AssetType) -> Int {
         return count(with: type)
     }
     /// Retrieves assets from the specified asset collection.
-    public func ub_asset(at index: Int) -> Asset {
+    open func ub_asset(at index: Int) -> Asset {
         return asset(at: index)
     }
 }
 extension UHLocalAssetCollectionList: CollectionList {
     
     /// A unique string that persistently identifies the object.
-    public var ub_identifier: String {
+    open var ub_identifier: String {
         return identifier
     }
     
     /// The type of the asset collection, such as an album or a moment.
-    public var ub_collectionType: CollectionType {
+    open var ub_collectionType: CollectionType {
         return collectionType
     }
     
     /// The number of collection in the collection list.
-    public var ub_count: Int {
+    open var ub_count: Int {
         return count
     }
     
     /// Retrieves collection from the specified collection list.
-    public func ub_collection(at index: Int) -> Collection {
+    open func ub_collection(at index: Int) -> Collection {
         return collection(at: index)
     }
 }
@@ -292,7 +292,7 @@ extension UHLocalAssetCollectionList: CollectionList {
 extension UHLocalAssetChange: Change {
 
     /// Returns detailed change information for the specified collection.
-    public func ub_changeDetails(forCollection collection: Collection) -> ChangeDetails? {
+    open func ub_changeDetails(forCollection collection: Collection) -> ChangeDetails? {
         // must king of `UHLocalAssetCollection`
         guard let collection = collection as? UHLocalAssetCollection else {
             return nil
@@ -301,7 +301,7 @@ extension UHLocalAssetChange: Change {
     }
     
     /// Returns detailed change information for the specified colleciotn list.
-    public func ub_changeDetails(forCollectionList collectionList: CollectionList) -> ChangeDetails? {
+    open func ub_changeDetails(forCollectionList collectionList: CollectionList) -> ChangeDetails? {
         // must king of `UHLocalAssetCollectionList`
         guard let collectionList = collectionList as? UHLocalAssetCollectionList else {
             return nil
@@ -314,21 +314,21 @@ extension UHLocalAssetRequest: Request {
 extension UHLocalAssetResponse: Response {
     
     /// An error that occurred when Photos attempted to load the image.
-    public var ub_error: Error? {
+    open var ub_error: Error? {
         return error
     }
     
     /// The result image is a low-quality substitute for the requested image.
-    public var ub_degraded: Bool {
+    open var ub_degraded: Bool {
         return isDegraded
     }
     
     /// The image request was canceled.
-    public var ub_cancelled: Bool {
+    open var ub_cancelled: Bool {
         return isCancelled
     }
     /// The photo asset data is stored on the local device or must be downloaded from remote servicer
-    public var ub_downloading: Bool {
+    open var ub_downloading: Bool {
         return isDownloading
     }
 }
@@ -336,22 +336,22 @@ extension UHLocalAssetResponse: Response {
 extension UHLocalAssetLibrary: Library {
 
     /// Requests the user’s permission, if needed, for accessing the library.
-    public func ub_requestAuthorization(_ handler: @escaping (Error?) -> Void) {
+    open func ub_requestAuthorization(_ handler: @escaping (Error?) -> Void) {
         handler(nil)
     }
     
     /// Registers an object to receive messages when objects in the photo library change.
-    public func ub_addChangeObserver(_ observer: ChangeObserver) {
+    open func ub_addChangeObserver(_ observer: ChangeObserver) {
         observers.insert(observer)
     }
     
     /// Unregisters an object so that it no longer receives change messages.
-    public func ub_removeChangeObserver(_ observer: ChangeObserver) {
+    open func ub_removeChangeObserver(_ observer: ChangeObserver) {
         observers.remove(observer)
     }
     
     /// Check asset exists
-    public func ub_exists(forItem asset: Asset) -> Bool {
+    open func ub_exists(forItem asset: Asset) -> Bool {
         // asset must king of UHAsset
         guard let asset = asset as? UHLocalAsset else {
             return false
@@ -360,12 +360,12 @@ extension UHLocalAssetLibrary: Library {
     }
     
     /// Get collections with type
-    public func ub_request(forCollectionList type: CollectionType) -> CollectionList {
+    open func ub_request(forCollectionList type: CollectionType) -> CollectionList {
         return request(forCollection: type)
     }
     
     /// Requests an image representation for the specified asset.
-    public func ub_request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
+    open func ub_request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
         // asset must king of UHAsset
         guard let asset = asset as? UHLocalAsset else {
             return nil
@@ -374,7 +374,7 @@ extension UHLocalAssetLibrary: Library {
     }
     
     /// Requests a representation of the video asset for playback, to be loaded asynchronously.
-    public func ub_request(forItem asset: Asset, options: RequestOptions?, resultHandler: @escaping (AnyObject?, Response) -> ()) -> Request? {
+    open func ub_request(forItem asset: Asset, options: RequestOptions?, resultHandler: @escaping (AnyObject?, Response) -> ()) -> Request? {
         // asset must king of UHAsset
         guard let asset = asset as? UHLocalAsset else {
             return nil
@@ -383,7 +383,7 @@ extension UHLocalAssetLibrary: Library {
     }
     
     /// Cancels an asynchronous request
-    public func ub_cancel(with request: Request) {
+    open func ub_cancel(with request: Request) {
         // request must king of UHLocalAssetRequest
         guard let request = request as? UHLocalAssetRequest else {
             return
@@ -392,28 +392,28 @@ extension UHLocalAssetLibrary: Library {
     }
     
     ///A Boolean value that determines whether the image manager prepares high-quality images.
-    public var ub_allowsCachingHighQualityImages: Bool {
+    open var ub_allowsCachingHighQualityImages: Bool {
         set { return allowsCachingHighQualityImages = newValue }
         get { return allowsCachingHighQualityImages }
     }
     
     /// Prepares image representations of the specified assets for later use.
-    public func ub_startCachingImages(for assets: Array<Asset>, size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
+    open func ub_startCachingImages(for assets: Array<Asset>, size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
         // WARNING: Unrealized, late optimVization
     }
     
     /// Cancels image preparation for the specified assets and options.
-    public func ub_stopCachingImages(for assets: Array<Asset>, size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
+    open func ub_stopCachingImages(for assets: Array<Asset>, size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
         // WARNING: Unrealized, late optimVization
     }
     
     /// Cancels all image preparation that is currently in progress.
-    public func ub_stopCachingImagesForAllAssets() {
+    open func ub_stopCachingImagesForAllAssets() {
         // WARNING: Unrealized, late optimVization
     }
     
     /// Predefined size of the original request
-    public static var ub_requestMaximumSize: CGSize {
+    open static var ub_requestMaximumSize: CGSize {
         return .init(width: -1, height: -1)
     }
 }

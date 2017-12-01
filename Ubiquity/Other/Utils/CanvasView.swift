@@ -154,7 +154,7 @@ import UIKit
         
         // update init size
         _updateScale(false)
-        _updateOffset(false)
+        _updateOffset(contentOffset)
         
         // if the content is too small, ignore it
         guard rect.width < size.width || rect.height < size.height else {
@@ -231,12 +231,16 @@ import UIKit
         
         // size is change?
         if _bounds?.size != bounds.size {
+            // Must read in offset before the frame update, otherwise offset will change in the update frame.
+            let offset = contentOffset
+            
+            // Update content frame.
             _containerView.frame = bounds
             
             _updateScale(true)
-            _updateOffset(true)
-            
-            // offset needs for mapping, it is necessary to update the bounds after updating the offset
+            _updateOffset(offset, converting: true)
+
+            // Offset needs for mapping, it is necessary to update the bounds after updating the offset
             _bounds = bounds
             
             // need to notice delegate when update the bounds
@@ -295,13 +299,11 @@ import UIKit
         _containerView.maximumZoomScale = maximumZoomScale
         _containerView.zoomScale = zoomScale
     }
-    fileprivate func _updateOffset(_ converting: Bool) {
+    fileprivate func _updateOffset(_ offset: CGPoint, converting: Bool = false) {
         // if contentView is not set, ignore
         guard let view = _contentView else {
             return
         }
-
-        let offset = _containerView.contentOffset
 
         // reset center
         _contentView?.center = CGPoint(x: max(view.frame.width, bounds.width) / 2, y: max(view.frame.height, bounds.height) / 2)

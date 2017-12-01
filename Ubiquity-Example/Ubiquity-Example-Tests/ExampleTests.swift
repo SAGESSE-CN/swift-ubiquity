@@ -72,6 +72,9 @@ class ExampleTests: XCTestCase {
         
         // Create data session.
         shared = .connect("127.0.0.1", port: 8096)
+        
+        // Reset the device orientation.
+        XCUIDevice.shared.orientation = .portrait
     }
     
     override func tearDown() {
@@ -94,11 +97,11 @@ class ExampleTests: XCTestCase {
         let contentView = scrollView.children(matching: .image).element
         let content = contentView.frame
         let rato = content.width / max(content.height, 1)
+        let mw = max(scrollView.frame.width, scrollView.frame.height)
         
         XCTAssert(scrollView.exists)
         XCTAssert(contentView.exists)
-        
-        
+
         // ======== Move ========
         
         /*M=0*/command("reload")
@@ -295,6 +298,48 @@ class ExampleTests: XCTestCase {
         /*SD=P*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.midY, accuracy: 1)
         /*SD=P*/XCTAssertEqual(contentView.frame.width, scrollView.frame.width, accuracy: 2)
         /*SD=P*/XCTAssertEqual(contentView.frame.width / max(contentView.frame.height, 1), rato, accuracy: 0.1)
+
+        /*SD=CC*/command("reload")
+        /*SD=CC*/application.doubleTap()
+        /*SD=CC*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.midX, accuracy: 2)
+        /*SD=CC*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.midY, accuracy: 2)
+        /*SD=CC*/XCTAssertEqual(contentView.frame.width / max(contentView.frame.height, 1), rato, accuracy: 0.1)
+        /*SD=CC*/XCUIDevice.shared.orientation = .landscapeLeft
+        /*SD=CC*/Thread.sleep(forTimeInterval: 1)
+        /*SD=CC*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.midX, accuracy: 2)
+        /*SD=CC*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.midY, accuracy: 2)
+        /*SD=CC*/XCTAssertEqual(contentView.frame.width / max(contentView.frame.height, 1), rato, accuracy: 0.1)
+        /*SD=CC*/XCUIDevice.shared.orientation = .portrait
+        /*SD=CC*/Thread.sleep(forTimeInterval: 1)
+        /*SD=CC*/XCTAssertEqual(contentView.frame.midX, scrollView.frame.midX, accuracy: 2)
+        /*SD=CC*/XCTAssertEqual(contentView.frame.midY, scrollView.frame.midY, accuracy: 2)
+        /*SD=CC*/XCTAssertEqual(contentView.frame.width / max(contentView.frame.height, 1), rato, accuracy: 0.1)
+
+        /*SD=TL*/command("reload")
+        /*SD=TL*/contentView.coordinate(withPosition: [.top, .left]).doubleTap()
+        /*SD=TL*/XCTAssertEqual(contentView.frame.minX, 0, accuracy: 2)
+        /*SD=TL*/XCTAssertEqual(contentView.frame.minY, 0, accuracy: 2)
+        /*SD=TL*/XCUIDevice.shared.orientation = .landscapeLeft
+        /*SD=TL*/Thread.sleep(forTimeInterval: 1)
+        /*SD=TL*/XCTAssertEqual(contentView.frame.minX, 0, accuracy: 2)
+        /*SD=TL*/XCTAssertEqual(contentView.frame.minY, scrollView.frame.height / 2 - mw / 2, accuracy: 2)
+        /*SD=TL*/XCUIDevice.shared.orientation = .portrait
+        /*SD=TL*/Thread.sleep(forTimeInterval: 1)
+        /*SD=TL*/XCTAssertEqual(contentView.frame.minX, scrollView.frame.width / 2 - mw / 2, accuracy: 2)
+        /*SD=TL*/XCTAssertEqual(contentView.frame.minY, 0, accuracy: 2)
+
+        /*SD=BR*/command("reload")
+        /*SD=BR*/contentView.coordinate(withPosition: [.bottom, .right]).doubleTap()
+        /*SD=BR*/XCTAssertEqual(contentView.frame.maxX, scrollView.frame.width, accuracy: 1)
+        /*SD=BR*/XCTAssertEqual(contentView.frame.maxY, scrollView.frame.height, accuracy: 1)
+        /*SD=BR*/XCUIDevice.shared.orientation = .landscapeLeft
+        /*SD=BR*/Thread.sleep(forTimeInterval: 1)
+        /*SD=BR*/XCTAssertEqual(contentView.frame.maxX, scrollView.frame.width, accuracy: 2)
+        /*SD=BR*/XCTAssertEqual(contentView.frame.maxY, scrollView.frame.height / 2 + mw / 2, accuracy: 2)
+        /*SD=BR*/XCUIDevice.shared.orientation = .portrait
+        /*SD=BR*/Thread.sleep(forTimeInterval: 1)
+        /*SD=BR*/XCTAssertEqual(contentView.frame.maxX, scrollView.frame.width / 2 + mw / 2, accuracy: 2)
+        /*SD=BR*/XCTAssertEqual(contentView.frame.maxY, scrollView.frame.height, accuracy: 2)
 
         self.application.navigationBars.buttons["Debuging"].tap()
     }

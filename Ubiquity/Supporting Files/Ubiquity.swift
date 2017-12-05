@@ -55,6 +55,7 @@ internal extension BadgeItem {
 /// Make a system badge items
 private func __badgeItem(named: String, render: UIImageRenderingMode = .alwaysTemplate) -> BadgeItem {
     let icon = ub_image(named: named)?.withRenderingMode(render)
+    icon?.accessibilityIdentifier = named
     return .image(icon)
 }
 

@@ -287,6 +287,9 @@ internal class BadgeItemTextView: UILabel, BadgeItemView {
         font = .systemFont(ofSize: 12)
         textColor = tintColor
         //adjustsFontSizeToFitWidth = true
+        
+        isAccessibilityElement = true
+        accessibilityLabel = "BadgeItemTextView"
     }
 
     /// Display with badge item.
@@ -314,6 +317,8 @@ internal class BadgeItemImageView: UIImageView, BadgeItemView {
     func prepare() {
         
         contentMode = .center
+        isAccessibilityElement = true
+        accessibilityLabel = "BadgeItemImageView"
     }
     
     /// Display with badge item.
@@ -321,6 +326,7 @@ internal class BadgeItemImageView: UIImageView, BadgeItemView {
         switch item {
         case .image(let contents):
             image = contents
+            accessibilityIdentifier = contents?.accessibilityIdentifier
         
         case .text:
             image = nil

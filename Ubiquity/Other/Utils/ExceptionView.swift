@@ -98,6 +98,10 @@ internal class ExceptionView: UIView, ExceptionDisplayable {
             .ub_make(view, .right, .equal, self, .rightMargin),
             .ub_make(view, .centerY, .equal, self, .centerY),
         ])
+        
+        // setup accessibility
+        isAccessibilityElement = true
+        accessibilityIdentifier = "ExceptionView"
     }
     
     private lazy var _titleLabel = UILabel()

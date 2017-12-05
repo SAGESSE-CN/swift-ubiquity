@@ -28,6 +28,21 @@ class DebugingBrowserCollection: Ubiquity.UHLocalAssetCollection {
         _index = index
         super.init(identifier: "\(index)")
         title = "Collection<\(index)>"
+        
+        collectionSubtype = [
+            .smartAlbumGeneric,
+            .smartAlbumPanoramas,
+            .smartAlbumVideos,
+            .smartAlbumFavorites,
+            .smartAlbumTimelapses,
+            .smartAlbumAllHidden,
+            .smartAlbumRecentlyAdded,
+            .smartAlbumBursts,
+            .smartAlbumSlomoVideos,
+            .smartAlbumUserLibrary,
+            .smartAlbumSelfPortraits,
+            .smartAlbumScreenshots,
+        ][index % 12]
     }
     
     override var count: Int {
@@ -128,16 +143,8 @@ class DebugingBrowserViewController: UITableViewController {
             return
         }
         logger.debug?.write(cmd)
-        
-        
-//        if cmd.hasPrefix("jump:") {
-//            jump(cmd.substring(from: cmd.startIndex + 5))
-//            return
-//        }
-       
-        
     }
-
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let title = tableView.cellForRow(at: indexPath)?.textLabel?.text else {
             return
@@ -147,35 +154,67 @@ class DebugingBrowserViewController: UITableViewController {
     
     func jump(_ str: String) {
         
+        let library: Ubiquity.Library
+        let source: Ubiquity.Source
+        let type: Ubiquity.ControllerType
+        
         switch str {
-        case "Album List(Empty)":
-            let library = DebugingBrowserLibrary(cmds: ["cl-empty"])
-            let container = Ubiquity.Browser(library: library)
-            let controller = container.instantiateViewController(with: .albumsList, source: .init(collectionTypes: [.regular]))
-            show(controller, sender: nil)
+        case "Album List - Empty":
+            type = .albumsList
+            source = Source(collectionTypes: [.regular], title: str)
+            library = DebugingBrowserLibrary(cmds: ["cl-empty"])
             
-        case "Album List(Error)":
-            let library = DebugingBrowserLibrary(cmds: ["cl-error"])
-            let container = Ubiquity.Browser(library: library)
-            let controller = container.instantiateViewController(with: .albumsList, source: .init(collectionTypes: [.regular]))
-            show(controller, sender: nil)
+        case "Album List - Error":
+            type = .albumsList
+            source = Source(collectionTypes: [.regular], title: str)
+            library = DebugingBrowserLibrary(cmds: ["cl-error"])
 
-        case "Album List":
-            let library = DebugingBrowserLibrary()
-            let container = Ubiquity.Browser(library: library)
-            let controller = container.instantiateViewController(with: .albumsList, source: .init(collectionTypes: [.regular]))
-            show(controller, sender: nil)
+        case "Album List - Regular":
+            type = .albumsList
+            source = Source(collectionTypes: [.regular])
+            library = DebugingBrowserLibrary()
             
-        case "Album Lists":
-            let library = DebugingBrowserLibrary()
-            let container = Ubiquity.Browser(library: library)
-            let controller = container.instantiateViewController(with: .albumsList, source: .init(collectionTypes: [.moment, .regular, .recentlyAdded]))
-            show(controller, sender: nil)
+        case "Album List - Moments":
+            type = .albumsList
+            source = Source(collectionTypes: [.moment])
+            library = DebugingBrowserLibrary()
+            
+        case "Album List - Moments & Regular & Recently":
+            type = .albumsList
+            source = Source(collectionTypes: [.moment, .regular, .recentlyAdded])
+            library = DebugingBrowserLibrary()
+            
+        case "Albums - Empty":
+            type = .albums
+            source = Source(collectionTypes: [.regular], title: str)
+            library = DebugingBrowserLibrary(cmds: ["cl-empty"])
 
+        case "Albums - Error":
+            type = .albums
+            source = Source(collectionTypes: [.regular], title: str)
+            library = DebugingBrowserLibrary(cmds: ["cl-error"])
+
+        case "Albums - Regular":
+            type = .albums
+            source = Source(collectionTypes: [.regular], title: str)
+            library = DebugingBrowserLibrary()
+
+        case "Albums - Moments":
+            type = .albums
+            source = Source(collectionTypes: [.moment], title: str)
+            library = DebugingBrowserLibrary()
+            
+        case "Albums - Moments & Regular & Recently":
+            type = .albums
+            source = Source(collectionTypes: [.moment, .regular, .recentlyAdded])
+            library = DebugingBrowserLibrary()
 
         default:
-            print(str)
+            return
         }
+        
+        let controller = Ubiquity.Browser(library: library).instantiateViewController(with: type, source: source)
+        show(controller, sender: nil)
     }
     
     override func didReceiveMemoryWarning() {

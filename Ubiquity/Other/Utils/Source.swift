@@ -16,7 +16,7 @@ public class Source: NSObject {
     public typealias CustomFilter = ((offset: Int, collectoin: Collection)) -> Bool
     
     /// A data source with collection.
-    public init(collection: Collection) {
+    public init(collection: Collection, title: String? = nil) {
         super.init()
         
         // configure the source data
@@ -26,7 +26,7 @@ public class Source: NSObject {
         _collectionListTypes = nil
         
         // configure other
-        _title = nil
+        _title = title
         _defaultTitle = collection.ub_title
     }
 
@@ -36,16 +36,16 @@ public class Source: NSObject {
     }
     
     /// A data source with collection list.
-    public convenience init(collectionList: CollectionList, filter: CustomFilter? = nil) {
-        self.init(collectionLists: [collectionList], filter: filter)
+    public convenience init(collectionList: CollectionList, filter: CustomFilter? = nil, title: String? = nil) {
+        self.init(collectionLists: [collectionList], filter: filter, title: title)
     }
     /// A data source with collection list type.
-    public convenience init(collectionType: CollectionType, filter: CustomFilter? = nil) {
-        self.init(collectionTypes: [collectionType], filter: filter)
+    public convenience init(collectionType: CollectionType, filter: CustomFilter? = nil, title: String? = nil) {
+        self.init(collectionTypes: [collectionType], filter: filter, title: title)
     }
     
     /// A data source with multiple collection lists.
-    public init(collectionLists: [CollectionList], filter: CustomFilter? = nil) {
+    public init(collectionLists: [CollectionList], filter: CustomFilter? = nil, title: String? = nil) {
         super.init()
         
         // configure the source data
@@ -55,11 +55,11 @@ public class Source: NSObject {
         _collectionListTypes = nil
         
         // configure title
-        _title = nil
+        _title = title
         _defaultTitle = ub_defaultTitle(with: collectionLists.map({ $0.ub_collectionType }))
     }
     /// A data source with multiple collection list types.
-    public init(collectionTypes: [CollectionType], filter: CustomFilter? = nil) {
+    public init(collectionTypes: [CollectionType], filter: CustomFilter? = nil, title: String? = nil) {
         super.init()
         
         // configure the source data
@@ -69,7 +69,7 @@ public class Source: NSObject {
         _collectionListTypes = collectionTypes
         
         // configure title
-        _title = nil
+        _title = title
         _defaultTitle = ub_defaultTitle(with: collectionTypes)
     }
     
@@ -509,7 +509,7 @@ public class Source: NSObject {
     /// Content identifier
     private lazy var _identifier: String = UUID().uuidString
     
-    private var _title: String??
+    private var _title: String?
     private var _defaultTitle: String?
     
     private var _filter: CustomFilter?

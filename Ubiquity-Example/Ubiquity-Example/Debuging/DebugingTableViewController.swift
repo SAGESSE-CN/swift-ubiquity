@@ -34,9 +34,6 @@ class DebugingTableViewController: UITableViewController {
             self.map {
                 $0.navigationController?.debugger($0._shared, remote: c, didRecive: d)
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
-                c.send("ready")
-            }
         }
     }
     

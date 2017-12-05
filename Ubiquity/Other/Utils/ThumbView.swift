@@ -81,6 +81,8 @@ internal class ThumbView: UIView {
             imageView.backgroundColor = nil
             imageView.layer.borderWidth = 0.5
             imageView.layer.borderColor = UIColor.white.cgColor
+            imageView.isAccessibilityElement = true
+            imageView.accessibilityLabel = "ThumbImageView-\(index)"
             
             insertSubview(imageView, at: 0)
             imageViews.append(imageView)

@@ -23,6 +23,10 @@ struct Position: OptionSet {
 
 extension XCUIElement {
 
+    func map(_ block: (XCUIElement) -> ()) {
+        block(self)
+    }
+    
     func coordinate(withPosition position: Position) -> XCUICoordinate {
         
         let x: CGFloat
@@ -81,7 +85,6 @@ class ExampleTests: XCTestCase {
         shared = application.tables["Server"].value.map {
             .connect(Data(base64Encoded: $0 as! String)!)
         }
-        shared.send("test")
         
         // Reset the device orientation.
         XCUIDevice.shared.orientation = .portrait
@@ -95,8 +98,8 @@ class ExampleTests: XCTestCase {
     }
     
     func command(_ message: String) {
-        shared.send(message)
-        shared.wait()
+        _ = shared.send(message)
+        Thread.sleep(until: .init(timeIntervalSinceNow: 0.5))
     }
 
     func testCanvas() {
@@ -113,6 +116,7 @@ class ExampleTests: XCTestCase {
         XCTAssert(scrollView.exists)
         XCTAssert(contentView.exists)
 
+    
         // ======== Move ========
 
         /*M=0*/command("reload")
@@ -355,54 +359,250 @@ class ExampleTests: XCTestCase {
         self.application.navigationBars.buttons["Debuging"].tap()
     }
     
-//    func testBrowser() {
-//        self.application.tables.staticTexts["Browser"].tap()
-//
-//        let window = self.application.windows.element(boundBy: 0)
-//
-//        XCTAssert(window.exists)
-//
-//        self.application.tables.staticTexts["Album List(Empty)"].tap()
-//
-//        print(window.staticTexts["Exception Title Label"].value)
-//        print(window.staticTexts["Exception Subtitle Label"].value)
-////        XCTAssertTrue(equal(window.tables["Exception View"].frame, window.frame, accuracy: 2))
-////        XCUIDevice.shared.orientation = .landscapeLeft
-////        Thread.sleep(forTimeInterval: 1)
-////        XCTAssertTrue(equal(window.tables["Exception View"].frame, window.frame, accuracy: 2))
-////        XCUIDevice.shared.orientation = .portrait
-//        self.application.navigationBars.buttons["Browser"].tap()
-//
-////        self.application.tables.staticTexts["Album List(Error)"].tap()
-//////        XCTAssertTrue(equal(window.tables["Exception View"].frame, window.frame, accuracy: 2))
-//////        XCUIDevice.shared.orientation = .landscapeLeft
-//////        Thread.sleep(forTimeInterval: 1)
-//////        XCTAssertTrue(equal(window.tables["Exception View"].frame, window.frame, accuracy: 2))
-//////        XCUIDevice.shared.orientation = .portrait
-////        self.application.navigationBars.buttons["Browser"].tap()
-//
-//
-////
-////        let app2 = app
-////        let app = app2
-////        let noPhotosOrVideosYouCanSyncPhotosAndVideosOntoYourIphoneUsingItunesTable = app.tables["No Photos or Videos, You can sync photos and videos onto your iPhone using iTunes."]
-////        noPhotosOrVideosYouCanSyncPhotosAndVideosOntoYourIphoneUsingItunesTable.tap()
-////        noPhotosOrVideosYouCanSyncPhotosAndVideosOntoYourIphoneUsingItunesTable.swipeUp()
-////        app.children(matching: .window).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element.children(matching: .other).element(boundBy: 0).tap()
-////
-////        let browserButton = app.navigationBars["Photos"].buttons["Browser"]
-////        browserButton.tap()
-////
-////        let tablesQuery = app2.tables
-////        tablesQuery/*@START_MENU_TOKEN@*/.staticTexts["Album List(Error)"]/*[[".cells.staticTexts[\"Album List(Error)\"]",".staticTexts[\"Album List(Error)\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
-////        browserButton.tap()
-////        tablesQuery/*@START_MENU_TOKEN@*/.staticTexts["Album List"]/*[[".cells.staticTexts[\"Album List\"]",".staticTexts[\"Album List\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
-////        tablesQuery/*@START_MENU_TOKEN@*/.staticTexts["Collection<0>"].press(forDuration: 0.7);/*[[".cells.staticTexts[\"Collection<0>\"]",".tap()",".press(forDuration: 0.7);",".staticTexts[\"Collection<0>\"]"],[[[-1,3,1],[-1,0,1]],[[-1,2],[-1,1]]],[0,0]]@END_MENU_TOKEN@*/
-////        app.navigationBars["Collection<0>"].buttons["Photos"].tap()
-////
-//
-//        self.application.navigationBars.buttons["Debuging"].tap()
-//    }
+    func testBrowser() {
+        self.application.tables.staticTexts["Browser"].tap()
+
+        let window = self.application.windows.element(boundBy: 0)
+        let show = { (page: String, block: () -> ()) -> Void in
+            self.application.staticTexts["\(page)"].tap()
+            block()
+            self.application.buttons["Browser"].tap()
+        }
+
+        XCTAssert(window.exists)
+
+        show("Album List - Empty") {
+            application.navigationBars.element.staticTexts["Album List - Empty"].map {
+                XCTAssertEqual($0.exists, true)
+            }
+        }
+        show("Album List - Error") {
+            application.navigationBars.element.staticTexts["Album List - Error"].map {
+                XCTAssertEqual($0.exists, true)
+            }
+        }
+        
+        show("Album List - Regular") {
+            application.navigationBars.element.staticTexts["Photos"].map {
+                XCTAssertEqual($0.exists, true)
+            }
+            window.tables.element.cells.element(boundBy: 0).map {
+                XCTAssertEqual($0.exists, true)
+                XCTAssertEqual($0.frame.height, 88, accuracy: 0.5)
+
+                XCTAssertEqual($0.staticTexts.element(boundBy: 0).label, "Collection<0>")
+                XCTAssertEqual($0.staticTexts.element(boundBy: 1).label, "0")
+
+                XCTAssertEqual($0.images["ThumbImageView-0"].identifier, "")
+                XCTAssertEqual($0.images["ThumbImageView-1"].identifier, "")
+                XCTAssertEqual($0.images["ThumbImageView-2"].identifier, "")
+                
+                XCTAssertEqual($0.images["ThumbImageView-0"].frame.width, 70, accuracy: 0.5)
+                XCTAssertEqual($0.images["ThumbImageView-0"].frame.height, 70, accuracy: 0.5)
+
+                XCTAssertEqual($0.images["BadgeItemImageView"].exists, false)
+            }
+            window.tables.element.cells.element(boundBy: 1).map {
+                XCTAssertEqual($0.exists, true)
+                XCTAssertEqual($0.images["ThumbImageView-0"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-1"].exists, false)
+                XCTAssertEqual($0.images["ThumbImageView-2"].exists, false)
+                
+                XCTAssertEqual($0.images["BadgeItemImageView"].exists, true)
+                XCTAssertEqual($0.images["BadgeItemImageView"].identifier, "ubiquity_badge_panorama")
+            }
+            window.tables.element.cells.element(boundBy: 2).map {
+                XCTAssertEqual($0.exists, true)
+                XCTAssertEqual($0.images["ThumbImageView-0"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-1"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-2"].exists, false)
+                
+                XCTAssertEqual($0.images["BadgeItemImageView"].exists, true)
+                XCTAssertEqual($0.images["BadgeItemImageView"].identifier, "ubiquity_badge_video")
+            }
+            window.tables.element.cells.element(boundBy: 3).map {
+                XCTAssertEqual($0.exists, true)
+                XCTAssertEqual($0.images["ThumbImageView-0"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-1"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-2"].identifier, "t1_t")
+                
+                XCTAssertEqual($0.images["BadgeItemImageView"].exists, true)
+                XCTAssertEqual($0.images["BadgeItemImageView"].identifier, "ubiquity_badge_favorites")
+            }
+            window.tables.element.cells.element(boundBy: 4).map {
+                XCTAssertEqual($0.exists, true)
+                XCTAssertEqual($0.images["ThumbImageView-0"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-1"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-2"].identifier, "t1_t")
+                
+                XCTAssertEqual($0.images["BadgeItemImageView"].exists, true)
+                XCTAssertEqual($0.images["BadgeItemImageView"].identifier, "ubiquity_badge_timelapse")
+
+                XCTAssertEqual($0.staticTexts.element(boundBy: 0).label, "Collection<4>")
+                XCTAssertEqual($0.staticTexts.element(boundBy: 1).label, "4")
+            }
+            window.tables.element.cells.element(boundBy: 5).map {
+                XCTAssertEqual($0.exists, true)
+                XCTAssertEqual($0.images["ThumbImageView-0"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-1"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-2"].identifier, "t1_t")
+                
+                XCTAssertEqual($0.images["BadgeItemImageView"].exists, false)
+                
+                XCTAssertEqual($0.staticTexts.element(boundBy: 0).label, "Collection<5>")
+                XCTAssertEqual($0.staticTexts.element(boundBy: 1).label, "5")
+            }
+            window.tables.element.cells.element(boundBy: 6).map {
+                XCTAssertEqual($0.exists, true)
+                XCTAssertEqual($0.images["ThumbImageView-0"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-1"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-2"].identifier, "t1_t")
+                
+                XCTAssertEqual($0.images["BadgeItemImageView"].exists, false)
+                
+                XCTAssertEqual($0.staticTexts.element(boundBy: 0).label, "Collection<6>")
+                XCTAssertEqual($0.staticTexts.element(boundBy: 1).label, "6")
+            }
+            window.swipeUp()
+            window.tables.element.cells.element(boundBy: 7).map {
+                XCTAssertEqual($0.exists, true)
+                XCTAssertEqual($0.images["ThumbImageView-0"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-1"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-2"].identifier, "t1_t")
+                
+                XCTAssertEqual($0.images["BadgeItemImageView"].exists, true)
+                XCTAssertEqual($0.images["BadgeItemImageView"].identifier, "ubiquity_badge_burst")
+                
+                XCTAssertEqual($0.staticTexts.element(boundBy: 0).label, "Collection<7>")
+                XCTAssertEqual($0.staticTexts.element(boundBy: 1).label, "7")
+            }
+            window.tables.element.cells.element(boundBy: 8).map {
+                XCTAssertEqual($0.exists, true)
+                XCTAssertEqual($0.images["ThumbImageView-0"].identifier, "")
+                XCTAssertEqual($0.images["ThumbImageView-1"].identifier, "")
+                XCTAssertEqual($0.images["ThumbImageView-2"].identifier, "")
+                
+                XCTAssertEqual($0.images["BadgeItemImageView"].exists, true)
+                XCTAssertEqual($0.images["BadgeItemImageView"].identifier, "ubiquity_badge_slomo")
+                
+                XCTAssertEqual($0.staticTexts.element(boundBy: 0).label, "Collection<8>")
+                XCTAssertEqual($0.staticTexts.element(boundBy: 1).label, "0")
+            }
+            window.tables.element.cells.element(boundBy: 9).map {
+                XCTAssertEqual($0.exists, true)
+                XCTAssertEqual($0.images["ThumbImageView-0"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-1"].exists, false)
+                XCTAssertEqual($0.images["ThumbImageView-2"].exists, false)
+                
+                XCTAssertEqual($0.images["BadgeItemImageView"].exists, false)
+                
+                XCTAssertEqual($0.staticTexts.element(boundBy: 0).label, "Collection<9>")
+                XCTAssertEqual($0.staticTexts.element(boundBy: 1).label, "1")
+            }
+            window.tables.element.cells.element(boundBy: 10).map {
+                XCTAssertEqual($0.exists, true)
+                XCTAssertEqual($0.images["ThumbImageView-0"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-1"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-2"].exists, false)
+
+                XCTAssertEqual($0.images["BadgeItemImageView"].exists, true)
+                XCTAssertEqual($0.images["BadgeItemImageView"].identifier, "ubiquity_badge_selfies")
+                
+                XCTAssertEqual($0.staticTexts.element(boundBy: 0).label, "Collection<10>")
+                XCTAssertEqual($0.staticTexts.element(boundBy: 1).label, "2")
+            }
+            window.tables.element.cells.element(boundBy: 11).map {
+                XCTAssertEqual($0.exists, true)
+                XCTAssertEqual($0.images["ThumbImageView-0"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-1"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-2"].identifier, "t1_t")
+                
+                XCTAssertEqual($0.images["BadgeItemImageView"].exists, true)
+                XCTAssertEqual($0.images["BadgeItemImageView"].identifier, "ubiquity_badge_screenshots")
+                
+                XCTAssertEqual($0.staticTexts.element(boundBy: 0).label, "Collection<11>")
+                XCTAssertEqual($0.staticTexts.element(boundBy: 1).label, "3")
+            }
+        }
+        show("Album List - Moments & Regular & Recently") {
+            application.navigationBars.element.staticTexts["Photos"].map {
+                XCTAssertEqual($0.exists, true)
+            }
+            window.tables.element.cells.element(boundBy: 0).map {
+                XCTAssertEqual($0.exists, true)
+                XCTAssertEqual($0.frame.height, 88, accuracy: 0.5)
+
+                XCTAssertEqual($0.staticTexts.element(boundBy: 0).label, "Moments")
+                XCTAssertEqual($0.staticTexts.element(boundBy: 1).label, "56")
+                
+                XCTAssertEqual($0.images["ThumbImageView-0"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-1"].identifier, "t1_t")
+                XCTAssertEqual($0.images["ThumbImageView-2"].identifier, "t1_t")
+                
+                XCTAssertEqual($0.images["ThumbImageView-0"].frame.width, 70, accuracy: 0.5)
+                XCTAssertEqual($0.images["ThumbImageView-0"].frame.height, 70, accuracy: 0.5)
+                
+                XCTAssertEqual($0.images["BadgeItemImageView"].exists, false)
+                
+                // tap test
+                $0.tap()
+                application.navigationBars.buttons["Photos"].tap()
+            }
+            window.tables.element.otherElements["LINE-0"].map {
+                XCTAssertEqual($0.exists, true)
+                XCTAssertEqual($0.frame.maxX, window.frame.width, accuracy: 0.5)
+                XCTAssertEqual($0.frame.height, 1 / UIScreen.main.scale, accuracy: 0.5)
+            }
+            window.tables.element.cells.element(boundBy: 1).map {
+                XCTAssertEqual($0.exists, true)
+                XCTAssertEqual($0.staticTexts.element(boundBy: 0).label, "Collection<0>")
+                XCTAssertEqual($0.staticTexts.element(boundBy: 1).label, "0")
+                
+                XCTAssertEqual($0.images["ThumbImageView-0"].identifier, "")
+                XCTAssertEqual($0.images["ThumbImageView-1"].identifier, "")
+                XCTAssertEqual($0.images["ThumbImageView-2"].identifier, "")
+                
+                XCTAssertEqual($0.images["BadgeItemImageView"].exists, false)
+            }
+            window.tables.element.otherElements["LINE-1"].map {
+                XCTAssertEqual($0.exists, true)
+                XCTAssertEqual($0.frame.maxX, window.frame.width, accuracy: 0.5)
+                XCTAssertEqual($0.frame.height, 1 / UIScreen.main.scale, accuracy: 0.5)
+            }
+        }
+        
+        window.swipeUp() // ..
+        
+        show("Albums - Empty") {
+            window.collectionViews.element.map {
+                XCTAssertEqual($0.exists, true)
+            }
+        }
+        show("Albums - Error") {
+            window.collectionViews.element.map {
+                XCTAssertEqual($0.exists, true)
+            }
+        }
+        
+        show("Albums - Regular") {
+            window.collectionViews.element.map {
+                XCTAssertEqual($0.exists, true)
+            }
+        }
+        show("Albums - Moments") {
+            window.collectionViews.element.map {
+                XCTAssertEqual($0.exists, true)
+            }
+        }
+        show("Albums - Moments & Regular & Recently") {
+            window.collectionViews.element.map {
+                XCTAssertEqual($0.exists, true)
+            }
+        }
+
+
+        self.application.navigationBars.buttons["Debuging"].tap()
+    }
     
     private var application: XCUIApplication!
     private var shared: Shared!

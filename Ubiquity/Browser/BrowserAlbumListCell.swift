@@ -144,6 +144,8 @@ internal class BrowserAlbumListCell: UITableViewCell {
             .ub_make(_subtitleLabel, .leading, .equal, _thumbView, .trailing, 8),
             .ub_make(_subtitleLabel, .trailing, .equal, contentView, .trailing),
         ])
+        
+        isAccessibilityElement = false
     }
     
     private var _container: Container?

@@ -33,30 +33,32 @@ public class Shared: NSObject {
     }
     
     public static func connect(_ address: Data) -> Shared {
-        let shared = Shared(address: address as CFData)
+        let shared = Shared(address: address as CFData, backType: [])
         return shared
     }
     public static func connect(_ address: String, port: UInt16)  -> Shared {
-        let shared = Shared(address: address, port: port)
+        let shared = Shared(address: address, port: port, backType: [])
         return shared
     }
     
-    public func send(_ data: Any?) {
-        CFSocketSendData(_socket, _address, _encode(data) as CFData, -1)
+    public func send(_ data: Any?) -> Any? {
+        do {
+            try _SharedDataSend(_socket, to: address, data: _encode(data))
+            let data = try _SharedDataRecv(_socket)
+            return _decode(data)
+        } catch  {
+            return nil
+        }
+    }
+    public func respond(_ data: Any?) {
+        _respondData = data
     }
     
     public func recive(_ closure: @escaping (Shared, Any?) -> Void) {
         _respond = closure
     }
     
-    public func wait() {
-        let version = _version
-        while _version == version {
-            RunLoop.current.run(until: .init(timeIntervalSinceNow: 0.1))
-        }
-    }
-    
-    private init(address: CFData) {
+    private init(address: CFData, backType: CFSocketCallBackType = .dataCallBack) {
         _address = address
         super.init()
         _socket = {
@@ -66,7 +68,7 @@ public class Shared: NSObject {
             context.info = Unmanaged.passUnretained(self).toOpaque()
             
             return withUnsafePointer(to: &context) {
-                return CFSocketCreate(kCFAllocatorDefault, PF_INET, SOCK_DGRAM, IPPROTO_UDP, CFSocketCallBackType.dataCallBack.rawValue, _SharedDataCallBack, $0)
+                return CFSocketCreate(kCFAllocatorDefault, PF_INET, SOCK_DGRAM, IPPROTO_UDP, backType.rawValue, _SharedDataCallBack, $0)
             }
         }()
         _configure()
@@ -76,7 +78,7 @@ public class Shared: NSObject {
         _socket = socket
         super.init()
     }
-    private convenience init(address: String, port: UInt16) {
+    private convenience init(address: String, port: UInt16, backType: CFSocketCallBackType = .dataCallBack) {
         self.init(address: {
             let size = MemoryLayout<sockaddr_in>.size
             var addr4 = sockaddr_in()
@@ -92,7 +94,7 @@ public class Shared: NSObject {
                     return CFDataCreate(kCFAllocatorDefault, $0, size)
                 }
             }
-        }())
+        }(), backType: backType)
     }
     deinit {
         // Remove socket source for run loop.
@@ -113,10 +115,11 @@ public class Shared: NSObject {
     
     fileprivate func _recive(_ socket: CFSocket, address: CFData, data: Data?) {
         let client = Shared(address: address, socket: socket)
+
         _respond?(client, _decode(data))
         
-        // weak up
-        _version += 1
+        let respondObject = client._respondData ?? ""
+        let _ = try? _SharedDataSend(socket, to: address as Data, data: _encode(respondObject))
     }
     
     fileprivate func _encode(_ value: Any?) -> Data {
@@ -138,9 +141,34 @@ public class Shared: NSObject {
     private var _socket: CFSocket!
     private var _source: CFRunLoopSource?
     
-    private var _version: Int = 0
-    
+    private var _respondData: Any?
+
     private var _respond: ((Shared, Any?) -> Void)?
+}
+
+private func _SharedDataSend(_ socket: CFSocket, to address: Data, data: Data, timeout: TimeInterval = -1) throws {
+    let error = CFSocketSendData(socket, address as CFData, data as CFData, .init(timeout))
+    if error != .success {
+        throw NSError(domain: "socket", code: error.rawValue, userInfo: nil)
+    }
+}
+private func _SharedDataRecv(_ socket: CFSocket) throws -> Data {
+    
+    let ptr = UnsafeMutableRawPointer.allocate(bytes: 1024, alignedTo: 0)
+    let data = NSMutableData()
+    
+    while true {
+        let len = recv(CFSocketGetNative(socket), ptr, 1024, 0)
+        if len < 0 {
+            throw NSError(domain: "socket", code: -1, userInfo: nil)
+        }
+        data.append(ptr, length: len)
+        if len != 1024 {
+            break
+        }
+    }
+
+    return data as Data
 }
 
 private func _SharedDataCallBack(_ socket: CFSocket?, type: CFSocketCallBackType, address: CFData?, data: UnsafeRawPointer?, context: UnsafeMutableRawPointer?) {

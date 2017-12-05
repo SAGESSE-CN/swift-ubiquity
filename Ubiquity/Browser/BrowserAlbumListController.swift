@@ -18,7 +18,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         self.container = container
         
         // continue init the UI
-        super.init(style: .grouped)
+        super.init(nibName: nil, bundle: nil)
         super.title = source.title
         
         // listen albums any change
@@ -40,13 +40,14 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         }
     }
     
-    
     override func loadView() {
-        super.loadView()
         // setup controller
         clearsSelectionOnViewWillAppear = false
         
         // setup table view
+        tableView = UITableView(frame: UIScreen.main.applicationFrame, style: .grouped)
+        tableView.dataSource = self
+        tableView.delegate = self
         tableView.register(BrowserAlbumListCell.self, forCellReuseIdentifier: "ASSET")
         tableView.register(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: "LINE")
         tableView.separatorStyle = .none
@@ -55,6 +56,11 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         tableView.estimatedRowHeight = 0
         tableView.estimatedSectionHeaderHeight = 0
         tableView.estimatedSectionFooterHeight = 0
+        
+        tableView.isAccessibilityElement = false
+        
+        // setup view
+        view = tableView
     }
     
     override func viewDidLoad() {
@@ -122,6 +128,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         // fetch footer view for dequeue
         let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "LINE")
         footerView?.contentView.backgroundColor = .lightGray
+        footerView?.accessibilityIdentifier = "LINE-\(section)"
         return footerView
     }
     

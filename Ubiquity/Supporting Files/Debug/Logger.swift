@@ -7,7 +7,34 @@
 
 import Foundation
 
-internal protocol Logport { }
+internal protocol Logport {}
+internal extension Logport {
+    
+    // get the current class the logger
+    var logger: Logger {
+        return type(of: self).logger
+    }
+    
+    // get the current class the logger
+    static var logger: Logger {
+        return Logger(class: self)
+    }
+}
+
+internal extension NSObjectProtocol {
+    
+    // get the current class the logger
+    var logger: Logger {
+        return type(of: self).logger
+    }
+    
+    // get the current class the logger
+    static var logger: Logger {
+        return Logger(class: self)
+    }
+}
+
+internal let logger = Logger()
 internal class Logger {
     
     internal enum Priority: Int, CustomStringConvertible, Comparable {
@@ -314,7 +341,7 @@ internal class Logger {
                 #endif
             }
             
-            private static var _queue: DispatchQueue = .init(label: "logger.appender.console", qos: .background)
+            private static var _queue: DispatchQueue = _logger_queue(label: "logger.appender.console", qos: .background)
         }
         // stream write to file
         internal class File: Appender {
@@ -350,9 +377,8 @@ internal class Logger {
             }
             
             private var _file: UnsafeMutablePointer<FILE>?
-            private static var _queue: DispatchQueue = .init(label: "logger.appender.file", qos: .background)
+            private static var _queue: DispatchQueue = _logger_queue(label: "logger.appender.file", qos: .background)
         }
-        
     }
     
     fileprivate init() {
@@ -361,6 +387,7 @@ internal class Logger {
     fileprivate init(class: Any.Type) {
         _name = "\(`class`)"
     }
+    
     
     fileprivate let _name: String
     fileprivate func _logger(_ priority: Priority) -> Stream? {
@@ -401,26 +428,17 @@ internal class Logger {
         //Appender.File(), // 暂不写入文件
         Appender.Console(threshold: .all),
     ]
+    
 }
 
-internal let logger = Logger()
-
-
-
-extension NSObjectProtocol {
-    
-    // get the current class the logger
-    var logger: Logger { return type(of: self).logger }
-    
-    // get the current class the logger
-    static var logger: Logger { return Logger(class: self) }
-}
-extension Logport {
-    
-    // get the current class the logger
-    var logger: Logger { return type(of: self).logger }
-    
-    // get the current class the logger
-    static var logger: Logger { return Logger(class: self) }
+/// writeer
+fileprivate func _logger_queue(label: String, qos: DispatchQoS = .default) -> DispatchQueue {
+    if let object = objc_getAssociatedObject(DispatchQueue.self, UnsafeRawPointer(bitPattern: label.hashValue)) as? DispatchQueue {
+        return object
+    }
+    // generate an new object
+    let object = DispatchQueue(label: label, qos: qos)
+    objc_setAssociatedObject(DispatchQueue.self, UnsafeRawPointer(bitPattern: label.hashValue), object, .OBJC_ASSOCIATION_RETAIN)
+    return object
 }
 

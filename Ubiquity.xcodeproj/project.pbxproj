@@ -44,6 +44,7 @@
 		0C580E0D1F2201170099E1EF /* Factory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C580E0C1F2201170099E1EF /* Factory.swift */; };
 		0C5DCB7E1EC5C680009FA343 /* UIResponder+Fullscreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5DCB7D1EC5C680009FA343 /* UIResponder+Fullscreen.swift */; };
 		0C776DEB1F165F6400D242E8 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C776DEA1F165F6400D242E8 /* Utils.swift */; };
+		0C7791EC1FDE399D0058FF8A /* BrowserPreviewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7791EB1FDE399D0058FF8A /* BrowserPreviewLayout.swift */; };
 		0C7BB5BB1FC46703003A71A8 /* SourceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7BB5BA1FC46703003A71A8 /* SourceController.swift */; };
 		0C7D44CD1F595957006DEB53 /* SelectionStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7D44CC1F595957006DEB53 /* SelectionStatusView.swift */; };
 		0C7D45151EAB7AE800D56AB5 /* Animator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7D45061EAB7AE800D56AB5 /* Animator.swift */; };
@@ -72,7 +73,6 @@
 		0C983BC41EBB9B3E00A5A932 /* ubiquity_icon_empty_album@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0C983BC21EBB9B3E00A5A932 /* ubiquity_icon_empty_album@3x.png */; };
 		0C983BC81EBC552300A5A932 /* PhotoContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C983BC61EBC552300A5A932 /* PhotoContentView.swift */; };
 		0C983BC91EBC552300A5A932 /* VideoContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C983BC71EBC552300A5A932 /* VideoContentView.swift */; };
-		0CA453751FC4B148008D59A9 /* BrowserPreviewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CA453741FC4B148008D59A9 /* BrowserPreviewLayout.swift */; };
 		0CB00FAC1ED6E453003B0596 /* UIImageView+Animation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB00FAB1ED6E453003B0596 /* UIImageView+Animation.swift */; };
 		0CB91E731F0EB8F000741F48 /* Container.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB91E721F0EB8F000741F48 /* Container.swift */; };
 		0CBDA6021ECAE54F0016675C /* AnimatedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CBDA6011ECAE54F0016675C /* AnimatedImage.swift */; };
@@ -166,6 +166,7 @@
 		0C580E0C1F2201170099E1EF /* Factory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Factory.swift; sourceTree = "<group>"; };
 		0C5DCB7D1EC5C680009FA343 /* UIResponder+Fullscreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIResponder+Fullscreen.swift"; sourceTree = "<group>"; };
 		0C776DEA1F165F6400D242E8 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		0C7791EB1FDE399D0058FF8A /* BrowserPreviewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserPreviewLayout.swift; sourceTree = "<group>"; };
 		0C7BB5BA1FC46703003A71A8 /* SourceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceController.swift; sourceTree = "<group>"; };
 		0C7D44CC1F595957006DEB53 /* SelectionStatusView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectionStatusView.swift; sourceTree = "<group>"; };
 		0C7D45061EAB7AE800D56AB5 /* Animator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Animator.swift; sourceTree = "<group>"; };
@@ -194,7 +195,6 @@
 		0C983BC21EBB9B3E00A5A932 /* ubiquity_icon_empty_album@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ubiquity_icon_empty_album@3x.png"; sourceTree = "<group>"; };
 		0C983BC61EBC552300A5A932 /* PhotoContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoContentView.swift; sourceTree = "<group>"; };
 		0C983BC71EBC552300A5A932 /* VideoContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoContentView.swift; sourceTree = "<group>"; };
-		0CA453741FC4B148008D59A9 /* BrowserPreviewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BrowserPreviewLayout.swift; path = Ubiquity/BrowserPreviewLayout.swift; sourceTree = SOURCE_ROOT; };
 		0CB00FAB1ED6E453003B0596 /* UIImageView+Animation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImageView+Animation.swift"; sourceTree = "<group>"; };
 		0CB91E721F0EB8F000741F48 /* Container.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Container.swift; sourceTree = "<group>"; };
 		0CBDA6011ECAE54F0016675C /* AnimatedImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatedImage.swift; sourceTree = "<group>"; };
@@ -333,20 +333,12 @@
 			path = Content;
 			sourceTree = "<group>";
 		};
-		0CB00FAD1ED7B09B003B0596 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		0CE49D6E1E7A3DAA0058F5F8 = {
 			isa = PBXGroup;
 			children = (
 				0CE49D7A1E7A3DAA0058F5F8 /* Ubiquity */,
 				0CE49E381E7A3FE50058F5F8 /* Ubiquity-Tests */,
 				0CE49D791E7A3DAA0058F5F8 /* Products */,
-				0CB00FAD1ED7B09B003B0596 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -384,7 +376,7 @@
 				0CE49E7C1E7AAD5D0058F5F8 /* BrowserDetailLayout.swift */,
 				0CE49E621E7A983A0058F5F8 /* BrowserDetailController.swift */,
 				0CD0302E1EBB7F3B0098638E /* BrowserPreviewView.swift */,
-				0CA453741FC4B148008D59A9 /* BrowserPreviewLayout.swift */,
+				0C7791EB1FDE399D0058FF8A /* BrowserPreviewLayout.swift */,
 				0C05A26D1FC41C6E0084CDAB /* BrowserPreviewController.swift */,
 			);
 			path = Browser;
@@ -633,7 +625,6 @@
 				0CD0302F1EBB7F3B0098638E /* BrowserPreviewView.swift in Sources */,
 				0C1E4F6D1F5A697E00299E64 /* NavigationTitleView.swift in Sources */,
 				0C7BB5BB1FC46703003A71A8 /* SourceController.swift in Sources */,
-				0CA453751FC4B148008D59A9 /* BrowserPreviewLayout.swift in Sources */,
 				0CE49EA51E7AB11D0058F5F8 /* UIColor+Random.swift in Sources */,
 				0CE49E651E7A99180058F5F8 /* BrowserAlbumController.swift in Sources */,
 				0C19D22F1F5D7B6C00A2A36B /* Difference.swift in Sources */,
@@ -694,6 +685,7 @@
 				0CD65B751F381BD8008CD3A7 /* SelectionStatus.swift in Sources */,
 				0C2449D91F56A97A005388B8 /* WSet.swift in Sources */,
 				0C19D22D1F5D71CE00A2A36B /* Change.swift in Sources */,
+				0C7791EC1FDE399D0058FF8A /* BrowserPreviewLayout.swift in Sources */,
 				0C189CE61F29AFDA00E2699D /* CADisplayLink+Block.swift in Sources */,
 				0C7D45221EAB7AE800D56AB5 /* TilingViewLayout.swift in Sources */,
 				0CE49E691E7A9CE50058F5F8 /* BrowserAlbumCell.swift in Sources */,
@@ -859,7 +851,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = "$(SRCROOT)/Ubiquity/Supporting Files/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = SA.Librarys.Ubiquity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -881,7 +872,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = "$(SRCROOT)/Ubiquity/Supporting Files/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = SA.Librarys.Ubiquity;
 				PRODUCT_NAME = "$(TARGET_NAME)";

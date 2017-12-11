@@ -7,12 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0C05A2BE1FC670880084CDAB /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C05A2BD1FC670880084CDAB /* Logger.swift */; };
 		0C1004041F1CA60100D7B09A /* TestIndicatorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C224C411EAC55F7001ABB47 /* TestIndicatorViewController.swift */; };
 		0C1E4F791F5B337F00299E64 /* TextLargetImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1E4F781F5B337F00299E64 /* TextLargetImageLoader.swift */; };
 		0C30A7891F5FD5EF00E5980B /* 019@2x.gif in Resources */ = {isa = PBXBuildFile; fileRef = 0C30A7881F5FD5EF00E5980B /* 019@2x.gif */; };
 		0C30A78B1F5FD60400E5980B /* TestAnimatedImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C30A78A1F5FD60400E5980B /* TestAnimatedImageViewController.swift */; };
 		0C5459D71FD132FB0055AE40 /* DebugingBrowserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5459D61FD132FB0055AE40 /* DebugingBrowserViewController.swift */; };
+		0C7792081FDE3F130058FF8A /* Debugger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7792051FDE3F130058FF8A /* Debugger.swift */; };
+		0C7792091FDE3F130058FF8A /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7792061FDE3F130058FF8A /* Logger.swift */; };
+		0C77920A1FDE3F130058FF8A /* UIColor+Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7792071FDE3F130058FF8A /* UIColor+Random.swift */; };
 		0CAB22701F31A91E000171A0 /* XViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CAB226F1F31A91E000171A0 /* XViewController.swift */; };
 		0CB104C61EEFF589002CB7FA /* Ubiquity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CE49E4C1E7A411D0058F5F8 /* Ubiquity.framework */; };
 		0CB104C71EEFF589002CB7FA /* Ubiquity.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0CE49E4C1E7A411D0058F5F8 /* Ubiquity.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -55,7 +57,6 @@
 
 /* Begin PBXFileReference section */
 		0C05A2A51FC66D520084CDAB /* Ubiquity-Example-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Ubiquity-Example-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		0C05A2BD1FC670880084CDAB /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		0C16F87A1EA663E700C788C5 /* TestLayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestLayerViewController.swift; sourceTree = "<group>"; };
 		0C1E4F781F5B337F00299E64 /* TextLargetImageLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextLargetImageLoader.swift; sourceTree = "<group>"; };
 		0C224C411EAC55F7001ABB47 /* TestIndicatorViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestIndicatorViewController.swift; sourceTree = "<group>"; };
@@ -63,6 +64,9 @@
 		0C30A78A1F5FD60400E5980B /* TestAnimatedImageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestAnimatedImageViewController.swift; sourceTree = "<group>"; };
 		0C5459D61FD132FB0055AE40 /* DebugingBrowserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugingBrowserViewController.swift; sourceTree = "<group>"; };
 		0C5DCB7B1EC0C45F009FA343 /* TestVideoFilmstripViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestVideoFilmstripViewController.swift; sourceTree = "<group>"; wrapsLines = 0; };
+		0C7792051FDE3F130058FF8A /* Debugger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Debugger.swift; sourceTree = "<group>"; };
+		0C7792061FDE3F130058FF8A /* Logger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		0C7792071FDE3F130058FF8A /* UIColor+Random.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+Random.swift"; sourceTree = "<group>"; };
 		0CAB226F1F31A91E000171A0 /* XViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XViewController.swift; sourceTree = "<group>"; };
 		0CB709571FC747F100E1DD4A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = "Ubiquity-Example-Tests/Info.plist"; sourceTree = "<group>"; };
 		0CB709581FC747F100E1DD4A /* ExampleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ExampleTests.swift; path = "Ubiquity-Example-Tests/ExampleTests.swift"; sourceTree = "<group>"; };
@@ -99,6 +103,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0C7792041FDE3F130058FF8A /* Debug */ = {
+			isa = PBXGroup;
+			children = (
+				0C7792051FDE3F130058FF8A /* Debugger.swift */,
+				0C7792061FDE3F130058FF8A /* Logger.swift */,
+				0C7792071FDE3F130058FF8A /* UIColor+Random.swift */,
+			);
+			name = Debug;
+			path = "../../Ubiquity/Supporting Files/Debug";
+			sourceTree = "<group>";
+		};
 		0CB709561FC747E200E1DD4A /* Example-Tests */ = {
 			isa = PBXGroup;
 			children = (
@@ -149,9 +164,9 @@
 		0CE49E201E7A3F690058F5F8 /* Example */ = {
 			isa = PBXGroup;
 			children = (
+				0C7792041FDE3F130058FF8A /* Debug */,
 				0CC50E831FC74742008B1614 /* Debuging */,
 				0CC50E801FC727DF008B1614 /* Shared.swift */,
-				0C05A2BD1FC670880084CDAB /* Logger.swift */,
 				0C30A7881F5FD5EF00E5980B /* 019@2x.gif */,
 				0C16F87A1EA663E700C788C5 /* TestLayerViewController.swift */,
 				0C224C411EAC55F7001ABB47 /* TestIndicatorViewController.swift */,
@@ -300,12 +315,14 @@
 				0CAB22701F31A91E000171A0 /* XViewController.swift in Sources */,
 				0CC50E881FC74742008B1614 /* DebugingTableViewController.swift in Sources */,
 				0CE49E221E7A3F690058F5F8 /* AppDelegate.swift in Sources */,
+				0C7792081FDE3F130058FF8A /* Debugger.swift in Sources */,
 				0C5459D71FD132FB0055AE40 /* DebugingBrowserViewController.swift in Sources */,
 				0CC50E861FC74742008B1614 /* DebugingCanvasViewController.swift in Sources */,
+				0C7792091FDE3F130058FF8A /* Logger.swift in Sources */,
+				0C77920A1FDE3F130058FF8A /* UIColor+Random.swift in Sources */,
 				0C1004041F1CA60100D7B09A /* TestIndicatorViewController.swift in Sources */,
 				0CB7095C1FC7485500E1DD4A /* CanvasView.swift in Sources */,
 				0C30A78B1F5FD60400E5980B /* TestAnimatedImageViewController.swift in Sources */,
-				0C05A2BE1FC670880084CDAB /* Logger.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

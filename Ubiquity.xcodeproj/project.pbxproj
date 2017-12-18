@@ -62,7 +62,9 @@
 		0C7D45211EAB7AE800D56AB5 /* TilingViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7D45121EAB7AE800D56AB5 /* TilingViewCell.swift */; };
 		0C7D45221EAB7AE800D56AB5 /* TilingViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7D45131EAB7AE800D56AB5 /* TilingViewLayout.swift */; };
 		0C7D45231EAB7AE800D56AB5 /* TilingViewLayoutAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7D45141EAB7AE800D56AB5 /* TilingViewLayoutAttributes.swift */; };
+		0C7FACAE1FE7D84300FD3D55 /* UtilsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7FACAD1FE7D84300FD3D55 /* UtilsTests.swift */; };
 		0C81DE101ED7C7AE0077AE3B /* CGSize+Scale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C81DE0F1ED7C7AE0077AE3B /* CGSize+Scale.swift */; };
+		0C83A86A1FE7D13E006E76FE /* WSetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C83A8681FE7D13A006E76FE /* WSetTests.swift */; };
 		0C879F291E7EB63F00E55741 /* UINavigationController+Transitioning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C879F281E7EB63F00E55741 /* UINavigationController+Transitioning.swift */; };
 		0C8FEE5C1E8BBD710096EC4C /* UIImageOrientation+Angle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8FEE5B1E8BBD710096EC4C /* UIImageOrientation+Angle.swift */; };
 		0C8FEE5E1E8BBF540096EC4C /* CGRect+Align.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8FEE5D1E8BBF540096EC4C /* CGRect+Align.swift */; };
@@ -184,7 +186,9 @@
 		0C7D45121EAB7AE800D56AB5 /* TilingViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TilingViewCell.swift; sourceTree = "<group>"; };
 		0C7D45131EAB7AE800D56AB5 /* TilingViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TilingViewLayout.swift; sourceTree = "<group>"; };
 		0C7D45141EAB7AE800D56AB5 /* TilingViewLayoutAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TilingViewLayoutAttributes.swift; sourceTree = "<group>"; };
+		0C7FACAD1FE7D84300FD3D55 /* UtilsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UtilsTests.swift; sourceTree = "<group>"; };
 		0C81DE0F1ED7C7AE0077AE3B /* CGSize+Scale.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CGSize+Scale.swift"; sourceTree = "<group>"; };
+		0C83A8681FE7D13A006E76FE /* WSetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WSetTests.swift; sourceTree = "<group>"; };
 		0C879F281E7EB63F00E55741 /* UINavigationController+Transitioning.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UINavigationController+Transitioning.swift"; sourceTree = "<group>"; };
 		0C8FEE5B1E8BBD710096EC4C /* UIImageOrientation+Angle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImageOrientation+Angle.swift"; sourceTree = "<group>"; };
 		0C8FEE5D1E8BBF540096EC4C /* CGRect+Align.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CGRect+Align.swift"; sourceTree = "<group>"; };
@@ -428,6 +432,8 @@
 		0CE49E381E7A3FE50058F5F8 /* Ubiquity-Tests */ = {
 			isa = PBXGroup;
 			children = (
+				0C7FACAD1FE7D84300FD3D55 /* UtilsTests.swift */,
+				0C83A8681FE7D13A006E76FE /* WSetTests.swift */,
 				0C05A2751FC6665C0084CDAB /* CacherTests.swift */,
 				0C56FD5F1F68D86600BE768D /* DifferenceTests.swift */,
 				0CE49E391E7A3FE50058F5F8 /* UbiquityTests.swift */,
@@ -711,8 +717,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0C83A86A1FE7D13E006E76FE /* WSetTests.swift in Sources */,
 				0C56FD611F68D88E00BE768D /* DifferenceTests.swift in Sources */,
 				0CE49E3A1E7A3FE50058F5F8 /* UbiquityTests.swift in Sources */,
+				0C7FACAE1FE7D84300FD3D55 /* UtilsTests.swift in Sources */,
 				0C05A2851FC669A10084CDAB /* CacherTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

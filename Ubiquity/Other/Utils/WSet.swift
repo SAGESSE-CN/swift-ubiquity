@@ -104,33 +104,6 @@ public struct WSet<Element>: Hashable, ExpressibleByArrayLiteral {
         return (result.inserted, _unwarp(result.memberAfterInsert))
     }
 
-    /// Inserts the given element into the set unconditionally.
-    ///
-    /// If an element equal to `newMember` is already contained in the set,
-    /// `newMember` replaces the existing element. In this example, an existing
-    /// element is inserted into `classDays`, a set of days of the week.
-    ///
-    ///     enum DayOfTheWeek: Int {
-    ///         case sunday, monday, tuesday, wednesday, thursday,
-    ///             friday, saturday
-    ///     }
-    ///
-    ///     var classDays: Set<DayOfTheWeek> = [.monday, .wednesday, .friday]
-    ///     print(classDays.update(with: .monday))
-    ///     // Prints "Optional(.monday)"
-    ///
-    /// - Parameter newMember: An element to insert into the set.
-    /// - Returns: An element equal to `newMember` if the set already contained
-    ///   such a member; otherwise, `nil`. In some cases, the returned element
-    ///   may be distinguishable from `newMember` by identity comparison or some
-    ///   other means.
-    @discardableResult
-    public mutating func update(with newMember: Element) -> Element? {
-        return _observers.update(with: _warp(newMember)).map {
-            return _unwarp($0)
-        }
-    }
-
     /// Removes the specified element from the set.
     ///
     /// This example removes the element `"sugar"` from a set of ingredients.
@@ -160,20 +133,6 @@ public struct WSet<Element>: Hashable, ExpressibleByArrayLiteral {
     ///   default is `false`.
     public mutating func removeAll(keepingCapacity keepCapacity: Bool = false) {
         return _observers.removeAll(keepingCapacity: keepCapacity)
-    }
-
-    /// Removes the first element of the set.
-    ///
-    /// Because a set is not an ordered collection, the "first" element may not
-    /// be the first element that was added to the set. The set must not be
-    /// empty.
-    ///
-    /// - Complexity: Amortized O(1) if the set does not wrap a bridged `NSSet`.
-    ///   If the set wraps a bridged `NSSet`, the performance is unspecified.
-    ///
-    /// - Returns: A member of the set.
-    public mutating func removeFirst() -> Element {
-        return _unwarp(_observers.removeFirst())
     }
     
     /// Returns a Boolean value that indicates whether the given element exists
@@ -207,18 +166,6 @@ public struct WSet<Element>: Hashable, ExpressibleByArrayLiteral {
     /// A Boolean value that indicates whether the set is empty.
     public var isEmpty: Bool {
         return _observers.isEmpty
-    }
-
-    /// The first element of the set.
-    ///
-    /// The first element of the set is not necessarily the first element added
-    /// to the set. Don't expect any particular ordering of set elements.
-    ///
-    /// If the set is empty, the value of this property is `nil`.
-    public var first: Element? {
-        return _observers.first.map {
-            return _unwarp($0)
-        }
     }
 
     /// The hash value.

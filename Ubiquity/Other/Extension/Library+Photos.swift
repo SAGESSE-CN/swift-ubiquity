@@ -247,6 +247,7 @@ public class UHAssetLibrary: NSObject, Photos.PHPhotoLibraryChangeObserver {
         }
     }
     
+    /// Warning: if the user does not have the `Photos` access permission, create `the PHCachingImageManager` object will Carsh.
     internal var cache: PHCachingImageManager {
         if let cache = _cache {
             return cache
@@ -261,7 +262,7 @@ public class UHAssetLibrary: NSObject, Photos.PHPhotoLibraryChangeObserver {
         }
         let library = PHPhotoLibrary.shared()
         _library = library
-        library.register(self)
+        //library.register(self)
         return library
     }
     
@@ -691,6 +692,10 @@ extension UHAssetLibrary: Library {
             case .authorized:
                 handler(nil)
                 
+                // load image manager(lazy load)
+                _ = self.library
+                _ = self.cache
+
             case .denied,
                  .notDetermined:
                 handler(Exception.denied)
@@ -698,10 +703,6 @@ extension UHAssetLibrary: Library {
             case .restricted:
                 handler(Exception.restricted)
             }
-            
-            // load image manager(lazy load)
-            _ = self.library
-            _ = self.cache
         }
     }
     

@@ -55,18 +55,6 @@ internal class BrowserPreviewController: SourceController, Controller, UICollect
         view.isUserInteractionEnabled = false
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        guard let asset = source.asset(at: indexPath) else {
-            return .zero
-        }
-        
-        let width = CGFloat(asset.ub_pixelWidth)
-        let height = CGFloat(asset.ub_pixelHeight)
-        let scale = view.frame.height / max(height, 1)
-        
-        return CGSize(width: width * scale, height: view.frame.height)
-    }
-    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return Settings.default.minimumItemSpacing
     }
@@ -76,9 +64,9 @@ internal class BrowserPreviewController: SourceController, Controller, UICollect
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         // if section is empty, there is no need to fill in the blanks
-        guard collectionView.numberOfItems(inSection: section) != 0 else {
+//        guard collectionView.numberOfItems(inSection: section) != 0 else {
             return .zero
-        }
-        return .init(width: Settings.default.minimumItemSpacing, height: 0)
+//        }
+//        return .init(width: Settings.default.minimumItemSpacing, height: 0)
     }
 }

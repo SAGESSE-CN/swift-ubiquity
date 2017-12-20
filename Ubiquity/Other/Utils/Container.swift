@@ -259,7 +259,7 @@ import UIKit
         case .popover:
             factory = Factory(controller: BrowserPreviewController.self)
             
-            factory.cell = BrowserAlbumCell.self
+            factory.cell = BrowserPreviewCell.self
             factory.layout = BrowserPreviewLayout.self
             
             factory.register(UIImageView.self, for: .audio)

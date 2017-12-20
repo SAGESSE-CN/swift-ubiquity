@@ -47,12 +47,17 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable, Transitionin
     /// the displayer delegate
     weak var delegate: AnyObject?
     
+    /// Apply data with asset
+    func apply(with asset: Asset, container: Container) {
+        // save asset data
+        _asset = asset
+        _container = container
+    }
+    
     /// Will display the asset
     func willDisplay(with asset: Asset, container: Container, orientation: UIImageOrientation) {
         
         // save context
-        self.asset = asset
-        self.container = container
         self.orientation = orientation
        
         _badgeView?.isHidden = true
@@ -78,9 +83,7 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable, Transitionin
         }
         
         // clear context
-        self.asset = nil
         self.request = nil
-        self.container = nil
         
         // NOTE: can't clear images, otherwise  fast scroll when will lead to generate a snapshot of the blank
         //_imageView?.image = nil
@@ -238,14 +241,21 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable, Transitionin
     // MARK: Property
     
     // contents
-    private(set) var asset: Asset?
-    private(set) var container: Container?
+    var asset: Asset? {
+        return _asset
+    }
+    var container: Container? {
+        return _container
+    }
     
     // status
     private(set) var request: Request?
     private(set) var orientation: UIImageOrientation = .up
     
     // MARK: Ivar
+    
+    private var _asset: Asset?
+    private var _container: Container?
     
     private var _allowsInvaildContents: Bool = false
     

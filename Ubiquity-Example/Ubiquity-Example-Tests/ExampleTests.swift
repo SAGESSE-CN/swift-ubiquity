@@ -59,6 +59,8 @@ func equal(_ lhs: CGRect, _ rhs: CGRect, accuracy: CGFloat) -> Bool {
         && fabs(lhs.maxY - rhs.maxY) <= accuracy
 }
 
+
+
 class ExampleTests: XCTestCase {
     
     
@@ -71,7 +73,7 @@ class ExampleTests: XCTestCase {
         application = XCUIApplication()
         
         // Put setup code here. This method is called before the invocation of each test method in the class.
-        
+
         // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = true
         

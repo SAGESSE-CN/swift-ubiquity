@@ -31,6 +31,10 @@ internal class BrowserDetailCell: UICollectionViewCell, Displayable {
     /// The displayer delegate & event delegate
     weak var delegate: AnyObject?
     
+    /// Apply data with asset
+    func apply(with asset: Asset, container: Container) {
+    }
+    
     /// Will display the asset
     func willDisplay(with asset: Asset, container: Container, orientation: UIImageOrientation) {
         logger.trace?.write(asset.ub_identifier, "(\(asset.ub_pixelWidth), \(asset.ub_pixelHeight))")

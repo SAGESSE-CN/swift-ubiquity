@@ -17,6 +17,11 @@ public protocol Displayable: class {
     weak var delegate: AnyObject? { set get }
     
     ///
+    /// Apply data with asset
+    ///
+    func apply(with asset: Asset, container: Container)
+    
+    ///
     /// Show an asset
     ///
     /// - parameter asset: need the display the resource

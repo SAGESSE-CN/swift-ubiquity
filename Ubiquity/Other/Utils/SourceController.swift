@@ -128,8 +128,21 @@ internal class SourceController: UICollectionViewController, ChangeObserver, Tra
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        // fetch asset for source.
+        let asset = source.asset(at: indexPath)
+        
+        // fetch cell for asset identifier.
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ub_reuseIdentifier(with: asset), for: indexPath)
+
+        // apply data for asset.
+        if let displayer = cell as? Displayable, prepared {
+            asset.map {
+                displayer.apply(with: $0, container: container)
+            }
+        }
+        
         // the type must be registered
-        return collectionView.dequeueReusableCell(withReuseIdentifier: ub_reuseIdentifier(with: source.asset(at: indexPath)), for: indexPath)
+        return cell
     }
     
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
@@ -166,7 +179,7 @@ internal class SourceController: UICollectionViewController, ChangeObserver, Tra
             _targetContentOffset = scrollView.contentOffset
         }
         
-        ub_cachingUpdate()
+         ub_cachingUpdate()
     }
     
     /// The scroll view can scroll to top?
@@ -241,6 +254,9 @@ internal class SourceController: UICollectionViewController, ChangeObserver, Tra
     func ub_container(_ container: Container, didPrepare source: Source) {
         logger.trace?.write()
         
+        // The layout must be updated to create the elements.
+        collectionView?.layoutIfNeeded()
+        
         // after the prepared to update the cache information
         collectionView.map {
             _targetContentOffset = $0.contentOffset
@@ -279,18 +295,30 @@ internal class SourceController: UICollectionViewController, ChangeObserver, Tra
             return
         }
         
+        // Calculated content offset scale.
+        let scale: CGVector = ((collectionViewLayout as? UICollectionViewFlowLayout)?.scrollDirection).map {
+            switch $0 {
+            case .horizontal:
+                return .init(dx: 0.5, dy: 0.0)
+
+            case .vertical:
+                return .init(dx: 0.0, dy: 0.5)
+            }
+        } ?? .init(dx: 0.5, dy: 0.5)
+        
         // The preheat window is twice the height of the visible rect.
         let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
         let targetVisibleRect = CGRect(origin: _targetContentOffset, size: collectionView.bounds.size)
         
-        let preheatRect = visibleRect.insetBy(dx: 0, dy: -0.5 * visibleRect.height)
-        let targetPreheatRect = targetVisibleRect.insetBy(dx: 0, dy: -0.5 * targetVisibleRect.height)
+        let preheatRect = visibleRect.insetBy(dx: -scale.dx * visibleRect.width, dy: -scale.dy * visibleRect.height)
+        let targetPreheatRect = targetVisibleRect.insetBy(dx: -scale.dx * targetVisibleRect.width, dy: -scale.dy * targetVisibleRect.height)
         
         var changes = [(new: CGRect, old: CGRect)]()
         
         // Update only if the visible area is significantly different from the last preheated area.
-        let delta = abs(preheatRect.midY - _previousPreheatRect.midY)
-        if delta > view.bounds.height / 3 {
+        let delta = max(abs(preheatRect.midY - _previousPreheatRect.midY) / max(view.bounds.height / 3, 1),
+                        abs(preheatRect.midX - _previousPreheatRect.midX) / max(view.bounds.width / 3, 1))
+        if delta >= 1 {
             // need change
             changes.append((preheatRect, _previousPreheatRect))
             // Store the preheat rect to compare against in the future.
@@ -298,8 +326,9 @@ internal class SourceController: UICollectionViewController, ChangeObserver, Tra
         }
         
         // Update only if the taget visible area is significantly different from the last preheated area.
-        let targetDelta = abs(targetPreheatRect.midY - _previousTargetPreheatRect.midY)
-        if targetDelta > view.bounds.height / 3 {
+        let targetDelta = max(abs(targetPreheatRect.midY - _previousTargetPreheatRect.midY) / max(view.bounds.height / 3, 1),
+                              abs(targetPreheatRect.midX - _previousTargetPreheatRect.midX) / max(view.bounds.width / 3, 1))
+        if targetDelta >= 1 {
             // need change
             changes.append((targetPreheatRect, _previousTargetPreheatRect))
             // Store the preheat rect to compare against in the future.

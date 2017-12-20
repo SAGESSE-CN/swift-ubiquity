@@ -25,6 +25,10 @@ internal class DisplayView: UIView, Displayable {
     ///
     weak var delegate: AnyObject?
     
+    /// Apply data with asset
+    func apply(with asset: Asset, container: Container) {
+    }
+    
     /// Will display the asset
     func willDisplay(with asset: Asset, container: Container, orientation: UIImageOrientation) {
         // update rotation

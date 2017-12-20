@@ -11,8 +11,8 @@ import UIKit
 internal class PickerPreviewController: BrowserPreviewController {
     
     
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
         
         // forword change event to visable cells
         collectionView?.visibleCells.forEach {

@@ -262,7 +262,7 @@ public class UHAssetLibrary: NSObject, Photos.PHPhotoLibraryChangeObserver {
         }
         let library = PHPhotoLibrary.shared()
         _library = library
-        //library.register(self)
+        library.register(self)
         return library
     }
     

@@ -28,6 +28,7 @@ internal class Cacher: NSObject {
         // create collection list and cache
         let collectionList = _library.ub_request(forCollectionList: type)
         _collectionLists[type] = Cacher.bridging(of: collectionList)
+        collectionList.ub_preheat()
         return collectionList
     }
     
@@ -920,9 +921,21 @@ extension DispatchQueue {
 private class __Cacher: NSObject {
    
     @nonobjc func cache(_ value: Any, for key: String) {
+        // When writing, you need to lock the object.
+        objc_sync_enter(self)
+        defer {
+            objc_sync_exit(self)
+        }
+
         return _caching[key] = value
     }
     @nonobjc func cache(for key: String) -> Any? {
+        // When writing, you need to lock the object.
+        objc_sync_enter(self)
+        defer {
+            objc_sync_exit(self)
+        }
+
         return _caching[key]
     }
     
@@ -939,27 +952,27 @@ private class __CacherOfAsset: __Cacher {
     
     /// The localized title of the asset.
     dynamic var __ub_title: String? {
-        return __ub_property(&__ub_cacher.__title, newValue: self.__ub_title)
+        return __ub_property(self, ivar: &__ub_cacher.__title, newValue: self.__ub_title)
     }
     
     /// The localized subtitle of the asset.
     dynamic var __ub_subtitle: String? {
-        return __ub_property(&__ub_cacher.__subtitle, newValue: self.__ub_subtitle)
+        return __ub_property(self, ivar: &__ub_cacher.__subtitle, newValue: self.__ub_subtitle)
     }
     
     /// A unique string that persistently identifies the object.
     dynamic var __ub_identifier: String {
-        return __ub_property(&__ub_cacher.__identifier, newValue: self.__ub_identifier)
+        return __ub_property(self, ivar: &__ub_cacher.__identifier, newValue: self.__ub_identifier)
     }
     
     /// The type of the asset, such as video or audio.
     dynamic var __ub_type: AssetType {
-        return __ub_property(&__ub_cacher.__type, newValue: self.__ub_type)
+        return __ub_property(self, ivar: &__ub_cacher.__type, newValue: self.__ub_type)
     }
     
     /// The subtypes of the asset, an option of type `AssetSubtype`
     dynamic var __ub_subtype: UInt {
-        return __ub_property(&__ub_cacher.__subtype, newValue: self.__ub_subtype)
+        return __ub_property(self, ivar: &__ub_cacher.__subtype, newValue: self.__ub_subtype)
     }
     
     private var __title: String??
@@ -980,22 +993,22 @@ private class __CacherOfCollection: __Cacher {
     
     /// The localized title of the collection.
     dynamic var __ub_title: String? {
-        return __ub_property(&__ub_cacher.__title, newValue: self.__ub_title)
+        return __ub_property(self, ivar: &__ub_cacher.__title, newValue: self.__ub_title)
     }
     
     /// The localized subtitle of the collection.
     dynamic var __ub_subtitle: String? {
-        return __ub_property(&__ub_cacher.__subtitle, newValue: self.__ub_subtitle)
+        return __ub_property(self, ivar: &__ub_cacher.__subtitle, newValue: self.__ub_subtitle)
     }
     
     /// A unique string that persistently identifies the object.
     dynamic var __ub_identifier: String {
-        return __ub_property(&__ub_cacher.__identifier, newValue: self.__ub_identifier)
+        return __ub_property(self, ivar: &__ub_cacher.__identifier, newValue: self.__ub_identifier)
     }
     
     /// The number of assets in the asset collection.
     dynamic var __ub_count: Int {
-        return __ub_property(&__ub_cacher.__count, newValue: self.__ub_count)
+        return __ub_property(self, ivar: &__ub_cacher.__count, newValue: self.__ub_count)
     }
     
     /// The number of assets in the asset collection.
@@ -1027,6 +1040,7 @@ private class __CacherOfCollection: __Cacher {
         
         // fetch asset and bridging and cache
         let asset = __ub_asset(at: index)
+        asset.ub_preheat()
         cacher.__assets?[index] = Cacher.bridging(of: asset)
         return asset
     }
@@ -1070,6 +1084,7 @@ private class __CacherOfCollectionList: __Cacher {
         // fetch collection and bridging and cache
         let collection = __ub_collection(at: index)
         cacher.__colltions?[index] = Cacher.bridging(of: collection)
+        collection.ub_preheat()
         return collection
     }
     
@@ -1118,23 +1133,27 @@ private class __CacherOfChange: __Cacher {
 }
 
 /// Access variables, if not exists automatic create
-private func __ub_property<T>(_ ivar: inout T?, newValue: @autoclosure () throws -> T) rethrows -> T {
+@inline(__always)
+private func __ub_property<T>(_ self: Any, ivar: inout T?, newValue: @autoclosure () throws -> T) rethrows -> T {
     // the object is hit cache?
     if let object = ivar {
         return object
     }
+    
     // generate an new object
     let object = try newValue()
     ivar = object
     return object
 }
 
-/// Access variables for ivar, if not exists automatic create 
-private func __ub_property<T>(_ self: Any!, selector: Selector, newValue: @autoclosure () throws -> T) rethrows -> T {
+/// Access variables for ivar, if not exists automatic create
+@inline(__always)
+private func __ub_property<T>(_ self: Any, selector: Selector, newValue: @autoclosure () throws -> T) rethrows -> T {
     // the object is hit cache?
     if let object = objc_getAssociatedObject(self, UnsafeRawPointer(bitPattern: selector.hashValue)) as? T {
         return object
     }
+    
     // generate an new object
     let object = try newValue()
     objc_setAssociatedObject(self, UnsafeRawPointer(bitPattern: selector.hashValue), object, .OBJC_ASSOCIATION_RETAIN)

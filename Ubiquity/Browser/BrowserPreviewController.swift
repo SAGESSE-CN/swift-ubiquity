@@ -33,40 +33,17 @@ internal class BrowserPreviewController: SourceController, Controller, UICollect
         collectionView?.alwaysBounceHorizontal = true
         collectionView?.contentInset = UIEdgeInsetsMake(0, 0, 0, Settings.default.minimumItemSpacing)
         
-        // must set up an empty view
-        // otherwise in the performBatchUpdates header/footer create failure led to the crash
-        collectionView?.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "Empty")
-        
         // in the iOS11 must disable adjustment
         if #available(iOS 11.0, *) {
             collectionView?.contentInsetAdjustmentBehavior = .never
         }
     }
-    
-    // MARK: Collection View Configure
-    
-    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        // generate header view.
-        return collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "Empty", for: indexPath)
-    }
-    override func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
-        // hidden header view
-        view.isHidden = true
-        view.isUserInteractionEnabled = false
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return Settings.default.minimumItemSpacing
-    }
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return Settings.default.minimumItemSpacing
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         // if section is empty, there is no need to fill in the blanks
-//        guard collectionView.numberOfItems(inSection: section) != 0 else {
+        guard let collectionViewLayout = collectionViewLayout as? UICollectionViewFlowLayout, collectionView.numberOfItems(inSection: section) != 0 else {
             return .zero
-//        }
-//        return .init(width: Settings.default.minimumItemSpacing, height: 0)
+        }
+        return collectionViewLayout.sectionInset
     }
 }

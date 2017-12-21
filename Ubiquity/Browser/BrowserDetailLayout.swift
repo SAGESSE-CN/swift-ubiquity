@@ -10,6 +10,8 @@ import UIKit
 
 internal class BrowserDetailLayout: UICollectionViewFlowLayout {
     
+    
+    
     override init() {
         super.init()
         self.scrollDirection = .horizontal
@@ -18,6 +20,25 @@ internal class BrowserDetailLayout: UICollectionViewFlowLayout {
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
+    
+    var itemInset: UIEdgeInsets = .init(top: 0, left: -20, bottom: 0, right: -20)
+    
+    override func prepare() {
+        self.collectionView.map {
+            // Configuration cell size.
+            self.itemSize = .init(width: $0.frame.width + itemInset.left + itemInset.right,
+                                  height: $0.frame.height + itemInset.top + itemInset.bottom)
+
+            // Configuration cell interval.
+            self.sectionInset.left = -itemInset.left
+            self.sectionInset.right = -itemInset.right
+            
+            self.minimumLineSpacing = -itemInset.left + -itemInset.right
+            self.minimumInteritemSpacing = -itemInset.left + -itemInset.right
+        }
+        super.prepare()
+    }
+    
     
     override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard super.shouldInvalidateLayout(forBoundsChange: newBounds) else {

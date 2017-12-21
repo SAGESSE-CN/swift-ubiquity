@@ -72,8 +72,8 @@ internal class BrowserDetailController: SourceController, Controller, DetailCont
         
         view.addGestureRecognizer(interactiveDismissGestureRecognizer)
         
-        // setup colleciton view
-        collectionView?.frame = UIEdgeInsetsInsetRect(view.bounds, extraContentInset)
+        // Setup colleciton view
+        collectionView?.frame = UIEdgeInsetsInsetRect(view.bounds, (collectionViewLayout as? BrowserDetailLayout)?.itemInset ?? .zero)
         collectionView?.scrollsToTop = false
         collectionView?.isPagingEnabled = true
         collectionView?.alwaysBounceVertical = false
@@ -83,10 +83,6 @@ internal class BrowserDetailController: SourceController, Controller, DetailCont
         collectionView?.allowsMultipleSelection = false
         collectionView?.allowsSelection = false
         collectionView?.backgroundColor = view.backgroundColor
-        
-        // must set up an empty view
-        // otherwise in the performBatchUpdates header/footer create failure led to the crash
-        collectionView?.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "Empty")
         
         // in the iOS11 if there is no disable adjustment, `scrollToItem(at:, at:, animated:)` will location to a wrong position
         if #available(iOS 11.0, *) {
@@ -220,42 +216,12 @@ internal class BrowserDetailController: SourceController, Controller, DetailCont
         cell.updateContentInset(_systemContentInset, forceUpdate: false)
     }
     
-    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        // generate header view.
-        return collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "Empty", for: indexPath)
-    }
-    override func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
-        // hidden header view
-        view.isHidden = true
-        view.isUserInteractionEnabled = false
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return -extraContentInset.left * 2
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return -extraContentInset.left * 2
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         // if section is empty, there is no need to fill in the blanks
-        guard collectionView.numberOfItems(inSection: section) != 0 else {
+        guard let collectionViewLayout = collectionViewLayout as? UICollectionViewFlowLayout, collectionView.numberOfItems(inSection: section) != 0 else {
             return .zero
         }
-        return .init(width: -extraContentInset.left, height: 0)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-        // if section is empty, there is no need to fill in the blanks
-        guard collectionView.numberOfItems(inSection: section) != 0 else {
-            return .zero
-        }
-        return .init(width: -extraContentInset.right, height: 0)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return view.frame.size
+        return collectionViewLayout.sectionInset
     }
     
     /// The scrollView did scroll
@@ -265,6 +231,7 @@ internal class BrowserDetailController: SourceController, Controller, DetailCont
         guard collectionView === scrollView, !ignoreContentOffsetChange else {
             return
         }
+        //logger.trace?.write(scrollView.contentOffset)
         
         // update current item & index pathd
         _updateCurrentItem(with: scrollView.contentOffset)
@@ -551,6 +518,12 @@ internal class BrowserDetailController: SourceController, Controller, DetailCont
         }
         
         super.ub_library(library, didChange: change, source: source, changeDetails: changeDetails)
+
+        // Update current item.
+        self.collectionView.map {
+            _updateCurrentItem(with: $0.contentOffset)
+            _updateCurrentItemForIndicator(with: $0.contentOffset)
+        }
     }
     
     // MARK: Item Change
@@ -704,39 +677,39 @@ internal class BrowserDetailController: SourceController, Controller, DetailCont
         }
         
         // find item at content offset
-        guard let indexPath = collectionView.indexPathForItem(at: CGPoint(x: x, y: 0)) else {
+        guard let indexPath = collectionView.indexPathForItem(at: .init(x: x, y: 0)) else {
             return // not found, ignore
         }
         _updateCurrentItem(at: indexPath)
     }
     
     fileprivate func _updateCurrentItemForIndicator(with contentOffset: CGPoint) {
-        //        // must has a collection view
-        //        guard let collectionView = collectionView else {
-        //            return
-        //        }
-        //        let value = contentOffset.x / collectionView.bounds.width
-        //        let to = Int(ceil(value))
-        //        let from = Int(floor(value))
-        //        let percent = modf(value + 1).1
-        //        // if from index is changed
-        //        if _interactivingFromIndex != from {
-        //            // get index path from collection view
-        //            let indexPath = collectionView.indexPathForItem(at: CGPoint(x: (CGFloat(from) + 0.5) * collectionView.bounds.width , y: 0))
-        //
-        //            _interactivingFromIndex = from
-        //            _interactivingFromIndexPath = indexPath
-        //        }
-        //        // if to index is changed
-        //        if _interactivingToIndex != to {
-        //            // get index path from collection view
-        //            let indexPath = collectionView.indexPathForItem(at: CGPoint(x: (CGFloat(to) + 0.5) * collectionView.bounds.width , y: 0))
-        //
-        //            _interactivingToIndex = to
-        //            _interactivingToIndexPath = indexPath
-        //        }
-        //        // use percentage update index
-        //        indicatorItem.indicatorView.updateIndexPath(from: _interactivingFromIndexPath, to: _interactivingToIndexPath, percent: percent)
+//        // must has a collection view
+//        guard let collectionView = collectionView else {
+//            return
+//        }
+//        let value = contentOffset.x / collectionView.bounds.width
+//        let to = Int(ceil(value))
+//        let from = Int(floor(value))
+//        let percent = modf(value + 1).1
+//        // if from index is changed
+//        if _interactivingFromIndex != from {
+//            // get index path from collection view
+//            let indexPath = collectionView.indexPathForItem(at: CGPoint(x: (CGFloat(from) + 0.5) * collectionView.bounds.width , y: 0))
+//            
+//            _interactivingFromIndex = from
+//            _interactivingFromIndexPath = indexPath
+//        }
+//        // if to index is changed
+//        if _interactivingToIndex != to {
+//            // get index path from collection view
+//            let indexPath = collectionView.indexPathForItem(at: CGPoint(x: (CGFloat(to) + 0.5) * collectionView.bounds.width , y: 0))
+//
+//            _interactivingToIndex = to
+//            _interactivingToIndexPath = indexPath
+//        }
+//        // use percentage update index
+//        indicatorItem.indicatorView.updateIndexPath(from: _interactivingFromIndexPath, to: _interactivingToIndexPath, percent: percent)
     }
     fileprivate func _updateSystemContentInsetIfNeeded(forceUpdate: Bool = false) {
         
@@ -782,8 +755,6 @@ internal class BrowserDetailController: SourceController, Controller, DetailCont
     let indicatorItem = IndicatorItem()
     let interactiveDismissGestureRecognizer = UIPanGestureRecognizer()
     let tapGestureRecognizer = UITapGestureRecognizer()
-    
-    let extraContentInset = UIEdgeInsetsMake(0, -20, 0, -20)
     
     var vaildContentOffset = CGPoint.zero
     

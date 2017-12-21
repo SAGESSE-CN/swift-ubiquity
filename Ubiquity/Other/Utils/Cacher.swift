@@ -999,12 +999,10 @@ private class __CacherOfCollection: __Cacher {
     dynamic var __ub_title: String? {
         return __ub_property(self, ivar: &__ub_cacher.__title, newValue: self.__ub_title)
     }
-    
     /// The localized subtitle of the collection.
     dynamic var __ub_subtitle: String? {
         return __ub_property(self, ivar: &__ub_cacher.__subtitle, newValue: self.__ub_subtitle)
     }
-    
     /// A unique string that persistently identifies the object.
     dynamic var __ub_identifier: String {
         return __ub_property(self, ivar: &__ub_cacher.__identifier, newValue: self.__ub_identifier)
@@ -1067,6 +1065,19 @@ private class __CacherOfCollectionList: __Cacher {
         return __ub_property(self, selector: #selector(getter: self.__ub_cacher), newValue: __CacherOfCollectionList())
     }
     
+    /// The localized title of the collection list.
+    dynamic var __ub_title: String? {
+        return __ub_property(self, ivar: &__ub_cacher.__title, newValue: self.__ub_title)
+    }
+    /// The localized subtitle of the collection list.
+    dynamic var __ub_subtitle: String? {
+        return __ub_property(self, ivar: &__ub_cacher.__subtitle, newValue: self.__ub_subtitle)
+    }
+    /// A unique string that persistently identifies the object.
+    dynamic var __ub_identifier: String {
+        return __ub_property(self, ivar: &__ub_cacher.__identifier, newValue: self.__ub_identifier)
+    }
+
     /// The number of collection in the collection list.
     dynamic var __ub_count: Int {
         return self.__ub_count
@@ -1091,6 +1102,10 @@ private class __CacherOfCollectionList: __Cacher {
         collection.ub_preheat()
         return collection
     }
+    
+    private var __title: String??
+    private var __subtitle: String??
+    private var __identifier: String?
     
     private var __colltions: [Collection?]?
 }

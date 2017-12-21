@@ -15,9 +15,14 @@ public class Source: NSObject {
     /// Notice: that every change is filtered again 
     public typealias CustomFilter = ((offset: Int, collectoin: Collection)) -> Bool
     
-    /// A data source with collection.
-    public init(collection: Collection, title: String? = nil) {
+    /// A empy data source.
+    public override init() {
         super.init()
+    }
+    
+    /// A data source with collection.
+    public convenience init(collection: Collection, title: String? = nil) {
+        self.init()
         
         // configure the source data
         _filter = nil
@@ -28,11 +33,6 @@ public class Source: NSObject {
         // configure other
         _title = title
         _defaultTitle = collection.ub_title
-    }
-
-    /// A custom filter for source
-    public var filter: CustomFilter? {
-        return _filter
     }
     
     /// A data source with collection list.
@@ -45,8 +45,8 @@ public class Source: NSObject {
     }
     
     /// A data source with multiple collection lists.
-    public init(collectionLists: [CollectionList], filter: CustomFilter? = nil, title: String? = nil) {
-        super.init()
+    public convenience init(collectionLists: [CollectionList], filter: CustomFilter? = nil, title: String? = nil) {
+        self.init()
         
         // configure the source data
         _filter = filter
@@ -56,11 +56,11 @@ public class Source: NSObject {
         
         // configure title
         _title = title
-        _defaultTitle = ub_defaultTitle(with: collectionLists.map({ $0.ub_collectionType }))
+        _defaultTitle = collectionLists.flatMap({ $0.ub_title }).first ?? ub_defaultTitle(with: collectionLists.map({ $0.ub_collectionType }))
     }
     /// A data source with multiple collection list types.
-    public init(collectionTypes: [CollectionType], filter: CustomFilter? = nil, title: String? = nil) {
-        super.init()
+    public convenience init(collectionTypes: [CollectionType], filter: CustomFilter? = nil, title: String? = nil) {
+        self.init()
         
         // configure the source data
         _filter = filter
@@ -71,6 +71,11 @@ public class Source: NSObject {
         // configure title
         _title = title
         _defaultTitle = ub_defaultTitle(with: collectionTypes)
+    }
+    
+    /// A custom filter for source
+    public var filter: CustomFilter? {
+        return _filter
     }
     
     /// The source title.
@@ -312,7 +317,7 @@ public class Source: NSObject {
         return newSource
     }
     
-    
+    /// Get assets change details info.
     public func changeDetails(forAssets change: Change) -> SourceChangeDetails? {
         // hit cache?
         let cachedKey = "source-assets-\(_identifier)"
@@ -400,6 +405,8 @@ public class Source: NSObject {
         // submit changes
         return newDetails
     }
+    
+    /// Get collections change details info.
     public func changeDetails(forCollections change: Change) -> SourceChangeDetails? {
         // hit cache?
         let cachedKey = "source-collections-\(_identifier)"
@@ -523,6 +530,9 @@ public class Source: NSObject {
     private var _cachedCollectionSubtypes: Set<CollectionSubtype>?
 }
 
+//public class ReversedSource: Source {
+//}
+
 internal class SourceFolding: NSObject, Collection {
     
     /// Create a collection list folding object
@@ -552,14 +562,11 @@ internal class SourceFolding: NSObject, Collection {
     
     /// The localized title of the collection.
     internal var ub_title: String? {
-        if _cachedTitle == nil {
-            _cachedTitle = ub_defaultTitle(with: collectionList.ub_collectionType)
-        }
-        return _cachedTitle
+        return collectionList.ub_title
     }
     /// The localized subtitle of the collection.
     internal var ub_subtitle: String? {
-        return nil
+        return collectionList.ub_subtitle
     }
     /// A unique string that persistently identifies the object.
     internal var ub_identifier: String {

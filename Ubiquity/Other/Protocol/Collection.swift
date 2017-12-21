@@ -83,6 +83,10 @@ import Foundation
 /// The abstract superclass for Photos asset collection lists.
 @objc public protocol CollectionList: NSObjectProtocol {
     
+    /// The localized title of the collection list.
+    var ub_title: String? { get }
+    /// The localized subtitle of the collection list.
+    var ub_subtitle: String? { get }
     /// A unique string that persistently identifies the object.
     var ub_identifier: String { get }
     

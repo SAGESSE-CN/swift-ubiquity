@@ -454,6 +454,14 @@ extension UHAssetCollection: Collection {
 }
 extension UHAssetCollectionList: CollectionList {
     
+    /// The localized title of the collection list.
+    open var ub_title: String? {
+        return ub_defaultTitle(with: ub_collectionType)
+    }
+    /// The localized subtitle of the collection list.
+    open var ub_subtitle: String? {
+        return nil
+    }
     /// A unique string that persistently identifies the object.
     public var ub_identifier: String {
         return identifier

@@ -99,6 +99,10 @@ open class UHLocalAssetCollectionList: NSObject {
         super.init()
     }
     
+    /// The localized title of the collection list.
+    open var title: String?
+    /// The localized subtitle of the collection list.
+    open var subtitle: String?
     /// A unique string that persistently identifies the object.
     open let identifier: String
     
@@ -237,7 +241,6 @@ extension UHLocalAssetCollection: Collection {
     open var ub_subtitle: String? {
         return subtitle
     }
-    
     /// A unique string that persistently identifies the object.
     open var ub_identifier: String {
         return identifier
@@ -268,6 +271,14 @@ extension UHLocalAssetCollection: Collection {
 }
 extension UHLocalAssetCollectionList: CollectionList {
     
+    /// The localized title of the collection list.
+    open var ub_title: String? {
+        return title
+    }
+    /// The localized subtitle of the collection list.
+    open var ub_subtitle: String? {
+        return subtitle
+    }
     /// A unique string that persistently identifies the object.
     open var ub_identifier: String {
         return identifier

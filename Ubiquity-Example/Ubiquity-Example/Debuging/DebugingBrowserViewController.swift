@@ -69,6 +69,8 @@ class DebugingBrowserCollectionList: Ubiquity.UHLocalAssetCollectionList {
     init(collectionType: Ubiquity.CollectionType, cmds: [String] = []) {
         _cmds = cmds
         super.init(collectionType: collectionType)
+        
+        title = "CollectionList"
     }
     
     /// The number of collection in the collection list.

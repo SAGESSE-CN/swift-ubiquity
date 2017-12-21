@@ -38,7 +38,6 @@ internal class SourceController: UICollectionViewController, ChangeObserver, Tra
         }
     }
     
-
     init(container: Container, source: Source, factory: Factory) {
         // setup init data
         self.source = source

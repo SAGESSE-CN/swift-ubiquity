@@ -160,6 +160,8 @@ extension Source {
             
             // add change observer for library.
             self.container.addChangeObserver(self)
+            
+            logger.trace?.write()
         }
         /// Create an instance for the file.
         public required init?(coder aDecoder: NSCoder) {
@@ -168,6 +170,8 @@ extension Source {
 
         /// When an instance is destroyed, the listener must be removed.
         deinit {
+            logger.trace?.write()
+
             // Remove chnage observer for library.
             self.container.removeChangeObserver(self)
             

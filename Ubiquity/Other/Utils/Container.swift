@@ -21,8 +21,12 @@ import UIKit
         
         // add change observer
         self.library.ub_addChangeObserver(self)
+        
+        logger.trace?.write()
     }
     deinit {
+        logger.trace?.write()
+
         // remove change observer
         self.library.ub_removeChangeObserver(self)
     }

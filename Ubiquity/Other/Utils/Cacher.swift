@@ -16,10 +16,11 @@ internal class Cacher: NSObject {
         _library = library
         // super
         super.init()
+        
+        logger.trace?.write()
     }
-    
-    func preheat(_ work: @escaping () -> ()) {
-        _dispatch.util.async(execute: work)
+    deinit {
+        logger.trace?.write()
     }
     
     /// Returns collections with collectoin type
@@ -434,7 +435,7 @@ internal extension Cacher {
                 // sync to util queue
                 let completed = self._dispatch.util.sync { () -> Bool in
                     // fetch require process tasks
-                    self._caching.fetch(4) {
+                    self._caching.fetch(16) {
                         self._startCaching(with: $0, with: $1)
                     }
                     // all cache is complete?
@@ -447,7 +448,7 @@ internal extension Cacher {
                 }
                 
                 // wait some time.
-                Thread.sleep(forTimeInterval: 0.01)
+                Thread.sleep(forTimeInterval: 0.05)
             }
             // end
             self._started = false

@@ -231,8 +231,12 @@ public class UHAssetLibrary: NSObject, Photos.PHPhotoLibraryChangeObserver {
     /// Create a library
     public override init() {
         super.init()
+        
+        logger.trace?.write()
     }
     deinit {
+        logger.trace?.write()
+
         // remove change observer
         _library?.unregisterChangeObserver(self)
     }

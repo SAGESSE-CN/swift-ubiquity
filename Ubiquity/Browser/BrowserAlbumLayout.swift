@@ -11,30 +11,27 @@ import UIKit
 internal class BrowserAlbumLayout: UICollectionViewFlowLayout {
     
     override func prepare() {
-        super.prepare()
-        
-        // must be attached to the collection view
-        guard let collectionView = collectionView else {
-            return
+        self.collectionView.map {
+            // the size of the indent must be omitted
+            var rect = UIEdgeInsetsInsetRect($0.bounds, $0.contentInset)
+            
+            // in iOS11, there is a security zone concept that needs to be removed from insecure areas.
+            if #available(iOS 11.0, *) {
+                rect = UIEdgeInsetsInsetRect(rect, $0.safeAreaInsets)
+            }
+            
+            let (size, spacing) = BrowserAlbumLayout._itemSize(with: rect)
+            
+            // setup
+            self.itemSize = size
+            self.minimumLineSpacing = spacing
+            self.minimumInteritemSpacing = spacing
         }
-        
-        // the size of the indent must be omitted 
-        var rect = UIEdgeInsetsInsetRect(collectionView.bounds, collectionView.contentInset)
-        
-        // in iOS11, there is a security zone concept that needs to be removed from insecure areas.
-        if #available(iOS 11.0, *) {
-            rect = UIEdgeInsetsInsetRect(rect, collectionView.safeAreaInsets)
-        }
-        
-        let (size, spacing) = BrowserAlbumLayout._itemSize(with: rect)
-        
-        // setup
-        itemSize = size
-        minimumLineSpacing = spacing
-        minimumInteritemSpacing = spacing
         
         // clear header cache
         _cachedAllHeaderLayoutAttributes = nil
+
+        super.prepare()
     }
     
     override func finalizeAnimatedBoundsChange() {

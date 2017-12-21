@@ -35,8 +35,8 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
     }
     
     /// The library has some change
-    override func ub_library(_ library: Library, didChange change: Change, source: Source, changeDetails: SourceChangeDetails) {
-        super.ub_library(library, didChange: change, source: source, changeDetails: changeDetails)
+    override func library(_ library: Library, change: Change, source newSource: Source, apply changeDetails: SourceChangeDetails) {
+        super.library(library, change: change, source: newSource, apply: changeDetails)
         
         // clear selector cache
         _selectionRectangle.clear()
@@ -311,5 +311,7 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
     private lazy var _selectionScroller: SelectionScroller = .init()
     private lazy var _selectionRectangle: SelectionRectangle = .init()
     private lazy var _selectionGestureRecognizer: UIPanGestureRecognizer = .init()
+ 
+ 
 }
 

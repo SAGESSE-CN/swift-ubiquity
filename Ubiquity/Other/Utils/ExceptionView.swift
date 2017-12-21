@@ -199,14 +199,14 @@ internal class ExceptionContainerView: UIView, UIGestureRecognizerDelegate {
 internal protocol ExceptionHandling: class {
     
     /// Call before request authorization
-    func ub_container(_ container: Container, willAuthorization source: Source)
+    func controller(_ container: Container, willAuthorization source: Source)
     /// Call after completion of request authorization
-    func ub_container(_ container: Container, didAuthorization source: Source, error: Error?)
+    func controller(_ container: Container, didAuthorization source: Source, error: Error?)
     
     /// Call before request load
-    func ub_container(_ container: Container, willLoad source: Source)
+    func controller(_ container: Container, willLoad source: Source)
     /// Call after completion of load
-    func ub_container(_ container: Container, didLoad source: Source, error: Error?)
+    func controller(_ container: Container, didLoad source: Source, error: Error?)
     
 }
 
@@ -218,7 +218,7 @@ internal extension ExceptionHandling where Self: UIViewController {
         logger.trace?.write()
         
         // prepare the UI for authorization
-        self.ub_container(container, willAuthorization: source)
+        self.controller(container, willAuthorization: source)
         self.ub_execptionContainerView = {
             // when requesting permissions, need to add a mask layer
             let containerView = ExceptionContainerView(frame: view.bounds)
@@ -236,7 +236,7 @@ internal extension ExceptionHandling where Self: UIViewController {
             DispatchQueue.main.async {
                 // processing for authorization issues.
                 self.ub_execptionContainerView?.update(error, container: container, sender: self, animated: true)
-                self.ub_container(container, didAuthorization: source, error: error)
+                self.controller(container, didAuthorization: source, error: error)
                 
                 // authorization is success?
                 guard error == nil else {
@@ -244,7 +244,7 @@ internal extension ExceptionHandling where Self: UIViewController {
                 }
                 
                 // if request data for library an error occurs, retunr the non nil
-                self.ub_container(container, willLoad: source)
+                self.controller(container, willLoad: source)
                 self.ub_execptionContainerView?.update(nil, container: container, sender: self, animated: true)
                 
                 // sent data loading request
@@ -253,7 +253,7 @@ internal extension ExceptionHandling where Self: UIViewController {
                     DispatchQueue.main.async {
                         // processing for load issue.
                         self.ub_execption(with: container, source: source, error: error, animated: true)
-                        self.ub_container(container, didLoad: source, error: error)
+                        self.controller(container, didLoad: source, error: error)
                     }
                 }
             }

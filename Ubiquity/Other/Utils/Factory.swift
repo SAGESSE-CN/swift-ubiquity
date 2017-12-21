@@ -18,12 +18,6 @@ public enum ControllerType {
     case detail
 }
 
-internal protocol Controller {
-    
-    /// Base controller craete method
-    init(container: Container, source: Source, sender: Any?)
-}
-
 internal class Factory: NSObject {
     
     init(controller: Controller.Type) {
@@ -46,11 +40,16 @@ internal class Factory: NSObject {
         } ?? [:]
     }
     
-    func register(_ contentClass: AnyClass?, for media: AssetType) {
+    func register(_ contentClass: AnyClass?, for identifier: String) {
         // update content class
-        _contents[ub_identifier(with: media)] = contentClass
+        _contents[identifier] = contentClass
     }
     
+    func instantiateViewController(with container: Container, source: Source, parameter: Any?) -> UIViewController? {
+        // ...
+        return controller.init(container: container, source: source, factory: self, parameter: parameter) as? UIViewController
+    }
+
     var controller: Controller.Type
     
     dynamic var cell: AnyClass?
@@ -58,7 +57,6 @@ internal class Factory: NSObject {
     
     private var _contents: Dictionary<String, AnyClass?> = [:]
 }
-
 
 // with `conetntClass` generates a new class
 private func _makeClass(_ cellClass: AnyClass, _ contentClass: AnyClass?) -> AnyClass {

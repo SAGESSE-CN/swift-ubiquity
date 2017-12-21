@@ -141,11 +141,11 @@ import UIKit
     }
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
-    open func ub_library(_ library: Library, didChange change: Change) {
+    open func library(_ library: Library, didChange change: Change) {
         // ignoring is begin?
         guard _dispatch == nil else {
             _dispatch?.async {
-                self.ub_library(library, didChange: change)
+                self.library(library, didChange: change)
             }
             return
         }
@@ -155,7 +155,7 @@ import UIKit
         
         // notifity all observers
         self.observers.forEach {
-            $0.ub_library(library, didChange: change)
+            $0.library(library, didChange: change)
         }
     }
     
@@ -166,11 +166,11 @@ import UIKit
     // MARK: Content
     
     /// Create the view controller with controller type
-    open func instantiateViewController(with type: ControllerType, source: Source, sender: Any? = nil) -> UIViewController {
+    open func instantiateViewController(with type: ControllerType, source: Source, parameter: Any? = nil) -> UIViewController {
         logger.trace?.write(type)
         
         // create a controlelr
-        guard let controller = factory(with: type).controller.init(container: self, source: source, sender: sender) as? UIViewController else {
+        guard let controller = factory(with: type).instantiateViewController(with: self, source: source, parameter: parameter) else {
             logger.fatal?.write("The controller creation failed. This is an unknown error!")
             fatalError("The controller creation failed. This is an unknown error!")
         }
@@ -202,7 +202,7 @@ import UIKit
         }
         
         // register content view in factory
-        factory(with: type).register(contentViewClass, for: media)
+        factory(with: type).register(contentViewClass, for: ub_identifier(with: media))
     }
     
     /// Register a controller class for controller type
@@ -242,8 +242,13 @@ import UIKit
         switch page {
         case .albumsList:
             factory = Factory(controller: BrowserAlbumListController.self)
-            
             factory.cell = BrowserAlbumListCell.self
+//            factory = Factory(controller: BrowserAlbumListController2.self)
+//
+//            factory.cell = BrowserAlbumListCell2.self
+//            factory.layout = BrowserAlbumListLayout.self
+            
+            factory.register(nil, for: "ASSET")
 
         case .albums:
             factory = Factory(controller: BrowserAlbumController.self)
@@ -251,21 +256,21 @@ import UIKit
             factory.cell = BrowserAlbumCell.self
             factory.layout = BrowserAlbumLayout.self
             
-            factory.register(UIImageView.self, for: .audio)
-            factory.register(UIImageView.self, for: .image)
-            factory.register(UIImageView.self, for: .video)
-            factory.register(UIImageView.self, for: .unknown)
-            
+            factory.register(UIImageView.self, for: ub_identifier(with: .audio))
+            factory.register(UIImageView.self, for: ub_identifier(with: .image))
+            factory.register(UIImageView.self, for: ub_identifier(with: .video))
+            factory.register(UIImageView.self, for: ub_identifier(with: .unknown))
+
         case .popover:
             factory = Factory(controller: BrowserPreviewController.self)
             
             factory.cell = BrowserPreviewCell.self
             factory.layout = BrowserPreviewLayout.self
             
-            factory.register(UIImageView.self, for: .audio)
-            factory.register(UIImageView.self, for: .image)
-            factory.register(UIImageView.self, for: .video)
-            factory.register(UIImageView.self, for: .unknown)
+            factory.register(UIImageView.self, for: ub_identifier(with: .audio))
+            factory.register(UIImageView.self, for: ub_identifier(with: .image))
+            factory.register(UIImageView.self, for: ub_identifier(with: .video))
+            factory.register(UIImageView.self, for: ub_identifier(with: .unknown))
 
         case .detail:
             factory = Factory(controller: BrowserDetailController.self)
@@ -273,10 +278,10 @@ import UIKit
             factory.cell = BrowserDetailCell.self
             factory.layout = BrowserDetailLayout.self
             
-            factory.register(PhotoContentView.self, for: .audio)
-            factory.register(PhotoContentView.self, for: .image)
-            factory.register(VideoContentView.self, for: .video)
-            factory.register(PhotoContentView.self, for: .unknown)
+            factory.register(PhotoContentView.self, for: ub_identifier(with: .audio))
+            factory.register(PhotoContentView.self, for: ub_identifier(with: .image))
+            factory.register(VideoContentView.self, for: ub_identifier(with: .video))
+            factory.register(PhotoContentView.self, for: ub_identifier(with: .unknown))
         }
         
         // cache

@@ -243,7 +243,7 @@ public class UHAssetLibrary: NSObject, Photos.PHPhotoLibraryChangeObserver {
         
         // notify all observer
         observers.forEach {
-            $0.ub_library(self, didChange: changeInstance)
+            $0.library(self, didChange: changeInstance)
         }
     }
     

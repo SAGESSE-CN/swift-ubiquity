@@ -394,9 +394,6 @@ public class Source: NSObject {
         // repair data conflict
         newDetails.fix()
         
-        // show debug info
-        logger.debug?.write(newDetails)
-        
         // save to cacher
         Cacher.cache(of: change, value: newDetails, forKey: cachedKey)
         
@@ -495,9 +492,6 @@ public class Source: NSObject {
         
         // repair data conflict
         newDetails.fix()
-        
-        // show debug info
-        logger.debug?.write(newDetails)
         
         // save to cacher
         Cacher.cache(of: change, value: newDetails, forKey: cachedKey)

@@ -160,7 +160,10 @@ import UIKit
     
     /// Returns a item select status
     func statusOfItem(with asset: Asset) -> SelectionStatus? {
-        return _selectedItems[asset.ub_identifier]
+        if !_selectedItems.isEmpty  {
+            return _selectedItems[asset.ub_identifier]
+        }
+        return nil
     }
     
     

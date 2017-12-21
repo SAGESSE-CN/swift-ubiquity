@@ -415,7 +415,7 @@ internal class SourceController: UICollectionViewController, ChangeObserver, Tra
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
     func ub_library(_ library: Library, didChange change: Change, source: Source, changeDetails: SourceChangeDetails) {
-        logger.trace?.write()
+        logger.trace?.write(changeDetails)
 
         // collectionView must be set
         guard let collectionView = collectionView else {

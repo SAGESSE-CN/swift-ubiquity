@@ -22,7 +22,7 @@ internal class BrowserPreviewLayout: UICollectionViewFlowLayout {
     override func prepare() {
         self.collectionView.map {
             // Configuration cell size.
-            self.estimatedItemSize = .init(width: $0.frame.height, height: $0.frame.height)
+            self.estimatedItemSize = .init(width: $0.frame.height * 4 / 3, height: $0.frame.height) // 4:3
             
             // Configuration cell interval.
             self.sectionInset.left = Settings.default.minimumItemSpacing

@@ -18,6 +18,10 @@ internal class Cacher: NSObject {
         super.init()
     }
     
+    func preheat(_ work: @escaping () -> ()) {
+        _dispatch.util.async(execute: work)
+    }
+    
     /// Returns collections with collectoin type
     open func request(forCollectionList type: CollectionType) -> CollectionList {
         // the request is hit cache?

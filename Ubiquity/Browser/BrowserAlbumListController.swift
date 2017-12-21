@@ -182,21 +182,22 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
     /// Tells your observer that a set of changes has occurred in the Photos library.
     func ub_library(_ library: Library, didChange change: Change) {
         // the source is changed?
-        guard let details = source.changeDetails(forCollections: change) else {
+        guard let changeDetails = source.changeDetails(forCollections: change) else {
             return
         }
-        logger.trace?.write()
         
         // change notifications may be made on a background queue.
         // re-dispatch to the main queue to update the UI.
         DispatchQueue.main.async {
-            self.ub_library(library, didChange: change, details: details)
+            self.ub_library(library, didChange: change, changeDetails: changeDetails)
         }
     }
     /// Tells your observer that a set of changes has occurred in the Photos library.
-    func ub_library(_ library: Library, didChange change: Change, details: SourceChangeDetails) {
+    func ub_library(_ library: Library, didChange change: Change, changeDetails: SourceChangeDetails) {
+        logger.trace?.write(changeDetails)
+
         // get table view and new data source
-        guard let tableView = tableView, let newSource = details.after else {
+        guard let tableView = tableView, let newSource = changeDetails.after else {
             return
         }
         // keep the new fetch result for future use.
@@ -217,7 +218,7 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
         ub_execption(with: container, source: newSource, error: nil, animated: true)
         
         // if there are incremental diffs, animate them in the table view.
-        guard details.hasIncrementalChanges else {
+        guard changeDetails.hasIncrementalChanges else {
             // reload the table view if incremental diffs are not available.
             tableView.reloadData()
             return
@@ -228,18 +229,18 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
             
             let filter = { (indexPath: IndexPath) -> Bool in
                 if indexPath.section == section {
-                    if details.reloadSections == nil {
-                        details.reloadSections = []
+                    if changeDetails.reloadSections == nil {
+                        changeDetails.reloadSections = []
                     }
-                    details.reloadSections?.insert(section)
+                    changeDetails.reloadSections?.insert(section)
                     return false
                 }
                 return true
             }
             
-            details.reloadItems = details.reloadItems?.filter(filter)
-            details.insertItems = details.insertItems?.filter(filter)
-            details.removeItems = details.removeItems?.filter(filter)
+            changeDetails.reloadItems = changeDetails.reloadItems?.filter(filter)
+            changeDetails.insertItems = changeDetails.insertItems?.filter(filter)
+            changeDetails.removeItems = changeDetails.removeItems?.filter(filter)
         }
         
         UIView.animate(withDuration: 0.25) {
@@ -248,19 +249,19 @@ internal class BrowserAlbumListController: UITableViewController, Controller, Ex
             // For indexes to make sense, updates must be in this order:
             // delete, insert, reload, move
             
-            details.deleteSections.map { tableView.deleteSections($0, with: .automatic) }
-            details.insertSections.map { tableView.insertSections($0, with: .automatic) }
-            details.reloadSections.map { tableView.reloadSections($0, with: .automatic) }
+            changeDetails.deleteSections.map { tableView.deleteSections($0, with: .automatic) }
+            changeDetails.insertSections.map { tableView.insertSections($0, with: .automatic) }
+            changeDetails.reloadSections.map { tableView.reloadSections($0, with: .automatic) }
             
-            details.moveSections?.forEach { from, to in
+            changeDetails.moveSections?.forEach { from, to in
                 tableView.moveSection(from, toSection: to)
             }
             
-            details.removeItems.map { tableView.deleteRows(at: $0, with: .automatic) }
-            details.insertItems.map { tableView.insertRows(at: $0, with: .automatic) }
-            details.reloadItems.map { tableView.reloadRows(at: $0, with: .automatic) }
+            changeDetails.removeItems.map { tableView.deleteRows(at: $0, with: .automatic) }
+            changeDetails.insertItems.map { tableView.insertRows(at: $0, with: .automatic) }
+            changeDetails.reloadItems.map { tableView.reloadRows(at: $0, with: .automatic) }
             
-            details.moveItems?.forEach { from, to in
+            changeDetails.moveItems?.forEach { from, to in
                 tableView.moveRow(at: from, to: to)
             }
             

@@ -218,13 +218,7 @@ import UIKit
     }
     
     // Register a cell class for controller type
-    open func register(_ cellClass: Displayable.Type, forCell type: ControllerType) {
-        // must king of `UIView`
-        guard let cellClass = cellClass as? UIView.Type else {
-            logger.fatal?.write("The cellClass must king of `UITableViewCell` or `UICollectionViewCell`")
-            fatalError("The cellClass must king of `UITableViewCell` or `UICollectionViewCell`")
-        }
-        
+    open func register(_ cellClass: UICollectionViewCell.Type, forCell type: ControllerType) {
         // register cell in factory
         factory(with: type).cell = cellClass
     }
@@ -241,12 +235,12 @@ import UIKit
         // create factory
         switch page {
         case .albumsList:
+//            factory = Factory(controller: BrowserAlbumListController.self)
+//            factory.cell = BrowserAlbumListCell.self
             factory = Factory(controller: BrowserAlbumListController.self)
+
             factory.cell = BrowserAlbumListCell.self
-//            factory = Factory(controller: BrowserAlbumListController2.self)
-//
-//            factory.cell = BrowserAlbumListCell2.self
-//            factory.layout = BrowserAlbumListLayout.self
+            factory.layout = BrowserAlbumListLayout.self
             
             factory.register(nil, for: "ASSET")
 

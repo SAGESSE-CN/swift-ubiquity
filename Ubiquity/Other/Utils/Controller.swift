@@ -8,16 +8,16 @@
 
 import UIKit
 
-internal protocol Controller {
+public protocol Controller {
     
     /// Base controller craete method
     init(container: Container, source: Source, factory: Factory, parameter: Any?)
 }
 
 
-internal extension Factory {
+extension Factory {
     /// Templated collection view controller.
-    internal class CollectionViewController: UICollectionViewController {
+    open class CollectionViewController: UICollectionViewController {
         
         /// Create an instance using class factory.
         public init(factory: Factory) {
@@ -48,10 +48,10 @@ internal extension Factory {
         }
         
         /// The current using of the class factory.
-        public let factory: Factory
+        open let factory: Factory
         
         /// Load the view.
-        public override func loadView() {
+        open override func loadView() {
             super.loadView()
             
             // setup background color.
@@ -66,9 +66,79 @@ internal extension Factory {
     }
 }
 
-internal extension Source {
+extension Source {
+    /// Templated collection view cell.
+    open class CollectionViewCell: UICollectionViewCell {
+        
+        /// Create an instance with rect.
+        public override init(frame: CGRect) {
+            super.init(frame: frame)
+            self.configure()
+        }
+        /// Create an instance with file.
+        public required init?(coder aDecoder: NSCoder) {
+            super.init(coder: aDecoder)
+            self.configure()
+        }
+
+        deinit {
+            // If the cell is displaying, hidden after then destroyed
+            container.map {
+                endDisplay($0)
+            }
+        }
+
+        /// Specified display style of asset.
+        open var asset: Asset?
+        /// Specified display style of collection.
+        open var collection: Collection?
+        
+        /// Specified the cell displayed using container.
+        open var container: Container?
+        /// Specified the cell displayed orientation.
+        open var orientation: UIImageOrientation = .up
+
+        
+        /// Configure the cell.
+        open func configure() {
+        }
+        
+        /// Apply the cell with item data.
+        open func apply(_ container: Container, item: Any) {
+            self.asset = item as? Asset
+            self.collection = item as? Collection
+            self.container = container
+        }
+        
+        /// Add the item data on screen.
+        open func willDisplay(_ container: Container, orientation: UIImageOrientation) {
+            self.orientation = orientation
+        }
+        
+        /// Remove the item data on screen.
+        open func endDisplay(_ container: Container) {
+            self.asset = nil
+            self.collection = nil
+            self.container = nil
+        }
+        
+        /// Provide content view of class
+        open dynamic class var contentViewClass: AnyClass {
+            return UIView.self
+        }
+        /// Provide container view of class
+        open dynamic class var containerViewClass: AnyClass {
+            return contentViewClass
+        }
+        
+        /// Provide content view of class, iOS 8+
+        private dynamic class var _contentViewClass: AnyClass {
+            return containerViewClass
+        }
+    }
+    
     /// Templated collection view controller.
-    internal class CollectionViewController: Factory.CollectionViewController, Controller, ChangeObserver, ExceptionHandling {
+    open class CollectionViewController: Factory.CollectionViewController, Controller, ChangeObserver, ExceptionHandling {
         
         /// Create an instance using class factory.
         public required init(container: Container, source: Source, factory: Factory, parameter: Any?) {
@@ -146,12 +216,29 @@ internal extension Source {
             }
         }
         
+        // MARK: Data Access
+        
+        /// Get the cell reuse identifier at index path.
+        open func reuseIdentifier(_ source: Source, at indexPath: IndexPath) -> String {
+            return ub_reuseIdentifier(with: source.asset(at: indexPath))
+        }
+        
+        /// Get the cell orientation at index path.
+        open func orientation(_ source: Source, at indexPath: IndexPath) -> UIImageOrientation {
+            return .up
+        }
+        
+        /// Get the cell data at index path.
+        open func data(_ source: Source, at indexPath: IndexPath) -> Any? {
+            return source.asset(at: indexPath)
+        }
+        
         // MARK: Collection View Configure
         
         /// Returns the section numbers
         open override func numberOfSections(in collectionView: UICollectionView) -> Int {
             // Without access authorization, shows blank
-            guard authorized else {
+            guard prepared else {
                 return 0
             }
             
@@ -161,7 +248,7 @@ internal extension Source {
         /// Return the items number in section
         open override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
             // Without access authorization, shows blank
-            guard authorized else {
+            guard prepared else {
                 return 0
             }
             
@@ -169,39 +256,35 @@ internal extension Source {
         }
         
         open override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-            // Fetch asset for source.
-            let asset = source.asset(at: indexPath)
+            // Get the registed cell for reuse identifier.
+            let identifier = reuseIdentifier(source, at: indexPath)
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath)
+
+            // The item must be exists.
+            guard let item = data(source, at: indexPath) else {
+                return cell
+            }
             
-            // The type must be registered
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ub_reuseIdentifier(with: asset), for: indexPath)
-            
-            // Apply data for asset.
-            if let displayer = cell as? Displayable, prepared {
-                asset.map {
-                    displayer.apply(with: $0, container: container)
-                }
+            // Configure the cell on cell is king of `Source.CollectionViewCell`.
+            (cell as? CollectionViewCell).map {
+                $0.apply(container, item: item)
             }
             
             return cell
         }
         
         open override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-            // The cell must king of `Displayable`
-            guard let displayer = cell as? Displayable, let asset = source.asset(at: indexPath), prepared else {
-                return
+            // Configure the cell on cell is king of `Source.CollectionViewCell`.
+            (cell as? CollectionViewCell).map {
+                $0.willDisplay(container, orientation: orientation(source, at: indexPath))
             }
-            
-            // Show asset with container and orientation
-            displayer.willDisplay(with: asset, container: container, orientation: orientation(container, for: asset))
         }
         
         open override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-            // the cell must king of `Displayable`
-            guard let displayer = cell as? Displayable, prepared else {
-                return
+            // Configure the cell on cell is king of `Source.CollectionViewCell`.
+            (cell as? CollectionViewCell).map {
+                $0.endDisplay(container)
             }
-            
-            displayer.endDisplay(with: container)
         }
         
         /// Update the cache area when scrolling.
@@ -235,11 +318,11 @@ internal extension Source {
         }
         
         /// Collecting scrolling information.
-        override func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset newTargetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        open override func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset newTargetContentOffset: UnsafeMutablePointer<CGPoint>) {
             // Update target content offset
             targetContentOffset = newTargetContentOffset.move()
         }
-
+        
         // MARK: Controller Loading
         
         /// The controller will request access authorization.
@@ -273,18 +356,16 @@ internal extension Source {
             }
             
             // Ready to complete
-            controller(container, willPrepare: source)
-            prepared = true
-            controller(container, didPrepare: source)
+            self.controller(container, willPrepare: source)
+            self.prepared = true
+            self.source = source
+            self.collectionView?.reloadData()
+            self.controller(container, didPrepare: source)
         }
         
         /// The controller will prepare UI element.
         open func controller(_ container: Container, willPrepare source: Source) {
             logger.trace?.write()
-            
-            // refresh UI
-            self.source = source
-            self.collectionView?.reloadData()
         }
         /// The controller prepare UI has been completed.
         open func controller(_ container: Container, didPrepare source: Source) {
@@ -302,13 +383,6 @@ internal extension Source {
 
             // Update caching items.
             cachingUpdate()
-        }
-        
-        // MARK: Item Rotation
-        
-        /// The controller request orientation for asset.
-        open func orientation(_ container: Container, for asset: Asset) -> UIImageOrientation {
-            return .up
         }
         
         // MARK: Item Caching
@@ -441,11 +515,10 @@ internal extension Source {
         
         /// Get the details of the change.
         open func library(_ library: Library, change: Change, fetch source: Source) -> SourceChangeDetails? {
-            return nil
+            return source.changeDetails(forAssets: change)
         }
-        
         /// Apply the change details to UI.
-        open func library(_ library: Library, change: Change, source newSource: Source, apply changeDetails: SourceChangeDetails) {
+        open func library(_ library: Library, change: Change, source: Source, apply changeDetails: SourceChangeDetails) {
             logger.trace?.write(changeDetails)
             
             // The collectionView must be set
@@ -455,7 +528,7 @@ internal extension Source {
 
             // Keep the new fetch result for future use.
             let oldSouce = self.source
-            source = newSource
+            self.source = source
 
             //  The new data source has no any items.
             guard source.numberOfAssets != 0 else {
@@ -515,6 +588,31 @@ internal extension Source {
         }
         
         // MARK: Private Method & Property
+        
+//        /// Reversing section, if needed.
+//        @nonobjc
+//        internal func reversing(at section: Int) -> Int {
+//
+//            guard let collectionView = collectionView else {
+//                return section
+//            }
+//
+//            return max(collectionView.numberOfSections - section - 1, 0)
+//        }
+//
+//        /// Reversing index path, if needed
+//        @nonobjc
+//        internal func reversing(at indexPath: IndexPath) -> IndexPath {
+//
+//            guard let collectionView = collectionView else {
+//                return indexPath
+//            }
+//
+//            let item = max(collectionView.numberOfItems(inSection: indexPath.section) - indexPath.item - 1, 0)
+//
+//            return .init(item: item,
+//                         section: indexPath.section)
+//        }
         
         // cache configure
         internal private(set) var targetContentOffset: CGPoint = .zero

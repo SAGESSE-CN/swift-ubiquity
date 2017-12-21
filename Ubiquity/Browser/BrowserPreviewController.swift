@@ -53,15 +53,5 @@ internal class BrowserPreviewController: Source.CollectionViewController, UIColl
             return
         }
         super.controller(container, didLoad: source, error: error)
-    }
-    
-    // MARK: Library Change Notification
-    
-    override func library(_ library: Library, change: Change, fetch source: Source) -> SourceChangeDetails? {
-        return source.changeDetails(forAssets: change)
-    }
-    
-    override func library(_ library: Library, change: Change, source newSource: Source, apply changeDetails: SourceChangeDetails) {
-        super.library(library, change: change, source: newSource, apply: changeDetails)
-    }
+    }    
 }

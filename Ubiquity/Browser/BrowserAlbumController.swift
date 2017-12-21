@@ -384,16 +384,12 @@ internal class BrowserAlbumController: Source.CollectionViewController, Transiti
 
     // MARK: Library Change Notification
 
-    override func library(_ library: Library, change: Change, fetch source: Source) -> SourceChangeDetails? {
-        return source.changeDetails(forAssets: change)
-    }
-
-    override func library(_ library: Library, change: Change, source newSource: Source, apply changeDetails: SourceChangeDetails) {
+    override func library(_ library: Library, change: Change, source: Source, apply changeDetails: SourceChangeDetails) {
         // must update header & footer before update the data source.
-        _headerView?.source = newSource
-        _footerView?.source = newSource
+        _headerView?.source = source
+        _footerView?.source = source
         
-        super.library(library, change: change, source: newSource, apply: changeDetails)
+        super.library(library, change: change, source: source, apply: changeDetails)
         
         // update header & footer layout
         _updateHeaderView()
@@ -402,9 +398,7 @@ internal class BrowserAlbumController: Source.CollectionViewController, Transiti
 
     // MARK: Contents Loading
 
-    override func controller(_ container: Container, willPrepare source: Source) {
-        super.controller(container, willPrepare: source)
-
+    override func controller(_ container: Container, didPrepare source: Source) {
         //
         collectionView.map {
             // update header view & footer view
@@ -424,6 +418,8 @@ internal class BrowserAlbumController: Source.CollectionViewController, Transiti
                 $0.contentOffset.y = size.height - height
             }
         }
+        
+        super.controller(container, didPrepare: source)
     }
     
     override func controller(_ container: Container, didLoad source: Source, error: Error?) {

@@ -8,25 +8,8 @@
 
 import UIKit
 
-internal class BrowserAlbumCell: UICollectionViewCell, Displayable, TransitioningView {
+internal class BrowserAlbumCell: Source.CollectionViewCell, TransitioningView {
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        _configure()
-    }
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        _configure()
-    }
-    deinit {
-        // if the cell is displaying, hidden after then destroyed
-        guard let container = container else {
-            return
-        }
-        
-        // call end display
-        endDisplay(with: container)
-    }
     
     /// The current displayed content size.
     var contentSize: CGSize = .zero
@@ -35,31 +18,45 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable, Transitionin
     var contentInset: UIEdgeInsets = .zero
     
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    override func configure() {
+        super.configure()
         
-        // update content size.
+        // setup badge view
+        let badgeView = BadgeView()
+        
+        badgeView.frame = .init(x: 0, y: contentView.bounds.height - 20, width: contentView.bounds.width, height: 20)
+        badgeView.tintColor = .white
+        badgeView.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
+        badgeView.isUserInteractionEnabled = false
+        
+        // set default background color
+        contentView.backgroundColor = .ub_init(hex: 0xf0f0f0)
+        //contentView.clearsContextBeforeDrawing = false
+        contentView.clipsToBounds = true
+        contentView.contentMode = .scaleAspectFill
+        contentView.addSubview(badgeView)
+        
+        isOpaque = true
+        clipsToBounds = true
+        backgroundColor = contentView.backgroundColor
+        
+        // setup default value
         contentSize = .init(width: frame.width * UIScreen.main.scale, height: frame.height * UIScreen.main.scale)
-    }
-    
-    // MARK: Asset Display
-    
-    /// the displayer delegate
-    weak var delegate: AnyObject?
-    
-    /// Apply data with asset
-    func apply(with asset: Asset, container: Container) {
-        // save asset data
-        _asset = asset
-        _container = container
-    }
-    
-    /// Will display the asset
-    func willDisplay(with asset: Asset, container: Container, orientation: UIImageOrientation) {
+        contentInset = .init(top: 4.5, left: 4.5, bottom: 4.5, right: 4.5)
         
-        // save context
-        self.orientation = orientation
-       
+        // mapping
+        _imageView = contentView as? UIImageView
+        _badgeView = badgeView
+    }
+    
+    override func willDisplay(_ container: Container, orientation: UIImageOrientation) {
+        super.willDisplay(container, orientation: orientation)
+        
+        // Only processing asset data.
+        guard let asset = asset else {
+            return
+        }
+        
         _badgeView?.isHidden = true
         _allowsInvaildContents = true
         
@@ -74,12 +71,12 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable, Transitionin
         }
     }
     
-    /// End display the asset
-    func endDisplay(with container: Container) {
+    override func endDisplay(_ container: Container) {
+        super.endDisplay(container)
         
         // when are requesting an image, please cancel it
-        request.map { request in
-            container.cancel(with: request)
+        request.map {
+            container.cancel(with: $0)
         }
         
         // clear context
@@ -89,16 +86,12 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable, Transitionin
         //_imageView?.image = nil
     }
     
-    // MARK: Dynamic Class
-    
-    /// Provide content view of class
-    dynamic class var contentViewClass: AnyClass {
-        return UIImageView.self
-    }
-    
-    /// Provide content view of class, iOS 8+
-    private dynamic class var _contentViewClass: AnyClass {
-        return contentViewClass
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        // update content size.
+        contentSize = .init(width: frame.width * UIScreen.main.scale,
+                            height: frame.height * UIScreen.main.scale)
     }
     
     // MARK: Custom Transition
@@ -207,55 +200,13 @@ internal class BrowserAlbumCell: UICollectionViewCell, Displayable, Transitionin
         _badgeView?.isHidden = false
     }
     
-    /// Init UI
-    private func _configure() {
-        
-        // setup badge view
-        let badgeView = BadgeView()
-        
-        badgeView.frame = .init(x: 0, y: contentView.bounds.height - 20, width: contentView.bounds.width, height: 20)
-        badgeView.tintColor = .white
-        badgeView.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
-        badgeView.isUserInteractionEnabled = false
-        
-        // set default background color
-        contentView.backgroundColor = .ub_init(hex: 0xf0f0f0)
-        //contentView.clearsContextBeforeDrawing = false
-        contentView.clipsToBounds = true
-        contentView.contentMode = .scaleAspectFill
-        contentView.addSubview(badgeView)
-        
-        isOpaque = true
-        clipsToBounds = true
-        backgroundColor = contentView.backgroundColor
-        
-        // setup default value
-        contentSize = .init(width: frame.width * UIScreen.main.scale, height: frame.height * UIScreen.main.scale)
-        contentInset = .init(top: 4.5, left: 4.5, bottom: 4.5, right: 4.5)
-        
-        // mapping
-        _imageView = contentView as? UIImageView
-        _badgeView = badgeView
-    }
     
     // MARK: Property
     
-    // contents
-    var asset: Asset? {
-        return _asset
-    }
-    var container: Container? {
-        return _container
-    }
-    
     // status
     private(set) var request: Request?
-    private(set) var orientation: UIImageOrientation = .up
     
     // MARK: Ivar
-    
-    private var _asset: Asset?
-    private var _container: Container?
     
     private var _allowsInvaildContents: Bool = false
     

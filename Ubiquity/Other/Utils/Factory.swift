@@ -18,19 +18,19 @@ public enum ControllerType {
     case detail
 }
 
-internal class Factory: NSObject {
+public class Factory: NSObject {
     
-    init(controller: Controller.Type) {
+    public init(controller: Controller.Type) {
         self.controller = controller
         super.init()
     }
     
-    func `class`(for key: String) -> AnyClass? {
+    public func `class`(for key: String) -> AnyClass? {
         // Use KVC get member properties
         return value(forKey: key) as? AnyClass
     }
     
-    func `mapping`(for key: String) -> Dictionary<String, AnyClass> {
+    public func `mapping`(for key: String) -> Dictionary<String, AnyClass> {
         return `class`(for: key).map { cls in
             var result = Dictionary<String, AnyClass>()
             _contents.forEach {
@@ -40,17 +40,17 @@ internal class Factory: NSObject {
         } ?? [:]
     }
     
-    func register(_ contentClass: AnyClass?, for identifier: String) {
+    public func register(_ contentClass: AnyClass?, for identifier: String) {
         // update content class
         _contents[identifier] = contentClass
     }
     
-    func instantiateViewController(with container: Container, source: Source, parameter: Any?) -> UIViewController? {
+    public func instantiateViewController(with container: Container, source: Source, parameter: Any?) -> UIViewController? {
         // ...
         return controller.init(container: container, source: source, factory: self, parameter: parameter) as? UIViewController
     }
 
-    var controller: Controller.Type
+    public var controller: Controller.Type
     
     dynamic var cell: AnyClass?
     dynamic var layout: AnyClass?

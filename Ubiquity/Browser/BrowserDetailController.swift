@@ -206,14 +206,11 @@ internal class BrowserDetailController: Source.CollectionViewController, Transit
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         super.collectionView(collectionView, willDisplay: cell, forItemAt: indexPath)
 
-        // only process the `BrowserDetailCell`
-        guard let cell = cell as? BrowserDetailCell else {
-            return
+        // Only process the `BrowserDetailCell`
+        (cell as? BrowserDetailCell).map {
+            $0.delegate = self
+            $0.updateContentInset(_systemContentInset, forceUpdate: false)
         }
-
-        // update configure
-        cell.delegate = self
-        cell.updateContentInset(_systemContentInset, forceUpdate: false)
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
@@ -479,8 +476,7 @@ internal class BrowserDetailController: Source.CollectionViewController, Transit
         }
     }
     
-    override func controller(_ container: Container, willPrepare source: Source) {
-        super.controller(container, willPrepare: source)
+    override func controller(_ container: Container, didPrepare source: Source) {
 
         // setup title color for navgation bar
         _titleView.barStyle = navigationController?.navigationBar.barStyle ?? .default
@@ -493,34 +489,34 @@ internal class BrowserDetailController: Source.CollectionViewController, Transit
             collectionView?.scrollToItem(at: displayedIndexPath, at: .centeredHorizontally, animated: false)
             //            indicatorItem.indicatorView.scrollToItem(at: _itemIndexPath, animated: false)
         }
+        
+        super.controller(container, didPrepare: source)
     }
 
-    override func orientation(_ container: Container, for asset: Asset) -> UIImageOrientation {
-        guard !_orientationes.isEmpty else {
+    override func orientation(_ source: Source, at indexPath: IndexPath) -> UIImageOrientation {
+        //
+        guard let asset = source.asset(at: indexPath), !_orientationes.isEmpty else {
             return .up
         }
+        
         return _orientationes[asset.ub_identifier] ?? .up
     }
 
     // MARK: Library Change Notification
     
-    override func library(_ library: Library, change: Change, fetch source: Source) -> SourceChangeDetails? {
-        return source.changeDetails(forAssets: change)
-    }
-    
-    override func library(_ library: Library, change: Change, source newSource: Source, apply changeDetails: SourceChangeDetails) {
+    override func library(_ library: Library, change: Change, source: Source, apply changeDetails: SourceChangeDetails) {
         // must be clear the layout attributes cache
         _clearItemCache()
 
         // check collection asset count change
-        guard newSource.numberOfAssets != 0 else {
+        guard source.numberOfAssets != 0 else {
             // new source is empty, back to albums
             self.collectionView?.reloadData()
             self.navigationController?.popViewController(animated: true)
             return
         }
 
-        super.library(library, change: change, source: newSource, apply: changeDetails)
+        super.library(library, change: change, source: source, apply: changeDetails)
 
         // Update current item.
         self.collectionView.map {

@@ -54,12 +54,11 @@ internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
         selectedStatusView.layer.add(ani, forKey: "selected")
     }
     
-    /// Will display the asset
-    override func willDisplay(with asset: Asset, container: Container, orientation: UIImageOrientation) {
-        super.willDisplay(with: asset, container: container, orientation: orientation)
+    override func willDisplay(_ container: Container, orientation: UIImageOrientation) {
+        super.willDisplay(container, orientation: orientation)
         
         // if it is not picker, ignore
-        guard let picker = container as? Picker else {
+        guard let asset = asset, let picker = container as? Picker else {
             return
         }
 

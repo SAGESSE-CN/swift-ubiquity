@@ -12,11 +12,19 @@ internal class BrowserAlbumListLayout: UICollectionViewFlowLayout {
 
     override func prepare() {
         self.collectionView.map {
-            self.itemSize = .init(width: $0.frame.width / 2, height: 88)
+            self.itemSize = .init(width: $0.frame.width, height: 88)
             
             self.minimumLineSpacing = 0
             self.minimumInteritemSpacing = 0
         }
         super.prepare()
+    }
+    
+    override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        guard super.shouldInvalidateLayout(forBoundsChange: newBounds) else {
+            return false
+        }
+        invalidateLayout()
+        return true
     }
 }

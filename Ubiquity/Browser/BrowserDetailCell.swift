@@ -8,97 +8,14 @@
 
 import UIKit
 
-internal class BrowserDetailCell: UICollectionViewCell, Displayable {
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        _configure()
-    }
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        _configure()
-    }
-    deinit {
-        // if the cell is displaying, hidden after then destroyed
-        guard let container = _container else {
-            return
-        }
-        
-        // call end display
-        endDisplay(with: container)
-    }
+internal class BrowserDetailCell: Source.CollectionViewCell {
     
     /// The displayer delegate & event delegate
     weak var delegate: AnyObject?
     
-    /// Apply data with asset
-    func apply(with asset: Asset, container: Container) {
-    }
-    
-    /// Will display the asset
-    func willDisplay(with asset: Asset, container: Container, orientation: UIImageOrientation) {
-        logger.trace?.write(asset.ub_identifier, "(\(asset.ub_pixelWidth), \(asset.ub_pixelHeight))")
-        
-        // update ata
-        _asset = asset
-        _container = container
-        _orientation = orientation
-        
-        // update util
-        if let progress = _progress {
-            // default is 1(auto hidden)
-            progress.setValue(1, animated: false)
-        }
-        if let console = _console, asset.ub_allowsPlay {
-            // if the asset allows play, display console
-            // defaults is stop
-            console.setState(.stop, animated: false)
-        }
-        
-        // update canvas
-        _containerView?.contentSize = .init(width: asset.ub_pixelWidth, height: asset.ub_pixelHeight)
-        _containerView?.zoom(to: bounds , with: orientation, animated: false)
-        
-        // update content
-        (_contentView as? Displayable)?.willDisplay(with: asset, container: container, orientation: orientation)
-        (_detailView as? Displayable)?.willDisplay(with: asset, container: container, orientation: orientation)
-    }
-    
-    /// End display the asset
-    func endDisplay(with container: Container) {
-        logger.trace?.write()
-        
-        // update content
-        (_contentView as? Displayable)?.endDisplay(with: container)
-        (_detailView as? Displayable)?.endDisplay(with: container)
-    }
-    
-    /// update content inset
-    func updateContentInset(_ contentInset: UIEdgeInsets, forceUpdate: Bool) {
-        logger.trace?.write(contentInset)
-        
-        _contentInset = contentInset
-        
-        // need update layout
-        setNeedsLayout()
-        
-        guard forceUpdate else {
-            return
-        }
-        layoutIfNeeded()
-    }
-    
-    // update subview layout
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        // update utility view
-        _progress?.center = _progressCenter
-        _console?.center = _consoleCenter
-    }
-    
-    private func _configure() {
-        
+    override func configure() {
+        super.configure()
+
         // make detail & container view
         _detailView = (type(of: self).contentViewClass as? UIView.Type)?.init()
         _containerView = contentView as? CanvasView
@@ -107,7 +24,7 @@ internal class BrowserDetailCell: UICollectionViewCell, Displayable {
         if let containerView = _containerView {
             
             containerView.delegate = self
-
+            
             // add tap recognizer
             let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(_handleTap(_:)))
             let doubleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(_handleDoubleTap(_:)))
@@ -142,11 +59,79 @@ internal class BrowserDetailCell: UICollectionViewCell, Displayable {
         _progress?.addTarget(self, action: #selector(_handleRetry(_:)), for: .touchUpInside)
     }
     
-    // data
-    fileprivate var _asset: Asset?
-    fileprivate var _container: Container?
-    fileprivate var _orientation: UIImageOrientation = .up
+    /// Add the item data on screen.
+    override func willDisplay(_ container: Container, orientation: UIImageOrientation) {
+        super.willDisplay(container, orientation: orientation)
+        
+        // Only processing asset data.
+        guard let asset = asset else {
+            return
+        }
+        logger.trace?.write(asset.ub_identifier, "(\(asset.ub_pixelWidth), \(asset.ub_pixelHeight))")
+
+        // update util
+        if let progress = _progress {
+            // default is 1(auto hidden)
+            progress.setValue(1, animated: false)
+        }
+        if let console = _console, asset.ub_allowsPlay {
+            // if the asset allows play, display console
+            // defaults is stop
+            console.setState(.stop, animated: false)
+        }
+        
+        // update canvas
+        _containerView?.contentSize = .init(width: asset.ub_pixelWidth, height: asset.ub_pixelHeight)
+        _containerView?.zoom(to: bounds , with: orientation, animated: false)
+        
+        // update content
+        (_contentView as? Displayable)?.willDisplay(with: asset, container: container, orientation: orientation)
+        (_detailView as? Displayable)?.willDisplay(with: asset, container: container, orientation: orientation)
+    }
     
+    /// Remove the item data on screen.
+    override func endDisplay(_ container: Container) {
+        super.endDisplay(container)
+        
+        // update content
+        (_contentView as? Displayable)?.endDisplay(with: container)
+        (_detailView as? Displayable)?.endDisplay(with: container)
+    }
+
+    /// update content inset
+    func updateContentInset(_ contentInset: UIEdgeInsets, forceUpdate: Bool) {
+        logger.trace?.write(contentInset)
+        
+        _contentInset = contentInset
+        
+        // need update layout
+        setNeedsLayout()
+        
+        guard forceUpdate else {
+            return
+        }
+        layoutIfNeeded()
+    }
+    
+    // update subview layout
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        // update utility view
+        _progress?.center = _progressCenter
+        _console?.center = _consoleCenter
+    }
+    
+    
+    /// Provide content view of class
+    override dynamic class var contentViewClass: AnyClass {
+        return PhotoContentView.self
+    }
+    /// Provide container view of class
+    override dynamic class var containerViewClass: AnyClass {
+        return CanvasView.self
+    }
+
     // config
     fileprivate var _contentInset: UIEdgeInsets = .zero
     fileprivate var _indicatorInset: UIEdgeInsets = .init(top: 8, left: 8, bottom: 8, right: 8)
@@ -194,11 +179,11 @@ extension BrowserDetailCell {
         logger.trace?.write()
         
         // check the state of the data
-        guard let asset = _asset, let container = _container else {
+        guard let asset = asset, let container = container else {
             return
         }
         // recall display, to refresh the data
-        (_detailView as? Displayable)?.willDisplay(with: asset, container: container, orientation: _orientation)
+        (_detailView as? Displayable)?.willDisplay(with: asset, container: container, orientation: orientation)
     }
     fileprivate dynamic func _handleCommand(_ sender: Any) {
         logger.trace?.write()
@@ -237,7 +222,7 @@ extension BrowserDetailCell {
     
     fileprivate func _play() {
         // must provide the context
-        guard let asset = _asset, let container = _container, let console = _console, let player = _detailView as? Playable  else {
+        guard let asset = asset, let container = container, let console = _console, let player = _detailView as? Playable  else {
             return
         }
         // if is stopped, click goto prepare
@@ -259,7 +244,7 @@ extension BrowserDetailCell {
     }
     fileprivate func _stop() {
         // must provide the context
-        guard let asset = _asset, let container = _container, let console = _console, let player = _detailView as? Playable  else {
+        guard let asset = asset, let container = container, let console = _console, let player = _detailView as? Playable  else {
             return
         }
         // if is playing or waiting, click goto stop
@@ -318,7 +303,7 @@ extension BrowserDetailCell: CanvasViewDelegate {
     func canvasViewShouldBeginRotationing(_ canvasView: CanvasView, with view: UIView?) -> Bool {
         logger.trace?.write()
         // if the item is nil, are not allowed to rotate
-        guard let asset = _asset else {
+        guard let asset = asset else {
             return false
         }
         // update canvas view status
@@ -372,13 +357,13 @@ extension BrowserDetailCell: CanvasViewDelegate {
     func canvasViewDidEndRotationing(_ canvasView: CanvasView, with view: UIView?, atOrientation orientation: UIImageOrientation) {
         logger.trace?.write()
         // if the item is nil, are not allowed to rotate
-        guard let asset = _asset, let container = _container else {
+        guard let asset = asset, let container = container else {
             return
         }
         // update canvas view status
         _isRotationing = false
         // update content orientation
-        _orientation = orientation
+        self.orientation = orientation
         // update display
         (_contentView as? Displayable)?.willDisplay(with: asset, container: container, orientation: orientation)
         (_detailView as? Displayable)?.willDisplay(with: asset, container: container, orientation: orientation)
@@ -419,7 +404,7 @@ extension BrowserDetailCell: TransitioningView {
             return .zero
         }
         let center = containerView.convert(contentView.center, from: contentView.superview)
-        let bounds = contentView.frame.applying(.init(rotationAngle: _orientation.ub_angle))
+        let bounds = contentView.frame.applying(.init(rotationAngle: orientation.ub_angle))
         
         let c1 = containerView.convert(center, to: window)
         let b1 = containerView.convert(bounds, to: window)
@@ -430,18 +415,18 @@ extension BrowserDetailCell: TransitioningView {
         guard let contentView = _contentView else {
             return .zero
         }
-        let bounds = contentView.frame.applying(.init(rotationAngle: _orientation.ub_angle))
+        let bounds = contentView.frame.applying(.init(rotationAngle: orientation.ub_angle))
         return .init(origin: .zero, size: bounds.size)
     }
     var ub_transform: CGAffineTransform {
         guard let containerView = _containerView else {
             return .identity
         }
-        return containerView.contentTransform.rotated(by: _orientation.ub_angle)
+        return containerView.contentTransform.rotated(by: orientation.ub_angle)
     }
     func ub_snapshotView(with context: TransitioningContext) -> UIView? {
         let view = _contentView?.snapshotView(afterScreenUpdates: context.ub_operation.appear)
-        view?.transform = .init(rotationAngle: -_orientation.ub_angle)
+        view?.transform = .init(rotationAngle: -orientation.ub_angle)
         return view
     }
     
@@ -501,7 +486,7 @@ extension BrowserDetailCell: PlayableDelegate {
     func player(_ player: Playable, didPrepared asset: Asset) {
         logger.trace?.write()
         // must provide the context
-        guard let asset = _asset, let container = _container else {
+        guard let container = container else {
             return
         }
         player.play(with: asset, container: container)
@@ -557,15 +542,3 @@ extension BrowserDetailCell: PlayableDelegate {
     }
 }
 
-/// Add dynamic class support
-extension BrowserDetailCell {
-    
-    // provide content view of class
-    dynamic class var contentViewClass: AnyClass {
-        return PhotoContentView.self
-    }
-    // provide content view of class, iOS 8+
-    fileprivate dynamic class var _contentViewClass: AnyClass {
-        return CanvasView.self
-    }
-}

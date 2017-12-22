@@ -10,7 +10,8 @@ import UIKit
 
 
 /// The base container
-@objc open class Container: NSObject, ChangeObserver {
+@objc
+open class Container: NSObject, ChangeObserver {
     
     /// Create a media browser
     /// This init method is not public
@@ -197,94 +198,46 @@ import UIKit
         _exceptionViewClass = exceptionViewClass
     }
     
-    // Register a content view class for media in controller
-    open func register(_ contentViewClass: Displayable.Type, forContentView media: AssetType, in type: ControllerType) {
-        // must king of `UIView`
-        guard let contentViewClass = contentViewClass as? UIView.Type else {
-            logger.fatal?.write("The exception view must king of `UIView`")
-            fatalError("The content must king of `UIView`")
-        }
-        
-        // register content view in factory
-        factory(with: type).register(contentViewClass, for: ub_identifier(with: media))
-    }
+//    // Register a content view class for media in controller
+//    open func register(_ contentViewClass: Displayable.Type, forContentView media: AssetType, in type: ControllerType) {
+//        // must king of `UIView`
+//        guard let contentViewClass = contentViewClass as? UIView.Type else {
+//            logger.fatal?.write("The exception view must king of `UIView`")
+//            fatalError("The content must king of `UIView`")
+//        }
+//
+//        // register content view in factory
+//        factory(with: type).register(contentViewClass, for: ub_identifier(with: media))
+//    }
+//
+//    /// Register a controller class for controller type
+//    open func register(_ controllerClass: UIViewController.Type, forController type: ControllerType) {
+//        // must king of `Controller`
+//        guard let controller = controllerClass as? Controller.Type else {
+//            logger.fatal?.write("The content must king of `UIViewController`")
+//            fatalError("The content must king of `UIViewController`")
+//        }
+//
+//        // register controller in factory
+//        factory(with: type).controller = controller
+//    }
+//
+//    // Register a cell class for controller type
+//    open func register(_ cellClass: UICollectionViewCell.Type, forCell type: ControllerType) {
+//        // register cell in factory
+//        factory(with: type).cell = cellClass
+//    }
     
-    /// Register a controller class for controller type
-    open func register(_ controllerClass: UIViewController.Type, forController type: ControllerType) {
-        // must king of `Controller`
-        guard let controller = controllerClass as? Controller.Type else {
-            logger.fatal?.write("The content must king of `UIViewController`")
-            fatalError("The content must king of `UIViewController`")
-        }
-        
-        // register controller in factory
-        factory(with: type).controller = controller
-    }
     
-    // Register a cell class for controller type
-    open func register(_ cellClass: UICollectionViewCell.Type, forCell type: ControllerType) {
-        // register cell in factory
-        factory(with: type).cell = cellClass
-    }
-    
-    
-    func factory(with page: ControllerType) -> Factory {
-        // hit cache?
+    open func factory(with page: ControllerType) -> Factory {
+        // The factory hit cache?
         if let factory = _factorys[page] {
             return factory
         }
         
-        let factory: Factory
-        
-        // create factory
-        switch page {
-        case .albumsList:
-//            factory = Factory(controller: BrowserAlbumListController.self)
-//            factory.cell = BrowserAlbumListCell.self
-            factory = Factory(controller: BrowserAlbumListController.self)
-
-            factory.cell = BrowserAlbumListCell.self
-            factory.layout = BrowserAlbumListLayout.self
-            
-            factory.register(nil, for: "ASSET")
-
-        case .albums:
-            factory = Factory(controller: BrowserAlbumController.self)
-            
-            factory.cell = BrowserAlbumCell.self
-            factory.layout = BrowserAlbumLayout.self
-            
-            factory.register(UIImageView.self, for: ub_identifier(with: .audio))
-            factory.register(UIImageView.self, for: ub_identifier(with: .image))
-            factory.register(UIImageView.self, for: ub_identifier(with: .video))
-            factory.register(UIImageView.self, for: ub_identifier(with: .unknown))
-
-        case .popover:
-            factory = Factory(controller: BrowserPreviewController.self)
-            
-            factory.cell = BrowserPreviewCell.self
-            factory.layout = BrowserPreviewLayout.self
-            
-            factory.register(UIImageView.self, for: ub_identifier(with: .audio))
-            factory.register(UIImageView.self, for: ub_identifier(with: .image))
-            factory.register(UIImageView.self, for: ub_identifier(with: .video))
-            factory.register(UIImageView.self, for: ub_identifier(with: .unknown))
-
-        case .detail:
-            factory = Factory(controller: BrowserDetailController.self)
-            
-            factory.cell = BrowserDetailCell.self
-            factory.layout = BrowserDetailLayout.self
-            
-            factory.register(PhotoContentView.self, for: ub_identifier(with: .audio))
-            factory.register(PhotoContentView.self, for: ub_identifier(with: .image))
-            factory.register(VideoContentView.self, for: ub_identifier(with: .video))
-            factory.register(PhotoContentView.self, for: ub_identifier(with: .unknown))
-        }
-        
-        // cache
+        // Create a new factory.
+        let factory = Factory()
         _factorys[page] = factory
-        
         return factory
     }
     

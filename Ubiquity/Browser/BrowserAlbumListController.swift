@@ -75,8 +75,8 @@ internal class BrowserAlbumListController: SourceCollectionViewController, UICol
         return .init(width: 0, height: 1 / UIScreen.main.scale)
     }
     
-    override func reuseIdentifier(_ source: Source, at indexPath: IndexPath) -> String {
-        return "ASSET"
+    override func collectionView(_ collectionView: UICollectionView, reuseIdentifierForItemAt indexPath: IndexPath) -> String {
+        return "default"
     }
     
     override func data(_ source: Source, at indexPath: IndexPath) -> Any? {

@@ -9,7 +9,8 @@
 import Foundation
 
 /// A change info
-@objc public protocol Change {
+@objc
+public protocol Change {
     
     /// Returns detailed change information for the specified collection.
     func ub_changeDetails(forCollection collection: Collection) -> ChangeDetails?
@@ -18,7 +19,8 @@ import Foundation
 }
 
 /// A change details info
-@objc public class ChangeDetails: NSObject {
+@objc
+public class ChangeDetails: NSObject {
     
     /// Generate a change details info
     public init(before: Any, after: Any?) {

@@ -9,7 +9,8 @@
 import Foundation
 
 /// Constants identifying the general type of an asset, such as image or video.
-@objc public enum AssetType: Int {
+@objc
+public enum AssetType: Int, CustomStringConvertible {
     
     /// The asset’s type is unknown.
     case unknown = 0
@@ -22,6 +23,17 @@ import Foundation
     
     /// The asset is an audio file.
     case audio = 3
+
+    
+    /// A textual representation of this instance.
+    public var description: String {
+        switch self {
+        case .image:   return "image"
+        case .audio:   return "audio"
+        case .video:   return "video"
+        case .unknown: return "unknown"
+        }
+    }
 }
 
 /// Constants identifying specific variations of asset media, such as panorama or screenshot photos and time lapse or high frame rate video.
@@ -57,7 +69,8 @@ public struct AssetSubtype: OptionSet {
 }
 
 /// A representation of an image, video
-@objc public protocol Asset: class {
+@objc
+public protocol Asset: class {
     
     /// The localized title of the asset.
     var ub_title: String? { get }

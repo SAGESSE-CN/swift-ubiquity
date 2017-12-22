@@ -24,17 +24,23 @@ import UIKit
     public override init(library: Library) {
         super.init(library: library)
         
-        // setup albums
-        register(PickerAlbumCell.self, forCell: .albums)
-        register(PickerAlbumController.self, forController: .albums)
+        // Setup albums
+        factory(with: .albums).configure {
+            $0.setClass(PickerAlbumCell.self, for: .cell)
+            $0.setClass(PickerAlbumController.self, for: .controller)
+        }
         
-        // setup details
-        register(PickerDetailCell.self, forCell: .detail)
-        register(PickerDetailController.self, forController: .detail)
+        // Setup details
+        factory(with: .detail).configure {
+            $0.setClass(PickerDetailCell.self, for: .cell)
+            $0.setClass(PickerDetailController.self, for: .controller)
+        }
         
-        // setup popover
-        register(PickerPreviewCell.self, forCell: .popover)
-        register(PickerPreviewController.self, forController: .popover)
+        // Setup popover
+        factory(with: .popover).configure {
+            $0.setClass(PickerPreviewCell.self, for: .cell)
+            $0.setClass(PickerPreviewController.self, for: .controller)
+        }
     }
     
     /// The picker delegate

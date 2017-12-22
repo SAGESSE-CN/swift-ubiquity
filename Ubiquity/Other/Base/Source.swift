@@ -533,57 +533,57 @@ public class Source: NSObject {
 //public class ReversedSource: Source {
 //}
 
-internal class SourceFolding: NSObject, Collection {
+public class SourceFolding: NSObject, Collection {
     
     /// Create a collection list folding object
-    internal init(collectionList: CollectionList) {
+    public init(collectionList: CollectionList) {
         self.collectionList = collectionList
         super.init()
     }
     
     /// Collection list in folding
-    internal let collectionList: CollectionList
+    public let collectionList: CollectionList
     
     /// Returns the number of all colltions from the source.
-    internal var numberOfCollections: Int {
+    public var numberOfCollections: Int {
         return collectionList.ub_count
     }
     /// Returns the number of folded colltions from the source.
-    internal var numberOfFoldedCollections: Int {
+    public var numberOfFoldedCollections: Int {
         return min(collectionList.ub_count, 1)
     }
     
     /// Retrieves collection from the collection list.
-    internal func collection(at index: Int) -> Collection? {
+    public func collection(at index: Int) -> Collection? {
         return self
     }
     
     // MARK: Collection
     
     /// The localized title of the collection.
-    internal var ub_title: String? {
+    public var ub_title: String? {
         return collectionList.ub_title
     }
     /// The localized subtitle of the collection.
-    internal var ub_subtitle: String? {
+    public var ub_subtitle: String? {
         return collectionList.ub_subtitle
     }
     /// A unique string that persistently identifies the object.
-    internal var ub_identifier: String {
+    public var ub_identifier: String {
         return collectionList.ub_identifier
     }
     
     /// The type of the asset collection, such as an album or a moment.
-    internal var ub_collectionType: CollectionType {
+    public var ub_collectionType: CollectionType {
         return collectionList.ub_collectionType
     }
     /// The subtype of the asset collection.
-    internal var ub_collectionSubtype: CollectionSubtype {
+    public var ub_collectionSubtype: CollectionSubtype {
         return .smartAlbumGeneric
     }
     
     /// The number of assets in the asset collection.
-    internal var ub_count: Int {
+    public var ub_count: Int {
         // count hit cache.
         if let count = _cachedAssetCount {
             return count
@@ -594,7 +594,7 @@ internal class SourceFolding: NSObject, Collection {
         return count
     }
     /// The number of assets in the asset collection.
-    internal func ub_count(with type: AssetType) -> Int {
+    public func ub_count(with type: AssetType) -> Int {
         // count hit cache.
         if let count = _cachedAssetsCounts?[type] {
             return count
@@ -609,7 +609,7 @@ internal class SourceFolding: NSObject, Collection {
         return count
     }
     /// Retrieves assets from the specified asset collection.
-    internal func ub_asset(at index: Int) -> Asset {
+    public func ub_asset(at index: Int) -> Asset {
         // asset hit cache.
         if let asset = _cachedAsset?[index] {
             return asset

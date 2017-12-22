@@ -156,7 +156,7 @@ internal class BrowserAlbumCell: SourceCollectionViewCell, TransitioningView {
             // less than 1, the display of 1
             let duration = ceil(asset?.ub_duration ?? 0)
             
-            _badgeView?.backgroundImage = BadgeView.ub_backgroundImage
+            _badgeView?.backgroundImage = BadgeView.defaultBackgroundImage
             _badgeView?.rightItem = .text(.init(format: "%d:%02d", Int(duration) / 60, Int(duration) % 60))
             _badgeView?.leftItem = {
                 // high-frame-rate video.
@@ -180,7 +180,7 @@ internal class BrowserAlbumCell: SourceCollectionViewCell, TransitioningView {
                 // show icon
                 _badgeView?.leftItem = .panorama
                 _badgeView?.rightItem = nil
-                _badgeView?.backgroundImage = BadgeView.ub_backgroundImage
+                _badgeView?.backgroundImage = BadgeView.defaultBackgroundImage
                 
             } else {
                 // hidden all

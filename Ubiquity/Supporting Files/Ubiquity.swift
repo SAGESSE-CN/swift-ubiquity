@@ -60,12 +60,6 @@ private func __badgeItem(named: String, render: UIImageRenderingMode = .alwaysTe
     return .image(icon)
 }
 
-
-internal func ub_reuseIdentifier(with asset: Asset?) -> String {
-    return ub_identifier(with: asset?.ub_type ?? .unknown)
-}
-
-
 internal func ub_makeEmptyAlbum(_ size: CGSize) -> UIImage? {
 
     UIGraphicsBeginImageContextWithOptions(size, true, UIScreen.main.scale)

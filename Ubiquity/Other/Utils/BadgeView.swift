@@ -249,6 +249,11 @@ internal class BadgeView: UIView {
         _needUpdateVisableViews = true
     }
     
+    static var defaultBackgroundImage: UIImage? {
+        return R.image( "ubiquity_background_gradient")
+    }
+
+    
     // MARK: Ivar
     
     private var _cacheBounds: CGRect?
@@ -333,18 +338,4 @@ internal class BadgeItemImageView: UIImageView, BadgeItemView {
         }
     }
 }
-
-extension BadgeView {
-    static var ub_backgroundImage: UIImage? {
-        if let image = __backgroundImage {
-            return image
-        }
-        logger.debug?.write("load `ubiquity_background_gradient`")
-        let image = R.image( "ubiquity_background_gradient")
-        __backgroundImage = image
-        return image
-    }
-}
-
-private weak var __backgroundImage: UIImage?
 

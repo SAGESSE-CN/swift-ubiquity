@@ -8,6 +8,13 @@
 
 import UIKit
 
+internal extension Optional {
+    
+    @inline(__always)
+    internal func ub_coalescing(_ closure: () throws -> Wrapped) rethrows -> Wrapped {
+        return try self ?? closure()
+    }
+}
 
 internal func ub_string(for number: Int) -> String {
     let formatter = NumberFormatter()
@@ -90,15 +97,6 @@ internal func ub_defaultTitle(with collectionTypes: [CollectionType]) -> String 
         return ub_defaultTitle(with: first)
     }
     return ub_defaultTitle(with: .regular)
-}
-
-internal func ub_identifier(with media: AssetType) -> String {
-    switch media {
-    case .image:   return "ASSET-IMAGE"
-    case .audio:   return "ASSET-AUDIO"
-    case .video:   return "ASSET-VIDEO"
-    case .unknown: return "ASSET-UNKNOWN"
-    }
 }
 
 internal func ub_image(named: String) -> UIImage? {

@@ -90,7 +90,7 @@ internal class BrowserAlbumListCell: SourceCollectionViewCell {
         if let icon = BadgeItem(subtype: collection.ub_collectionSubtype) {
             // show icon
             _badgeView.leftItem = icon
-            _badgeView.backgroundImage = BadgeView.ub_backgroundImage
+            _badgeView.backgroundImage = BadgeView.defaultBackgroundImage
             
         } else {
             // hide icon

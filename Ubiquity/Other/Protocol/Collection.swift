@@ -9,7 +9,8 @@
 import Foundation
 
 /// Major distinctions between kinds of asset collections
-@objc public enum CollectionType : Int {
+@objc
+public enum CollectionType : Int {
     
     /// All albums except moment.
     case regular = 1
@@ -23,7 +24,8 @@ import Foundation
 
 
 /// Minor distinctions between kinds of asset collections
-@objc public enum CollectionSubtype : Int {
+@objc
+public enum CollectionSubtype : Int {
 
     /// A smart album of no more specific subtype.
     ///
@@ -57,7 +59,8 @@ import Foundation
 
 
 /// The abstract superclass for Photos asset collections.
-@objc public protocol Collection: NSObjectProtocol {
+@objc
+public protocol Collection: NSObjectProtocol {
     
     /// The localized title of the collection.
     var ub_title: String? { get }
@@ -81,7 +84,8 @@ import Foundation
 
 
 /// The abstract superclass for Photos asset collection lists.
-@objc public protocol CollectionList: NSObjectProtocol {
+@objc
+public protocol CollectionList: NSObjectProtocol {
     
     /// The localized title of the collection list.
     var ub_title: String? { get }

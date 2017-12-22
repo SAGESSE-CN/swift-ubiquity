@@ -21,7 +21,7 @@ open class FactoryCollectionViewController: UICollectionViewController {
     /// Create an instance using class factory.
     public init(factory: Factory) {
         // If did not provide `UICollectionViewLayout`, create failure
-        guard let collectionViewLayout = (factory.class(for: "layout") as? UICollectionViewLayout.Type)?.init() else {
+        guard let collectionViewLayout = (factory.class(for: .layout) as? UICollectionViewLayout.Type)?.init() else {
             fatalError("The class factory must provide layout!!!")
         }
         
@@ -37,7 +37,7 @@ open class FactoryCollectionViewController: UICollectionViewController {
         }
         
         // If did not provide `UICollectionViewLayout`, create failure
-        guard let collectionViewLayout = (factory.class(for: "layout") as? UICollectionViewLayout.Type)?.init() else {
+        guard let collectionViewLayout = (factory.class(for: .layout) as? UICollectionViewLayout.Type)?.init() else {
             fatalError("The class factory must provide layout!!!")
         }
         
@@ -53,15 +53,45 @@ open class FactoryCollectionViewController: UICollectionViewController {
     open override func loadView() {
         super.loadView()
         
-        // setup background color.
+        // Setup background color.
         view.backgroundColor = .white
         collectionView?.backgroundColor = view.backgroundColor
         
-        // setup registered cells for factory.
-        factory.mapping(for: "cell").forEach {
-            collectionView?.register($0.value, forCellWithReuseIdentifier: $0.key)
+        // Setup registered cells for factory.
+        factory.slice(for: .cell).forEach {
+            collectionView?.register($1, forCellWithReuseIdentifier: $0)
         }
     }
+    
+    /// Asks your data source object for the reuse identifier that corresponds to the specified item in the collection view.
+    open func collectionView(_ collectionView: UICollectionView, reuseIdentifierForItemAt indexPath: IndexPath) -> String {
+        return ""
+    }
+    
+    /// Asks your data source object for the cell that corresponds to the specified item in the collection view.
+    open override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        // Get the reuse identifier at index path.
+        let identifier = self.collectionView(collectionView, reuseIdentifierForItemAt: indexPath)
+        
+        // Convert the identifier to known identifier.
+        let newIdentifier = _mapping[identifier].ub_coalescing {
+            // Query identifier from the factory.
+            let newIdentifier = factory.slice(for: .cell).matching(identifier)
+
+            // Cache identifiers improve the access efficiency.
+            _mapping[identifier] = newIdentifier
+            
+            logger.debug?.write("Mapping \"\(identifier)\" to \"\(newIdentifier)\"")
+            
+            return newIdentifier
+        }
+            
+        return collectionView.dequeueReusableCell(withReuseIdentifier: newIdentifier, for: indexPath)
+    }
+    
+    // MARK: ivar
+    
+    private lazy var _mapping: [String: String] = [:]
 }
 
 /// Templated collection view cell.
@@ -219,11 +249,6 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
     
     // MARK: Data Access
     
-    /// Get the cell reuse identifier at index path.
-    open func reuseIdentifier(_ source: Source, at indexPath: IndexPath) -> String {
-        return ub_reuseIdentifier(with: source.asset(at: indexPath))
-    }
-    
     /// Get the cell orientation at index path.
     open func orientation(_ source: Source, at indexPath: IndexPath) -> UIImageOrientation {
         return .up
@@ -256,10 +281,16 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         return source.numberOfAssets(inCollection: section)
     }
     
+    /// Asks your data source object for the reuse identifier that corresponds to the specified item in the collection view.
+    open override func collectionView(_ collectionView: UICollectionView, reuseIdentifierForItemAt indexPath: IndexPath) -> String {
+        // Get the type of the asset at index path.
+        return source.asset(at: indexPath)?.ub_type.description ?? ""
+    }
+    
+    /// Asks your data source object for the cell that corresponds to the specified item in the collection view.
     open override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        // Get the registed cell for reuse identifier.
-        let identifier = reuseIdentifier(source, at: indexPath)
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath)
+        // The super class solved access reuse identifier and register cell class issue.
+        let cell = super.collectionView(collectionView, cellForItemAt: indexPath)
         
         // The item must be exists.
         guard let item = data(source, at: indexPath) else {
@@ -274,6 +305,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         return cell
     }
     
+    /// Tells the delegate that the specified cell is about to be displayed in the collection view.
     open override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         // Configure the cell on cell is king of `Source.CollectionViewCell`.
         (cell as? SourceCollectionViewCell).map {
@@ -281,6 +313,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         }
     }
     
+    /// Tells the delegate that the specified cell was removed from the collection view.
     open override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         // Configure the cell on cell is king of `Source.CollectionViewCell`.
         (cell as? SourceCollectionViewCell).map {
@@ -288,7 +321,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         }
     }
     
-    /// Update the cache area when scrolling.
+    /// Tells the delegate when the user scrolls the content view within the receiver.
     open override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         // The library is prepared?
         guard prepared else {
@@ -304,7 +337,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         cachingUpdate()
     }
     
-    /// Default is allows scroll to top.
+    /// Asks the delegate if the scroll view should scroll to the top of the content.
     open override func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
         // Update target content offset
         targetContentOffset = .init(x: -scrollView.contentInset.left, y: -scrollView.contentInset.top)

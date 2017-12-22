@@ -8,18 +8,24 @@
 
 import UIKit
 
-internal class BrowserAlbumListController: Source.CollectionViewController {
+internal class BrowserAlbumListController: SourceCollectionViewController {
     
     required init(container: Container, source: Source, factory: Factory, parameter: Any?) {
         super.init(container: container, source: source, factory: factory, parameter: parameter)
-        
-        // Disable caching items.
-        self.cachingItemEnabled = false
+//        
+//        // Disable caching items.
+//        self.cachingItemEnabled = false
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
+    
+    /// Specify the caching item size.
+    override var cachingItemSize: CGSize {
+        return BrowserAlbumLayout.thumbnailItemSize
+    }
+
     
     // MARK: Collection View Configure
     
@@ -59,12 +65,17 @@ internal class BrowserAlbumListController: Source.CollectionViewController {
     }
     
     override func data(_ source: Source, at indexPath: IndexPath) -> Any? {
-        // If there is a collection in the fold, use it first
-        if let folded = foldingLists?[indexPath.section]?.collection(at: indexPath.item) {
-            return folded
+        return _collection(at: indexPath)
+    }
+    
+    override func cachingItems(at indexPaths: [IndexPath]) -> [Asset] {
+        return indexPaths.flatMap {
+            return _collection(at: $0).flatMap { collection in
+                return (max(collection.ub_count - 3, 0) ..< collection.ub_count).map {
+                    return collection.ub_asset(at: $0)
+                }
+            } ?? []
         }
-        
-        return source.collection(at: indexPath.row, inCollectionList: indexPath.section)
     }
     
     override func library(_ library: Library, change: Change, fetch source: Source) -> SourceChangeDetails? {
@@ -130,7 +141,15 @@ internal class BrowserAlbumListController: Source.CollectionViewController {
         let controller = container.instantiateViewController(with: .albums, source: source, parameter: indexPath)
         show(controller, sender: indexPath)
     }
-
+    
+    private func _collection(at indexPath: IndexPath) -> Collection? {
+        // If there is a collection in the fold, use it first
+        if let folded = foldingLists?[indexPath.section]?.collection(at: indexPath.item) {
+            return folded
+        }
+        
+        return source.collection(at: indexPath.row, inCollectionList: indexPath.section)
+    }
     
     /// generate folding lists
     private func _folding(with source: Source) -> [Int: SourceFolding] {

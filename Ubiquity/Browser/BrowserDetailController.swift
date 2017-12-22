@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class BrowserDetailController: Source.CollectionViewController, TransitioningDataSource, DetailControllerItemUpdateDelegate, DetailControllerItemRotationDelegate, UIGestureRecognizerDelegate, UICollectionViewDelegateFlowLayout {
+internal class BrowserDetailController: SourceCollectionViewController, TransitioningDataSource, DetailControllerItemUpdateDelegate, DetailControllerItemRotationDelegate, UIGestureRecognizerDelegate, UICollectionViewDelegateFlowLayout {
 
     required init(container: Container, source: Source, factory: Factory, parameter: Any?) {
         super.init(container: container, source: source, factory: factory, parameter: parameter)

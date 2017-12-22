@@ -9,7 +9,7 @@
 import UIKit
 
 /// the asset list in album
-internal class BrowserAlbumController: Source.CollectionViewController, TransitioningDataSource, DetailControllerItemUpdateDelegate, UICollectionViewDelegateFlowLayout {
+internal class BrowserAlbumController: SourceCollectionViewController, TransitioningDataSource, DetailControllerItemUpdateDelegate, UICollectionViewDelegateFlowLayout {
     
     required init(container: Container, source: Source, factory: Factory, parameter: Any?) {
         super.init(container: container, source: source, factory: factory, parameter: parameter)

@@ -105,8 +105,12 @@ internal class Cacher: NSObject {
     
     /// Prepares image representations of the specified assets for later use.
     func startCachingImages(for assets: Array<Asset>, size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
+        // If no data is provided, ignore
+        guard !assets.isEmpty else {
+            return
+        }
         //logger.trace?.write(assets)
-        
+
         // make progressing format task
         let format = Format(size: size, mode: mode)
         let cache = _caches[format] ?? {
@@ -145,6 +149,11 @@ internal class Cacher: NSObject {
     
     /// Cancels image preparation for the specified assets and options.
     func stopCachingImages(for assets: Array<Asset>, size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
+        // If no data is provided, ignore
+        guard !assets.isEmpty else {
+            return
+        }
+
         //logger.trace?.write(assets)
         
         // make progressing format task

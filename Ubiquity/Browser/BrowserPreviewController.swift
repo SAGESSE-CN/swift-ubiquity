@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class BrowserPreviewController: Source.CollectionViewController, UICollectionViewDelegateFlowLayout {
+internal class BrowserPreviewController: SourceCollectionViewController, UICollectionViewDelegateFlowLayout {
 
     required init(container: Container, source: Source, factory: Factory, parameter: Any?) {
         super.init(container: container, source: source, factory: factory, parameter: parameter)

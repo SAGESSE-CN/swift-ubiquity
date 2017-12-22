@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class BrowserDetailCell: Source.CollectionViewCell {
+internal class BrowserDetailCell: SourceCollectionViewCell {
     
     /// The displayer delegate & event delegate
     weak var delegate: AnyObject?

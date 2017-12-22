@@ -27,4 +27,12 @@ internal class BrowserAlbumListLayout: UICollectionViewFlowLayout {
         invalidateLayout()
         return true
     }
+    
+    override func initialLayoutAttributesForAppearingItem(at itemIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+        return nil
+    }
+    
+    override func finalLayoutAttributesForDisappearingItem(at itemIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+        return nil
+    }
 }

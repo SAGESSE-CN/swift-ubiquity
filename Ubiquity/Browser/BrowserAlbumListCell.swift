@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class BrowserAlbumListCell: Source.CollectionViewCell {
+internal class BrowserAlbumListCell: SourceCollectionViewCell {
     
     override func configure() {
         super.configure()
@@ -17,7 +17,6 @@ internal class BrowserAlbumListCell: Source.CollectionViewCell {
         _thumbView.frame = .init(x: 0, y: 0, width: 70, height: 70)
         _thumbView.backgroundColor = .white
         _thumbView.translatesAutoresizingMaskIntoConstraints = false
-        _thumbView.images = [nil, nil, nil]
         contentView.addSubview(_thumbView)
         
         // setup badge
@@ -93,7 +92,8 @@ internal class BrowserAlbumListCell: Source.CollectionViewCell {
         let options = RequestOptions()
         
         // setup thumbnail image
-        _thumbView.images = assets.map { _ in nil }
+        _thumbView.setImages(assets.map { _ in nil },
+                             animated: false)
         _requests = assets.reversed().enumerated().flatMap { offset, asset in
             // request thumbnail image
             container.request(forImage: asset, size: size, mode: .aspectFill, options: options) { [weak self, weak collection] contents, response in
@@ -121,9 +121,6 @@ internal class BrowserAlbumListCell: Source.CollectionViewCell {
         // clear context
         _requests = nil
         _collection = nil
-        
-        // clear content
-        _thumbView.images = [nil, nil, nil]
     }
     
     // update thumbnail image
@@ -135,9 +132,7 @@ internal class BrowserAlbumListCell: Source.CollectionViewCell {
             return
         }
         // no change, update content
-        var images = _thumbView.images
-        images?[index] = contents
-        _thumbView.images = images
+        _thumbView.setImage(contents, at: index, animated: true)
     }
 
     override var isSelected: Bool {
@@ -153,9 +148,9 @@ internal class BrowserAlbumListCell: Source.CollectionViewCell {
     
     private func _switch(_ enabeld: Bool) {
         if enabeld {
-            backgroundColor = UIColor.lightGray.withAlphaComponent(0.8)
+            backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.1977739726)
         } else {
-            backgroundColor = .white
+            backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         }
     }
     
@@ -166,6 +161,6 @@ internal class BrowserAlbumListCell: Source.CollectionViewCell {
     private lazy var _titleLabel: UILabel = .init()
     private lazy var _subtitleLabel: UILabel = .init()
     
-    private lazy var _thumbView: ThumbView = .init()
+    private lazy var _thumbView: ThumbView = .init(frame: .zero)
     private lazy var _badgeView: BadgeView = .init()
 }

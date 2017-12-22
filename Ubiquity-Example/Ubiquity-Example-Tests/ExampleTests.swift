@@ -534,7 +534,7 @@ class ExampleTests: XCTestCase {
                 XCTAssertEqual($0.exists, true)
                 XCTAssertEqual($0.frame.height, 88, accuracy: 0.5)
 
-                XCTAssertEqual($0.staticTexts.element(boundBy: 0).label, "Moments")
+                XCTAssertEqual($0.staticTexts.element(boundBy: 0).label, "CollectionList")
                 XCTAssertEqual($0.staticTexts.element(boundBy: 1).label, "56")
                 
                 XCTAssertEqual($0.images["ThumbImageView-0"].identifier, "t1_t")

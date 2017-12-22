@@ -17,5 +17,13 @@ public class Settings: NSObject {
     
     // Minimum size of each item allowed
     public var minimumItemSize: CGSize = .init(width: 78, height: 78)
+ 
     
-    }
+    /// 
+    public var contentViewColor: UIColor = #colorLiteral(red: 0.9411764706, green: 0.937254902, blue: 0.9607843137, alpha: 1)
+
+
+    
+    public var thumbViewEmptyImage: UIImage?
+    public var thumbViewBackgroundColor: UIColor?
+}

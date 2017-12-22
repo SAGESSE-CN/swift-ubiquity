@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class BrowserAlbumCell: Source.CollectionViewCell, TransitioningView {
+internal class BrowserAlbumCell: SourceCollectionViewCell, TransitioningView {
     
     
     /// The current displayed content size.

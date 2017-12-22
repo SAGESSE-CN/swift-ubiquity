@@ -10,88 +10,106 @@ import UIKit
 
 internal class ThumbView: UIView {
 
-    // 缩图图, 0-3张
-    var images: [UIImage?]? {
-        didSet {
-            _update(at: images)
-        }
+    
+    init(frame: CGRect, depth: Int = 3) {
+        super.init(frame: frame)
+        self.configure(depth)
     }
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        _configure()
-    }
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _configure()
+        self.configure(3)
+    }
+    
+    
+    /// All the displayed image view, the page appears stutters when using CALayer.
+    private(set) lazy var displayedImageViews: Array<UIImageView> = []
+    private(set) lazy var displayedImages: [UIImage?] = []
+    
+    func setImages(_ images: [UIImage?]?, animated: Bool) {
+        // If the images is empty, show empty photo album
+        guard let images = images, !images.isEmpty else {
+            // Blank structure needs to be displayed
+            displayedImageViews.enumerated().forEach {
+                $1.image = _emptyImage
+                $1.isHidden = false
+                
+                displayedImages[$0] = nil
+            }
+            return
+        }
+
+        // Update the content of each sublayer.
+        displayedImageViews.enumerated().forEach {
+            guard $0 < images.count else {
+                $1.image = nil
+                $1.isHidden = true
+                
+                displayedImages[$0] = nil
+                return
+            }
+            
+            setImage(images[$0], at: $0, animated: animated)
+        }
+    }
+    func setImage(_ image: UIImage?, at index: Int, animated: Bool) {
+        // Whether or not the image changes.
+        guard index < displayedImageViews.count, image != displayedImageViews[index].image else {
+            return
+        }
+        
+        displayedImageViews[index].isHidden = false
+        displayedImageViews[index].image = image
+
+        displayedImages[index] = image
+    }
+
+    func configure(_ depth: Int) {
+        
+        // Create a layer with the specified depth
+        displayedImageViews = (0 ..< depth).map { index in
+            let view = UIImageView()
+            
+            view.layer.borderWidth = 0.5
+            view.layer.borderColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
+            
+            view.clipsToBounds = true
+            view.contentMode = .scaleAspectFill
+            
+            view.isHidden = false
+            view.backgroundColor = #colorLiteral(red: 0.9411764706, green: 0.937254902, blue: 0.9607843137, alpha: 1)
+
+            view.isAccessibilityElement = true
+            view.accessibilityLabel = "ThumbImageView-\(index)"
+            
+            return view
+        }
+        
+        // Add to layer.
+        displayedImageViews.reversed().forEach {
+            addSubview($0)
+        }
+
+        // Setup default image.
+        displayedImages = .init(repeating: nil, count: displayedImageViews.count)
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        // recompute all subview offset
-        imageViews.enumerated().forEach { index, imageView in
-            // compute offset
-            let top = _inset.top * .init(index)
-            let left = _inset.left * .init(index)
-            let right = _inset.right * .init(index)
-            let bottom = _inset.bottom * .init(index) + top * 2
-            // update layout
-            imageView.frame = UIEdgeInsetsInsetRect(bounds, .init(top: -top, left: left, bottom: bottom, right: right))
+        // Refresh all sublayers
+        displayedImageViews.enumerated().forEach {
+            $1.frame = UIEdgeInsetsInsetRect(bounds, _inset(at: $0))
         }
     }
-    
-    private func _update(at images: [UIImage?]?) {
-        
-        // if the images is empty, show empty photo album
-        guard let images = images, !images.isEmpty else {
-            // show image of photo albums
-            imageViews.forEach { imageView in
-                imageView.image = _emptyImage
-                imageView.isHidden = false
-            }
-            return
-        }
-        // show image
-        imageViews.enumerated().forEach { index, imageView in
-            // fetch the current thumbnails
-            guard index < images.count else {
-                imageView.image = nil
-                imageView.isHidden = true
-                return
-            }
-            let image = images[index]
-            // if there is no change, ignored
-            if imageView.image !== image {
-                imageView.image = image
-            }
-            imageView.isHidden = !(index < images.count)
-        }
-    }
-    
-    private func _configure() {
-        
-        // setup layer
-        (0 ..< 3).forEach { index in
-            
-            let imageView = ThumbImageView()
-            
-            imageView.contentMode = .scaleAspectFill
-            imageView.clipsToBounds = true
-            imageView.backgroundColor = nil
-            imageView.layer.borderWidth = 0.5
-            imageView.layer.borderColor = UIColor.white.cgColor
-            imageView.isAccessibilityElement = true
-            imageView.accessibilityLabel = "ThumbImageView-\(index)"
-            
-            insertSubview(imageView, at: 0)
-            imageViews.append(imageView)
-        }
-    }
-    
-    lazy var imageViews: [UIImageView] = []
     
     private var _inset: UIEdgeInsets = .init(top: 2, left: 2, bottom: 2, right: 2)
+    private func _inset(at offset: Int) -> UIEdgeInsets {
+        return .init(top: _inset.top * .init(offset) * -1,
+                     left: _inset.left * .init(offset),
+                     bottom: _inset.bottom * .init(offset) + (_inset.top * .init(offset)) * 2,
+                     right: _inset.right * .init(offset))
+    }
     
     private var __emptyImage: UIImage?
     private var _emptyImage: UIImage? {
@@ -100,7 +118,7 @@ internal class ThumbView: UIView {
             // update cache
             __emptyImage = image
             __sharedEmptyImage = image
-        
+            
             return image
         }
         logger.debug?.write("load `ubiquity_icon_empty_album`")
@@ -139,14 +157,6 @@ internal class ThumbView: UIView {
         UIGraphicsEndImageContext()
         
         return __emptyImage
-    }
-}
-
-
-internal class ThumbImageView: UIImageView {
-    override var backgroundColor: UIColor? {
-        set { return super.backgroundColor = .ub_init(hex: 0xF0EFF5) }
-        get { return super.backgroundColor }
     }
 }
 

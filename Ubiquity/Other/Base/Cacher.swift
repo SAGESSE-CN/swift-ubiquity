@@ -273,20 +273,20 @@ internal class Cacher: NSObject {
     
     /// The establishment and bridging between buffer
     @nonobjc static func bridging(of object: AnyObject, protocol: Protocol, cacher: AnyClass) {
-        // generate bridge info
+        // Generate bridge info
         let cls: AnyClass = type(of: object)
         let selector: Selector = Selector(String("__ub_cacher"))
         
-        // the object is bridged?
+        // The object is bridged?
         guard !object.responds(to: selector) else {
             return
         }
         
-        // need to repeat filtering method
+        // Need to repeat filtering method
         var count: UInt32 = 0
         var methods: [Selector: Method] = [:]
         
-        // gets the all method
+        // Gets the all method
         if let descriptions = class_copyMethodList(cacher, &count) {
             (0 ..< Int(count)).forEach { index in
                 guard let method = descriptions.advanced(by: index).move() else {
@@ -299,30 +299,32 @@ internal class Cacher: NSObject {
             }
         }
         
-        // exchange all protocol method
+        // Exchange all protocol method
         methods.forEach {
-            // generate method info
+            // Generate method info
             let caching = $0.key
             let origin = Selector((NSStringFromSelector($0.key) as NSString).substring(from: 2))
             
-            // get origin method, if not exists, ignore
+            // Get origin method, if not exists, ignore
             guard let m2 = class_getInstanceMethod(cls, origin) else {
                 return
             }
             
-            // copy caching method to object
+            // Copy caching method to object
             guard class_addMethod(cls, caching, method_getImplementation($0.value), method_getTypeEncoding($0.value)) else {
                 return
             }
             
-            // get added the caching method
-            let m1 = class_getInstanceMethod(cls, caching)
+            // Get added the caching method
+            guard let m1 = class_getInstanceMethod(cls, caching) else {
+                return
+            }
             
             // exchange method
             method_exchangeImplementations(m1, m2)
         }
         
-        // copy ub_cacher to object
+        // Copy ub_cacher to object
         guard let method = class_getInstanceMethod(cacher, selector) else {
             return
         }
@@ -962,32 +964,32 @@ private class __Cacher: NSObject {
 private class __CacherOfAsset: __Cacher {
     
     /// A cacher used to provide fast cache
-    dynamic var __ub_cacher: __CacherOfAsset {
+    @objc dynamic var __ub_cacher: __CacherOfAsset {
         return __ub_property(self, selector: #selector(getter: self.__ub_cacher), newValue: __CacherOfAsset())
     }
     
     /// The localized title of the asset.
-    dynamic var __ub_title: String? {
+    @objc dynamic var __ub_title: String? {
         return __ub_property(self, ivar: &__ub_cacher.__title, newValue: self.__ub_title)
     }
     
     /// The localized subtitle of the asset.
-    dynamic var __ub_subtitle: String? {
+    @objc dynamic var __ub_subtitle: String? {
         return __ub_property(self, ivar: &__ub_cacher.__subtitle, newValue: self.__ub_subtitle)
     }
     
     /// A unique string that persistently identifies the object.
-    dynamic var __ub_identifier: String {
+    @objc dynamic var __ub_identifier: String {
         return __ub_property(self, ivar: &__ub_cacher.__identifier, newValue: self.__ub_identifier)
     }
     
     /// The type of the asset, such as video or audio.
-    dynamic var __ub_type: AssetType {
+    @objc dynamic var __ub_type: AssetType {
         return __ub_property(self, ivar: &__ub_cacher.__type, newValue: self.__ub_type)
     }
     
     /// The subtypes of the asset, an option of type `AssetSubtype`
-    dynamic var __ub_subtype: UInt {
+    @objc dynamic var __ub_subtype: UInt {
         return __ub_property(self, ivar: &__ub_cacher.__subtype, newValue: self.__ub_subtype)
     }
     
@@ -1003,30 +1005,30 @@ private class __CacherOfAsset: __Cacher {
 private class __CacherOfCollection: __Cacher {
     
     /// A cacher used to provide fast cache
-    dynamic var __ub_cacher: __CacherOfCollection {
+    @objc dynamic var __ub_cacher: __CacherOfCollection {
         return __ub_property(self, selector: #selector(getter: self.__ub_cacher), newValue: __CacherOfCollection())
     }
     
     /// The localized title of the collection.
-    dynamic var __ub_title: String? {
+    @objc dynamic var __ub_title: String? {
         return __ub_property(self, ivar: &__ub_cacher.__title, newValue: self.__ub_title)
     }
     /// The localized subtitle of the collection.
-    dynamic var __ub_subtitle: String? {
+    @objc dynamic var __ub_subtitle: String? {
         return __ub_property(self, ivar: &__ub_cacher.__subtitle, newValue: self.__ub_subtitle)
     }
     /// A unique string that persistently identifies the object.
-    dynamic var __ub_identifier: String {
+    @objc dynamic var __ub_identifier: String {
         return __ub_property(self, ivar: &__ub_cacher.__identifier, newValue: self.__ub_identifier)
     }
     
     /// The number of assets in the asset collection.
-    dynamic var __ub_count: Int {
+    @objc dynamic var __ub_count: Int {
         return __ub_property(self, ivar: &__ub_cacher.__count, newValue: self.__ub_count)
     }
     
     /// The number of assets in the asset collection.
-    dynamic func __ub_count(with type: AssetType) -> Int {
+    @objc dynamic func __ub_count(with type: AssetType) -> Int {
         // count is cached?
         let cacher = __ub_cacher
         if let count = cacher.__counts[type] {
@@ -1040,7 +1042,7 @@ private class __CacherOfCollection: __Cacher {
     }
     
     /// Retrieves assets from the specified asset collection.
-    dynamic func __ub_asset(at index: Int) -> Asset {
+    @objc dynamic func __ub_asset(at index: Int) -> Asset {
         // collection is cached?
         let cacher = __ub_cacher
         if let asset = cacher.__assets?[index] {
@@ -1073,30 +1075,30 @@ private class __CacherOfCollection: __Cacher {
 private class __CacherOfCollectionList: __Cacher {
     
     /// A cacher used to provide fast cache
-    dynamic var __ub_cacher: __CacherOfCollectionList {
+    @objc dynamic var __ub_cacher: __CacherOfCollectionList {
         return __ub_property(self, selector: #selector(getter: self.__ub_cacher), newValue: __CacherOfCollectionList())
     }
     
     /// The localized title of the collection list.
-    dynamic var __ub_title: String? {
+    @objc dynamic var __ub_title: String? {
         return __ub_property(self, ivar: &__ub_cacher.__title, newValue: self.__ub_title)
     }
     /// The localized subtitle of the collection list.
-    dynamic var __ub_subtitle: String? {
+    @objc dynamic var __ub_subtitle: String? {
         return __ub_property(self, ivar: &__ub_cacher.__subtitle, newValue: self.__ub_subtitle)
     }
     /// A unique string that persistently identifies the object.
-    dynamic var __ub_identifier: String {
+    @objc dynamic var __ub_identifier: String {
         return __ub_property(self, ivar: &__ub_cacher.__identifier, newValue: self.__ub_identifier)
     }
 
     /// The number of collection in the collection list.
-    dynamic var __ub_count: Int {
+    @objc dynamic var __ub_count: Int {
         return self.__ub_count
     }
     
     /// Retrieves collection from the specified collection list.
-    dynamic func __ub_collection(at index: Int) -> Collection {
+    @objc dynamic func __ub_collection(at index: Int) -> Collection {
         // collection is cached?
         let cacher = __ub_cacher
         if let collection = cacher.__colltions?[index] {
@@ -1126,12 +1128,12 @@ private class __CacherOfCollectionList: __Cacher {
 private class __CacherOfChange: __Cacher {
     
     /// A cacher used to provide fast cache
-    dynamic var __ub_cacher: __CacherOfChange {
+    @objc dynamic var __ub_cacher: __CacherOfChange {
         return __ub_property(self, selector: #selector(getter: self.__ub_cacher), newValue: __CacherOfChange())
     }
     
     /// Returns detailed change information for the specified collection.
-    dynamic func __ub_changeDetails(forCollection collection: Collection) -> ChangeDetails? {
+    @objc dynamic func __ub_changeDetails(forCollection collection: Collection) -> ChangeDetails? {
         // hit collection cache?
         let cacher = __ub_cacher
         if let details = cacher.__collectionCaches[collection.ub_identifier] {
@@ -1145,7 +1147,7 @@ private class __CacherOfChange: __Cacher {
     }
     
     /// Returns detailed change information for the specified colleciotn list.
-    dynamic func __ub_changeDetails(forCollectionList collectionList: CollectionList) -> ChangeDetails? {
+    @objc dynamic func __ub_changeDetails(forCollectionList collectionList: CollectionList) -> ChangeDetails? {
         // hit collection cache?
         let cacher = __ub_cacher
         if let details = cacher.__collectionListCaches[collectionList.ub_collectionType] {

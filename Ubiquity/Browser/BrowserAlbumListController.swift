@@ -12,6 +12,9 @@ internal class BrowserAlbumListController: SourceCollectionViewController, UICol
     
     required init(container: Container, source: Source, factory: Factory, parameter: Any?) {
         super.init(container: container, source: source, factory: factory, parameter: parameter)
+    
+        // The enable precache.
+        self.cachingItemEnabled = true
     }
     
     required init?(coder aDecoder: NSCoder) {

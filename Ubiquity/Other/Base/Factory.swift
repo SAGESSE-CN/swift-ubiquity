@@ -41,10 +41,11 @@ public class Factory: NSObject {
         public unowned let factory: Factory
         
         /// Registered a new class for predicat in slice.
-        public func register(_ newClass: AnyClass, for format: String) {
-            // Convert to predicates
+        public func register(_ newClass: AnyClass?, for format: String) {
             _registedClasss[format] = newClass
-            _resistedPredicates[format] = (format, _weight(format), _predicate(format))
+            _resistedPredicates[format] = newClass.map { _ in
+                (format, _weight(format), _predicate(format))
+            }
         }
         
         /// Iterate through all the registered predicate.
@@ -129,23 +130,29 @@ public class Factory: NSObject {
             }
             
             // If you have not registered this, dynamically generate it
-            let newSelector: Selector = .init(String("contentViewClass"))
-            let newClass: AnyClass = objc_allocateClassPair(superclass, newClassName, 0)
-            let method: Method = class_getClassMethod(superclass, newSelector)
+            guard let newClass = objc_allocateClassPair(superclass, newClassName, 0) else {
+                return superclass // Generate a new class failure.
+            }
+            logger.debug?.write("Make class \"\(NSStringFromClass(newClass))\" king of \"\(NSStringFromClass(superclass))\"")
+
+            // Registered the class with the system.
             objc_registerClassPair(newClass)
             
             // Because it is a class method, it can not used class, need to use meta class
             guard let metaClass = objc_getMetaClass(newClassName) as? AnyClass else {
                 return newClass
             }
-            logger.debug?.write("Make class \"\(NSStringFromClass(newClass))\" king of \"\(NSStringFromClass(superclass))\"")
 
+            let selector = Selector(String("contentViewClass"))
             let getter: @convention(block) () -> AnyClass = {
-                return specifiedClass
+                 return specifiedClass
             }
             
-            // Add class method
-            class_addMethod(metaClass, newSelector, imp_implementationWithBlock(unsafeBitCast(getter, to: AnyObject.self)), method_getTypeEncoding(method))
+            
+            // Rewrite the class method.
+            class_getClassMethod(superclass, selector).ub_map {
+               class_addMethod(metaClass, selector, imp_implementationWithBlock(unsafeBitCast(getter, to: AnyObject.self)), method_getTypeEncoding($0))
+            }
 
             return newClass
         }
@@ -161,11 +168,11 @@ public class Factory: NSObject {
     }
     
     /// Set a class for key.
-    public func setClass(_ newClass: AnyClass, for key: Key) {
+    public func setClass(_ newClass: AnyClass?, for key: Key) {
         return _registedClasss[key] = newClass
     }
     /// Set a class in cluster class with matching for key.
-    public func setClass(_ newClass: AnyClass, matching predicate: String, for key: Key) {
+    public func setClass(_ newClass: AnyClass?, matching predicate: String, for key: Key) {
         // Lazy loading the slize for key.
         let slice = self.slice(for: key)
         

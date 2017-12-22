@@ -22,7 +22,7 @@ internal class BrowserAlbumCell: SourceCollectionViewCell, TransitioningView {
         super.configure()
         
         // setup badge view
-        let badgeView = BadgeView()
+        let badgeView = BadgeView(frame: .zero)
         
         badgeView.frame = .init(x: 0, y: contentView.bounds.height - 20, width: contentView.bounds.width, height: 20)
         badgeView.tintColor = .white

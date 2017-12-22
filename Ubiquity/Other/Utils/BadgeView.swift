@@ -48,7 +48,7 @@ internal enum BadgeItem: Equatable {
     }
 }
 
-internal class BadgeView: UIView {
+internal class BadgeView: UIImageView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -139,7 +139,7 @@ internal class BadgeView: UIView {
     }
     
     private func _updateBackgroundImage() {
-        layer.contents = backgroundImage?.cgImage
+        image = backgroundImage
     }
 
     private func _updateVisableViewsIfNeeded() {

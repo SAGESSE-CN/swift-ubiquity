@@ -33,8 +33,8 @@ internal class BrowserAlbumListCell: SourceCollectionViewCell {
         _subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         // Setup indicator image view.
-        _indicatorImageView.setContentHuggingPriority(1000, for: .horizontal)
-        _indicatorImageView.setContentCompressionResistancePriority(1000, for: .horizontal)
+        _indicatorImageView.setContentHuggingPriority(UILayoutPriorityRequired, for: .horizontal)
+        _indicatorImageView.setContentCompressionResistancePriority(UILayoutPriorityRequired, for: .horizontal)
         _indicatorImageView.translatesAutoresizingMaskIntoConstraints = false
         
         // Add subviews
@@ -173,7 +173,7 @@ internal class BrowserAlbumListCell: SourceCollectionViewCell {
     private lazy var _subtitleLabel: UILabel = .init()
     
     private lazy var _thumbView: ThumbView = ThumbView(frame: .zero)
-    private lazy var _badgeView: BadgeView = .init()
+    private lazy var _badgeView: BadgeView = BadgeView(frame: .zero)
     
     private lazy var _indicatorImageView: UIImageView = UIImageView(image: R.image( "ubiquity_button_indicator"))
 }

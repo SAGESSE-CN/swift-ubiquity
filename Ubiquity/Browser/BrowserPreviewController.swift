@@ -16,10 +16,13 @@ internal class BrowserPreviewController: SourceCollectionViewController, UIColle
         // if the navigation bar disable translucent will have an error offset, enabled `extendedLayoutIncludesOpaqueBars` can solve the problem
         self.extendedLayoutIncludesOpaqueBars = true
         self.automaticallyAdjustsScrollViewInsets = false
+        
+        // The enable precache.
+        self.cachingItemEnabled = true
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        super.init(coder: aDecoder)
     }
 
     override func loadView() {
@@ -38,6 +41,35 @@ internal class BrowserPreviewController: SourceCollectionViewController, UIColle
             collectionView?.contentInsetAdjustmentBehavior = .never
         }
     }
+    
+//    override func data(_ source: Source, at indexPath: IndexPath) -> Any? {
+//        return collectionView.flatMap {
+//            let section = $0.numberOfSections - indexPath.section - 1
+//            let item = $0.numberOfItems(inSection: indexPath.section) - indexPath.item - 1
+//
+//            return source.asset(at: .init(item: item, section: section))
+//        }
+//    }
+//
+//    /// Asks your data source object for the number of sections in the collection view.
+//    override func numberOfSections(in collectionView: UICollectionView) -> Int {
+//        // Without access authorization, shows blank
+//        guard prepared else {
+//            return 0
+//        }
+//
+//        return source.numberOfCollections
+//    }
+//
+//    /// Asks your data source object for the number of items in the specified section.
+//    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+//        // Without access authorization, shows blank
+//        guard prepared else {
+//            return 0
+//        }
+//
+//        return source.numberOfAssets(inCollection: source.numberOfCollections - section - 1)
+//    }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         // if section is empty, there is no need to fill in the blanks

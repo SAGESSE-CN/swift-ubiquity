@@ -17,10 +17,13 @@ internal class BrowserAlbumController: SourceCollectionViewController, Transitio
         // if the navigation bar disable translucent will have an error offset, enabled `extendedLayoutIncludesOpaqueBars` can solve the problem
         self.extendedLayoutIncludesOpaqueBars = true
         self.automaticallyAdjustsScrollViewInsets = true
+        
+        // The enable precache.
+        self.cachingItemEnabled = true
     }
     
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        super.init(coder: aDecoder)
     }
 
     /// Specify the caching item size.

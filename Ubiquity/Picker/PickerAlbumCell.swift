@@ -82,7 +82,7 @@ internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
         selectedForegroundView.isHidden = !picker.allowsSelection || !selectedStatusView.isSelected
     }
     
-    private dynamic func _select(_ sender: Any) {
+    @objc private dynamic func _select(_ sender: Any) {
         // the asset must be set
         // if it is not picker, ignore
         guard let asset = asset, let picker = container as? Picker else {

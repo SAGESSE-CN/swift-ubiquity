@@ -7,7 +7,6 @@
 //
 
 import UIKit
-
 import Ubiquity
 
 class DebugingBrowserAsset: Ubiquity.UHLocalAsset {
@@ -108,7 +107,12 @@ class DebugingBrowserLibrary: Ubiquity.UHLocalAssetLibrary {
     /// Requests an image representation for the specified asset.
     override func request(forImage asset: Ubiquity.UHLocalAsset, size: CGSize, mode: Ubiquity.RequestContentMode, options: Ubiquity.RequestOptions?, resultHandler: @escaping (UIImage?, UHLocalAssetResponse) -> ()) -> UHLocalAssetRequest? {
         let response = UHLocalAssetResponse()
-        let image = #imageLiteral(resourceName: "t1_t")
+        let image: UIImage
+        if size.width > 0 && size.width < 300 {
+            image = #imageLiteral(resourceName: "t1_t")
+        } else {
+            image = #imageLiteral(resourceName: "t1")
+        }
         response.isCancelled = false
         response.isDegraded = false
         response.isDownloading = false
@@ -186,6 +190,11 @@ class DebugingBrowserViewController: UITableViewController {
             source = Source(collectionTypes: [.moment, .regular, .recentlyAdded])
             library = DebugingBrowserLibrary()
             
+        case "Album List - Custom":
+            type = .albumsList
+            source = Source(collectionTypes: [.regular])
+            library = DebugingBrowserLibrary()
+            
         case "Albums - Empty":
             type = .albums
             source = Source(collectionTypes: [.regular], title: str)
@@ -215,7 +224,15 @@ class DebugingBrowserViewController: UITableViewController {
             return
         }
         
-        let controller = Ubiquity.Browser(library: library).instantiateViewController(with: type, source: source)
+        let container = Ubiquity.Browser(library: library)
+        if str == "Album List - Custom" {
+            container.factory(with: .albumsList).configure {
+                $0.setClass(DebuggingCustomAlbumsListCell.self, for: .cell)
+                $0.setClass(DebuggingCustomAlbumsListLayout.self, for: .layout)
+                $0.setClass(DebuggingCustomAlbumsListController.self, for: .controller)
+            }
+        }
+        let controller = container.instantiateViewController(with: type, source: source)
         show(controller, sender: nil)
     }
     
@@ -224,3 +241,5 @@ class DebugingBrowserViewController: UITableViewController {
         // Dispose of any resources that can be recreated.
     }
 }
+
+

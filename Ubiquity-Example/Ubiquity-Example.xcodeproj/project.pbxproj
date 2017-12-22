@@ -15,6 +15,7 @@
 		0C7792081FDE3F130058FF8A /* Debugger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7792051FDE3F130058FF8A /* Debugger.swift */; };
 		0C7792091FDE3F130058FF8A /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7792061FDE3F130058FF8A /* Logger.swift */; };
 		0C77920A1FDE3F130058FF8A /* UIColor+Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7792071FDE3F130058FF8A /* UIColor+Random.swift */; };
+		0C8725101FED9DF700E4BC7C /* DebugingCustomAlbumsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C87250F1FED9DF700E4BC7C /* DebugingCustomAlbumsList.swift */; };
 		0CAB22701F31A91E000171A0 /* XViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CAB226F1F31A91E000171A0 /* XViewController.swift */; };
 		0CB104C61EEFF589002CB7FA /* Ubiquity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CE49E4C1E7A411D0058F5F8 /* Ubiquity.framework */; };
 		0CB104C71EEFF589002CB7FA /* Ubiquity.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0CE49E4C1E7A411D0058F5F8 /* Ubiquity.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -67,6 +68,7 @@
 		0C7792051FDE3F130058FF8A /* Debugger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Debugger.swift; sourceTree = "<group>"; };
 		0C7792061FDE3F130058FF8A /* Logger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		0C7792071FDE3F130058FF8A /* UIColor+Random.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+Random.swift"; sourceTree = "<group>"; };
+		0C87250F1FED9DF700E4BC7C /* DebugingCustomAlbumsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugingCustomAlbumsList.swift; sourceTree = "<group>"; };
 		0CAB226F1F31A91E000171A0 /* XViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XViewController.swift; sourceTree = "<group>"; };
 		0CB709571FC747F100E1DD4A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = "Ubiquity-Example-Tests/Info.plist"; sourceTree = "<group>"; };
 		0CB709581FC747F100E1DD4A /* ExampleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ExampleTests.swift; path = "Ubiquity-Example-Tests/ExampleTests.swift"; sourceTree = "<group>"; };
@@ -138,6 +140,7 @@
 				0CC50E841FC74742008B1614 /* DebugingCanvasViewController.swift */,
 				0CC50E851FC74742008B1614 /* DebugingTableViewController.swift */,
 				0C5459D61FD132FB0055AE40 /* DebugingBrowserViewController.swift */,
+				0C87250F1FED9DF700E4BC7C /* DebugingCustomAlbumsList.swift */,
 			);
 			path = Debuging;
 			sourceTree = "<group>";
@@ -317,6 +320,7 @@
 				0CE49E221E7A3F690058F5F8 /* AppDelegate.swift in Sources */,
 				0C7792081FDE3F130058FF8A /* Debugger.swift in Sources */,
 				0C5459D71FD132FB0055AE40 /* DebugingBrowserViewController.swift in Sources */,
+				0C8725101FED9DF700E4BC7C /* DebugingCustomAlbumsList.swift in Sources */,
 				0CC50E861FC74742008B1614 /* DebugingCanvasViewController.swift in Sources */,
 				0C7792091FDE3F130058FF8A /* Logger.swift in Sources */,
 				0C77920A1FDE3F130058FF8A /* UIColor+Random.swift in Sources */,

@@ -65,7 +65,7 @@ open class FactoryCollectionViewController: UICollectionViewController {
     
     /// Asks your data source object for the reuse identifier that corresponds to the specified item in the collection view.
     open func collectionView(_ collectionView: UICollectionView, reuseIdentifierForItemAt indexPath: IndexPath) -> String {
-        return ""
+        return "default"
     }
     
     /// Asks your data source object for the cell that corresponds to the specified item in the collection view.
@@ -231,7 +231,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
     open var authorized: Bool = false
     
     /// Whether allowe item precache.
-    open var cachingItemEnabled: Bool = true
+    open var cachingItemEnabled: Bool = false
     /// Specify the caching item size.
     open var cachingItemSize: CGSize {
         return .init(width: 80, height: 80)
@@ -261,7 +261,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
     
     // MARK: Collection View Configure
     
-    /// Returns the section numbers
+    /// Asks your data source object for the number of sections in the collection view.
     open override func numberOfSections(in collectionView: UICollectionView) -> Int {
         // Without access authorization, shows blank
         guard prepared else {
@@ -271,7 +271,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         return source.numberOfCollections
     }
     
-    /// Return the items number in section
+    /// Asks your data source object for the number of items in the specified section.
     open override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // Without access authorization, shows blank
         guard prepared else {
@@ -284,7 +284,10 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
     /// Asks your data source object for the reuse identifier that corresponds to the specified item in the collection view.
     open override func collectionView(_ collectionView: UICollectionView, reuseIdentifierForItemAt indexPath: IndexPath) -> String {
         // Get the type of the asset at index path.
-        return source.asset(at: indexPath)?.ub_type.description ?? ""
+        return ((data(source, at: indexPath) as? Asset)?.ub_type.description).ub_coalescing {
+            // If the asset is not found, the use of identifier provided by the superclass.
+            return super.collectionView(collectionView, reuseIdentifierForItemAt: indexPath)
+        }
     }
     
     /// Asks your data source object for the cell that corresponds to the specified item in the collection view.
@@ -522,7 +525,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
     /// Get the asset that needs to be cached in the specified index paths.
     open func cachingItems(at indexPaths: [IndexPath]) -> [Asset] {
         return indexPaths.flatMap {
-            return source.asset(at: $0)
+            return data(source, at: $0) as? Asset
         }
     }
 

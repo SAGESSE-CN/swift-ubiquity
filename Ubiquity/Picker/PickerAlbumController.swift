@@ -253,7 +253,7 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
     }
     
     /// Selection hanlder
-    private dynamic func _selectionHandler(_ sender: UIPanGestureRecognizer) {
+    @objc private dynamic func _selectionHandler(_ sender: UIPanGestureRecognizer) {
         //logger.trace?.write()
         
         // if selection region can select, try to prepare region

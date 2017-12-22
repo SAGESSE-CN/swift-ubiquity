@@ -567,7 +567,7 @@ internal class BrowserDetailController: SourceCollectionViewController, Transiti
     // MARK: Event
 
     /// Dismiss handler
-    private dynamic func _dismissHandler(_ sender: UIPanGestureRecognizer) {
+    @objc private dynamic func _dismissHandler(_ sender: UIPanGestureRecognizer) {
 
         if !_transitionIsInteractiving { // start
             // check the direction of gestures => vertical & up

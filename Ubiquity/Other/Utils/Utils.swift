@@ -9,10 +9,15 @@
 import UIKit
 
 internal extension Optional {
-    
-    @inline(__always)
-    internal func ub_coalescing(_ closure: () throws -> Wrapped) rethrows -> Wrapped {
+    @inline(__always) func ub_coalescing(_ closure: () throws -> Wrapped) rethrows -> Wrapped {
         return try self ?? closure()
+    }
+}
+internal extension OpaquePointer {
+    @inline(__always)
+    @discardableResult
+    func ub_map<T>(_ closure: (OpaquePointer) throws -> T) rethrows -> T {
+        return try closure(self)
     }
 }
 

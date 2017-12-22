@@ -175,7 +175,7 @@ internal class BrowserDetailCell: SourceCollectionViewCell {
 /// Add event support
 extension BrowserDetailCell {
     
-    fileprivate dynamic func _handleRetry(_ sender: Any) {
+    @objc fileprivate dynamic func _handleRetry(_ sender: Any) {
         logger.trace?.write()
         
         // check the state of the data
@@ -185,13 +185,13 @@ extension BrowserDetailCell {
         // recall display, to refresh the data
         (_detailView as? Displayable)?.willDisplay(with: asset, container: container, orientation: orientation)
     }
-    fileprivate dynamic func _handleCommand(_ sender: Any) {
+    @objc fileprivate dynamic func _handleCommand(_ sender: Any) {
         logger.trace?.write()
         
         _play()
     }
     
-    fileprivate dynamic func _handleTap(_ sender: UITapGestureRecognizer) {
+    @objc fileprivate dynamic func _handleTap(_ sender: UITapGestureRecognizer) {
         logger.trace?.write()
         
         guard let detailView = _detailView else {
@@ -204,7 +204,7 @@ extension BrowserDetailCell {
             detailView.ub_exitFullscreen(animated: true)
         }
     }
-    fileprivate dynamic func _handleDoubleTap(_ sender: UITapGestureRecognizer) {
+    @objc fileprivate dynamic func _handleDoubleTap(_ sender: UITapGestureRecognizer) {
         logger.trace?.write()
         guard let containerView = _containerView else {
             return

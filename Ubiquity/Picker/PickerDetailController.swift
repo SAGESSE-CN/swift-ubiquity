@@ -80,7 +80,7 @@ internal class PickerDetailController: BrowserDetailController, SelectionStatusU
     // MARK: Events
 
     // select or deselect item
-    private dynamic func _select(_ sender: Any) {
+    @objc private dynamic func _select(_ sender: Any) {
         // fetch current displayed asset item
         guard let asset = displayedItem else {
             return

@@ -13,32 +13,40 @@ internal class BrowserAlbumListCell: SourceCollectionViewCell {
     override func configure() {
         super.configure()
         
-        // setup thumb
+        // Setup thumb
         _thumbView.frame = .init(x: 0, y: 0, width: 70, height: 70)
         _thumbView.backgroundColor = .white
         _thumbView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(_thumbView)
-        
-        // setup badge
+        _thumbView.addSubview(_badgeView)
+
+        // Setup badge
         _badgeView.frame = UIEdgeInsetsInsetRect(_thumbView.bounds, UIEdgeInsetsMake(_thumbView.bounds.height - 24, 0.5, 0.5, 0.5))
         _badgeView.tintColor = .white
         _badgeView.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
-        _thumbView.addSubview(_badgeView)
         
-        // setup title
+        // Setup title
         _titleLabel.font = .preferredFont(forTextStyle: .body)
         _titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(_titleLabel)
         
-        // setup subtitle label
+        // Setup subtitle label
         _subtitleLabel.font = .preferredFont(forTextStyle: .footnote)
         _subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(_subtitleLabel)
         
-        // setup constraints
+        // Setup indicator image view.
+        _indicatorImageView.setContentHuggingPriority(1000, for: .horizontal)
+        _indicatorImageView.setContentCompressionResistancePriority(1000, for: .horizontal)
+        _indicatorImageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Add subviews
+        contentView.addSubview(_thumbView)
+        contentView.addSubview(_titleLabel)
+        contentView.addSubview(_subtitleLabel)
+        contentView.addSubview(_indicatorImageView)
+
+        // Add constraints
         contentView.addConstraints([
             
-            .ub_make(_thumbView, .leading, .equal, contentView, .leading, 16),
+            .ub_make(_thumbView, .leading, .equal, contentView, .leadingMargin, 8),
             .ub_make(_thumbView, .centerY, .equal, contentView, .centerY),
             
             .ub_make(_thumbView, .width, .equal, nil, .notAnAttribute, 70),
@@ -46,12 +54,15 @@ internal class BrowserAlbumListCell: SourceCollectionViewCell {
             
             .ub_make(_titleLabel, .bottom, .equal, contentView, .centerY, -2),
             .ub_make(_titleLabel, .leading, .equal, _thumbView, .trailing, 8),
-            .ub_make(_titleLabel, .trailing, .equal, contentView, .trailing),
+            .ub_make(_titleLabel, .trailing, .equal, _indicatorImageView, .leading, -8),
             
             .ub_make(_subtitleLabel, .top, .equal, contentView, .centerY, 2),
             .ub_make(_subtitleLabel, .leading, .equal, _thumbView, .trailing, 8),
-            .ub_make(_subtitleLabel, .trailing, .equal, contentView, .trailing),
-            ])
+            .ub_make(_subtitleLabel, .trailing, .equal, _indicatorImageView, .leading, -8),
+            
+            .ub_make(_indicatorImageView, .trailing, .equal, contentView, .trailingMargin, -8),
+            .ub_make(_indicatorImageView, .centerY, .equal, contentView, .centerY),
+        ])
         
         isAccessibilityElement = false
     }
@@ -161,6 +172,8 @@ internal class BrowserAlbumListCell: SourceCollectionViewCell {
     private lazy var _titleLabel: UILabel = .init()
     private lazy var _subtitleLabel: UILabel = .init()
     
-    private lazy var _thumbView: ThumbView = .init(frame: .zero)
+    private lazy var _thumbView: ThumbView = ThumbView(frame: .zero)
     private lazy var _badgeView: BadgeView = .init()
+    
+    private lazy var _indicatorImageView: UIImageView = UIImageView(image: R.image( "ubiquity_button_indicator"))
 }

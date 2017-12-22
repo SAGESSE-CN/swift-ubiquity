@@ -299,7 +299,7 @@ import UIKit
     // cache
     private(set) var cacher: Cacher
     private(set) var observers: WSet<ChangeObserver> = []
-    
+
     // lock
     private var _dispatch: DispatchQueue?
     private var _semaphore: DispatchSemaphore?

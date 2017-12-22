@@ -210,7 +210,7 @@ internal class ConsoleView: UIControl {
     
     private func _configure() {
         
-        let image = ub_image(named: "ubiquity_button_play")
+        let image = R.image( "ubiquity_button_play")
         
         // setup video button
         _videoButton.frame = bounds

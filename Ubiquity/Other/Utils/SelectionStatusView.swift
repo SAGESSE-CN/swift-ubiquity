@@ -71,10 +71,10 @@ internal class SelectionStatusView: UIButton, SelectionStatusObserver {
         // title
         titleLabel?.font = UIFont.systemFont(ofSize: 14)
         
-        setBackgroundImage(ub_image(named: "ubiquity_checkbox_normal"), for: [.normal])
-        setBackgroundImage(ub_image(named: "ubiquity_checkbox_normal"), for: [.highlighted])
-        setBackgroundImage(ub_image(named: "ubiquity_checkbox_selected"), for: [.selected, .normal])
-        setBackgroundImage(ub_image(named: "ubiquity_checkbox_selected"), for: [.selected, .highlighted])
+        setBackgroundImage(R.image( "ubiquity_checkbox_normal"), for: [.normal])
+        setBackgroundImage(R.image( "ubiquity_checkbox_normal"), for: [.highlighted])
+        setBackgroundImage(R.image( "ubiquity_checkbox_selected"), for: [.selected, .normal])
+        setBackgroundImage(R.image( "ubiquity_checkbox_selected"), for: [.selected, .highlighted])
         
         // default value
         setTitle("1", for: .selected)

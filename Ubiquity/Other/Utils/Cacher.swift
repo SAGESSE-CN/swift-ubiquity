@@ -14,6 +14,7 @@ internal class Cacher: NSObject {
     
     init(library: Library) {
         _library = library
+        _resource = R.shared
         // super
         super.init()
         
@@ -331,7 +332,8 @@ internal class Cacher: NSObject {
     
     /// internal using the library
     fileprivate let _library: Library
-    
+    fileprivate var _resource: R
+
     /// must limit the number of threads
     fileprivate let _token: DispatchSemaphore = .init(value: 2)
     fileprivate let _dispatch: (util: DispatchQueue, cache: DispatchQueue, request: DispatchQueue) = (
@@ -558,7 +560,7 @@ extension Cacher {
                     }
                     subtask.notify(contents, response: response, version: self.version)
                 }
-                logger.debug?.write("hit cache: \(asset.ub_identifier) - \(subtask.format)")
+                //logger.debug?.write("hit cache: \(asset.ub_identifier) - \(subtask.format)")
                 
                 // if the task has been completed, do not create a new subtask
                 if !response.ub_cancelled && !response.ub_downloading && !response.ub_degraded {

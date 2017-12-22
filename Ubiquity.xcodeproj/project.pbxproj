@@ -47,6 +47,9 @@
 		0C56FD5E1F67E98D00BE768D /* Cacher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C220F791F0E26BF00A13786 /* Cacher.swift */; };
 		0C56FD611F68D88E00BE768D /* DifferenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C56FD5F1F68D86600BE768D /* DifferenceTests.swift */; };
 		0C580E0D1F2201170099E1EF /* Factory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C580E0C1F2201170099E1EF /* Factory.swift */; };
+		0C5CA9E41FECEFF1002FB158 /* ubiquity_button_indicator@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0C5CA9E21FECEFF0002FB158 /* ubiquity_button_indicator@2x.png */; };
+		0C5CA9E51FECEFF1002FB158 /* ubiquity_button_indicator@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0C5CA9E31FECEFF1002FB158 /* ubiquity_button_indicator@3x.png */; };
+		0C5CA9E71FECF55F002FB158 /* R.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5CA9E61FECF55F002FB158 /* R.swift */; };
 		0C5DCB7E1EC5C680009FA343 /* UIResponder+Fullscreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5DCB7D1EC5C680009FA343 /* UIResponder+Fullscreen.swift */; };
 		0C776DEB1F165F6400D242E8 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C776DEA1F165F6400D242E8 /* Utils.swift */; };
 		0C7791EC1FDE399D0058FF8A /* BrowserPreviewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7791EB1FDE399D0058FF8A /* BrowserPreviewLayout.swift */; };
@@ -173,6 +176,9 @@
 		0C3AC3371F2844DC0066DA1B /* ubiquity_checkbox_selected@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ubiquity_checkbox_selected@2x.png"; sourceTree = "<group>"; };
 		0C56FD5F1F68D86600BE768D /* DifferenceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DifferenceTests.swift; sourceTree = "<group>"; };
 		0C580E0C1F2201170099E1EF /* Factory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Factory.swift; sourceTree = "<group>"; };
+		0C5CA9E21FECEFF0002FB158 /* ubiquity_button_indicator@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ubiquity_button_indicator@2x.png"; sourceTree = "<group>"; };
+		0C5CA9E31FECEFF1002FB158 /* ubiquity_button_indicator@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ubiquity_button_indicator@3x.png"; sourceTree = "<group>"; };
+		0C5CA9E61FECF55F002FB158 /* R.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R.swift; sourceTree = "<group>"; };
 		0C5DCB7D1EC5C680009FA343 /* UIResponder+Fullscreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIResponder+Fullscreen.swift"; sourceTree = "<group>"; };
 		0C776DEA1F165F6400D242E8 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		0C7791EB1FDE399D0058FF8A /* BrowserPreviewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserPreviewLayout.swift; sourceTree = "<group>"; };
@@ -296,6 +302,7 @@
 				0C7D45081EAB7AE800D56AB5 /* CanvasView.swift */,
 				0C7D45091EAB7AE800D56AB5 /* ConsoleView.swift */,
 				0CB91E721F0EB8F000741F48 /* Container.swift */,
+				0C21C0011FEBBB9B001EFFFD /* Controller.swift */,
 				0C19D22E1F5D7B6C00A2A36B /* Difference.swift */,
 				0CBDA6091ECAF7350016675C /* DisplayView.swift */,
 				0C7D450A1EAB7AE800D56AB5 /* EventCenter.swift */,
@@ -303,6 +310,8 @@
 				0C7D450B1EAB7AE800D56AB5 /* ExtendedItem.swift */,
 				0C7D450C1EAB7AE800D56AB5 /* ExtendedToolbar.swift */,
 				0C580E0C1F2201170099E1EF /* Factory.swift */,
+				0C30A78C1F5FD97200E5980B /* Image.swift */,
+				0C30A78E1F5FDA3400E5980B /* ImageView.swift */,
 				0C7D450D1EAB7AE800D56AB5 /* IndicatorItem.swift */,
 				0C7D450E1EAB7AE800D56AB5 /* IndicatorView.swift */,
 				0C7D450F1EAB7AE800D56AB5 /* IndicatorViewCell.swift */,
@@ -313,10 +322,12 @@
 				0CC5FABF1EE571E500821D0A /* PlayerView.swift */,
 				0C7D45101EAB7AE800D56AB5 /* ProgressView.swift */,
 				0C24977A1EEA95BC00CDD68C /* Protocol.swift */,
+				0C5CA9E61FECF55F002FB158 /* R.swift */,
 				0C1D79001F2D263F0044E757 /* SelectionRectangle.swift */,
 				0C189CE31F299BE800E2699D /* SelectionScroller.swift */,
 				0CD65B741F381BD8008CD3A7 /* SelectionStatus.swift */,
 				0C7D44CC1F595957006DEB53 /* SelectionStatusView.swift */,
+				0C05A2731FC590410084CDAB /* Settings.swift */,
 				0C013AAF1ED5A023002617AE /* Source.swift */,
 				0C983BBD1EBB90BE00A5A932 /* ThumbView.swift */,
 				0C7D45111EAB7AE800D56AB5 /* TilingView.swift */,
@@ -325,10 +336,6 @@
 				0C7D45141EAB7AE800D56AB5 /* TilingViewLayoutAttributes.swift */,
 				0C776DEA1F165F6400D242E8 /* Utils.swift */,
 				0C2449D81F56A97A005388B8 /* WSet.swift */,
-				0C30A78C1F5FD97200E5980B /* Image.swift */,
-				0C30A78E1F5FDA3400E5980B /* ImageView.swift */,
-				0C05A2731FC590410084CDAB /* Settings.swift */,
-				0C21C0011FEBBB9B001EFFFD /* Controller.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -409,6 +416,8 @@
 		0CE49DA81E7A3E570058F5F8 /* Resource */ = {
 			isa = PBXGroup;
 			children = (
+				0C5CA9E21FECEFF0002FB158 /* ubiquity_button_indicator@2x.png */,
+				0C5CA9E31FECEFF1002FB158 /* ubiquity_button_indicator@3x.png */,
 				0C3AC3361F2844DC0066DA1B /* ubiquity_checkbox_normal@2x.png */,
 				0C3AC3371F2844DC0066DA1B /* ubiquity_checkbox_selected@2x.png */,
 				0C983BC11EBB9B3E00A5A932 /* ubiquity_icon_empty_album@2x.png */,
@@ -595,6 +604,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0CE49E0A1E7A3EE00058F5F8 /* ubiquity_badge_screenshots@2x.png in Resources */,
+				0C5CA9E41FECEFF1002FB158 /* ubiquity_button_indicator@2x.png in Resources */,
 				0C3AC3381F2844DC0066DA1B /* ubiquity_checkbox_normal@2x.png in Resources */,
 				0CE49E0D1E7A3EE00058F5F8 /* ubiquity_badge_timelapse@2x.png in Resources */,
 				0CE49E0C1E7A3EE00058F5F8 /* ubiquity_badge_slomo@2x.png in Resources */,
@@ -608,6 +618,7 @@
 				0CE49E001E7A3EE00058F5F8 /* ubiquity_background_gradient@2x.png in Resources */,
 				0CE49E061E7A3EE00058F5F8 /* ubiquity_badge_downloading@2x.png in Resources */,
 				0CE49E0E1E7A3EE00058F5F8 /* ubiquity_badge_video@2x.png in Resources */,
+				0C5CA9E51FECEFF1002FB158 /* ubiquity_button_indicator@3x.png in Resources */,
 				0CE49E041E7A3EE00058F5F8 /* ubiquity_badge_hdr@2x.png in Resources */,
 				0CE49E011E7A3EE00058F5F8 /* ubiquity_badge_allPhotos@2x.png in Resources */,
 				0CE49E051E7A3EE00058F5F8 /* ubiquity_badge_lastImport@2x.png in Resources */,
@@ -644,6 +655,7 @@
 				0C21C0001FEBB2E0001EFFFD /* BrowserAlbumListCell.swift in Sources */,
 				0CE49E7D1E7AAD5D0058F5F8 /* BrowserDetailLayout.swift in Sources */,
 				0C21BFF81FEA761C001EFFFD /* Cacher+Preheat.swift in Sources */,
+				0C5CA9E71FECF55F002FB158 /* R.swift in Sources */,
 				0CC5FAC01EE571E500821D0A /* PlayerView.swift in Sources */,
 				0C2497791EEA942300CDD68C /* PickerAlbumCell.swift in Sources */,
 				0C21BFFC1FEBAE8F001EFFFD /* BrowserAlbumListController.swift in Sources */,

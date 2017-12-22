@@ -9,6 +9,7 @@
 import UIKit
 import AVFoundation
 
+
 /// Provide the collection icons support
 internal extension BadgeItem {
     
@@ -63,3 +64,41 @@ private func __badgeItem(named: String, render: UIImageRenderingMode = .alwaysTe
 internal func ub_reuseIdentifier(with asset: Asset?) -> String {
     return ub_identifier(with: asset?.ub_type ?? .unknown)
 }
+
+
+internal func ub_makeEmptyAlbum(_ size: CGSize) -> UIImage? {
+
+    UIGraphicsBeginImageContextWithOptions(size, true, UIScreen.main.scale)
+
+    let tintColor = UIColor.ub_init(hex: 0xb4b3b9)
+    let backgroundColor = UIColor.ub_init(hex: 0xF0EFF5)
+    
+    // set the background color
+    backgroundColor.setFill()
+    UIRectFill(.init(origin: .zero, size: size))
+    
+    // draw icon
+    if let image = R.image("ubiquity_icon_empty_album") {
+        // generate tint image with tint color
+        UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
+        let context = UIGraphicsGetCurrentContext()
+        
+        tintColor.setFill()
+        context?.fill(.init(origin: .zero, size: image.size))
+        image.draw(at: .zero, blendMode: .destinationIn, alpha: 1)
+        
+        let image2 = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        // draw to main context
+        image2?.draw(at: .init(x: size.width / 2 - image.size.width / 2, y: size.height / 2 - image.size.height / 2))
+    }
+
+    let image = UIGraphicsGetImageFromCurrentImageContext()
+    
+    UIGraphicsEndImageContext()
+    
+    return image
+}
+
+

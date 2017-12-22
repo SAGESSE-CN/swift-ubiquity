@@ -31,8 +31,10 @@ internal class ThumbView: UIView {
         guard let images = images, !images.isEmpty else {
             // Blank structure needs to be displayed
             displayedImageViews.enumerated().forEach {
-                $1.image = _emptyImage
                 $1.isHidden = false
+                $1.image = R.image("ubiquity_icon_empty_album_mk") {
+                    ub_makeEmptyAlbum(.init(width: 70, height: 70))
+                }
                 
                 displayedImages[$0] = nil
             }
@@ -42,8 +44,8 @@ internal class ThumbView: UIView {
         // Update the content of each sublayer.
         displayedImageViews.enumerated().forEach {
             guard $0 < images.count else {
-                $1.image = nil
                 $1.isHidden = true
+                $1.image = nil
                 
                 displayedImages[$0] = nil
                 return
@@ -110,54 +112,5 @@ internal class ThumbView: UIView {
                      bottom: _inset.bottom * .init(offset) + (_inset.top * .init(offset)) * 2,
                      right: _inset.right * .init(offset))
     }
-    
-    private var __emptyImage: UIImage?
-    private var _emptyImage: UIImage? {
-        // image has been cache?
-        if let image = __emptyImage ?? __sharedEmptyImage {
-            // update cache
-            __emptyImage = image
-            __sharedEmptyImage = image
-            
-            return image
-        }
-        logger.debug?.write("load `ubiquity_icon_empty_album`")
-        
-        let rect = CGRect(x: 0, y: 0, width: 70, height: 70)
-        let tintColor = UIColor.ub_init(hex: 0xb4b3b9)
-        let backgroundColor = UIColor.ub_init(hex: 0xF0EFF5)
-        // begin draw
-        UIGraphicsBeginImageContextWithOptions(rect.size, true, UIScreen.main.scale)
-        // check the current context
-        if let context = UIGraphicsGetCurrentContext() {
-            // set the background color
-            backgroundColor.setFill()
-            context.fill(rect)
-            // draw icon
-            if let image = ub_image(named: "ubiquity_icon_empty_album") {
-                // generate tint image with tint color
-                UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
-                let context = UIGraphicsGetCurrentContext()
-                
-                tintColor.setFill()
-                context?.fill(.init(origin: .zero, size: image.size))
-                image.draw(at: .zero, blendMode: .destinationIn, alpha: 1)
-                
-                let image2 = UIGraphicsGetImageFromCurrentImageContext()
-                UIGraphicsEndImageContext()
-                
-                // draw to main context
-                image2?.draw(at: .init(x: rect.midX - image.size.width / 2, y: rect.midY - image.size.height / 2))
-            }
-            
-            __emptyImage = UIGraphicsGetImageFromCurrentImageContext()
-            __sharedEmptyImage = __emptyImage
-        }
-        // end draw
-        UIGraphicsEndImageContext()
-        
-        return __emptyImage
-    }
 }
 
-private weak var __sharedEmptyImage: UIImage?

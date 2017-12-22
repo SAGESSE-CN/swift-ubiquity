@@ -340,7 +340,7 @@ extension BadgeView {
             return image
         }
         logger.debug?.write("load `ubiquity_background_gradient`")
-        let image = ub_image(named: "ubiquity_background_gradient")
+        let image = R.image( "ubiquity_background_gradient")
         __backgroundImage = image
         return image
     }

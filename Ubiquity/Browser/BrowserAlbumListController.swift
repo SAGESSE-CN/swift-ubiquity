@@ -8,13 +8,10 @@
 
 import UIKit
 
-internal class BrowserAlbumListController: SourceCollectionViewController {
+internal class BrowserAlbumListController: SourceCollectionViewController, UICollectionViewDelegateFlowLayout {
     
     required init(container: Container, source: Source, factory: Factory, parameter: Any?) {
         super.init(container: container, source: source, factory: factory, parameter: parameter)
-//        
-//        // Disable caching items.
-//        self.cachingItemEnabled = false
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -26,6 +23,12 @@ internal class BrowserAlbumListController: SourceCollectionViewController {
         return BrowserAlbumLayout.thumbnailItemSize
     }
 
+    override func loadView() {
+        super.loadView()
+        
+        // Registered separation line.
+        collectionView?.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "LINE")
+    }
     
     // MARK: Collection View Configure
     
@@ -48,16 +51,28 @@ internal class BrowserAlbumListController: SourceCollectionViewController {
         if let target = foldingLists?[indexPath.section].map({ Source(collectionList: $0.collectionList, filter: source.filter) }) {
             // display album for collection list
             _show(with: target, at: indexPath)
-//            _selectItem = indexPath
             return
         }
         
         if let target = source.collection(at: indexPath.row, inCollectionList: indexPath.section).map({ Source(collection: $0) }) {
             // display album for collection
             _show(with: target, at: indexPath)
-//            _selectItem = indexPath
             return
         }
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "LINE", for: indexPath)
+        view.backgroundColor = .lightGray
+        return view
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        // The first section does not display the line 
+        guard section != 0 else {
+            return .zero
+        }
+        
+        return .init(width: 0, height: 1 / UIScreen.main.scale)
     }
     
     override func reuseIdentifier(_ source: Source, at indexPath: IndexPath) -> String {

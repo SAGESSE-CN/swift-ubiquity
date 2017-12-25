@@ -96,11 +96,13 @@ internal class BrowserAlbumListController: SourceCollectionViewController, UICol
         }
     }
     
-    override func library(_ library: Library, change: Change, fetch source: Source) -> SourceChangeDetails? {
+    // MARK: Container Observer
+
+    override func container(_ container: Container, change: Change, fetch source: Source) -> SourceChangeDetails? {
         return source.changeDetails(forCollections: change)
     }
     
-    override func library(_ library: Library, change: Change, source: Source, apply changeDetails: SourceChangeDetails) {
+    override func container(_ container: Container, change: Change, source: Source, apply changeDetails: SourceChangeDetails) {
         // Calculation of the collection after folding.
         self.foldingLists = _folding(with: source)
         
@@ -125,7 +127,7 @@ internal class BrowserAlbumListController: SourceCollectionViewController, UICol
 
         
         // Continue to apply.
-        super.library(library, change: change, source: source, apply: changeDetails)
+        super.container(container, change: change, source: source, apply: changeDetails)
     }
 
     override func controller(_ container: Container, didLoad source: Source, error: Error?) {

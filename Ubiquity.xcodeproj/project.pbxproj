@@ -215,6 +215,8 @@
 		0C983BC61EBC552300A5A932 /* PhotoContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoContentView.swift; sourceTree = "<group>"; };
 		0C983BC71EBC552300A5A932 /* VideoContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoContentView.swift; sourceTree = "<group>"; };
 		0CB00FAB1ED6E453003B0596 /* UIImageView+Animation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImageView+Animation.swift"; sourceTree = "<group>"; };
+		0CB48D1F1FF16458007A55BF /* HISTORY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = HISTORY.md; sourceTree = "<group>"; };
+		0CB48D201FF16463007A55BF /* TODO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
 		0CBDA6011ECAE54F0016675C /* AnimatedImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatedImage.swift; sourceTree = "<group>"; };
 		0CBDA6091ECAF7350016675C /* DisplayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DisplayView.swift; sourceTree = "<group>"; };
 		0CBDA60B1ECB3E330016675C /* NavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NavigationController.swift; sourceTree = "<group>"; };
@@ -487,6 +489,8 @@
 				0CE49E941E7AB0200058F5F8 /* Info.plist */,
 				0CE49E951E7AB0200058F5F8 /* Ubiquity.h */,
 				0CE49E961E7AB0200058F5F8 /* Ubiquity.swift */,
+				0CB48D201FF16463007A55BF /* TODO.md */,
+				0CB48D1F1FF16458007A55BF /* HISTORY.md */,
 			);
 			path = "Supporting Files";
 			sourceTree = "<group>";

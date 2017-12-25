@@ -165,7 +165,7 @@ open class SourceCollectionViewCell: UICollectionViewCell {
 }
 
 /// Templated collection view controller.
-open class SourceCollectionViewController: FactoryCollectionViewController, Controller, ChangeObserver, ExceptionHandling {
+open class SourceCollectionViewController: FactoryCollectionViewController, Controller, ContainerObserver, ExceptionHandling {
     
     /// Create an instance using class factory.
     public required init(container: Container, source: Source, factory: Factory, parameter: Any?) {
@@ -541,10 +541,10 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         }
     }
 
-    // MARK: Library Change Notification
+    // MARK: Container Observer
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
-    open func library(_ library: Library, didChange change: Change) {
+    open func container(_ container: Container, didChange change: Change) {
         // if the library no authorized, ignore all change
         guard authorized else {
             return
@@ -552,7 +552,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         logger.debug?.write()
         
         // Fetch the source change.
-        guard let newChangeDetails = self.library(library, change: change, fetch: source) else {
+        guard let newChangeDetails = self.container(container, change: change, fetch: source) else {
             return
         }
         
@@ -565,16 +565,16 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         // Re-dispatch to the main queue to update the UI.
         DispatchQueue.main.async {
             // progressing
-            self.library(library, change: change, source: newSource, apply: newChangeDetails)
+            self.container(self.container, change: change, source: newSource, apply: newChangeDetails)
         }
     }
     
     /// Get the details of the change.
-    open func library(_ library: Library, change: Change, fetch source: Source) -> SourceChangeDetails? {
+    open func container(_ container: Container, change: Change, fetch source: Source) -> SourceChangeDetails? {
         return source.changeDetails(forAssets: change)
     }
     /// Apply the change details to UI.
-    open func library(_ library: Library, change: Change, source: Source, apply changeDetails: SourceChangeDetails) {
+    open func container(_ container: Container, change: Change, source: Source, apply changeDetails: SourceChangeDetails) {
         logger.trace?.write(changeDetails)
         
         // The collectionView must be set

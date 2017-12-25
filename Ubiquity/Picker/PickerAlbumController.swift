@@ -34,9 +34,9 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
         _selectionGestureRecognizer.isEnabled = picker.allowsSelection
     }
     
-    /// The library has some change
-    override func library(_ library: Library, change: Change, source newSource: Source, apply changeDetails: SourceChangeDetails) {
-        super.library(library, change: change, source: newSource, apply: changeDetails)
+    /// Apply the change details to UI.
+    override func container(_ container: Container, change: Change, source: Source, apply changeDetails: SourceChangeDetails) {
+        super.container(container, change: change, source: source, apply: changeDetails)
         
         // clear selector cache
         _selectionRectangle.clear()

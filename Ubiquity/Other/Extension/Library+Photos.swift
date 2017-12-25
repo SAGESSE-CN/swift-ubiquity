@@ -762,7 +762,7 @@ extension UHAssetLibrary: Library {
                 // exceeds preset maximun bytes
                 logger.info?.write("request HD/SD image, decode bytes is \(Float(bytes) / 1024 / 1024)MiB")
                 
-                // send data request
+                // send data requestf
                 request.targetSize = UIScreen.main.bounds.size
                 request.contentMode = .aspectFill
                 request.data = cache.requestImageData(for: asset, options: option) { imageData, dataUTI, orientation, responseObject in

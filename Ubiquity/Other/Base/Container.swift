@@ -9,6 +9,16 @@
 import UIKit
 import AVFoundation
 
+
+/// A protocol you can implement to be notified of changes that occur in the Photos library.
+@objc
+public protocol ContainerObserver: class {
+    
+    /// Tells your observer that a set of changes has occurred in the Photos library.
+    func container(_ container: Container, didChange change: Change)
+}
+
+
 /// The base container
 @objc
 open class Container: NSObject, ChangeObserver {
@@ -35,11 +45,11 @@ open class Container: NSObject, ChangeObserver {
     // MARK: Observer
     
     /// Registers an object to receive messages when objects in the photo library change.
-    internal func addChangeObserver(_ observer: ChangeObserver) {
+    internal func addChangeObserver(_ observer: ContainerObserver) {
         observers.insert(observer)
     }
     /// Unregisters an object so that it no longer receives change messages.
-    internal func removeChangeObserver(_ observer: ChangeObserver) {
+    internal func removeChangeObserver(_ observer: ContainerObserver) {
         observers.remove(observer)
     }
     
@@ -161,7 +171,7 @@ open class Container: NSObject, ChangeObserver {
         
         // notifity all observers
         self.observers.forEach {
-            $0.library(library, didChange: change)
+            $0.container(self, didChange: change)
         }
     }
     
@@ -199,37 +209,6 @@ open class Container: NSObject, ChangeObserver {
         _exceptionViewClass = exceptionViewClass
     }
     
-//    // Register a content view class for media in controller
-//    open func register(_ contentViewClass: Displayable.Type, forContentView media: AssetType, in type: ControllerType) {
-//        // must king of `UIView`
-//        guard let contentViewClass = contentViewClass as? UIView.Type else {
-//            logger.fatal?.write("The exception view must king of `UIView`")
-//            fatalError("The content must king of `UIView`")
-//        }
-//
-//        // register content view in factory
-//        factory(with: type).register(contentViewClass, for: ub_identifier(with: media))
-//    }
-//
-//    /// Register a controller class for controller type
-//    open func register(_ controllerClass: UIViewController.Type, forController type: ControllerType) {
-//        // must king of `Controller`
-//        guard let controller = controllerClass as? Controller.Type else {
-//            logger.fatal?.write("The content must king of `UIViewController`")
-//            fatalError("The content must king of `UIViewController`")
-//        }
-//
-//        // register controller in factory
-//        factory(with: type).controller = controller
-//    }
-//
-//    // Register a cell class for controller type
-//    open func register(_ cellClass: UICollectionViewCell.Type, forCell type: ControllerType) {
-//        // register cell in factory
-//        factory(with: type).cell = cellClass
-//    }
-    
-    
     open func factory(with page: ControllerType) -> Factory {
         // The factory hit cache?
         if let factory = _factorys[page] {
@@ -252,7 +231,7 @@ open class Container: NSObject, ChangeObserver {
     
     // cache
     private(set) var cacher: Cacher
-    private(set) var observers: WSet<ChangeObserver> = []
+    private(set) var observers: WSet<ContainerObserver> = []
 
     // lock
     private var _dispatch: DispatchQueue?

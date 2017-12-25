@@ -514,6 +514,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
     
     /// Get the index path that needs to be cached in the specified rect.
     open func cachingIndexPaths(in rect: CGRect) -> [IndexPath] {
+        //logger.trace?.write(rect)
         return collectionViewLayout.layoutAttributesForElements(in: rect)?.flatMap {
             guard $0.representedElementCategory == .cell else {
                 return nil
@@ -524,6 +525,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
     
     /// Get the asset that needs to be cached in the specified index paths.
     open func cachingItems(at indexPaths: [IndexPath]) -> [Asset] {
+        //logger.trace?.write(indexPaths)
         return indexPaths.flatMap {
             return data(source, at: $0) as? Asset
         }
@@ -645,49 +647,88 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
 /// Get the chnage rect
 private func _diff(_ new: [CGRect], _ old: [CGRect]) -> (added: [CGRect], removed: [CGRect]) {
     // step1: merge
-    let newRects = _union(new)
-    let oldRects = _union(old)
+    let newRects = merging(new)
+    let oldRects = merging(old)
     
     // step2: split
     return (
         newRects.flatMap { new in
-            _intersection(oldRects.flatMap { old in
-                _subtract(new, old)
+            intersection(oldRects.flatMap { old in
+                remaining(new, old)
             })
         },
         oldRects.flatMap { old in
-            _intersection(newRects.flatMap { new in
-                _subtract(old, new)
+            intersection(newRects.flatMap { new in
+                remaining(old, new)
             })
         }
     )
 }
 
-/// Calculates the area after subtracting the two rect
-private func _subtract(_ r1: CGRect, _ r2: CGRect) -> [CGRect] {
-    // if not intersect, do not calculate
-    guard r1.intersects(r2) else {
-        return [r1]
+/// Calculates the remaining rectangles.
+internal func remaining(_ lhs: CGRect, _ rhs: CGRect) -> Array<CGRect> {
+    // If the rectangle is not intersected, remaining all
+    guard lhs.intersects(rhs), rhs.size != .zero else {
+        return [lhs]
     }
-    var result = [CGRect]()
-
-    if r2.minY > r1.minY {
-        result.append(.init(x: r1.minX, y: r1.minY, width: r1.width, height: r2.minY - r1.minY))
+    
+    // +-+-----------+-+
+    // | +-----------+ |
+    // | |           | |
+    // | +-----------+ |
+    // +-+-----------+-+
+    var results: [CGRect] = []
+    
+    // Left side(full)
+    if lhs.minX < rhs.minX {
+        let x1 = lhs.minX
+        let x2 = rhs.minX
+        let y1 = lhs.minY
+        let y2 = lhs.maxY
+        
+        results.append(.init(x: x1, y: y1, width: x2 - x1, height: y2 - y1))
     }
-    if r1.maxY > r2.maxY {
-        result.append(.init(x: r1.minX, y: r2.maxY, width: r1.width, height: r1.maxY - r2.maxY))
+    
+    // Right side(full)
+    if rhs.maxX < lhs.maxX {
+        let x1 = rhs.maxX
+        let x2 = lhs.maxX
+        let y1 = lhs.minY
+        let y2 = lhs.maxY
+        
+        results.append(.init(x: x1, y: y1, width: x2 - x1, height: y2 - y1))
     }
-
-    return result
+    
+    // Top side(remaining)
+    if lhs.minY < rhs.minY {
+        let x1 = max(rhs.minX, lhs.minX)
+        let x2 = min(rhs.maxX, lhs.maxX)
+        let y1 = lhs.minY
+        let y2 = rhs.minY
+        
+        results.append(.init(x: x1, y: y1, width: x2 - x1, height: y2 - y1))
+    }
+    
+    // Bottom side(remaining)
+    if rhs.maxY < lhs.maxY {
+        let x1 = max(rhs.minX, lhs.minX)
+        let x2 = min(rhs.maxX, lhs.maxX)
+        let y1 = rhs.maxY
+        let y2 = lhs.maxY
+        
+        results.append(.init(x: x1, y: y1, width: x2 - x1, height: y2 - y1))
+    }
+    
+    return results
 }
 
-/// Union all rectangles
-private func _union(_ rects: [CGRect]) -> [CGRect] {
+/// Calculates the merged rectangles
+internal func merging(_ rects: [CGRect]) -> [CGRect] {
 
     var result = [CGRect]()
-    // must sort, otherwise there will be break rect
-    rects.sorted(by: { $0.minY < $1.minY }).forEach { rect in
-        // is intersects?
+    // Must sort, otherwise there will be break rect
+    rects.sorted(by: { $0.minY < $1.minY && $0.minX < $1.minX }).forEach { rect in
+        // Is intersects?
         guard let last = result.last, last.intersects(rect) else {
             result.append(rect)
             return
@@ -698,12 +739,12 @@ private func _union(_ rects: [CGRect]) -> [CGRect] {
     return result
 }
 
-/// Intersection all rectangles
-private func _intersection(_ rects: [CGRect]) -> [CGRect] {
+/// Calculates the intersection all rectangles
+internal func intersection(_ rects: [CGRect]) -> [CGRect] {
 
     var result = [CGRect]()
     // must sort, otherwise there will be break rect
-    rects.sorted(by: { $0.minY < $1.minY }).forEach { rect in
+    rects.sorted(by: { $0.minY < $1.minY && $0.minX < $1.minX }).forEach { rect in
         // is intersects?
         guard let last = result.last, last.intersects(rect) else {
             result.append(rect)

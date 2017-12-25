@@ -740,21 +740,21 @@ extension UHAssetLibrary: Library {
     }
     
     /// Requests an image representation for the specified asset.
-    public func ub_request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
+    public func ub_request(forImage asset: Asset, targetSize: CGSize, contentMode: RequestContentMode, options: RequestOptions, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
         // must king of UHAsset
         guard let asset = asset as? UHAsset else {
             return nil
         }
         
         let option = _convert(forImage: options)
-        let request = UHAssetRequest(targetSize: size, contentMode: _convert(forMode: mode))
+        let request = UHAssetRequest(targetSize: targetSize, contentMode: _convert(forMode: contentMode))
         
         // special processing is required when loading larger images
-        if size == UHAssetLibrary.ub_requestMaximumSize {
+        if targetSize == UHAssetLibrary.ub_requestMaximumSize {
             
             // estimate the memory space required for an image
-            let width = (asset.pixelWidth + min(.init(size.width), asset.pixelWidth) + 1) % (asset.pixelWidth + 1)
-            let height = (asset.pixelHeight + min(.init(size.height), asset.pixelHeight) + 1) % (asset.pixelHeight + 1)
+            let width = (asset.pixelWidth + min(.init(targetSize.width), asset.pixelWidth) + 1) % (asset.pixelWidth + 1)
+            let height = (asset.pixelHeight + min(.init(targetSize.height), asset.pixelHeight) + 1) % (asset.pixelHeight + 1)
             let bytes = width * height * 4
             
             // the requested image size has exceeded the limit size?
@@ -808,8 +808,8 @@ extension UHAssetLibrary: Library {
     }
     
     /// Requests a representation of the video asset for playback, to be loaded asynchronously.
-    public func ub_request(forItem asset: Asset, options: RequestOptions?, resultHandler: @escaping (AnyObject?, Response) -> ()) -> Request? {
-        // must king of UHAsset
+    public func ub_request(forVideo asset: Asset, options: RequestOptions, resultHandler: @escaping (AVPlayerItem?, Response) -> ()) -> Request? {
+        // Must king of UHAsset
         guard let asset = asset as? UHAsset else {
             return nil
         }
@@ -828,6 +828,11 @@ extension UHAssetLibrary: Library {
         
         // the request has been sent successfully 
         return request
+    }
+    
+    /// Requests full-sized image data for the specified asset.
+    public func ub_request(forData asset: Asset, options: RequestOptions, resultHandler: @escaping (Data?, Response) -> ()) -> Request? {
+        return nil
     }
     
     /// Cancels an asynchronous request

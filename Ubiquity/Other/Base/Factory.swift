@@ -105,7 +105,7 @@ public class Factory: NSObject {
             let single = 0.8 // matching one any character
             let extra = 4.0 // matching continuous characters, extra weight
             
-            let weight = format.characters.reduce((0.0, 0.0)){
+            let weight = format.reduce((0.0, 0.0)){
                 switch $1 {
                 case "*":
                     return ($0.0 + any + max($0.1 - extra, 0), 0)

@@ -39,18 +39,18 @@ internal class Cacher: NSObject {
     }
     
     /// Requests an image representation for the specified asset.
-    func request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
-        //logger.trace?.write(asset.ub_identifier, size) // the request very much 
+    public func request(forImage asset: Asset, targetSize: CGSize, contentMode: RequestContentMode, options: RequestOptions, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
+        //logger.trace?.write(asset.ub_identifier, size) // the request very much
         
-        // because the performance issue, make a temporary subtask
-        let request = RequestTask(for: asset, size: size, mode: mode, result: resultHandler)
-        let synchronous = options?.isSynchronous ?? false
+        // Because the performance issue, make a temporary subtask
+        let request = RequestTask(for: asset, size: targetSize, mode: contentMode, result: resultHandler)
+        let synchronous = options.isSynchronous
         
-        // add subtask to main task
+        // Add subtask to main task
         _dispatch.util.ub_map(synchronous) {
             self._addMainTask(with: request) { task in
                 // forward send request
-                self._library.ub_request(forImage: asset, size: size, mode: mode, options: options) { contents, response in
+                self._library.ub_request(forImage: asset, targetSize: targetSize, contentMode: contentMode, options: options) { contents, response in
                     // cache the result
                     task.cache(contents, response: response)
                     
@@ -78,6 +78,16 @@ internal class Cacher: NSObject {
         }
         
         return request
+    }
+    
+    /// Requests a representation of the video asset for playback, to be loaded asynchronously.
+    public func request(forVideo asset: UHLocalAsset, options: RequestOptions, resultHandler: @escaping (AVPlayerItem?, UHLocalAssetResponse) -> ()) -> UHLocalAssetRequest? {
+        fatalError()
+    }
+    
+    /// Requests full-sized image data for the specified asset.
+    public func request(forData asset: UHLocalAsset, options: RequestOptions, resultHandler: @escaping (Data?, UHLocalAssetResponse) -> ()) -> UHLocalAssetRequest? {
+        fatalError()
     }
     
     /// Cancels an asynchronous request

@@ -8,6 +8,7 @@
 
 import UIKit
 import Ubiquity
+import AVFoundation
 
 class DebugingBrowserAsset: Ubiquity.UHLocalAsset {
     override init(identifier: String) {
@@ -105,10 +106,10 @@ class DebugingBrowserLibrary: Ubiquity.UHLocalAssetLibrary {
     }
     
     /// Requests an image representation for the specified asset.
-    override func request(forImage asset: Ubiquity.UHLocalAsset, size: CGSize, mode: Ubiquity.RequestContentMode, options: Ubiquity.RequestOptions?, resultHandler: @escaping (UIImage?, UHLocalAssetResponse) -> ()) -> UHLocalAssetRequest? {
+    override func request(forImage asset: UHLocalAsset, targetSize: CGSize, contentMode: RequestContentMode, options: RequestOptions, resultHandler: @escaping (UIImage?, UHLocalAssetResponse) -> ()) -> UHLocalAssetRequest? {
         let response = UHLocalAssetResponse()
         let image: UIImage
-        if size.width > 0 && size.width < 300 {
+        if targetSize.width > 0 && targetSize.width < 300 {
             image = #imageLiteral(resourceName: "t1_t")
         } else {
             image = #imageLiteral(resourceName: "t1")
@@ -122,7 +123,7 @@ class DebugingBrowserLibrary: Ubiquity.UHLocalAssetLibrary {
     }
     
     /// Requests a representation of the video asset for playback, to be loaded asynchronously.
-    override func request(forItem asset: Ubiquity.UHLocalAsset, options: Ubiquity.RequestOptions?, resultHandler: @escaping (AnyObject?, Ubiquity.UHLocalAssetResponse) -> ()) -> Ubiquity.UHLocalAssetRequest? {
+    override func request(forVideo asset: UHLocalAsset, options: RequestOptions, resultHandler: @escaping (AVPlayerItem?, UHLocalAssetResponse) -> ()) -> UHLocalAssetRequest? {
         return nil
     }
     

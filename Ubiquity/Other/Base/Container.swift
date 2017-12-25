@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+import AVFoundation
 
 /// The base container
 @objc
@@ -56,22 +56,23 @@ open class Container: NSObject, ChangeObserver {
         return cacher.request(forCollectionList: type)
     }
     /// Requests an image representation for the specified asset.
-    open func request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
+    open func request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
         #if DEBUG
         guard !_debug else {
             return nil
         }
         #endif
-        return cacher.request(forImage: asset, size: size, mode: mode, options: options, resultHandler: resultHandler)
+        return cacher.request(forImage: asset, targetSize: size, contentMode: mode, options: options, resultHandler: resultHandler)
     }
+    
     /// Requests a representation of the video asset for playback, to be loaded asynchronously.
-    open func request(forItem asset: Asset, options: RequestOptions?, resultHandler: @escaping (AnyObject?, Response) -> ()) -> Request? {
+    open func request(forVideo asset: Asset, options: RequestOptions, resultHandler: @escaping (AVPlayerItem?, Response) -> ()) -> Request? {
         #if DEBUG
         guard !_debug else {
             return nil
         }
         #endif
-        return library.ub_request(forItem: asset, options: options, resultHandler: resultHandler)
+        return library.ub_request?(forVideo: asset, options: options, resultHandler: resultHandler)
     }
     
     /// Cancels an asynchronous request

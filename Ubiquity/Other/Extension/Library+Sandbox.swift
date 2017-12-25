@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 // MARK: - define Locally strong.
 
@@ -148,23 +149,28 @@ open class UHLocalAssetLibrary: NSObject {
         return true
     }
     
+    /// Cancels an asynchronous request
+    open func cancel(with request: UHLocalAssetRequest) {
+        fatalError()
+    }
+    
     /// Get collections with type
     open func request(forCollection type: CollectionType) -> UHLocalAssetCollectionList {
         fatalError()
     }
     
     /// Requests an image representation for the specified asset.
-    open func request(forImage asset: UHLocalAsset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping (UIImage?, UHLocalAssetResponse) -> ()) -> UHLocalAssetRequest? {
+    open func request(forImage asset: UHLocalAsset, targetSize: CGSize, contentMode: RequestContentMode, options: RequestOptions, resultHandler: @escaping (UIImage?, UHLocalAssetResponse) -> ()) -> UHLocalAssetRequest? {
         fatalError()
     }
     
     /// Requests a representation of the video asset for playback, to be loaded asynchronously.
-    open func request(forItem asset: UHLocalAsset, options: RequestOptions?, resultHandler: @escaping (AnyObject?, UHLocalAssetResponse) -> ()) -> UHLocalAssetRequest? {
+    open func request(forVideo asset: UHLocalAsset, options: RequestOptions, resultHandler: @escaping (AVPlayerItem?, UHLocalAssetResponse) -> ()) -> UHLocalAssetRequest? {
         fatalError()
     }
     
-    /// Cancels an asynchronous request
-    open func cancel(with request: UHLocalAssetRequest) {
+    /// Requests full-sized image data for the specified asset.
+    open func request(forData asset: UHLocalAsset, options: RequestOptions, resultHandler: @escaping (Data?, UHLocalAssetResponse) -> ()) -> UHLocalAssetRequest? {
         fatalError()
     }
     
@@ -370,29 +376,6 @@ extension UHLocalAssetLibrary: Library {
         return exists(forItem: asset)
     }
     
-    /// Get collections with type
-    open func ub_request(forCollectionList type: CollectionType) -> CollectionList {
-        return request(forCollection: type)
-    }
-    
-    /// Requests an image representation for the specified asset.
-    open func ub_request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions?, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
-        // asset must king of UHAsset
-        guard let asset = asset as? UHLocalAsset else {
-            return nil
-        }
-        return request(forImage: asset, size: size, mode: mode, options: options, resultHandler: resultHandler)
-    }
-    
-    /// Requests a representation of the video asset for playback, to be loaded asynchronously.
-    open func ub_request(forItem asset: Asset, options: RequestOptions?, resultHandler: @escaping (AnyObject?, Response) -> ()) -> Request? {
-        // asset must king of UHAsset
-        guard let asset = asset as? UHLocalAsset else {
-            return nil
-        }
-        return request(forItem: asset, options: options, resultHandler: resultHandler)
-    }
-    
     /// Cancels an asynchronous request
     open func ub_cancel(with request: Request) {
         // request must king of UHLocalAssetRequest
@@ -400,6 +383,38 @@ extension UHLocalAssetLibrary: Library {
             return
         }
         return cancel(with: request)
+    }
+    
+    /// Get collections with type
+    open func ub_request(forCollectionList type: CollectionType) -> CollectionList {
+        return request(forCollection: type)
+    }
+    
+    /// Requests an image representation for the specified asset.
+    public func ub_request(forImage asset: Asset, targetSize: CGSize, contentMode: RequestContentMode, options: RequestOptions, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
+        // The Asset must king of `UHLocalAsset`
+        guard let asset = asset as? UHLocalAsset else {
+            return nil
+        }
+        return request(forImage: asset, targetSize: targetSize, contentMode: contentMode, options: options, resultHandler: resultHandler)
+    }
+    
+    /// Requests a representation of the video asset for playback, to be loaded asynchronously.
+    public func ub_request(forVideo asset: Asset, options: RequestOptions, resultHandler: @escaping (AVPlayerItem?, Response) -> ()) -> Request? {
+        // The Asset must king of `UHLocalAsset`
+        guard let asset = asset as? UHLocalAsset else {
+            return nil
+        }
+        return request(forVideo: asset, options: options, resultHandler: resultHandler)
+    }
+    
+    /// Requests full-sized image data for the specified asset.
+    public func ub_request(forData asset: Asset, options: RequestOptions, resultHandler: @escaping (Data?, Response) -> ()) -> Request? {
+        // The Asset must king of `UHLocalAsset`
+        guard let asset = asset as? UHLocalAsset else {
+            return nil
+        }
+        return request(forData: asset, options: options, resultHandler: resultHandler)
     }
     
     ///A Boolean value that determines whether the image manager prepares high-quality images.

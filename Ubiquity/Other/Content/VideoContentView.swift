@@ -138,9 +138,9 @@ extension VideoContentView: Playable {
         // request player item
         _prepareing = true
         _prepared = false
-        _request = container.request(forItem: asset, options: nil) { [weak self, weak asset] item, response in
+        _request = container.request(forVideo: asset, options: .video) { [weak self, weak asset] item, response in
             // if the asset is nil, the asset has been released
-            guard let asset = asset, let item = item as? AVPlayerItem else {
+            guard let asset = asset, let item = item else {
                 return
             }
             self?._prepareing = false

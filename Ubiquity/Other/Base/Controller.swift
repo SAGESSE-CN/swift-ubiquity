@@ -417,6 +417,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         
         // after the prepared to update the cache information
         targetContentOffset = collectionView.contentOffset
+        cachingIsPrepared = true
         
         // Update caching items.
         cachingUpdate()
@@ -443,7 +444,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
     /// Update all cached assets with content offset
     open func cachingUpdate() {
         // The collectionView must be set
-        guard let collectionView = collectionView, prepared, cachingItemEnabled else {
+        guard let collectionView = collectionView, cachingIsPrepared, cachingItemEnabled else {
             return
         }
         //logger.trace?.write(collectionView.contentOffset)
@@ -496,9 +497,18 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         
         // Compute the assets to start caching and to stop caching.
         let details = _diff(changes.map { $0.new }, changes.map { $0.old })
+        let fetch: (CGRect) -> [IndexPath] = {
+            // Filter blank rect directly
+            guard $0.width != 0 && $0.height != 0 else {
+                return []
+            }
+            return self.cachingIndexPaths(in: $0)
+        }
         
-        let added = details.added.flatMap { cachingIndexPaths(in: $0) }
-        let removed = details.removed.flatMap { cachingIndexPaths(in: $0) }.filter { added.contains($0) }
+        let added = details.added.flatMap(fetch)
+        let removed = details.removed.flatMap(fetch).filter {
+            return added.contains($0)
+        }
         
         // Update the assets the PHCachingImageManager is caching.
         container.startCachingImages(for: cachingItems(at: added),
@@ -587,6 +597,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         // The library is prepared
         if !prepared {
             prepared = true
+            cachingIsPrepared = true
         }
         
         ub_execption(with: container, source: source, error: nil, animated: true)
@@ -635,34 +646,35 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
     
     // MARK: Private Method & Property
     
+    /// Get the chnage rect
+    private func _diff(_ new: [CGRect], _ old: [CGRect]) -> (added: [CGRect], removed: [CGRect]) {
+        // step1: merge
+        let newRects = merging(new)
+        let oldRects = merging(old)
+        
+        // step2: split
+        return (
+            newRects.flatMap { new in
+                intersection(oldRects.flatMap { old in
+                    remaining(new, old)
+                })
+            },
+            oldRects.flatMap { old in
+                intersection(newRects.flatMap { new in
+                    remaining(old, new)
+                })
+            }
+        )
+    }
+    
     // cache configure
+    internal private(set) var cachingIsPrepared: Bool = false
     internal private(set) var targetContentOffset: CGPoint = .zero
     internal private(set) var previousPreheatRect: CGRect = .zero
     internal private(set) var previousTargetPreheatRect: CGRect = .zero
     
     // default configure
     private var _title: String?
-}
-
-/// Get the chnage rect
-private func _diff(_ new: [CGRect], _ old: [CGRect]) -> (added: [CGRect], removed: [CGRect]) {
-    // step1: merge
-    let newRects = merging(new)
-    let oldRects = merging(old)
-    
-    // step2: split
-    return (
-        newRects.flatMap { new in
-            intersection(oldRects.flatMap { old in
-                remaining(new, old)
-            })
-        },
-        oldRects.flatMap { old in
-            intersection(newRects.flatMap { new in
-                remaining(old, new)
-            })
-        }
-    )
 }
 
 /// Calculates the remaining rectangles.

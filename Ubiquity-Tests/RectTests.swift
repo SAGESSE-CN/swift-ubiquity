@@ -16,7 +16,6 @@ func mk(_ x: CGFloat, _ y: CGFloat, _ w: CGFloat, _ h: CGFloat) -> CGRect {
 class RectTests: XCTestCase {
     
     func testRemaining() {
-        
         // n
         XCTAssertEqual(remaining(mk(0,0,4,4), mk(0,0,4,4)), [])
         XCTAssertEqual(remaining(mk(0,0,4,4), mk(0,4,4,4)), [mk(0,0,4,4)])
@@ -42,7 +41,6 @@ class RectTests: XCTestCase {
     }
     
     func testMerging() {
-        
         // n
         XCTAssertEqual(merging([mk(0,0,4,4), mk(0,8,4,4)]), [mk(0,0,4,4), mk(0,8,4,4)])
 
@@ -60,7 +58,6 @@ class RectTests: XCTestCase {
     }
     
     func testIntersection() {
-        
         // n
         XCTAssertEqual(intersection([mk(0,0,4,4), mk(0,8,4,4)]), [mk(0,0,4,4), mk(0,8,4,4)])
 
@@ -78,7 +75,6 @@ class RectTests: XCTestCase {
     }
     
     func testOther() {
-        
         XCTAssertEqual(remaining(mk(-150,0,600,160), mk(0,0,0,0)), [mk(-150,0,600,160)])
     }
 }

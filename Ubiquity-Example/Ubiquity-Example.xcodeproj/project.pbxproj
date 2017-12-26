@@ -15,6 +15,7 @@
 		0C7792081FDE3F130058FF8A /* Debugger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7792051FDE3F130058FF8A /* Debugger.swift */; };
 		0C7792091FDE3F130058FF8A /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7792061FDE3F130058FF8A /* Logger.swift */; };
 		0C77920A1FDE3F130058FF8A /* UIColor+Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7792071FDE3F130058FF8A /* UIColor+Random.swift */; };
+		0C7D4A5C1FF1ECBB0061A28D /* TestVideoFilmstripViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5DCB7B1EC0C45F009FA343 /* TestVideoFilmstripViewController.swift */; };
 		0C8725101FED9DF700E4BC7C /* DebugingCustomAlbumsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C87250F1FED9DF700E4BC7C /* DebugingCustomAlbumsList.swift */; };
 		0CAB22701F31A91E000171A0 /* XViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CAB226F1F31A91E000171A0 /* XViewController.swift */; };
 		0CB104C61EEFF589002CB7FA /* Ubiquity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CE49E4C1E7A411D0058F5F8 /* Ubiquity.framework */; };
@@ -313,6 +314,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0CC50E811FC727DF008B1614 /* Shared.swift in Sources */,
+				0C7D4A5C1FF1ECBB0061A28D /* TestVideoFilmstripViewController.swift in Sources */,
 				0C1E4F791F5B337F00299E64 /* TextLargetImageLoader.swift in Sources */,
 				0CE49EA71E7B978E0058F5F8 /* ViewController.swift in Sources */,
 				0CAB22701F31A91E000171A0 /* XViewController.swift in Sources */,

@@ -10,8 +10,7 @@ import UIKit
 import AVFoundation
 
 import Photos
-
-@testable import Ubiquity
+import Ubiquity
 
 
 class Generator {
@@ -330,7 +329,7 @@ class ScrubberSettings {
     static let settings: ScrubberSettings = .init()
 }
 
-class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate {
+class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 
     @IBOutlet weak var contentView: UIView!
     @IBOutlet weak var scrollView: UIScrollView!
@@ -344,57 +343,64 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate {
     
     var generator2: Generator?
     
+    class A: UIView {
+        override class var layerClass: AnyClass {
+            return AVPlayerLayer.self
+        }
+    }
+    
     func loadx(_ asset: AVAsset) {
         
-        let playerView = VideoPlayerView(frame: self.contentView.bounds)
+        
+        let playerView = A(frame: self.contentView.bounds)
         playerView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         contentView.addSubview(playerView)
         
         //self.asset = AVURLAsset(url: URL(string: "http://192.168.0.107/c.m4v")!)
-        
-        
         self.asset = asset//AVURLAsset(url: URL(string: "http://192.168.2.3/c.m4v")!)
         self.player = AVPlayer(playerItem: AVPlayerItem(asset: self.asset)) 
         (playerView.layer as? AVPlayerLayer)?.player = self.player
         
+//        self.player.play()
+        let scale = UIScreen.main.scale
         let size = ScrubberSettings.settings.sizeThatFits(.init(width: 0, height: 38), duration: self.asset.duration.seconds)
-        
+
         let setting = ScrubberSettings.settings
         let duration = max(self.asset.duration.seconds, setting.minVideoDuration)
         let count = Int(ceil(size.width /  (size.height * setting.filmstripAspectRatio)) + 0.5)
         let item = CGSize(width: size.width / CGFloat(count), height: size.height)
         let step = duration / Double(count)
-        
+
         let values = (0 ..< count).map { v -> CMTime in
             let t = Double(v) * step
             return CMTime(seconds: t, preferredTimescale: self.asset.duration.timescale)
         }
-        
+
         let view1 = UIView(frame: .init(x: 0, y: 0, width: 160, height: 38))
         let view2 = ScrubberView(frame: .init(x: view1.frame.maxX + 40, y: 0, width: size.width, height: size.height), duration: self.asset.duration.seconds)
         let view3 = UIView(frame: .init(x: view2.frame.maxX + 40, y: 0, width: 160, height: 38))
         self.wv = view2
-        
+
         self.scrubberView = view2
         self.scrubberView?.player = self.player
-        
+
         self.generator2 = Generator(asset: self.asset, duration: asset.duration.seconds)
-        
-        
+
+
         (0 ..< count).forEach {
-            
+
             let sv = UIImageView(frame: .init(x: item.width * CGFloat($0), y: 0, width: item.width, height: item.height))
             sv.backgroundColor = .random
-            sv.mode = .scaleAspectFill
+            sv.contentMode = .scaleAspectFill
             sv.clipsToBounds = true
             view2.addSubview(sv)
         }
         view2.bringSubview(toFront: view2._indicatorView)
-        
+
         view1.backgroundColor = .random
         view2.backgroundColor = .random
         view3.backgroundColor = .random
-        
+
         scrollView.contentSize = .init(width: view3.frame.maxX, height: 0)
         scrollView.clipsToBounds = false
         scrollView.addSubview(view1)
@@ -404,38 +410,197 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate {
         self.generator = AVAssetImageGenerator(asset: self.asset)
         self.generator.requestedTimeToleranceAfter = kCMTimeZero
         self.generator.requestedTimeToleranceBefore = kCMTimeZero
-        self.generator.maximumSize = .init(width: item.width * 2, height: item.height * 2)
-        
+        self.generator.maximumSize = .init(width: item.width * scale, height: item.height * scale)
+
         self.generator.generateCGImagesAsynchronously(forTimes: values as [NSValue]) { rt, image, vt, rs, er in
             guard let index = values.index(where: { $0.seconds == rt.seconds }) else {
                 return
             }
             let sv = view2.subviews[index] as? UIImageView
             if let image = image {
+                print(image.width, image.height)
                 DispatchQueue.main.async {
-                    sv?.image = UIImage(cgImage: image, scale: 2, orientation: .up)
+                    sv?.image = UIImage(cgImage: image)
+                        //UIImage(cgImage: image, scale: 1, orientation: .up)
                 }
             }
         }
     }
     
+    class Cell: UICollectionViewCell {
+        
+        func scrollViewDidScroll(_ scrollView: UIScrollView) {
+            
+            let frame = scrollView.convert(scrollView.bounds, to: self)
+            
+//            // 预缓存范围
+//            _caching(.init(x: max(frame.minX - bounds.width / 2, bounds.minX),
+//                           y: max(frame.minY - bounds.height / 2, bounds.minY),
+//                           width: min(frame.maxX + bounds.width / 2, bounds.maxX) - max(frame.minX - bounds.width / 2, bounds.minX),
+//                           height: min(frame.maxY + bounds.height / 2, bounds.maxY) - max(frame.minY - bounds.height / 2, bounds.minY)))
+            
+            // 显示范围
+            _displaying(.init(x: max(frame.minX, 0),
+                              y: max(frame.minY, 0),
+                              width: max(min(frame.maxX, bounds.width) - max(frame.minX, 0), 0),
+                              height: max(min(frame.maxY, bounds.height) - max(frame.minY, 0), 0)))
+        }
+        
+        var itemSize: CGSize = .init(width: 40, height: 40)
+        
+        private func _dequeueReusableLayer(at index: Int) -> CALayer {
+            guard _resuableLayers.isEmpty else {
+                return _resuableLayers.removeLast()
+            }
+            return CALayer()
+        }
+        
+        private func _range(_ rect: CGRect) -> CountableClosedRange<Int> {
+//            logger.debug?.write(rect)
+            let start = Int(floor(rect.minX / itemSize.width) + 0.5)
+            let end = Int(ceil(rect.maxX / itemSize.width) + 0.5)
+            return start ... end
+        }
+        
+        private func _caching(_ rect: CGRect) {
+//            let range = _range(rect)
+//            guard range != _cachedRange else {
+//                return
+//            }
+//            logger.debug?.write(range)
+//
+//            _cachedRange = range
+        }
+        
+        private func _displaying(_ rect: CGRect) {
+            let range = _range(rect)
+            guard range != _displayedRange else {
+                return
+            }
+            logger.debug?.write(range)
+            
+            //
+            var invaildRange: IndexSet = .init()
+                
+            _displayedRange.map {
+                
+                if $0.lowerBound < range.lowerBound {
+                    invaildRange.insert(integersIn: $0.lowerBound ..< range.lowerBound)
+                }
+                
+                if range.upperBound < $0.upperBound {
+                    invaildRange.insert(integersIn: range.upperBound ..< $0.upperBound)
+                }
+            }
+            
+            
+            invaildRange.forEach {
+                guard let layer = _displayingLayers[$0] else {
+                    return
+                }
+                layer.isHidden = true
+                
+                _resuableLayers.append(layer)
+                _displayingLayers.removeValue(forKey: $0)
+            }
+            
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            range.forEach {
+                
+                guard _displayingLayers[$0] == nil else {
+                    return
+                }
+                
+                let layer = _dequeueReusableLayer(at: $0)
+                layer.isHidden = false
+                layer.backgroundColor = UIColor.random.cgColor
+                layer.frame = .init(x: .init($0) * itemSize.width,
+                                    y: 0,
+                                    width: itemSize.width,
+                                    height: itemSize.height)
+                self.layer.addSublayer(layer)
+                _displayingLayers[$0] = layer
+            }
+            CATransaction.commit()
+            
+            _displayedRange = range
+        }
+        
+        private var _cachedRange: CountableClosedRange<Int>?
+        private var _displayedRange: CountableClosedRange<Int>?
+        
+        private var _resuableLayers: [CALayer] = []
+        private var _displayingLayers: [Int: CALayer] = [:]
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        PHPhotoLibrary.requestAuthorization { _ in
-            let cx = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumVideos, options: nil)
-            guard let c = cx.firstObject else {
-                return
-            }
-            guard let i = PHAsset.fetchAssets(in: c, options: nil).lastObject else {
-                return
-            }
-            PHImageManager.default().requestAVAsset(forVideo: i, options: nil) { (asset, _, _) in
-                DispatchQueue.main.async {
-                    self.loadx(asset!)
-                }
-            }
-        }
+        collectionViewLayout.scrollDirection = .horizontal
+        collectionViewLayout.estimatedItemSize = .init(width: 20, height: 40)
+        collectionViewLayout.minimumLineSpacing = 1
+        collectionViewLayout.minimumInteritemSpacing = 1
+        
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.backgroundColor = .white
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.register(Cell.self, forCellWithReuseIdentifier: "Cell")
+        
+        view.addSubview(collectionView)
+        view.addConstraints([
+            .init(item: collectionView, attribute: .left, relatedBy: .equal, toItem: view, attribute: .left, multiplier: 1, constant: 0),
+            .init(item: collectionView, attribute: .right, relatedBy: .equal, toItem: view, attribute: .right, multiplier: 1, constant: 0),
+            .init(item: collectionView, attribute: .bottom, relatedBy: .equal, toItem: bottomLayoutGuide, attribute: .top, multiplier: 1, constant: 0),
+            .init(item: collectionView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 40),
+
+        ])
+        
+        let v1 = UIView()
+        let v2 = UIView()
+        
+        v1.backgroundColor = .red
+        v2.backgroundColor = .red
+        v1.translatesAutoresizingMaskIntoConstraints = false
+        v2.translatesAutoresizingMaskIntoConstraints = false
+
+        view.addSubview(v1)
+        view.addSubview(v2)
+        
+        view.addConstraints([
+            .init(item: v1, attribute: .left, relatedBy: .equal, toItem: view, attribute: .left, multiplier: 1, constant: 0),
+            .init(item: v1, attribute: .right, relatedBy: .equal, toItem: view, attribute: .right, multiplier: 1, constant: 0),
+            .init(item: v1, attribute: .centerY, relatedBy: .equal, toItem: view, attribute: .centerY, multiplier: 1, constant: 0),
+            .init(item: v1, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 1 / UIScreen.main.scale),
+
+
+            .init(item: v2, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1, constant: 0),
+            .init(item: v2, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: 1, constant: 0),
+            .init(item: v2, attribute: .centerX, relatedBy: .equal, toItem: view, attribute: .centerX, multiplier: 1, constant: 0),
+            .init(item: v2, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 1 / UIScreen.main.scale),
+
+        ])
+        
+//        PHPhotoLibrary.requestAuthorization { _ in
+//            let cx = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumVideos, options: nil)
+//            guard let c = cx.firstObject else {
+//                return
+//            }
+//            guard let i = PHAsset.fetchAssets(in: c, options: nil).firstObject else {
+//                return
+//            }
+//            let options = PHVideoRequestOptions()
+//            options.isNetworkAccessAllowed = true
+//            PHImageManager.default().requestAVAsset(forVideo: i, options: options) { (asset, a, x) in
+//                DispatchQueue.main.async {
+//                    guard let asset = asset else {
+//                        return
+//                    }
+//                    self.loadx(asset)
+//                }
+//            }
+//        }
         
 //        self.asset.loadValuesAsynchronously(forKeys: [#keyPath(AVURLAsset.duration)]) { [weak self] in
 //            guard let `self` = self else {
@@ -452,22 +617,75 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate {
         // Do any additional setup after loading the view.
     }
     
+    var colors: [UIColor] = (0 ..< 320).map { _ in
+        return .random
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return colors.count
+    }
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath)
+        cell.backgroundColor = colors[indexPath.item]
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        guard active == indexPath else {
+            return .init(width: 20, height: 40)
+        }
+        return .init(width: 4096, height: 40)
+    }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if active != nil {
+//            active = nil
+//            ex = .zero
+//            collectionView.reloadItems(at: [indexPath])
+            return
+        }
+        
+        active = indexPath
+        collectionView.reloadItems(at: [indexPath])
+        
+        // 锁定
+        collectionView.layoutAttributesForItem(at: indexPath).map {
+            let x1 = $0.frame.minX
+            let x2 = $0.frame.maxX
+            ex = .init(top: 0,
+                       left: -x1,
+                       bottom: 0,
+                       right: -(collectionViewLayout.collectionViewContentSize.width - x2))
+            
+            collectionView.setContentOffset(.init(x: 0, y: 0), animated: true)
+        }
+    }
+    
+    var ex: UIEdgeInsets = .zero {
+        willSet {
+            var edg = collectionView.contentInset
+            edg.left += newValue.left - ex.left
+            edg.right += newValue.right - ex.right
+            collectionView.contentInset = edg
+        }
+    }
+    
+    var active: IndexPath?
+    
     var wv: UIView?
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        
-        
-        guard let wv = wv else {
-            return
-        }
-        let w1 = wv.frame.minX - 0 //0 - wv.minX
-        let w2 = scrollView.contentSize.width - wv.frame.maxX //wv.maxX - end
-        
-        let x = scrollView.contentOffset.x + scrollView.contentInset.left
-        scrollView.contentInset = .init(top: 0, left: view.frame.width / 2 - w1,
-                                        bottom: 0, right: view.frame.width / 2 - w2)
-        scrollView.contentOffset.x = x - scrollView.contentInset.left
+
+//        guard let wv = wv else {
+//            return
+//        }
+//        let w1 = wv.frame.minX - 0 //0 - wv.minX
+//        let w2 = scrollView.contentSize.width - wv.frame.maxX //wv.maxX - end
+
+        let x = collectionView.contentOffset.x + collectionView.contentInset.left
+        collectionView.contentInset = .init(top: 0, left: view.frame.width / 2/* - w1*/,
+                                        bottom: 0, right: view.frame.width / 2/* - w2*/)
+        collectionView.contentOffset.x = x - collectionView.contentInset.left
     }
 
     override func didReceiveMemoryWarning() {
@@ -477,8 +695,8 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
-        self.scrubberView?.updateVisibleLayout()
-        self.scrubberView?.updateTime(seek: true)
+//        self.scrubberView?.updateVisibleLayout()
+//        self.scrubberView?.updateTime(seek: true)
         
 //        guard let player = self.player, let item = player.currentItem, player.status == .readyToPlay else {
 //            return
@@ -491,5 +709,15 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate {
 //        
 //        timeLabel?.text = String(format: "%.2lf/%.2lf", seek.seconds, duration.seconds)
 //        scrubber?.seek(to: seek)
+        
+        active.map {
+            collectionView.cellForItem(at: $0).map {
+                ($0 as? Cell)?.scrollViewDidScroll(scrollView)
+            }
+        }
+        
     }
+    
+    lazy var collectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+    lazy var collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: self.collectionViewLayout)
 }

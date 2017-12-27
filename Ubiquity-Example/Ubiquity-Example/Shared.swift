@@ -146,6 +146,15 @@ public class Shared: NSObject {
     private var _respond: ((Shared, Any?) -> Void)?
 }
 
+private func _SharedDataCallBack(_ socket: CFSocket?, type: CFSocketCallBackType, address: CFData?, data: UnsafeRawPointer?, context: UnsafeMutableRawPointer?) {
+    guard let socket = socket, let address = address, let context = context else {
+        return
+    }
+    return Unmanaged<Shared>.fromOpaque(context).takeUnretainedValue()._recive(socket, address: address, data: data.map {
+        return Unmanaged<CFData>.fromOpaque($0).takeUnretainedValue() as Data
+    })
+}
+
 private func _SharedDataSend(_ socket: CFSocket, to address: Data, data: Data, timeout: TimeInterval = -1) throws {
     let error = CFSocketSendData(socket, address as CFData, data as CFData, .init(timeout))
     if error != .success {
@@ -171,11 +180,4 @@ private func _SharedDataRecv(_ socket: CFSocket) throws -> Data {
     return data as Data
 }
 
-private func _SharedDataCallBack(_ socket: CFSocket?, type: CFSocketCallBackType, address: CFData?, data: UnsafeRawPointer?, context: UnsafeMutableRawPointer?) {
-    guard let socket = socket, let address = address, let context = context else {
-        return
-    }
-    return Unmanaged<Shared>.fromOpaque(context).takeUnretainedValue()._recive(socket, address: address, data: data.map {
-        return Unmanaged<CFData>.fromOpaque($0).takeUnretainedValue() as Data
-    })
-}
+

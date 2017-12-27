@@ -55,279 +55,517 @@ class Generator {
     
 }
 
-
-
-class Scrubber {
+public class ScrubberView: UIView {
     
-    init(player: AVPlayer) {
-        self.player = player
-        self.seeking = player.currentTime()
-    }
-    
-    func seek(to offset: CMTime) {
-        // if the player is not ready, don't allow the seek
-        guard self.player.status == .readyToPlay else {
-            return
-        }
-        // if less than a certain threshold, can skip the request
-        guard self.seeking != offset else {
-            return
-        }
-        self.seeking = offset
-        // if is updating, waiting for next a chance
-        if !self.updating {
-            self.update()
-        }
-    }
-    
-    private func update() {
-        
-        // if the player is not ready, don't allow the seek
-        guard self.player.status == .readyToPlay else {
-            self.updating = false
-            return
-        }
-        // seek on pausing after
-        if self.player.rate != 0 {
-            self.player.pause()
-        }
-        // generate local variables, for the closure captured
-        let seek = self.seeking
-        // start the update
-        self.updating = true
-        self.player.seek(to: seek, toleranceBefore: kCMTimeZero, toleranceAfter: kCMTimeZero) { finished in
-            // if equal that can stop the loaded
-            guard self.seeking == seek else {
-                self.update()
-                return
-            }
-            self.updating = false
-        }
-    }
-    
-    private(set) var player: AVPlayer
-    private(set) var seeking: CMTime
-    private(set) var updating: Bool = false
-}
-class ScrubberView: UIView {
-    
-    init(frame: CGRect, duration: TimeInterval) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
-        _configure()
+        self.setup()
     }
-    required init?(coder aDecoder: NSCoder) {
+    public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _configure()
-    }
-    deinit {
-        // must manually clear
-        player = nil
+        self.setup()
     }
     
-    var player: AVPlayer? {
-        set {
-            // if there is any change
-            guard newValue != _scrubber?.player else {
+    /// The each image size.
+    public var itemSize: CGSize = .zero {
+        didSet {
+            setNeedsLayout()
+        }
+    }
+    
+    /// The automatically filled image.
+    public var backgroundImage: UIImage? {
+        didSet {
+            // The image is change.
+            guard backgroundImage != oldValue else {
                 return
             }
-            // remove observer if needed
-            if let observer = _timeObserver {
-                _scrubber?.player.removeTimeObserver(observer)
+            
+            // Generate a image of the same as item size
+            _contentView.image = backgroundImage.flatMap {
+                // Start & end image drawing context.
+                UIGraphicsBeginImageContextWithOptions(itemSize, false, UIScreen.main.scale)
+                defer {
+                    UIGraphicsEndImageContext()
+                }
+                
+                // Scale a image to item size.
+                $0.draw(in: .init(origin: .zero, size: itemSize))
+                
+                // If the image is stretched, using tile mode is automatically filled.
+                return UIGraphicsGetImageFromCurrentImageContext()?.resizableImage(withCapInsets: .zero, resizingMode: .tile)
             }
-            // clean contex
-            _scrubber = nil
-            _timeObserver = nil
-            // if this is the new player
-            guard let player = newValue else {
-                return
-            }
-            // create context & add the observer
-            _scrubber = Scrubber(player: player)
-            _timeObserver = player.addPeriodicTimeObserver(forInterval: .init(seconds: 0.33, preferredTimescale: 100), queue: nil) { [weak self] time in
-                self?._updateTime(at: .init(time.seconds))
-            }
-        }
-        get {
-            return _scrubber?.player
         }
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        // update layout on frame changes
-        updateVisibleLayout()
-    }
-    override func willMove(toSuperview newSuperview: UIView?) {
-        super.willMove(toSuperview: newSuperview)
-        // update layout on superview changes
-        updateVisibleLayout()
-    }
-    
-    func updateTime(seek: Bool) {
-        
-        // if read failure, player is not ready, ignore
-        guard let player = self.player, player.status == .readyToPlay else {
-            return
-        }
-        guard let duration = player.currentItem?.duration else {
-            return
-        }
-        // calculate the percentage of the current
-        let percent = min(max(_indicatorView.center.x / max(bounds.width + 1, 1), 0), 1)
-        let time = duration.seconds * .init(percent)
-        
-        // update time
-        _indicatorView.text = .init(format: "%zd:%02zd", Int(time) / 60, Int(time) % 60)
-        _scrubber?.seek(to: .init(seconds: time, preferredTimescale: duration.timescale))
-    }
-    func updateVisibleLayout() {
-        
-        guard let superview = superview else {
-            return
-        }
-        
-        let rect = convert(superview.bounds, from: superview)
-        
-        _updateVisibleRect(in: rect)
-        _updateVisibleLayout()
-        
-//        let x = max(min(rect.minX, bounds.width - rect.width), 0)
-//        let y = max(min(rect.minY, bounds.height - rect.height), 0)
-//        
-        //_scrollView.frame = .init(x: x, y: y, width: rect.width, height: rect.height)
-        _indicatorView.center = .init(x: min(max(rect.midX, 0), bounds.maxX), y: bounds.midY)
-    }
-    
-    private func _updateVisibleRect(in rect: CGRect) {
-        
-        // if the content size changed, need to renew layout
-        if _layout?.contentSize != bounds.size {
-            _layout = ScrubberViewLayout(contentSize: bounds.size)
-        }
-        
-        logger.trace?.write(rect)
-        
-        
-    }
-    private func _updateVisibleLayout() {
-        
-    }
-    
-    private func _updateTime(at time: TimeInterval) {
-    }
-    
-    
-    private func _configure() {
-        
-        _indicatorView.frame = .init(x: 0, y: 0, width: frame.height / 2, height: frame.height)
-        _indicatorView.backgroundColor = .init(white: 1, alpha: 0.5)
-        _indicatorView.isUserInteractionEnabled = false
-        addSubview(_indicatorView)
-    }
-    
-    private var _visibleRect: CGRect = .zero
-    private var _visibleCells: [UIView]?
-    private var _visibleLayoutAttributes: [ScrubberViewLayoutAttributes]?
-    
-    private var _layout: ScrubberViewLayout?
-    private var _scrubber: Scrubber?
-    private var _timeObserver: Any?
-    
-    fileprivate lazy var _indicatorView = ScrubberIndicatorView(frame: .zero)
-    
-}
-class ScrubberViewLayout: NSObject {
-    
-    init(contentSize: CGSize) {
-        
-        let count = Int(contentSize.height * ScrubberSettings.settings.filmstripAspectRatio + 0.5)
-        let width = contentSize.width / .init(count)
-        
-        self.itemSize = .init(width: width, height: contentSize.height)
-        self.contentSize = contentSize
-        self.layoutAttributes = (0 ..< count).map { v in
-            let attributes = ScrubberViewLayoutAttributes()
-            return attributes
-        }
-        
-        super.init()
-    }
-    
-    func layoutAttributesForElements(in rect: CGRect) -> Array<ScrubberViewLayoutAttributes> {
-        return []
-    }
-    
-    let itemSize: CGSize
-    let contentSize: CGSize
-    let layoutAttributes: Array<ScrubberViewLayoutAttributes>
-    
-    
-}
-class ScrubberViewLayoutAttributes: NSObject {
-}
-class ScrubberIndicatorView: UIView {
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        _configure()
-    }
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        _configure()
-    }
-    
-    var text: String? {
-        set { return _label.text = newValue }
-        get { return _label.text }
-    }
-    
-    override func layoutSubviews() {
+    public override func layoutSubviews() {
         super.layoutSubviews()
         
-        _line.bounds = .init(x: 0, y: 0, width: 1, height: bounds.height)
-        _line.position = .init(x: bounds.midX, y: bounds.midY)
-        _label.center = .init(x: bounds.midX, y: bounds.minY - _label.bounds.midY - 5)
-    }
-    
-    private func _configure() {
+        guard let window = window, itemSize != .zero else {
+            return
+        }
         
-        _line.backgroundColor = UIColor(red: 0.25, green: 0.51, blue: 0.75, alpha: 1).cgColor
-        layer.addSublayer(_line)
+        let frame = window.convert(window.bounds, to: self)
+//
+//        // 预缓存范围
+//        _caching(.init(x: max(frame.minX - bounds.width / 2, bounds.minX),
+//                       y: max(frame.minY - bounds.height / 2, bounds.minY),
+//                       width: min(frame.maxX + bounds.width / 2, bounds.maxX) - max(frame.minX - bounds.width / 2, bounds.minX),
+//                       height: min(frame.maxY + bounds.height / 2, bounds.maxY) - max(frame.minY - bounds.height / 2, bounds.minY)))
         
-        _label.text = "0:00"
-        _label.textColor = .black
-        _label.textAlignment = .center
-        _label.layer.cornerRadius = 2
-        _label.layer.masksToBounds = true
-        _label.backgroundColor = .init(white: 1, alpha: 0.8)
-        _label.frame = .init(x: 0, y: 0, width: 46, height: 18)
-        _label.font = .systemFont(ofSize: 11)
-        addSubview(_label)
+        // 显示范围
+        _displaying(.init(x: max(frame.minX - itemSize.width, 0),
+                          y: 0,
+                          width: max(min(frame.maxX + itemSize.width, bounds.width) - max(frame.minX, 0), 0),
+                          height: bounds.height))
+    }
+//    public func apply(_ player: AVPlayer) {
+//
+////        self.player = player
+////
+////        let image = #imageLiteral(resourceName: "t1")
+////
+////        UIGraphicsBeginImageContextWithOptions(.init(width: 71, height: 40), false, 2)
+////
+////        image.draw(in: .init(x: 0, y: 0, width: 71, height: 40))
+////        let ns = ?.resizableImage(withCapInsets: .zero, resizingMode: .tile)
+////        UIGraphicsEndImageContext()
+////
+////        self.layer.contents = ns?.cgImage
+//
+//        //        self.generator = AVAssetImageGenerator(asset: self.asset)
+//        //        self.generator.requestedTimeToleranceAfter = kCMTimeZero
+//        //        self.generator.requestedTimeToleranceBefore = kCMTimeZero
+//        //        self.generator.maximumSize = .init(width: item.width * scale, height: item.height * scale)
+//        //
+//        //        self.generator.generateCGImagesAsynchronously(forTimes: values as [NSValue]) { rt, image, vt, rs, er in
+//        //            guard let index = values.index(where: { $0.seconds == rt.seconds }) else {
+//        //                return
+//        //            }
+//        //            let sv = view2.subviews[index] as? UIImageView
+//        //            if let image = image {
+//        //                print(image.width, image.height)
+//        //                DispatchQueue.main.async {
+//        //                    sv?.image = UIImage(cgImage: image)
+//        //                        //UIImage(cgImage: image, scale: 1, orientation: .up)
+//        //                }
+//        //            }
+//        //        }
+////        AVAssetImageGenerator(asset: <#T##AVAsset#>)
+//    }
+    
+    public func seek(to offset: CMTime) {
+        // If the player is not ready, don't allow the seek.
+        guard _player?.status == .readyToPlay else {
+            return
+        }
+
+        // If less than a certain threshold, can skip the request.
+        guard _offset != offset else {
+            return
+        }
+        _offset = offset
+
+        // If is updating, waiting for next a chance.
+        if !_seeking {
+            _seekIfNeeded()
+        }
     }
     
     
-    private lazy var _line: CALayer = CALayer()
-    private lazy var _label: UILabel = UILabel()
-}
-class ScrubberSettings {
     
-    // the video width of a second
-    var baseVideoWidth: CGFloat = 150
-    // the video minimum support duration, shorter than the length to the length calculation
-    var minVideoDuration: TimeInterval = 1.5
-    // the video thumbnail ratio
-    var filmstripAspectRatio: CGFloat = 16 / 9
+    // Calculation of item size and content size.
+    public static func compute(_ size: CGSize, duration: Double) -> ((itemSize: CGSize, contentSize: CGSize)) {
+        
+        let baseWidth = CGFloat(150)
+        let minimumDuration = Double(1.5)
+        let aspectRatio = CGFloat(16.0 / 9.0)
+        
+        let width = log2(.init(max(duration, minimumDuration))) * baseWidth
+        let item = floor(size.height * aspectRatio * UIScreen.main.scale) / UIScreen.main.scale
+        let count = ceil(width / item)
+        
+        return (.init(width: item, height: size.height),
+                .init(width: item * count, height: size.height))
+    }
+
+    //
+    //
+    //    // size that fits with duration
+    //    func sizeThatFits(_ size: CGSize, duration: TimeInterval) -> CGSize {
+    //        // the vaild time
+    //        let time = max(duration, minVideoDuration)
+    //        // calculate the content size
+    //        return .init(width: floor(.init(log2(time)) * .init(baseVideoWidth) * 2) / 2, height: size.height)
+    //    }
+    //
+    //    static let settings: ScrubberSettings = .init()
     
-    // size that fits with duration
-    func sizeThatFits(_ size: CGSize, duration: TimeInterval) -> CGSize {
-        // the vaild time
-        let time = max(duration, minVideoDuration)
-        // calculate the content size
-        return .init(width: floor(.init(log2(time)) * .init(baseVideoWidth) * 2) / 2, height: size.height)
+    internal func dequeueReusableLayer(at index: Int) -> CALayer {
+        guard _resuableLayers.isEmpty else {
+            return _resuableLayers.removeLast()
+        }
+        return CALayer()
+    }
+
+    internal func willDisplay(_ layer: CALayer, at index: Int) {
+        
+        //let progress = .init(index) / floor(max(bounds.width / max(itemSize.width, 0), 0))
+        
     }
     
-    static let settings: ScrubberSettings = .init()
+    private func _range(_ rect: CGRect) -> CountableClosedRange<Int> {
+//        logger.debug?.write(rect)
+        let start = Int(floor(rect.minX / itemSize.width) + 0.5)
+        let end = Int(ceil(rect.maxX / itemSize.width) + 0.5)
+        return start ... end
+    }
+    
+    private func _caching(_ rect: CGRect) {
+        let range = _range(rect)
+        guard range != _cachedRange else {
+            return
+        }
+        logger.debug?.write(range)
+        
+        _cachedRange = range
+    }
+    
+    private func _displaying(_ rect: CGRect) {
+        let range = _range(rect)
+        guard range != _displayedRange else {
+            return
+        }
+        
+        _displayedRange?.forEach {
+
+            guard !range.contains($0) else {
+                return
+            }
+            guard let layer = _displayingLayers[$0] else {
+                return
+            }
+            layer.isHidden = true
+
+            _resuableLayers.append(layer)
+            _displayingLayers.removeValue(forKey: $0)
+        }
+
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        range.forEach {
+
+            guard _displayingLayers[$0] == nil else {
+                return
+            }
+
+            let layer = dequeueReusableLayer(at: $0)
+            layer.isHidden = false
+            layer.backgroundColor = UIColor(white: 0, alpha: .init($0 % 2) * 0.2).cgColor
+            layer.frame = .init(x: .init($0) * itemSize.width,
+                                y: 0,
+                                width: itemSize.width,
+                                height: itemSize.height)
+            
+            self.layer.addSublayer(layer)
+            _displayingLayers[$0] = layer
+
+            willDisplay(layer, at: $0)
+        }
+        CATransaction.commit()
+        
+
+        _displayedRange = range
+    }
+    //
+    
+    
+    internal func setup() {
+        
+        _contentView.frame = bounds
+        _contentView.backgroundColor = .clear
+        _contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        
+        addSubview(_contentView)
+    }
+
+    private func _seekIfNeeded() {
+        // If the player is not ready, don't allow the seek
+        guard _player?.status == .readyToPlay else {
+            _seeking = false
+            return
+        }
+        
+        // Seek on pausing after
+        if _player?.rate != 0 {
+            _player?.pause()
+        }
+        
+        // Generate local variables, for the closure captured
+        guard let seek = _offset else {
+            return
+        }
+        
+        // Start the update
+        _seeking = true
+        _player?.seek(to: seek, toleranceBefore: kCMTimeZero, toleranceAfter: kCMTimeZero) { finished in
+            // If equal that can stop the loaded
+            guard self._offset == seek else {
+                self._seekIfNeeded()
+                return
+            }
+            self._seeking = false
+        }
+    }
+    
+    private func _request(at index: Int) {
+        
+//        guard let item = _player?.currentItem else {
+//            return
+//        }
+    
+        //bounds.width / itemSize.width
+        
+        //item.duration.seconds
+        
+    }
+    
+    private var _player: AVPlayer?
+    private var _generator: AVAssetImageGenerator?
+    
+    private var _count: Int = 0
+    private var _offset: CMTime?
+    private var _seeking: Bool = false
+
+    private var _cachedRange: CountableClosedRange<Int>?
+    private var _displayedRange: CountableClosedRange<Int>?
+    
+    private lazy var _cachedImages: [Int: UIIm  age] = [:]
+    private lazy var _resuableLayers: [CALayer] = []
+    private lazy var _displayingLayers: [Int: CALayer] = [:]
+    
+    private lazy var _contentView: UIImageView =  UIImageView(frame: .zero)
 }
+
+//class ScrubberView: UIView {
+//
+//    init(frame: CGRect, duration: TimeInterval) {
+//        super.init(frame: frame)
+//        _configure()
+//    }
+//    required init?(coder aDecoder: NSCoder) {
+//        super.init(coder: aDecoder)
+//        _configure()
+//    }
+//    deinit {
+//        // must manually clear
+//        player = nil
+//    }
+//
+//    var player: AVPlayer? {
+//        set {
+//            // if there is any change
+//            guard newValue != _scrubber?.player else {
+//                return
+//            }
+//            // remove observer if needed
+//            if let observer = _timeObserver {
+//                _scrubber?.player.removeTimeObserver(observer)
+//            }
+//            // clean contex
+//            _scrubber = nil
+//            _timeObserver = nil
+//            // if this is the new player
+//            guard let player = newValue else {
+//                return
+//            }
+//            // create context & add the observer
+//            _scrubber = Scrubber(player: player)
+//            _timeObserver = player.addPeriodicTimeObserver(forInterval: .init(seconds: 0.33, preferredTimescale: 100), queue: nil) { [weak self] time in
+//                self?._updateTime(at: .init(time.seconds))
+//            }
+//        }
+//        get {
+//            return _scrubber?.player
+//        }
+//    }
+//
+//    override func layoutSubviews() {
+//        super.layoutSubviews()
+//        // update layout on frame changes
+//        updateVisibleLayout()
+//    }
+//    override func willMove(toSuperview newSuperview: UIView?) {
+//        super.willMove(toSuperview: newSuperview)
+//        // update layout on superview changes
+//        updateVisibleLayout()
+//    }
+//
+//    func updateTime(seek: Bool) {
+//
+//        // if read failure, player is not ready, ignore
+//        guard let player = self.player, player.status == .readyToPlay else {
+//            return
+//        }
+//        guard let duration = player.currentItem?.duration else {
+//            return
+//        }
+//        // calculate the percentage of the current
+//        let percent = min(max(_indicatorView.center.x / max(bounds.width + 1, 1), 0), 1)
+//        let time = duration.seconds * .init(percent)
+//
+//        // update time
+//        _indicatorView.text = .init(format: "%zd:%02zd", Int(time) / 60, Int(time) % 60)
+//        _scrubber?.seek(to: .init(seconds: time, preferredTimescale: duration.timescale))
+//    }
+//    func updateVisibleLayout() {
+//
+//        guard let superview = superview else {
+//            return
+//        }
+//
+//        let rect = convert(superview.bounds, from: superview)
+//
+//        _updateVisibleRect(in: rect)
+//        _updateVisibleLayout()
+//
+////        let x = max(min(rect.minX, bounds.width - rect.width), 0)
+////        let y = max(min(rect.minY, bounds.height - rect.height), 0)
+////
+//        //_scrollView.frame = .init(x: x, y: y, width: rect.width, height: rect.height)
+//        _indicatorView.center = .init(x: min(max(rect.midX, 0), bounds.maxX), y: bounds.midY)
+//    }
+//
+//    private func _updateVisibleRect(in rect: CGRect) {
+//
+//        // if the content size changed, need to renew layout
+//        if _layout?.contentSize != bounds.size {
+//            _layout = ScrubberViewLayout(contentSize: bounds.size)
+//        }
+//
+//        logger.trace?.write(rect)
+//
+//
+//    }
+//    private func _updateVisibleLayout() {
+//
+//    }
+//
+//    private func _updateTime(at time: TimeInterval) {
+//    }
+//
+//
+//    private func _configure() {
+//
+//        _indicatorView.frame = .init(x: 0, y: 0, width: frame.height / 2, height: frame.height)
+//        _indicatorView.backgroundColor = .init(white: 1, alpha: 0.5)
+//        _indicatorView.isUserInteractionEnabled = false
+//        addSubview(_indicatorView)
+//    }
+//
+//    private var _visibleRect: CGRect = .zero
+//    private var _visibleCells: [UIView]?
+//    private var _visibleLayoutAttributes: [ScrubberViewLayoutAttributes]?
+//
+//    private var _layout: ScrubberViewLayout?
+//    private var _scrubber: Scrubber?
+//    private var _timeObserver: Any?
+//
+//    fileprivate lazy var _indicatorView = ScrubberIndicatorView(frame: .zero)
+//
+//}
+//class ScrubberViewLayout: NSObject {
+//
+//    init(contentSize: CGSize) {
+//
+//        let count = Int(contentSize.height * ScrubberSettings.settings.filmstripAspectRatio + 0.5)
+//        let width = contentSize.width / .init(count)
+//
+//        self.itemSize = .init(width: width, height: contentSize.height)
+//        self.contentSize = contentSize
+//        self.layoutAttributes = (0 ..< count).map { v in
+//            let attributes = ScrubberViewLayoutAttributes()
+//            return attributes
+//        }
+//
+//        super.init()
+//    }
+//
+//    func layoutAttributesForElements(in rect: CGRect) -> Array<ScrubberViewLayoutAttributes> {
+//        return []
+//    }
+//
+//    let itemSize: CGSize
+//    let contentSize: CGSize
+//    let layoutAttributes: Array<ScrubberViewLayoutAttributes>
+//
+//
+//}
+//class ScrubberViewLayoutAttributes: NSObject {
+//}
+//class ScrubberIndicatorView: UIView {
+//
+//    override init(frame: CGRect) {
+//        super.init(frame: frame)
+//        _configure()
+//    }
+//    required init?(coder aDecoder: NSCoder) {
+//        super.init(coder: aDecoder)
+//        _configure()
+//    }
+//
+//    var text: String? {
+//        set { return _label.text = newValue }
+//        get { return _label.text }
+//    }
+//
+//    override func layoutSubviews() {
+//        super.layoutSubviews()
+//
+//        _line.bounds = .init(x: 0, y: 0, width: 1, height: bounds.height)
+//        _line.position = .init(x: bounds.midX, y: bounds.midY)
+//        _label.center = .init(x: bounds.midX, y: bounds.minY - _label.bounds.midY - 5)
+//    }
+//
+//    private func _configure() {
+//
+//        _line.backgroundColor = UIColor(red: 0.25, green: 0.51, blue: 0.75, alpha: 1).cgColor
+//        layer.addSublayer(_line)
+//
+//        _label.text = "0:00"
+//        _label.textColor = .black
+//        _label.textAlignment = .center
+//        _label.layer.cornerRadius = 2
+//        _label.layer.masksToBounds = true
+//        _label.backgroundColor = .init(white: 1, alpha: 0.8)
+//        _label.frame = .init(x: 0, y: 0, width: 46, height: 18)
+//        _label.font = .systemFont(ofSize: 11)
+//        addSubview(_label)
+//    }
+//
+//
+//    private lazy var _line: CALayer = CALayer()
+//    private lazy var _label: UILabel = UILabel()
+//}
+//class ScrubberSettings {
+//
+//    // the video width of a second
+//    var baseVideoWidth: CGFloat = 150
+//    // the video minimum support duration, shorter than the length to the length calculation
+//    var minVideoDuration: TimeInterval = 1.5
+//    // the video thumbnail ratio
+//    var filmstripAspectRatio: CGFloat = 16 / 9
+//
+//    // size that fits with duration
+//    func sizeThatFits(_ size: CGSize, duration: TimeInterval) -> CGSize {
+//        // the vaild time
+//        let time = max(duration, minVideoDuration)
+//        // calculate the content size
+//        return .init(width: floor(.init(log2(time)) * .init(baseVideoWidth) * 2) / 2, height: size.height)
+//    }
+//
+//    static let settings: ScrubberSettings = .init()
+//}
 
 class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 
@@ -339,7 +577,7 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate, 
     var player: AVPlayer!
     var generator: AVAssetImageGenerator!
     
-    var scrubberView: ScrubberView?
+//    var scrubberView: ScrubberView?
     
     var generator2: Generator?
     
@@ -361,177 +599,123 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate, 
         self.player = AVPlayer(playerItem: AVPlayerItem(asset: self.asset)) 
         (playerView.layer as? AVPlayerLayer)?.player = self.player
         
-//        self.player.play()
-        let scale = UIScreen.main.scale
-        let size = ScrubberSettings.settings.sizeThatFits(.init(width: 0, height: 38), duration: self.asset.duration.seconds)
+        let size = ScrubberView.compute(.init(width: 0, height: 40), duration: asset.duration.seconds)
 
-        let setting = ScrubberSettings.settings
-        let duration = max(self.asset.duration.seconds, setting.minVideoDuration)
-        let count = Int(ceil(size.width /  (size.height * setting.filmstripAspectRatio)) + 0.5)
-        let item = CGSize(width: size.width / CGFloat(count), height: size.height)
-        let step = duration / Double(count)
-
-        let values = (0 ..< count).map { v -> CMTime in
-            let t = Double(v) * step
-            return CMTime(seconds: t, preferredTimescale: self.asset.duration.timescale)
-        }
-
-        let view1 = UIView(frame: .init(x: 0, y: 0, width: 160, height: 38))
-        let view2 = ScrubberView(frame: .init(x: view1.frame.maxX + 40, y: 0, width: size.width, height: size.height), duration: self.asset.duration.seconds)
-        let view3 = UIView(frame: .init(x: view2.frame.maxX + 40, y: 0, width: 160, height: 38))
-        self.wv = view2
-
-        self.scrubberView = view2
-        self.scrubberView?.player = self.player
-
-        self.generator2 = Generator(asset: self.asset, duration: asset.duration.seconds)
-
-
-        (0 ..< count).forEach {
-
-            let sv = UIImageView(frame: .init(x: item.width * CGFloat($0), y: 0, width: item.width, height: item.height))
-            sv.backgroundColor = .random
-            sv.contentMode = .scaleAspectFill
-            sv.clipsToBounds = true
-            view2.addSubview(sv)
-        }
-        view2.bringSubview(toFront: view2._indicatorView)
-
-        view1.backgroundColor = .random
-        view2.backgroundColor = .random
-        view3.backgroundColor = .random
-
-        scrollView.contentSize = .init(width: view3.frame.maxX, height: 0)
-        scrollView.clipsToBounds = false
-        scrollView.addSubview(view1)
-        scrollView.addSubview(view2)
-        scrollView.addSubview(view3)
-
-        self.generator = AVAssetImageGenerator(asset: self.asset)
-        self.generator.requestedTimeToleranceAfter = kCMTimeZero
-        self.generator.requestedTimeToleranceBefore = kCMTimeZero
-        self.generator.maximumSize = .init(width: item.width * scale, height: item.height * scale)
-
-        self.generator.generateCGImagesAsynchronously(forTimes: values as [NSValue]) { rt, image, vt, rs, er in
-            guard let index = values.index(where: { $0.seconds == rt.seconds }) else {
-                return
-            }
-            let sv = view2.subviews[index] as? UIImageView
-            if let image = image {
-                print(image.width, image.height)
-                DispatchQueue.main.async {
-                    sv?.image = UIImage(cgImage: image)
-                        //UIImage(cgImage: image, scale: 1, orientation: .up)
-                }
-            }
-        }
+        _itemSize = size.itemSize
+        _contentSize =  size.contentSize
+        
+//        collectionViewLayout.estimatedItemSize
+////        self.player.play()
+//        let scale = UIScreen.main.scale
+//        let size = ScrubberSettings.settings.sizeThatFits(.init(width: 0, height: 38), duration: self.asset.duration.seconds)
+//
+//        let setting = ScrubberSettings.settings
+//        let duration = max(self.asset.duration.seconds, setting.minVideoDuration)
+//        let count = Int(ceil(size.width /  (size.height * setting.filmstripAspectRatio)) + 0.5)
+//        let item = CGSize(width: size.width / CGFloat(count), height: size.height)
+//        let step = duration / Double(count)
+//
+//        let values = (0 ..< count).map { v -> CMTime in
+//            let t = Double(v) * step
+//            return CMTime(seconds: t, preferredTimescale: self.asset.duration.timescale)
+//        }
+//
+//        let view1 = UIView(frame: .init(x: 0, y: 0, width: 160, height: 38))
+//        let view2 = ScrubberView(frame: .init(x: view1.frame.maxX + 40, y: 0, width: size.width, height: size.height), duration: self.asset.duration.seconds)
+//        let view3 = UIView(frame: .init(x: view2.frame.maxX + 40, y: 0, width: 160, height: 38))
+//        self.wv = view2
+//
+//        self.scrubberView = view2
+//        self.scrubberView?.player = self.player
+//
+//        self.generator2 = Generator(asset: self.asset, duration: asset.duration.seconds)
+//
+//
+//        (0 ..< count).forEach {
+//
+//            let sv = UIImageView(frame: .init(x: item.width * CGFloat($0), y: 0, width: item.width, height: item.height))
+//            sv.backgroundColor = .random
+//            sv.contentMode = .scaleAspectFill
+//            sv.clipsToBounds = true
+//            view2.addSubview(sv)
+//        }
+//        view2.bringSubview(toFront: view2._indicatorView)
+//
+//        view1.backgroundColor = .random
+//        view2.backgroundColor = .random
+//        view3.backgroundColor = .random
+//
+//        scrollView.contentSize = .init(width: view3.frame.maxX, height: 0)
+//        scrollView.clipsToBounds = false
+//        scrollView.addSubview(view1)
+//        scrollView.addSubview(view2)
+//        scrollView.addSubview(view3)
+//
+//        self.generator = AVAssetImageGenerator(asset: self.asset)
+//        self.generator.requestedTimeToleranceAfter = kCMTimeZero
+//        self.generator.requestedTimeToleranceBefore = kCMTimeZero
+//        self.generator.maximumSize = .init(width: item.width * scale, height: item.height * scale)
+//
+//        self.generator.generateCGImagesAsynchronously(forTimes: values as [NSValue]) { rt, image, vt, rs, er in
+//            guard let index = values.index(where: { $0.seconds == rt.seconds }) else {
+//                return
+//            }
+//            let sv = view2.subviews[index] as? UIImageView
+//            if let image = image {
+//                print(image.width, image.height)
+//                DispatchQueue.main.async {
+//                    sv?.image = UIImage(cgImage: image)
+//                        //UIImage(cgImage: image, scale: 1, orientation: .up)
+//                }
+//            }
+//        }
     }
+    
+    private var _itemSize: CGSize?
+    private var _contentSize: CGSize?
     
     class Cell: UICollectionViewCell {
         
-        func scrollViewDidScroll(_ scrollView: UIScrollView) {
-            
-            let frame = scrollView.convert(scrollView.bounds, to: self)
-            
-//            // 预缓存范围
-//            _caching(.init(x: max(frame.minX - bounds.width / 2, bounds.minX),
-//                           y: max(frame.minY - bounds.height / 2, bounds.minY),
-//                           width: min(frame.maxX + bounds.width / 2, bounds.maxX) - max(frame.minX - bounds.width / 2, bounds.minX),
-//                           height: min(frame.maxY + bounds.height / 2, bounds.maxY) - max(frame.minY - bounds.height / 2, bounds.minY)))
-            
-            // 显示范围
-            _displaying(.init(x: max(frame.minX, 0),
-                              y: max(frame.minY, 0),
-                              width: max(min(frame.maxX, bounds.width) - max(frame.minX, 0), 0),
-                              height: max(min(frame.maxY, bounds.height) - max(frame.minY, 0), 0)))
+        override func setNeedsLayout() {
+            super.setNeedsLayout()
+            super.contentView.setNeedsLayout()
         }
-        
-        var itemSize: CGSize = .init(width: 40, height: 40)
-        
-        private func _dequeueReusableLayer(at index: Int) -> CALayer {
-            guard _resuableLayers.isEmpty else {
-                return _resuableLayers.removeLast()
-            }
-            return CALayer()
-        }
-        
-        private func _range(_ rect: CGRect) -> CountableClosedRange<Int> {
-//            logger.debug?.write(rect)
-            let start = Int(floor(rect.minX / itemSize.width) + 0.5)
-            let end = Int(ceil(rect.maxX / itemSize.width) + 0.5)
-            return start ... end
-        }
-        
-        private func _caching(_ rect: CGRect) {
-//            let range = _range(rect)
-//            guard range != _cachedRange else {
+//        override func layoutSubviews() {
+//            super.layoutSubviews()
+//
+//            guard let superview = superview, player != nil else {
 //                return
 //            }
-//            logger.debug?.write(range)
 //
-//            _cachedRange = range
+//        }
+//
+        var itemSize: CGSize = .init(width: 40, height: 40)
+//
+        
+        var image: UIImage? {
+            willSet {
+                (contentView as? ScrubberView).map {
+                    $0.itemSize = itemSize
+                    $0.backgroundImage = newValue
+                }
+            }
+        }
+        var player: AVPlayer? {
+            willSet {
+                //.resizableImage(withCapInsets: .zero, resizingMode: .tile)
+//                contentView.backgroundColor = UIColor(patternImage: #imageLiteral(resourceName: "t1"))
+//
+//                guard let player = newValue else {
+//                    return
+//                }
+                
+            }
         }
         
-        private func _displaying(_ rect: CGRect) {
-            let range = _range(rect)
-            guard range != _displayedRange else {
-                return
-            }
-            logger.debug?.write(range)
-            
-            //
-            var invaildRange: IndexSet = .init()
-                
-            _displayedRange.map {
-                
-                if $0.lowerBound < range.lowerBound {
-                    invaildRange.insert(integersIn: $0.lowerBound ..< range.lowerBound)
-                }
-                
-                if range.upperBound < $0.upperBound {
-                    invaildRange.insert(integersIn: range.upperBound ..< $0.upperBound)
-                }
-            }
-            
-            
-            invaildRange.forEach {
-                guard let layer = _displayingLayers[$0] else {
-                    return
-                }
-                layer.isHidden = true
-                
-                _resuableLayers.append(layer)
-                _displayingLayers.removeValue(forKey: $0)
-            }
-            
-            CATransaction.begin()
-            CATransaction.setDisableActions(true)
-            range.forEach {
-                
-                guard _displayingLayers[$0] == nil else {
-                    return
-                }
-                
-                let layer = _dequeueReusableLayer(at: $0)
-                layer.isHidden = false
-                layer.backgroundColor = UIColor.random.cgColor
-                layer.frame = .init(x: .init($0) * itemSize.width,
-                                    y: 0,
-                                    width: itemSize.width,
-                                    height: itemSize.height)
-                self.layer.addSublayer(layer)
-                _displayingLayers[$0] = layer
-            }
-            CATransaction.commit()
-            
-            _displayedRange = range
+        
+        private dynamic class var _contentViewClass: AnyClass {
+            return ScrubberView.self
         }
-        
-        private var _cachedRange: CountableClosedRange<Int>?
-        private var _displayedRange: CountableClosedRange<Int>?
-        
-        private var _resuableLayers: [CALayer] = []
-        private var _displayingLayers: [Int: CALayer] = [:]
     }
     
     override func viewDidLoad() {
@@ -582,25 +766,29 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate, 
 
         ])
         
-//        PHPhotoLibrary.requestAuthorization { _ in
-//            let cx = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumVideos, options: nil)
-//            guard let c = cx.firstObject else {
-//                return
-//            }
-//            guard let i = PHAsset.fetchAssets(in: c, options: nil).firstObject else {
-//                return
-//            }
-//            let options = PHVideoRequestOptions()
-//            options.isNetworkAccessAllowed = true
-//            PHImageManager.default().requestAVAsset(forVideo: i, options: options) { (asset, a, x) in
-//                DispatchQueue.main.async {
-//                    guard let asset = asset else {
-//                        return
-//                    }
-//                    self.loadx(asset)
-//                }
-//            }
-//        }
+        PHPhotoLibrary.requestAuthorization { _ in
+            let cx = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumVideos, options: nil)
+            guard let c = cx.firstObject else {
+                return
+            }
+            guard let i = PHAsset.fetchAssets(in: c, options: nil).firstObject else {
+                return
+            }
+            let options = PHVideoRequestOptions()
+            options.isNetworkAccessAllowed = true
+            PHImageManager.default().requestImage(for: i, targetSize: .init(width: 320, height: 240), contentMode: .aspectFill, options: nil) { image, _ in
+                self._image = image
+            }
+
+            PHImageManager.default().requestAVAsset(forVideo: i, options: options) { (asset, a, x) in
+                DispatchQueue.main.async {
+                    guard let asset = asset else {
+                        return
+                    }
+                    self.loadx(asset)
+                }
+            }
+        }
         
 //        self.asset.loadValuesAsynchronously(forKeys: [#keyPath(AVURLAsset.duration)]) { [weak self] in
 //            guard let `self` = self else {
@@ -617,6 +805,8 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate, 
         // Do any additional setup after loading the view.
     }
     
+    private var _image: UIImage?
+    
     var colors: [UIColor] = (0 ..< 320).map { _ in
         return .random
     }
@@ -627,6 +817,12 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate, 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath)
         cell.backgroundColor = colors[indexPath.item]
+        if active == indexPath {
+            (cell as? Cell)?.itemSize = _itemSize ?? .zero
+            (cell as? Cell)?.image = _image
+            (cell as? Cell)?.player = self.player
+
+        }
         return cell
     }
     
@@ -634,10 +830,10 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate, 
         guard active == indexPath else {
             return .init(width: 20, height: 40)
         }
-        return .init(width: 4096, height: 40)
+        return _contentSize ?? .zero
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if active != nil {
+        if active != nil || _itemSize == nil {
 //            active = nil
 //            ex = .zero
 //            collectionView.reloadItems(at: [indexPath])
@@ -712,7 +908,8 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate, 
         
         active.map {
             collectionView.cellForItem(at: $0).map {
-                ($0 as? Cell)?.scrollViewDidScroll(scrollView)
+                $0.setNeedsLayout()
+                //($0 as? Cell)?.scrollViewDidScroll(scrollView)
             }
         }
         

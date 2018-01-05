@@ -118,7 +118,6 @@ class ExampleTests: XCTestCase {
         XCTAssert(scrollView.exists)
         XCTAssert(contentView.exists)
 
-    
         // ======== Move ========
 
         /*M=0*/command("reload")

@@ -31,6 +31,7 @@ class Generator {
         self.generator.requestedTimeToleranceBefore = kCMTimeZero
         self.generator.requestedTimeToleranceAfter = kCMTimeZero
         
+//        self.generator.generateCGImagesAsynchronously(forTimes: <#T##[NSValue]#>, completionHandler: <#T##AVAssetImageGeneratorCompletionHandler##AVAssetImageGeneratorCompletionHandler##(CMTime, CGImage?, CMTime, AVAssetImageGeneratorResult, Error?) -> Void#>)
 //        self.generator.maximumSize = .init(width: item.width * 2, height: item.height * 2)
         
 //        let setting = ScrubberSettings.settings
@@ -55,6 +56,7 @@ class Generator {
     
 }
 
+
 public class ScrubberView: UIView {
     
     public override init(frame: CGRect) {
@@ -70,6 +72,22 @@ public class ScrubberView: UIView {
     public var itemSize: CGSize = .zero {
         didSet {
             setNeedsLayout()
+        }
+    }
+    
+    var player: AVPlayer? {
+        willSet {
+            _asset = newValue?.currentItem?.asset
+            _generator = _asset.map {
+                let scale = UIScreen.main.scale + 1
+                let generator = AVAssetImageGenerator(asset: $0)
+                
+                generator.requestedTimeToleranceAfter = kCMTimeZero
+                generator.requestedTimeToleranceBefore = kCMTimeZero
+                generator.maximumSize = .init(width: itemSize.width * scale, height: itemSize.height * scale)
+                
+                return generator
+            }
         }
     }
     
@@ -114,9 +132,9 @@ public class ScrubberView: UIView {
 //                       height: min(frame.maxY + bounds.height / 2, bounds.maxY) - max(frame.minY - bounds.height / 2, bounds.minY)))
         
         // 显示范围
-        _displaying(.init(x: max(frame.minX - itemSize.width, 0),
+        _displaying(.init(x: max(frame.minX, 0),
                           y: 0,
-                          width: max(min(frame.maxX + itemSize.width, bounds.width) - max(frame.minX, 0), 0),
+                          width: frame.maxX - frame.minX,
                           height: bounds.height))
     }
 //    public func apply(_ player: AVPlayer) {
@@ -172,12 +190,10 @@ public class ScrubberView: UIView {
         }
     }
     
-    
-    
     // Calculation of item size and content size.
     public static func compute(_ size: CGSize, duration: Double) -> ((itemSize: CGSize, contentSize: CGSize)) {
         
-        let baseWidth = CGFloat(150)
+        let baseWidth = CGFloat(160)
         let minimumDuration = Double(1.5)
         let aspectRatio = CGFloat(16.0 / 9.0)
         
@@ -201,18 +217,51 @@ public class ScrubberView: UIView {
     //
     //    static let settings: ScrubberSettings = .init()
     
-    internal func dequeueReusableLayer(at index: Int) -> CALayer {
+    
+    internal func generate(forImage index: Int, clouser: @escaping (CGImage?, Int) -> (Void)) {
+        
+        guard let asset = _asset else {
+            return
+        }
+        
+        let duration = asset.duration
+        let current = CMTime(seconds: .init(index) * .init(itemSize.width / max(bounds.width, 1)) * duration.seconds,
+                             preferredTimescale: duration.timescale)
+        
+        _generator?.generateCGImagesAsynchronously(forTimes: [current] as [NSValue], completionHandler: { (t, i, _, _, _) in
+            DispatchQueue.main.async {
+                clouser(i, index)
+            }
+        })
+    }
+
+    internal func dequeueReusableLayer(at index: Int) -> ScrubberTileLayer {
         guard _resuableLayers.isEmpty else {
             return _resuableLayers.removeLast()
         }
-        return CALayer()
+        let layer =  ScrubberTileLayer()
+        layer.masksToBounds = true
+        layer.contentsGravity = kCAGravityResizeAspectFill
+        return layer
     }
 
-    internal func willDisplay(_ layer: CALayer, at index: Int) {
+    internal func willDisplay(_ layer: ScrubberTileLayer, at index: Int) {
+//        // Calculate the percentage of layer.
+//        let percent = layer.frame.minX / max(bounds.width, 0)
+//        logger.debug?.write(percent)
         
-        //let progress = .init(index) / floor(max(bounds.width / max(itemSize.width, 0), 0))
+        logger.debug?.write(index)
         
-    }
+        generate(forImage: index) {
+            
+            guard layer.index == $1 else {
+                return
+            }
+            
+            layer.isHidden = false
+            layer.contents = $0
+        }
+     }
     
     private func _range(_ rect: CGRect) -> CountableClosedRange<Int> {
 //        logger.debug?.write(rect)
@@ -260,13 +309,11 @@ public class ScrubberView: UIView {
             }
 
             let layer = dequeueReusableLayer(at: $0)
-            layer.isHidden = false
-            layer.backgroundColor = UIColor(white: 0, alpha: .init($0 % 2) * 0.2).cgColor
-            layer.frame = .init(x: .init($0) * itemSize.width,
-                                y: 0,
-                                width: itemSize.width,
-                                height: itemSize.height)
             
+            layer.index = $0
+            layer.frame = .init(x: .init($0) * itemSize.width, y: 0, width: itemSize.width, height: itemSize.height)
+            layer.isHidden = true
+
             self.layer.addSublayer(layer)
             _displayingLayers[$0] = layer
 
@@ -318,33 +365,26 @@ public class ScrubberView: UIView {
         }
     }
     
-    private func _request(at index: Int) {
-        
-//        guard let item = _player?.currentItem else {
-//            return
-//        }
-    
-        //bounds.width / itemSize.width
-        
-        //item.duration.seconds
-        
-    }
-    
+    private var _asset: AVAsset?
     private var _player: AVPlayer?
     private var _generator: AVAssetImageGenerator?
     
-    private var _count: Int = 0
     private var _offset: CMTime?
     private var _seeking: Bool = false
 
     private var _cachedRange: CountableClosedRange<Int>?
     private var _displayedRange: CountableClosedRange<Int>?
     
-    private lazy var _cachedImages: [Int: UIIm  age] = [:]
-    private lazy var _resuableLayers: [CALayer] = []
-    private lazy var _displayingLayers: [Int: CALayer] = [:]
+    private lazy var _cachedImages: [Int: UIImage] = [:]
+    private lazy var _resuableLayers: [ScrubberTileLayer] = []
+    private lazy var _displayingLayers: [Int: ScrubberTileLayer] = [:]
     
     private lazy var _contentView: UIImageView =  UIImageView(frame: .zero)
+}
+
+internal class ScrubberTileLayer: CALayer {
+    
+    internal var index: Int = 0
 }
 
 //class ScrubberView: UIView {
@@ -702,6 +742,9 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate, 
         }
         var player: AVPlayer? {
             willSet {
+                (contentView as? ScrubberView).map {
+                    $0.player = newValue
+                }
                 //.resizableImage(withCapInsets: .zero, resizingMode: .tile)
 //                contentView.backgroundColor = UIColor(patternImage: #imageLiteral(resourceName: "t1"))
 //
@@ -771,9 +814,11 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate, 
             guard let c = cx.firstObject else {
                 return
             }
-            guard let i = PHAsset.fetchAssets(in: c, options: nil).firstObject else {
-                return
-            }
+            let i = PHAsset.fetchAssets(in: c, options: nil).object(at: 0)
+//
+//            guard let i = PHAsset.fetchAssets(in: c, options: nil).firstObject else {
+//                return
+//            }
             let options = PHVideoRequestOptions()
             options.isNetworkAccessAllowed = true
             PHImageManager.default().requestImage(for: i, targetSize: .init(width: 320, height: 240), contentMode: .aspectFill, options: nil) { image, _ in

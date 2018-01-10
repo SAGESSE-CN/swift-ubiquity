@@ -516,8 +516,8 @@
 		0CE49E9F1E7AB11D0058F5F8 /* Debug */ = {
 			isa = PBXGroup;
 			children = (
-				0CE49EA11E7AB11D0058F5F8 /* Logger.swift */,
 				0CE49EA01E7AB11D0058F5F8 /* Debugger.swift */,
+				0CE49EA11E7AB11D0058F5F8 /* Logger.swift */,
 				0CE49EA21E7AB11D0058F5F8 /* UIColor+Random.swift */,
 			);
 			path = Debug;

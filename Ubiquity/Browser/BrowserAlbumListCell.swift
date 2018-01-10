@@ -157,6 +157,15 @@ internal class BrowserAlbumListCell: SourceCollectionViewCell {
         }
     }
     
+    override var accessibilityIdentifier: String? {
+        set {
+            return super.accessibilityIdentifier = newValue
+        }
+        get {
+            return super.accessibilityIdentifier ?? _titleLabel.accessibilityLabel
+        }
+    }
+    
     private func _switch(_ enabeld: Bool) {
         if enabeld {
             backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.1977739726)

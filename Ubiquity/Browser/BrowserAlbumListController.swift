@@ -66,7 +66,10 @@ internal class BrowserAlbumListController: SourceCollectionViewController, UICol
     
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "LINE", for: indexPath)
+        
         view.backgroundColor = .lightGray
+        view.accessibilityIdentifier = "LINE-\(indexPath)"
+        
         return view
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {

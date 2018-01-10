@@ -66,9 +66,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         logger.debug?.write(ProcessInfo.processInfo.arguments)
         logger.debug?.write(ProcessInfo.processInfo.environment)
 
-        // Whether the need to disable UI animation.
-        if ProcessInfo.processInfo.environment["UIViewAnimationsDisabled"] == "1" {
-            UIView.setAnimationsEnabled(false)
+        if let address = ProcessInfo.processInfo.environment["RPC_DEBUGGER_ADDRESS"] {
+            RPCDebugger.shared.connect(to: address)
         }
     
 //        window?.layer.speed = 0.5

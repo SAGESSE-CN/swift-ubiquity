@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		0C1004041F1CA60100D7B09A /* TestIndicatorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C224C411EAC55F7001ABB47 /* TestIndicatorViewController.swift */; };
 		0C1E4F791F5B337F00299E64 /* TextLargetImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1E4F781F5B337F00299E64 /* TextLargetImageLoader.swift */; };
+		0C22C323200619B700F5CCD6 /* RPCDebugger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C22C322200619B700F5CCD6 /* RPCDebugger.swift */; };
+		0C22C32420061DC300F5CCD6 /* RPCDebugger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C22C322200619B700F5CCD6 /* RPCDebugger.swift */; };
 		0C30A7891F5FD5EF00E5980B /* 019@2x.gif in Resources */ = {isa = PBXBuildFile; fileRef = 0C30A7881F5FD5EF00E5980B /* 019@2x.gif */; };
 		0C30A78B1F5FD60400E5980B /* TestAnimatedImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C30A78A1F5FD60400E5980B /* TestAnimatedImageViewController.swift */; };
 		0C5459D71FD132FB0055AE40 /* DebugingBrowserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5459D61FD132FB0055AE40 /* DebugingBrowserViewController.swift */; };
@@ -22,8 +24,6 @@
 		0CB104C71EEFF589002CB7FA /* Ubiquity.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0CE49E4C1E7A411D0058F5F8 /* Ubiquity.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		0CB709591FC747F700E1DD4A /* ExampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB709581FC747F100E1DD4A /* ExampleTests.swift */; };
 		0CB7095C1FC7485500E1DD4A /* CanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB7095B1FC7485500E1DD4A /* CanvasView.swift */; };
-		0CC50E811FC727DF008B1614 /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC50E801FC727DF008B1614 /* Shared.swift */; };
-		0CC50E821FC727DF008B1614 /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC50E801FC727DF008B1614 /* Shared.swift */; };
 		0CC50E861FC74742008B1614 /* DebugingCanvasViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC50E841FC74742008B1614 /* DebugingCanvasViewController.swift */; };
 		0CC50E881FC74742008B1614 /* DebugingTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC50E851FC74742008B1614 /* DebugingTableViewController.swift */; };
 		0CE49E221E7A3F690058F5F8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CE49E211E7A3F690058F5F8 /* AppDelegate.swift */; };
@@ -62,6 +62,7 @@
 		0C16F87A1EA663E700C788C5 /* TestLayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestLayerViewController.swift; sourceTree = "<group>"; };
 		0C1E4F781F5B337F00299E64 /* TextLargetImageLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextLargetImageLoader.swift; sourceTree = "<group>"; };
 		0C224C411EAC55F7001ABB47 /* TestIndicatorViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestIndicatorViewController.swift; sourceTree = "<group>"; };
+		0C22C322200619B700F5CCD6 /* RPCDebugger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RPCDebugger.swift; sourceTree = "<group>"; };
 		0C30A7881F5FD5EF00E5980B /* 019@2x.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "019@2x.gif"; sourceTree = "<group>"; };
 		0C30A78A1F5FD60400E5980B /* TestAnimatedImageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestAnimatedImageViewController.swift; sourceTree = "<group>"; };
 		0C5459D61FD132FB0055AE40 /* DebugingBrowserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugingBrowserViewController.swift; sourceTree = "<group>"; };
@@ -74,7 +75,6 @@
 		0CB709571FC747F100E1DD4A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = "Ubiquity-Example-Tests/Info.plist"; sourceTree = "<group>"; };
 		0CB709581FC747F100E1DD4A /* ExampleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ExampleTests.swift; path = "Ubiquity-Example-Tests/ExampleTests.swift"; sourceTree = "<group>"; };
 		0CB7095B1FC7485500E1DD4A /* CanvasView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CanvasView.swift; path = ../../../Ubiquity/Other/Utils/CanvasView.swift; sourceTree = "<group>"; };
-		0CC50E801FC727DF008B1614 /* Shared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared.swift; sourceTree = "<group>"; };
 		0CC50E841FC74742008B1614 /* DebugingCanvasViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugingCanvasViewController.swift; sourceTree = "<group>"; };
 		0CC50E851FC74742008B1614 /* DebugingTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugingTableViewController.swift; sourceTree = "<group>"; };
 		0CE49E1E1E7A3F690058F5F8 /* Ubiquity-Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ubiquity-Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -170,7 +170,7 @@
 			children = (
 				0C7792041FDE3F130058FF8A /* Debug */,
 				0CC50E831FC74742008B1614 /* Debuging */,
-				0CC50E801FC727DF008B1614 /* Shared.swift */,
+				0C22C322200619B700F5CCD6 /* RPCDebugger.swift */,
 				0C30A7881F5FD5EF00E5980B /* 019@2x.gif */,
 				0C16F87A1EA663E700C788C5 /* TestLayerViewController.swift */,
 				0C224C411EAC55F7001ABB47 /* TestIndicatorViewController.swift */,
@@ -304,8 +304,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0C22C32420061DC300F5CCD6 /* RPCDebugger.swift in Sources */,
 				0CB709591FC747F700E1DD4A /* ExampleTests.swift in Sources */,
-				0CC50E821FC727DF008B1614 /* Shared.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -313,7 +313,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0CC50E811FC727DF008B1614 /* Shared.swift in Sources */,
 				0C7D4A5C1FF1ECBB0061A28D /* TestVideoFilmstripViewController.swift in Sources */,
 				0C1E4F791F5B337F00299E64 /* TextLargetImageLoader.swift in Sources */,
 				0CE49EA71E7B978E0058F5F8 /* ViewController.swift in Sources */,
@@ -321,6 +320,7 @@
 				0CC50E881FC74742008B1614 /* DebugingTableViewController.swift in Sources */,
 				0CE49E221E7A3F690058F5F8 /* AppDelegate.swift in Sources */,
 				0C7792081FDE3F130058FF8A /* Debugger.swift in Sources */,
+				0C22C323200619B700F5CCD6 /* RPCDebugger.swift in Sources */,
 				0C5459D71FD132FB0055AE40 /* DebugingBrowserViewController.swift in Sources */,
 				0C8725101FED9DF700E4BC7C /* DebugingCustomAlbumsList.swift in Sources */,
 				0CC50E861FC74742008B1614 /* DebugingCanvasViewController.swift in Sources */,

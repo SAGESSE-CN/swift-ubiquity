@@ -145,12 +145,6 @@ class DebugingBrowserLibrary: Ubiquity.UHLocalAssetLibrary {
 
 class DebugingBrowserViewController: UITableViewController {
     
-    override func debugger(_ server: Shared, remote: Shared, didRecive data: Any?) {
-        guard let cmd = data as? String else {
-            return
-        }
-        logger.debug?.write(cmd)
-    }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let title = tableView.cellForRow(at: indexPath)?.textLabel?.text else {

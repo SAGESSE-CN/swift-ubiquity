@@ -63,6 +63,7 @@ func equal(_ lhs: CGRect, _ rhs: CGRect, accuracy: CGFloat) -> Bool {
 
 class ExampleTests: XCTestCase {
     
+    
     override func setUp() {
         super.setUp()
 
@@ -76,17 +77,17 @@ class ExampleTests: XCTestCase {
         // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = true
 
+        // Confiugre remote debugger.
+        RPCDebugger.shared.on("api-init") { _ in
+            RPCDebugger.shared.emit("api-hook", "*")
+        }
+
         // UI tests must launch the application that they test. Doing this in setup will make sure it happens for each test method.
-        application.launchEnvironment = ["UIViewAnimationsDisabled": "1"]
+        application.launchEnvironment = ["RPC_DEBUGGER_ADDRESS": "deubbger://127.0.0.1:\(RPCDebugger.shared.port)"]
         application.launch()
 
         // Click the three title to enter the debug mode.
         application.navigationBars.element.tap(withNumberOfTaps: 3, numberOfTouches: 1)
-
-        // Create data session.
-        shared = application.tables["Server"].value.map {
-            .connect(Data(base64Encoded: $0 as! String)!)
-        }
 
         // Reset the device orientation.
         XCUIDevice.shared.orientation = .portrait
@@ -100,7 +101,7 @@ class ExampleTests: XCTestCase {
     }
 
     func command(_ message: String) {
-        _ = shared.send(message)
+        RPCDebugger.shared.emit("do-\(message)")
         Thread.sleep(until: .init(timeIntervalSinceNow: 0.5))
     }
 
@@ -604,5 +605,4 @@ class ExampleTests: XCTestCase {
     }
 
     private var application: XCUIApplication!
-    private var shared: Shared!
 }

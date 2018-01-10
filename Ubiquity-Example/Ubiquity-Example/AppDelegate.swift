@@ -62,10 +62,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        logger.trace?.write()
-//        if let env = getenv("OS_APPLICATION_MODE"), .init(cString: env) == "Testing" {
-//            logger.debug?.write(application)
-//        }
+        logger.debug?.write(launchOptions ?? [:])
+        logger.debug?.write(ProcessInfo.processInfo.arguments)
+        logger.debug?.write(ProcessInfo.processInfo.environment)
+
+        // Whether the need to disable UI animation.
+        if ProcessInfo.processInfo.environment["UIViewAnimationsDisabled"] == "1" {
+            UIView.setAnimationsEnabled(false)
+        }
     
 //        window?.layer.speed = 0.5
 //        window?.layer.speed = 0.1

@@ -32,6 +32,7 @@ internal class ThumbView: UIView {
             // Blank structure needs to be displayed
             displayedImageViews.enumerated().forEach {
                 $1.isHidden = false
+                $1.accessibilityIdentifier = "empty"
                 $1.image = R.image("ubiquity_icon_empty_album_mk") {
                     ub_makeEmptyAlbum(.init(width: 70, height: 70))
                 }
@@ -44,13 +45,17 @@ internal class ThumbView: UIView {
         // Update the content of each sublayer.
         displayedImageViews.enumerated().forEach {
             guard $0 < images.count else {
+                $1.accessibilityIdentifier = nil
                 $1.isHidden = true
                 $1.image = nil
-                
+
                 displayedImages[$0] = nil
                 return
             }
             
+            $1.isHidden = false
+            $1.accessibilityIdentifier = nil
+
             setImage(images[$0], at: $0, animated: animated)
         }
     }
@@ -60,7 +65,6 @@ internal class ThumbView: UIView {
             return
         }
         
-        displayedImageViews[index].isHidden = false
         displayedImageViews[index].image = image
 
         displayedImages[index] = image
@@ -79,10 +83,8 @@ internal class ThumbView: UIView {
             view.contentMode = .scaleAspectFill
             
             view.isHidden = false
+            view.isUserInteractionEnabled = false
             view.backgroundColor = #colorLiteral(red: 0.9411764706, green: 0.937254902, blue: 0.9607843137, alpha: 1)
-
-            view.isAccessibilityElement = true
-            view.accessibilityLabel = "ThumbImageView-\(index)"
             
             return view
         }
@@ -94,6 +96,14 @@ internal class ThumbView: UIView {
 
         // Setup default image.
         displayedImages = .init(repeating: nil, count: displayedImageViews.count)
+        
+        // Setup accessiblity.
+        accessibilityIdentifier = "ThumbView"
+    }
+    
+    override var accessibilityValue: String? {
+        set { return super.accessibilityValue = newValue }
+        get { return super.accessibilityValue ?? displayedImageViews.map { $0.accessibilityIdentifier ?? "" }.description }
     }
     
     override func layoutSubviews() {

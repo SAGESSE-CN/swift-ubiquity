@@ -134,7 +134,7 @@ public class ScrubberView: UIView {
         // 显示范围
         _displaying(.init(x: max(frame.minX, 0),
                           y: 0,
-                          width: frame.maxX - frame.minX,
+                          width: max(min(frame.maxX, bounds.width) - max(frame.minX, 0), 0),
                           height: bounds.height))
     }
 //    public func apply(_ player: AVPlayer) {
@@ -250,24 +250,31 @@ public class ScrubberView: UIView {
 //        let percent = layer.frame.minX / max(bounds.width, 0)
 //        logger.debug?.write(percent)
         
-        logger.debug?.write(index)
+        if let image = _cachedImages[index] {
+            layer.isHidden = false
+            layer.contents = image
+            return
+        }
         
-        generate(forImage: index) {
+        generate(forImage: index) { [weak self] in
+            
+            // caching
+            self?._cachedImages[$1] = $0
             
             guard layer.index == $1 else {
                 return
             }
-            
             layer.isHidden = false
             layer.contents = $0
         }
      }
     
     private func _range(_ rect: CGRect) -> CountableClosedRange<Int> {
-//        logger.debug?.write(rect)
-        let start = Int(floor(rect.minX / itemSize.width) + 0.5)
-        let end = Int(ceil(rect.maxX / itemSize.width) + 0.5)
-        return start ... end
+        
+        let start = Int(floor(max(rect.minX, 0) / itemSize.width) + 0.5)
+        let end = Int(ceil(max(rect.maxX, 0) / itemSize.width) - 0.5)
+        
+        return start ... max(end, start)
     }
     
     private func _caching(_ rect: CGRect) {
@@ -302,6 +309,7 @@ public class ScrubberView: UIView {
 
         CATransaction.begin()
         CATransaction.setDisableActions(true)
+        
         range.forEach {
 
             guard _displayingLayers[$0] == nil else {
@@ -319,6 +327,7 @@ public class ScrubberView: UIView {
 
             willDisplay(layer, at: $0)
         }
+        
         CATransaction.commit()
         
 
@@ -375,7 +384,7 @@ public class ScrubberView: UIView {
     private var _cachedRange: CountableClosedRange<Int>?
     private var _displayedRange: CountableClosedRange<Int>?
     
-    private lazy var _cachedImages: [Int: UIImage] = [:]
+    private lazy var _cachedImages: [Int: CGImage?] = [:]
     private lazy var _resuableLayers: [ScrubberTileLayer] = []
     private lazy var _displayingLayers: [Int: ScrubberTileLayer] = [:]
     
@@ -892,12 +901,13 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate, 
         collectionView.layoutAttributesForItem(at: indexPath).map {
             let x1 = $0.frame.minX
             let x2 = $0.frame.maxX
+            
             ex = .init(top: 0,
                        left: -x1,
                        bottom: 0,
                        right: -(collectionViewLayout.collectionViewContentSize.width - x2))
             
-            collectionView.setContentOffset(.init(x: 0, y: 0), animated: true)
+            collectionView.setContentOffset(.init(x: -collectionView.contentInset.left, y: 0), animated: true)
         }
     }
     

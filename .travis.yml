@@ -2,9 +2,10 @@ language: swift
 osx_image: xcode9.2
 before_install:
     - gem install xcpretty --no-rdoc --no-ri --no-document --quiet
-script:
-      - set -o pipefail
-      - xcodebuild -workspace Ubiquity-Example/Ubiquity-Example.xcworkspace -scheme Ubiquity-Example -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone X' test | xcpretty -c
-      - xcodebuild -workspace Ubiquity-Example/Ubiquity-Example.xcworkspace -scheme Ubiquity-Example -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8 Plus' test | xcpretty -c
-      - xcodebuild -workspace Ubiquity-Example/Ubiquity-Example.xcworkspace -scheme Ubiquity-Example -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8' test | xcpretty -c
-      - xcodebuild -workspace Ubiquity-Example/Ubiquity-Example.xcworkspace -scheme Ubiquity-Example -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone SE' test | xcpretty -c
+jobs:
+  include:
+    - stage: test 
+    - script: xcodebuild -workspace Ubiquity-Example/Ubiquity-Example.xcworkspace -scheme Ubiquity-Example -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone X' test | xcpretty -c
+    - script: xcodebuild -workspace Ubiquity-Example/Ubiquity-Example.xcworkspace -scheme Ubiquity-Example -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8 Plus' test | xcpretty -c
+    - script: xcodebuild -workspace Ubiquity-Example/Ubiquity-Example.xcworkspace -scheme Ubiquity-Example -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8' test | xcpretty -c
+    - script: xcodebuild -workspace Ubiquity-Example/Ubiquity-Example.xcworkspace -scheme Ubiquity-Example -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone SE' test | xcpretty -c

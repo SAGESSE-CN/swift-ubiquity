@@ -558,6 +558,11 @@ class ExampleTests: XCTestCase {
         controllers("Album List - Custom") {
             window.collectionViews.element.map {
                 XCTAssertEqual($0.exists, true)
+                
+                XCTAssertEqual(window.cells["Collection<0>"].exists, true)
+                XCTAssertEqual(window.cells["Collection<1>"].exists, true)
+                XCTAssertEqual(window.cells["Collection<2>"].exists, true)
+                XCTAssertEqual(window.cells["Collection<3>"].exists, true)
             }
         }
         
@@ -589,6 +594,9 @@ class ExampleTests: XCTestCase {
             }
         }
         controllers("Albums - Regular") {
+            window.staticTexts["56 Photos"].map {
+                XCTAssertEqual($0.exists, true)
+            }
             window.collectionViews.element.map {
                 XCTAssertEqual($0.exists, true)
             }

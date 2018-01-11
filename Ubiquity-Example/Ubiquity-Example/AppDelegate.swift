@@ -66,10 +66,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         logger.debug?.write(ProcessInfo.processInfo.arguments)
         logger.debug?.write(ProcessInfo.processInfo.environment)
 
-        if let address = ProcessInfo.processInfo.environment["RPC_DEBUGGER_ADDRESS"] {
-            RPCDebugger.shared.connect(to: address)
-        }
-    
 //        window?.layer.speed = 0.5
 //        window?.layer.speed = 0.1
 //class A: NSObject {

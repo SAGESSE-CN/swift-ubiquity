@@ -95,12 +95,6 @@ internal class BrowserAlbumController: SourceCollectionViewController, Transitio
         }
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-
-        self.navigationController?.setToolbarHidden(false, animated: true)
-    }
-
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
 

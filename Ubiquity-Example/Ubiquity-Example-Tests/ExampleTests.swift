@@ -78,12 +78,12 @@ class ExampleTests: XCTestCase {
         continueAfterFailure = true
 
         // Confiugre remote debugger.
-        RPCDebugger.shared.on("api-init") { _ in
-            RPCDebugger.shared.emit("api-hook", "*")
-        }
+//        XPCDebugger.shared.on("api-init") { _ in
+//            XPCDebugger.shared.emit("api-hook", "*")
+//        }
 
         // UI tests must launch the application that they test. Doing this in setup will make sure it happens for each test method.
-        application.launchEnvironment = ["RPC_DEBUGGER_ADDRESS": "deubbger://127.0.0.1:\(RPCDebugger.shared.port)"]
+        application.launchEnvironment = ["XPCDebugger": XPCDebugger.shared.from]
         application.launch()
 
         // Click the three title to enter the debug mode.
@@ -101,7 +101,7 @@ class ExampleTests: XCTestCase {
     }
 
     func command(_ message: String) {
-        RPCDebugger.shared.emit("do-\(message)")
+        XPCDebugger.shared.emit("do-\(message)")
         Thread.sleep(until: .init(timeIntervalSinceNow: 0.5))
     }
 
@@ -358,7 +358,11 @@ class ExampleTests: XCTestCase {
         /*SD=BR*/XCTAssertEqual(contentView.frame.maxX, scrollView.frame.width / 2 + mw / 2, accuracy: 2)
         /*SD=BR*/XCTAssertEqual(contentView.frame.maxY, scrollView.frame.height, accuracy: 2)
 
-        self.application.navigationBars.buttons["Debuging"].tap()
+        if self.application.navigationBars.buttons["Debuging"].exists {
+            self.application.navigationBars.buttons["Debuging"].tap()
+        } else {
+            self.application.navigationBars.buttons["Back"].tap()
+        }
     }
 
     func testBrowser() {
@@ -399,8 +403,6 @@ class ExampleTests: XCTestCase {
         }
         controllers("Album List - Error") {
             application.navigationBars["Album List - Error"].map {
-                XCTAssertEqual($0.exists, true)
-                
                 XCTAssertEqual($0.exists, true)
                 
                 XCTAssertEqual(application.otherElements["ExceptionView"].exists, true)
@@ -612,8 +614,11 @@ class ExampleTests: XCTestCase {
             }
         }
 
-
-        self.application.navigationBars.buttons["Debuging"].tap()
+        if self.application.navigationBars.buttons["Debuging"].exists {
+            self.application.navigationBars.buttons["Debuging"].tap()
+        } else {
+            self.application.navigationBars.buttons["Back"].tap()
+        }
     }
 
     private var application: XCUIApplication!

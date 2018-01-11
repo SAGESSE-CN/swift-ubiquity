@@ -16,12 +16,7 @@ internal class BrowserAlbumCell: SourceCollectionViewCell, TransitioningView {
 
     /// The current display content inset.
     var contentInset: UIEdgeInsets = .zero
-    
-    
-    override var accessibilityIdentifier: String? {
-        set { return super.accessibilityIdentifier = newValue }
-        get { return super.accessibilityIdentifier ?? restorationIdentifier }
-    }
+
     
     override func configure() {
         super.configure()

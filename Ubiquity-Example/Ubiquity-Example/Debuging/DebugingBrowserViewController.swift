@@ -145,6 +145,11 @@ class DebugingBrowserLibrary: Ubiquity.UHLocalAssetLibrary {
 
 class DebugingBrowserViewController: UITableViewController {
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        //navigationItem.backBarButtonItem = UIBarButtonItem(title: "Pop", style: .done, target: nil, action: nil)
+    }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let title = tableView.cellForRow(at: indexPath)?.textLabel?.text else {

@@ -279,20 +279,20 @@ public class Source: NSObject {
         return collection(at: index.section)?.ub_asset(at: index.item)
     }
     
-    public func getLocalAssets() -> [ACLocalAsset] {
-        guard let localCollection = collection(at: 0) as? ACLocalAssetCollection else {
-            return []
-        }
-        return localCollection.getAssets()
-    }
-    
-    public func reload(asset: ACLocalAsset, index: Int ) {
-        guard let localCollection = collection(at: 0) as? ACLocalAssetCollection else {
-            return
-        }
-        
-        localCollection.reloadAsset(id: sourceId ?? "", name: asset.fileName ?? "" , index: index)
-    }
+//    public func getLocalAssets() -> [ACLocalAsset] {
+//        guard let localCollection = collection(at: 0) as? ACLocalAssetCollection else {
+//            return []
+//        }
+//        return localCollection.getAssets()
+//    }
+//    
+//    public func reload(asset: ACLocalAsset, index: Int ) {
+//        guard let localCollection = collection(at: 0) as? ACLocalAssetCollection else {
+//            return
+//        }
+//        
+//        localCollection.reloadAsset(id: sourceId ?? "", name: asset.fileName ?? "" , index: index)
+//    }
 
     
     /// Retrieves collection from the source.

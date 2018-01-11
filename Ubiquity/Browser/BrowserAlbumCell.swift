@@ -141,7 +141,7 @@ internal class BrowserAlbumCell: SourceCollectionViewCell, TransitioningView {
         // update contents
         _imageView?.image = contents//?.ub_withOrientation(self.orientation)
         if contents == nil {
-            _imageView?.image = Color.random.toImage()
+            _imageView?.image = UIColor.random.toImage()
         }
         _allowsInvaildContents = false
         

@@ -10,8 +10,6 @@ import UIKit
 
 internal class BrowserAlbumCell: SourceCollectionViewCell, TransitioningView {
     
-    //test test test
-    
     /// The current displayed content size.
     var contentSize: CGSize = .zero
 

@@ -63,8 +63,14 @@ open class Container: NSObject, ChangeObserver {
     
     /// Returns collections with collectoin type
     open func request(forCollectionList type: CollectionType) -> CollectionList {
-        return cacher.request(forCollectionList: type)
+        return cacher.request(forCollectionList: type,identifier: nil)
     }
+    
+    open func request(forCollectionList type: CollectionType, identifier: String?) -> CollectionList {
+        return cacher.request(forCollectionList: type,identifier: identifier)
+    }
+
+    
     /// Requests an image representation for the specified asset.
     open func request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
         #if DEBUG

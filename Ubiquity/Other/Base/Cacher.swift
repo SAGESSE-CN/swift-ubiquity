@@ -24,19 +24,34 @@ internal class Cacher: NSObject {
         logger.trace?.write()
     }
     
+//    /// Returns collections with collectoin type
+//    open func request(forCollectionList type: CollectionType) -> CollectionList {
+//        // the request is hit cache?
+//        if let collectionList = _collectionLists[type] {
+//            return collectionList // eys
+//        }
+//
+//        // create collection list and cache
+//        let collectionList = _library.ub_request(forCollectionList: type)
+//        _collectionLists[type] = Cacher.bridging(of: collectionList)
+//        collectionList.ub_preheat()
+//        return collectionList
+//    }
+    
     /// Returns collections with collectoin type
-    open func request(forCollectionList type: CollectionType) -> CollectionList {
+    open func request(forCollectionList type: CollectionType, identifier: String?) -> CollectionList {
         // the request is hit cache?
         if let collectionList = _collectionLists[type] {
             return collectionList // eys
         }
         
         // create collection list and cache
-        let collectionList = _library.ub_request(forCollectionList: type)
+        let collectionList = _library.ub_request(forCollectionList: type,identifier:identifier)
         _collectionLists[type] = Cacher.bridging(of: collectionList)
         collectionList.ub_preheat()
         return collectionList
     }
+
     
     /// Requests an image representation for the specified asset.
     public func request(forImage asset: Asset, targetSize: CGSize, contentMode: RequestContentMode, options: RequestOptions, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {

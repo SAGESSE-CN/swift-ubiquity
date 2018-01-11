@@ -44,6 +44,11 @@ public class Source: NSObject {
         self.init(collectionTypes: [collectionType], filter: filter, title: title)
     }
     
+    public convenience init(collectionType: CollectionType, sourceId: String,filter: CustomFilter? = nil,title: String? = nil) {
+        self.init(collectionTypes: [collectionType], sourceId: sourceId, filter: filter,title: title)
+    }
+
+    
     /// A data source with multiple collection lists.
     public convenience init(collectionLists: [CollectionList], filter: CustomFilter? = nil, title: String? = nil) {
         self.init()
@@ -72,6 +77,22 @@ public class Source: NSObject {
         _title = title
         _defaultTitle = ub_defaultTitle(with: collectionTypes)
     }
+    
+    public init(collectionTypes: [CollectionType], sourceId: String,filter: CustomFilter? = nil,title: String? = nil) {
+        super.init()
+        
+        // configure the source data
+        _filter = filter
+        _collections = nil
+        _collectionLists = nil
+        _collectionListTypes = collectionTypes
+        self.sourceId = sourceId
+        
+        // configure title
+        _title = nil
+        _defaultTitle = ub_defaultTitle(with: collectionTypes)
+    }
+
     
     /// A custom filter for source
     public var filter: CustomFilter? {
@@ -153,7 +174,8 @@ public class Source: NSObject {
         // fetch collection list with types if needed
         _collectionListTypes.map {
             _collectionLists = $0.flatMap {
-                container.request(forCollectionList: $0)
+//                container.request(forCollectionList: $0)
+                container.request(forCollectionList: $0, identifier: self.sourceId)
             }
         }
         
@@ -257,6 +279,22 @@ public class Source: NSObject {
         return collection(at: index.section)?.ub_asset(at: index.item)
     }
     
+    public func getLocalAssets() -> [ACLocalAsset] {
+        guard let localCollection = collection(at: 0) as? ACLocalAssetCollection else {
+            return []
+        }
+        return localCollection.getAssets()
+    }
+    
+    public func reload(asset: ACLocalAsset, index: Int ) {
+        guard let localCollection = collection(at: 0) as? ACLocalAssetCollection else {
+            return
+        }
+        
+        localCollection.reloadAsset(id: sourceId ?? "", name: asset.fileName ?? "" , index: index)
+    }
+
+    
     /// Retrieves collection from the source.
     public func collection(at index: Int) -> Collection? {
         return _filteredCollections?[index]
@@ -279,6 +317,7 @@ public class Source: NSObject {
         let newSource = Source(collectionTypes: _collectionListTypes ?? [])
 
         // copy source
+        newSource.sourceId = sourceId
         newSource._title = _title
         newSource._defaultTitle = _defaultTitle
         newSource._identifier = _identifier
@@ -511,6 +550,7 @@ public class Source: NSObject {
     private lazy var _identifier: String = UUID().uuidString
     
     private var _title: String?
+    private(set) var sourceId: String? = nil
     private var _defaultTitle: String?
     
     private var _filter: CustomFilter?

@@ -206,6 +206,10 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         self.cachingClear()
     }
     
+    open func dataChanged() {
+        //do nothing
+    }
+    
     /// The current using of the user container.
     open let container: Container
     /// The current using of the data source.
@@ -213,6 +217,9 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         willSet {
             // Only when in did not set the title will be updated
             super.title = _title ?? newValue.title
+        }
+        didSet {
+            dataChanged()
         }
     }
     
@@ -470,8 +477,9 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         var changes = [(new: CGRect, old: CGRect)]()
         
         // Update only if the visible area is significantly different from the last preheated area.
-        let delta = max(abs(preheatRect.midY - self.previousPreheatRect.midY) / max(view.bounds.height / 3, 1),
-                        abs(preheatRect.midX - self.previousPreheatRect.midX) / max(view.bounds.width / 3, 1))
+        let deltaX = abs(preheatRect.midY - self.previousPreheatRect.midY) / max(view.bounds.height / 3, 1)
+        let deltaY = abs(preheatRect.midX - self.previousPreheatRect.midX) / max(view.bounds.width / 3, 1)
+        let delta = max(deltaX,deltaY)
         if delta >= 1 {
             // need change
             changes.append((preheatRect, self.previousPreheatRect))
@@ -480,8 +488,9 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         }
         
         // Update only if the taget visible area is significantly different from the last preheated area.
-        let targetDelta = max(abs(targetPreheatRect.midY - self.previousTargetPreheatRect.midY) / max(view.bounds.height / 3, 1),
-                              abs(targetPreheatRect.midX - self.previousTargetPreheatRect.midX) / max(view.bounds.width / 3, 1))
+        let targetDeltaX = abs(targetPreheatRect.midY - self.previousTargetPreheatRect.midY) / max(view.bounds.height / 3, 1)
+        let targetDeltaY = abs(targetPreheatRect.midX - self.previousTargetPreheatRect.midX) / max(view.bounds.width / 3, 1)
+        let targetDelta = max(targetDeltaX,targetDeltaY)
         if targetDelta >= 1 {
             // need change
             changes.append((targetPreheatRect, self.previousTargetPreheatRect))

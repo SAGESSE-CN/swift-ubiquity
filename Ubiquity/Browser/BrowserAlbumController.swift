@@ -98,7 +98,7 @@ internal class BrowserAlbumController: SourceCollectionViewController, Transitio
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        self.navigationController?.setToolbarHidden(false, animated: true)
+//        self.navigationController?.setToolbarHidden(true, animated: true)
     }
 
     override func viewWillLayoutSubviews() {
@@ -117,7 +117,7 @@ internal class BrowserAlbumController: SourceCollectionViewController, Transitio
         // update cache
         _cachedSize = size
     }
-
+    
     // MARK: Collection View Configure
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

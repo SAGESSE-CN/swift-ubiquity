@@ -36,6 +36,11 @@ internal class BrowserAlbumCell: SourceCollectionViewCell, TransitioningView {
         contentView.contentMode = .scaleAspectFill
         contentView.addSubview(badgeView)
         
+        _cloudView = UIImageView(image: R.image("cloud_success"))
+        _cloudView?.frame = CGRect(x: contentView.es_w - 24.adapter, y: contentView.es_h - 24.adapter, width: 24.adapter, height: 24.adapter)
+        contentView.addSubview(_cloudView)
+        _cloudView.isHidden = true
+        
         isOpaque = true
         clipsToBounds = true
         backgroundColor = contentView.backgroundColor
@@ -135,10 +140,17 @@ internal class BrowserAlbumCell: SourceCollectionViewCell, TransitioningView {
         
         // update contents
         _imageView?.image = contents//?.ub_withOrientation(self.orientation)
+        if contents == nil {
+            _imageView?.image = Color.random.toImage()
+        }
         _allowsInvaildContents = false
         
         // update badge icon
         _updateBadge(with: contents == nil)
+        
+        if let localAsset = asset as? ACLocalAsset {
+            _cloudView.isHidden = !(localAsset.isS3Upload == 1 && localAsset.isServerUpload == 1)
+        }
     }
     
     // MARK: Asset Contents
@@ -212,4 +224,5 @@ internal class BrowserAlbumCell: SourceCollectionViewCell, TransitioningView {
     
     private var _imageView: UIImageView?
     private var _badgeView: BadgeView?
+    private var _cloudView: UIView!
 }

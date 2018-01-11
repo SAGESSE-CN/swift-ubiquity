@@ -13,7 +13,7 @@ public class Settings: NSObject {
     public static let `default`: Settings = Settings()
     
     // Minimum interval between each item allowed
-    public var minimumItemSpacing: CGFloat = 2
+    public var minimumItemSpacing: CGFloat = 1
     
     // Minimum size of each item allowed
     public var minimumItemSize: CGSize = .init(width: 78, height: 78)

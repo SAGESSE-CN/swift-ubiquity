@@ -65,6 +65,8 @@ public class UHAssetCollection: NSObject {
             return fetchResult
         }
         // the fetch result will strong references collection
+        let options = PHFetchOptions()
+        options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: true)]
         let result = UHAsset.fetchAssets(in: collection, options: nil)
         self.fetchResult = result
         return result

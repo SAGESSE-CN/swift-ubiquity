@@ -312,6 +312,40 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
     private lazy var _selectionRectangle: SelectionRectangle = .init()
     private lazy var _selectionGestureRecognizer: UIPanGestureRecognizer = .init()
  
- 
+    var isSelectMode: Bool = true {
+        willSet{
+            self.isSelectMode = newValue
+            _selectionGestureRecognizer.isEnabled = newValue
+            (self.collectionView?.visibleCells as? [PickerAlbumCell])?.forEach{
+                $0.isSelectedMode = newValue
+            }
+        }
+    }
+
 }
+
+extension PickerAlbumController {
+    
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = super.collectionView(collectionView, cellForItemAt: indexPath)
+        if let pickerCell = cell as? PickerAlbumCell {
+            if pickerCell.isSelectedMode != isSelectMode {
+                pickerCell.isSelectedMode = isSelectMode
+            }
+        }
+        return cell
+    }
+
+    override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        
+        if let pickerCell = cell as? PickerAlbumCell {
+            if pickerCell.isSelectedMode != isSelectMode {
+                pickerCell.isSelectedMode = isSelectMode
+            }
+        }
+        super.collectionView(collectionView, willDisplay: cell, forItemAt: indexPath)
+
+    }
+}
+
 

@@ -382,7 +382,7 @@ internal class BrowserDetailController: SourceCollectionViewController, Transiti
     /// Return a Boolean value that indicates whether users allows transition.
     func ub_transitionShouldStart(using animator: Animator, for operation: Animator.Operation) -> Bool {
         logger.trace?.write()
-
+        
         animator.indexPath = displayedIndexPath
 
         // check the boundary
@@ -510,6 +510,8 @@ internal class BrowserDetailController: SourceCollectionViewController, Transiti
 
         // Check collection asset count change
         guard source.numberOfAssets != 0 else {
+            // Controller must be updated before return data source.
+            self.source = source
             // New source is empty, back to albums
             self.collectionView?.reloadData()
             self.navigationController?.popViewController(animated: true)

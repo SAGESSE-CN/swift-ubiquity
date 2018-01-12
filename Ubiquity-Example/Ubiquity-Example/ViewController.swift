@@ -121,8 +121,8 @@ class ViewController: UIViewController, Ubiquity.PickerDelegate, UIPopoverPresen
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        self.navigationController?.setToolbarHidden(false, animated: true)
+
+        self.navigationController?.setToolbarHidden(false, animated: false)
     }
     
     

@@ -47,21 +47,31 @@ internal class DebugingCanvasViewController: UIViewController, CanvasViewDelegat
         tap.numberOfTapsRequired = 2
         
         containerView.addGestureRecognizer(tap)
+        
+        ProcessInfo.processInfo.environment["XPCDebugger"].map { _ in
+            XPCDebugger.shared.on("do-reload") { [weak self] _ in
+                DispatchQueue.main.sync {
+                    self?.rpc("do-reload")
+                }
+            }
+            XPCDebugger.shared.on("do-reset") { [weak self] _ in
+                DispatchQueue.main.sync {
+                    self?.rpc("do-reset")
+                }
+            }
+        }
     }
     
-    override func debugger(_ server: Shared, remote: Shared, didRecive data: Any?) {
-        guard let command = data as? String else {
-            return
-        }
-        switch command {
-        case "reset":
+    func rpc(_ cmd: String) {
+        switch cmd {
+        case "do-reload":
+            containerView.setZoomScale(containerView.minimumZoomScale, animated: true)
+
+        case "do-reset":
             let x = (imageView.frame.width - containerView.frame.width) / 2
             let y = (max(imageView.frame.height, containerView.frame.height) - containerView.frame.height) / 2
             containerView.setContentOffset(.init(x: x, y: y), animated: true)
-            
-        case "reload":
-            containerView.setZoomScale(containerView.minimumZoomScale, animated: true)
-            
+
         default:
             break
         }

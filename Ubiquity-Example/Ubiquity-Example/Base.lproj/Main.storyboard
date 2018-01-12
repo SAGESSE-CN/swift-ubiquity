@@ -5,7 +5,11 @@
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
+<<<<<<< HEAD
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+=======
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
+>>>>>>> 7b9fb16ab32c36970edb68e77d2d5d9925d57e76
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
@@ -15,7 +19,7 @@
         <!--Ubiquity-->
         <scene sceneID="orz-Ul-5Xo">
             <objects>
-                <viewController extendedLayoutIncludesOpaqueBars="YES" automaticallyAdjustsScrollViewInsets="NO" hidesBottomBarWhenPushed="YES" id="EbR-mO-iRb" customClass="ViewController" customModule="Ubiquity_Example" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController extendedLayoutIncludesOpaqueBars="YES" automaticallyAdjustsScrollViewInsets="NO" id="EbR-mO-iRb" customClass="ViewController" customModule="Ubiquity_Example" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="6Fx-z7-6LY"/>
                         <viewControllerLayoutGuide type="bottom" id="Rmd-kQ-Ltp"/>
@@ -505,7 +509,11 @@
                                         <rect key="frame" x="0.0" y="123" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="foI-wQ-Wvk" id="4ew-AQ-9Hf">
+<<<<<<< HEAD
                                             <rect key="frame" x="0.0" y="0.0" width="341" height="43.5"/>
+=======
+                                            <rect key="frame" x="0.0" y="0.0" width="342" height="43.5"/>
+>>>>>>> 7b9fb16ab32c36970edb68e77d2d5d9925d57e76
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="XX" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Jw8-7R-CKS">
@@ -581,13 +589,12 @@
         <!--Navigation Controller-->
         <scene sceneID="VnR-qk-m8H">
             <objects>
-                <navigationController storyboardIdentifier="Unuse" useStoryboardIdentifierAsRestorationIdentifier="YES" toolbarHidden="NO" id="a0a-n6-VUR" customClass="NavigationController" customModule="Ubiquity" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="Unuse" useStoryboardIdentifierAsRestorationIdentifier="YES" id="a0a-n6-VUR" customClass="NavigationController" customModule="Ubiquity" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Xy5-oM-OzR">
                         <rect key="frame" x="0.0" y="20" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="JeE-qL-Obh">
-                        <rect key="frame" x="0.0" y="623" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </toolbar>
                     <connections>

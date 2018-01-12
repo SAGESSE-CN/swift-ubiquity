@@ -72,6 +72,15 @@ class DebuggingCustomAlbumsListCell: Ubiquity.SourceCollectionViewCell {
         _request = nil
     }
     
+    override var accessibilityIdentifier: String? {
+        set {
+            return super.accessibilityIdentifier = newValue
+        }
+        get {
+            return super.accessibilityIdentifier ?? _titleLabel.accessibilityLabel
+        }
+    }
+
     private var _request: Ubiquity.Request?
     
     private lazy var _imageView: UIImageView = UIImageView()

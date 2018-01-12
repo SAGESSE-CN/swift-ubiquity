@@ -15,7 +15,7 @@ internal class BrowserAlbumCell: SourceCollectionViewCell, TransitioningView {
 
     /// The current display content inset.
     var contentInset: UIEdgeInsets = .zero
-    
+
     
     override func configure() {
         super.configure()

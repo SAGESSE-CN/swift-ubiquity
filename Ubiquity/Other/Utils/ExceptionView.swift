@@ -100,7 +100,6 @@ internal class ExceptionView: UIView, ExceptionDisplayable {
         ])
         
         // setup accessibility
-        isAccessibilityElement = true
         accessibilityIdentifier = "ExceptionView"
     }
     

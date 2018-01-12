@@ -145,11 +145,10 @@ class DebugingBrowserLibrary: Ubiquity.UHLocalAssetLibrary {
 
 class DebugingBrowserViewController: UITableViewController {
     
-    override func debugger(_ server: Shared, remote: Shared, didRecive data: Any?) {
-        guard let cmd = data as? String else {
-            return
-        }
-        logger.debug?.write(cmd)
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        //navigationItem.backBarButtonItem = UIBarButtonItem(title: "Pop", style: .done, target: nil, action: nil)
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

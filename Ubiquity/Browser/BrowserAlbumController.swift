@@ -99,7 +99,8 @@ internal class BrowserAlbumController: SourceCollectionViewController, Transitio
         super.viewWillLayoutSubviews()
 
         // check
-        let size = collectionViewLayout.collectionViewContentSize
+        let size = CGSize(width: view.frame.width * collectionViewLayout.collectionViewContentSize.width,
+                          height: view.frame.height * collectionViewLayout.collectionViewContentSize.height)
         guard size != _cachedSize, prepared else {
             return
         }

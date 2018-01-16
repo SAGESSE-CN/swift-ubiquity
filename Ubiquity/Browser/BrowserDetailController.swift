@@ -110,6 +110,7 @@ internal class BrowserDetailController: SourceCollectionViewController, Transiti
             // update current item
             _updateCurrentItem(at: displayedIndexPath)
 
+            collectionView?.layoutIfNeeded()
             collectionView?.scrollToItem(at: displayedIndexPath, at: .centeredHorizontally, animated: false)
             //            indicatorItem.indicatorView.scrollToItem(at: _itemIndexPath, animated: false)
         }

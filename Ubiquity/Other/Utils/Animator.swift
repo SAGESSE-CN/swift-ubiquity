@@ -118,8 +118,6 @@ internal class Animator: NSObject {
     
     func ub_animate(with operation: Operation, animations: @escaping () -> Swift.Void, completion: ((Bool) -> Void)? = nil) {
         
-        
-        
         if operation.appear {
             // show
             UIView.animate(withDuration: ub_duration(with: operation),

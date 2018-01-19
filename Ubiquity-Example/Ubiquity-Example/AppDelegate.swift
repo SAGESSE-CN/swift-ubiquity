@@ -55,6 +55,7 @@ import AVFoundation
 
 import Darwin.C
 
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -65,6 +66,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         logger.debug?.write(launchOptions ?? [:])
         logger.debug?.write(ProcessInfo.processInfo.arguments)
         logger.debug?.write(ProcessInfo.processInfo.environment)
+        
+        // Connect to the debugger.
+        ProcessInfo.processInfo.environment["XPCDebugger"].map {
+            XPCDebugger.shared.connect(to: $0)
+        }
+
 
 //        window?.layer.speed = 0.5
 //        window?.layer.speed = 0.1

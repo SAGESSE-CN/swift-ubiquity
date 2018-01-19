@@ -59,6 +59,8 @@ import UIKit
         }
     }
     
+    open var allowsSelectionGestureRecognizer: Bool = true
+
     /// default is YES. Controls whether multiple assets can be selected simultaneously
     open var allowsMultipleSelection: Bool = true {
         didSet {

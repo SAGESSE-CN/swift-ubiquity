@@ -16,9 +16,6 @@ class DebugingTableViewController: UITableViewController {
         // Uncomment the following line to preserve selection between presentations
         //navigationItem.backBarButtonItem = UIBarButtonItem(title: "Pop", style: .done, target: nil, action: nil)
         
-        ProcessInfo.processInfo.environment["XPCDebugger"].map {
-            XPCDebugger.shared.connect(to: $0)
-        }
     }
     
     @IBAction func close(_ sender: Any) {

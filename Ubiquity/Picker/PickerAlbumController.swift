@@ -31,7 +31,7 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
         collectionView?.addGestureRecognizer(_selectionGestureRecognizer)
         
         // configure selection for picker
-        _selectionGestureRecognizer.isEnabled = picker.allowsSelection
+        _selectionGestureRecognizer.isEnabled = picker.allowsSelection && picker.allowsSelectionGestureRecognizer
     }
     
     /// Apply the change details to UI.
@@ -80,7 +80,7 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
         guard let picker = container as? Picker, options == "allowsSelection" else {
             return
         }
-        _selectionGestureRecognizer.isEnabled = picker.allowsSelection
+        _selectionGestureRecognizer.isEnabled = picker.allowsSelection && picker.allowsSelectionGestureRecognizer
     }
     
     // MARK: Rectangle Selection

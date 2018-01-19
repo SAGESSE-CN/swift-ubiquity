@@ -72,17 +72,18 @@ class ExampleTests: XCTestCase {
         }
         application = XCUIApplication()
 
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
+        // Confiugre remote debugger.
+        XPCDebugger.shared.on("api-init") { _ in
+            XPCDebugger.shared.emit("api-hook", "*")
+        }
+        XPCDebugger.shared.on("api-forward") {
+            $0.complete($0.parameter)
+        }
+        
         // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = true
 
-        // Confiugre remote debugger.
-//        XPCDebugger.shared.on("api-init") { _ in
-//            XPCDebugger.shared.emit("api-hook", "*")
-//        }
-
-        // UI tests must launch the application that they test. Doing this in setup will make sure it happens for each test method.
+        // UI tests must launch the applicxation that they test. Doing this in setup will make sure it happens for each test method.
         application.launchEnvironment = ["XPCDebugger": XPCDebugger.shared.from]
         application.launch()
 
@@ -99,15 +100,11 @@ class ExampleTests: XCTestCase {
 
         Thread.sleep(forTimeInterval: 1)
     }
-
-    func command(_ message: String) {
-        XPCDebugger.shared.emit("do-\(message)")
-        Thread.sleep(until: .init(timeIntervalSinceNow: 0.5))
-    }
-
+    
+    
     func testCanvas() {
         self.application.tables.staticTexts["Canvas"].tap()
-
+        
         let application = XCUIApplication()
 
         let scrollView = application.scrollViews.element
@@ -620,6 +617,13 @@ class ExampleTests: XCTestCase {
             self.application.navigationBars.buttons["Back"].tap()
         }
     }
+    
+    
+    func command(_ message: String) {
+        XPCDebugger.shared.emit("do-\(message)")
+        Thread.sleep(until: .init(timeIntervalSinceNow: 0.5))
+    }
+
 
     private var application: XCUIApplication!
 }

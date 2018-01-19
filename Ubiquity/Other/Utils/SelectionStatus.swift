@@ -8,6 +8,17 @@
 
 import UIKit
 
+internal enum SelectionMode {
+    
+    case all
+    
+    case single(Asset)
+    
+    case multiple([Asset])
+    
+    case collection(Collection)
+}
+
 
 internal protocol SelectionStatusObserver: class {
     

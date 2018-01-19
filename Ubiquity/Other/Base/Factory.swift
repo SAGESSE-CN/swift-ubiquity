@@ -8,7 +8,7 @@
 
 import UIKit
 
-public enum ControllerType {
+public enum ControllerType: Int, CustomStringConvertible {
     
     case albums
     case albumsList
@@ -16,6 +16,15 @@ public enum ControllerType {
     case popover
     
     case detail
+    
+    public var description: String {
+        switch self {
+        case .albumsList: return "albums-list"
+        case .albums: return "albums"
+        case .detail: return "detail"
+        case .popover: return "popover"
+        }
+    }
 }
 
 public class Factory: NSObject {
@@ -81,7 +90,7 @@ public class Factory: NSObject {
         
         // Generate the  identifier with predicate.
         private func _identifier(_ format: String? = nil) -> String {
-            let base = "factory.\(key)"
+            let base = "\(factory.identifier).\(key)"
             
             guard let format = format else {
                 return base
@@ -161,6 +170,15 @@ public class Factory: NSObject {
         private var _registedClasss: [String: AnyClass] = [:]
         private var _resistedPredicates: [String: (String, Double, NSPredicate)] = [:]
     }
+    
+    /// The factory identifier.
+    public let identifier: String
+    
+    /// Create a factory
+    public init(identifier: String) {
+        self.identifier = identifier
+        super.init()
+    }
 
     /// Configure the class factory with closure.
     public func configure(_ closure: (Factory) -> ()) {
@@ -207,7 +225,7 @@ public class Factory: NSObject {
         
         return controller
     }
-
+    
     private lazy var _registedClasss: [Key: AnyClass] = [:]
     private lazy var _registedFactorySlices: [Key: Slice] = [:]
 }

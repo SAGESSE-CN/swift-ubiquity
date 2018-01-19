@@ -31,6 +31,7 @@ internal class BrowserAlbumLayout: UICollectionViewFlowLayout {
         // clear header cache
         _cachedAllHeaderLayoutAttributes = nil
 
+        // Continue prepare layout.
         super.prepare()
     }
     
@@ -74,6 +75,9 @@ internal class BrowserAlbumLayout: UICollectionViewFlowLayout {
         
         
         logger.debug?.write("center at \(String(describing: _invaildCenterIndexPath))")
+
+        // Reset all layout.
+        invalidateLayout()
   
         return true
     }

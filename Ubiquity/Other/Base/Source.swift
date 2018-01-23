@@ -638,6 +638,16 @@ public class SourceFolding: NSObject, Collection {
         fatalError()
     }
     
+    /// Returns whether the specified object is present in the fetch result.
+    public func ub_contains(_ asset: Asset) -> Bool {
+        for i in 0 ..< numberOfCollections {
+            if collectionList.ub_collection(at: i).ub_contains(asset) {
+                return true
+            }
+        }
+        return false
+    }
+    
     private var _cachedTitle: String?
     
     private var _cachedAsset: [Int: Asset]?

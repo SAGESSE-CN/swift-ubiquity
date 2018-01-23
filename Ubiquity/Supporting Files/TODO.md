@@ -21,7 +21,6 @@
 
 [ ] 支持全选/反选/清空
 
-
 UI Testing
 xcodebuild -workspace Ubiquity-Example.xcworkspace -scheme Ubiquity-Example -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone SE' -destination 'platform=iOS Simulator,name=iPhone 8' -destination 'platform=iOS Simulator,name=iPhone 8 Plus' -destination 'platform=iOS Simulator,name=iPhone X' test
 

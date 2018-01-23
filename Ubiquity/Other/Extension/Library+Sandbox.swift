@@ -80,6 +80,11 @@ open class UHLocalAssetCollection: NSObject {
         fatalError()
     }
     
+    /// Returns whether the specified object is present in the fetch result.
+    open func contains(_ asset: Asset) -> Bool {
+        fatalError()
+    }
+    
     /// Compare the change
     open func changeDetails(for change: UHLocalAssetChange) -> ChangeDetails? {
         return nil
@@ -273,6 +278,11 @@ extension UHLocalAssetCollection: Collection {
     /// Retrieves assets from the specified asset collection.
     open func ub_asset(at index: Int) -> Asset {
         return asset(at: index)
+    }
+    
+    /// Returns whether the specified object is present in the fetch result.
+    open func ub_contains(_ asset: Asset) -> Bool {
+        return contains(asset)
     }
 }
 extension UHLocalAssetCollectionList: CollectionList {

@@ -121,6 +121,15 @@ import UIKit
     
     // MARK: Selection Item
     
+    
+//    /// Select items with selection.
+//    func select(_ selection: Selection, animated: Bool) {
+//    }
+//    
+//    /// Deselect items with selection.
+//    func deselect(_ selection: Selection, animated: Bool) {
+//    }
+    
     /// Select a item
     @discardableResult
     func selectItem(with asset: Asset, sender: AnyObject) -> SelectionStatus? {

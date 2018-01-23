@@ -80,8 +80,10 @@ public protocol Collection: NSObjectProtocol {
     func ub_count(with type: AssetType) -> Int
     /// Retrieves assets from the specified asset collection.
     func ub_asset(at index: Int) -> Asset
+    
+    /// Returns whether the specified object is present in the fetch result.
+    func ub_contains(_ asset: Asset) -> Bool
 }
-
 
 /// The abstract superclass for Photos asset collection lists.
 @objc

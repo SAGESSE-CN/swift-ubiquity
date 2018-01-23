@@ -455,6 +455,15 @@ extension UHAssetCollection: Collection {
     public func ub_asset(at index: Int) -> Asset {
         return fetchResultLoaded.object(at: index)
     }
+    
+    /// Returns whether the specified object is present in the fetch result.
+    public func ub_contains(_ asset: Asset) -> Bool {
+        // Only process `PHAsset`
+        guard let asset = asset as? PHAsset else {
+            return false
+        }
+        return fetchResultLoaded.contains(asset)
+    }
 }
 extension UHAssetCollectionList: CollectionList {
     

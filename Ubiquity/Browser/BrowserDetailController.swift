@@ -96,11 +96,16 @@ internal class BrowserDetailController: SourceCollectionViewController, Transiti
         //        //indicatorItem.indicatorView.register(IndicatorViewCell.dynamic(with: UIScrollView.self), forCellWithReuseIdentifier: "ASSET-IMAGE")
 
         // setup title view
-        navigationItem.titleView = _titleView
+//        navigationItem.titleView = _titleView
+        navigationItem.titleView = _titleLabel
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        _titleLabel.textColor = .white
+        _titleLabel.textAlignment = .center
+        _titleLabel.font = UIFont.boldSystemFont(ofSize: 17.adapter)
 
         // setup title color for navgation bar
         _titleView.barStyle = navigationController?.navigationBar.barStyle ?? .default
@@ -545,7 +550,9 @@ internal class BrowserDetailController: SourceCollectionViewController, Transiti
         updateDelegate?.detailController(self, didShowItem: indexPath)
 
         // update title in item change
-        _titleView.asset = source.asset(at: indexPath)
+//        _titleView.asset = source.asset(at: indexPath)
+        let count = source.numberOfAssets
+        _titleLabel.text = "\(indexPath.row + 1)/\(count)"
     }
 
     // MARK: Item Rotation
@@ -783,6 +790,9 @@ internal class BrowserDetailController: SourceCollectionViewController, Transiti
 
     // title view
     fileprivate var _titleView: NavigationTitleView = .init(frame: .init(x: 0, y: 0, width: 48, height: 24))
+    
+    //titleLabel
+    fileprivate var _titleLabel: UILabel = UILabel(frame: CGRect(x: 0, y: 0, width: 100, height: 44))
 
     // transition
     fileprivate var _transitionIsInteractiving: Bool = false

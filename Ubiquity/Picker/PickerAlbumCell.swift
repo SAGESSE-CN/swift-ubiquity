@@ -37,8 +37,14 @@ internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
     /// Update selection status for animate
     private func setStatus(_ status: SelectionStatus?, animated: Bool) {
         
-        selectedStatusView.status = status
-        selectedForegroundView.isHidden = !selectedStatusView.isSelected
+        if !isSelectedMode {
+            selectedStatusView.status = nil
+            selectedForegroundView.isHidden = true
+        }else{
+            selectedStatusView.status = status
+            selectedForegroundView.isHidden = !isSelectedMode ? true : !selectedStatusView.isSelected
+        }
+        
         
         // need add animation?
         guard animated else {
@@ -66,22 +72,28 @@ internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
         setStatus(picker.statusOfItem(with: asset), animated: false)
 
         // update options for picker
-        selectedStatusView.isHidden = !picker.allowsSelection
-        selectedForegroundView.isHidden = !picker.allowsSelection || !selectedStatusView.isSelected
+//        selectedStatusView.isHidden = !picker.allowsSelection
+//        selectedForegroundView.isHidden = !picker.allowsSelection || !selectedStatusView.isSelected
     }
     
     // MARK: Options change
     
     func ub_container(_ container: Container, options: String, didChange value: Any?) {
         // if it is not picker, ignore
-        guard let picker = container as? Picker, options == "allowsSelection" else {
-            return
-        }
+//        guard let picker = container as? Picker, options == "allowsSelection" else {
+//            return
+//        }
         // the selection of whether to support the cell
-        selectedStatusView.isHidden = !picker.allowsSelection
-        selectedForegroundView.isHidden = !picker.allowsSelection || !selectedStatusView.isSelected
+//        selectedStatusView.isHidden = !picker.allowsSelection
+//        selectedForegroundView.isHidden = !picker.allowsSelection || !selectedStatusView.isSelected
     }
     
+    open func select() {
+        if isSelectedMode {
+            _select(selectedStatusView)
+        }
+    }
+
     @objc private dynamic func _select(_ sender: Any) {
         // the asset must be set
         // if it is not picker, ignore
@@ -136,4 +148,27 @@ internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
         set { return setStatus(newValue, animated: false) }
         get { return selectedStatusView.status }
     }
+    
+    open var isSelectedMode: Bool = true
+        {
+        willSet{
+            
+            if self.isSelectedMode == newValue {
+                return
+            }
+            
+            self.isSelectedMode = newValue
+            selectedForegroundView.isHidden = true
+            if !newValue {
+                selectedStatusView.isHidden = true
+            }else{
+                selectedStatusView.isHidden = false
+            }
+            // deselect asset
+            if status != nil {
+                status = (container as? Picker)?.deselectItem(with: asset!, sender: self)
+            }
+        }
+    }
+
 }

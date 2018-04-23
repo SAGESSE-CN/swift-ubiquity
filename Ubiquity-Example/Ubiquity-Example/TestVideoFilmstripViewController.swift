@@ -134,7 +134,11 @@ public class ScrubberView: UIView {
         // 显示范围
         _displaying(.init(x: max(frame.minX, 0),
                           y: 0,
+<<<<<<< HEAD
+                          width: frame.maxX - frame.minX,
+=======
                           width: max(min(frame.maxX, bounds.width) - max(frame.minX, 0), 0),
+>>>>>>> 7b9fb16ab32c36970edb68e77d2d5d9925d57e76
                           height: bounds.height))
     }
 //    public func apply(_ player: AVPlayer) {
@@ -175,6 +179,7 @@ public class ScrubberView: UIView {
     public func seek(to offset: CMTime) {
         // If the player is not ready, don't allow the seek.
         guard _player?.status == .readyToPlay else {
+<<<<<<< HEAD
             return
         }
 
@@ -182,6 +187,15 @@ public class ScrubberView: UIView {
         guard _offset != offset else {
             return
         }
+=======
+            return
+        }
+
+        // If less than a certain threshold, can skip the request.
+        guard _offset != offset else {
+            return
+        }
+>>>>>>> 7b9fb16ab32c36970edb68e77d2d5d9925d57e76
         _offset = offset
 
         // If is updating, waiting for next a chance.
@@ -250,6 +264,11 @@ public class ScrubberView: UIView {
 //        let percent = layer.frame.minX / max(bounds.width, 0)
 //        logger.debug?.write(percent)
         
+<<<<<<< HEAD
+        logger.debug?.write(index)
+        
+        generate(forImage: index) {
+=======
         if let image = _cachedImages[index] {
             layer.isHidden = false
             layer.contents = image
@@ -260,21 +279,33 @@ public class ScrubberView: UIView {
             
             // caching
             self?._cachedImages[$1] = $0
+>>>>>>> 7b9fb16ab32c36970edb68e77d2d5d9925d57e76
             
             guard layer.index == $1 else {
                 return
             }
+<<<<<<< HEAD
+            
+=======
+>>>>>>> 7b9fb16ab32c36970edb68e77d2d5d9925d57e76
             layer.isHidden = false
             layer.contents = $0
         }
      }
     
     private func _range(_ rect: CGRect) -> CountableClosedRange<Int> {
+<<<<<<< HEAD
+//        logger.debug?.write(rect)
+        let start = Int(floor(rect.minX / itemSize.width) + 0.5)
+        let end = Int(ceil(rect.maxX / itemSize.width) + 0.5)
+        return start ... end
+=======
         
         let start = Int(floor(max(rect.minX, 0) / itemSize.width) + 0.5)
         let end = Int(ceil(max(rect.maxX, 0) / itemSize.width) - 0.5)
         
         return start ... max(end, start)
+>>>>>>> 7b9fb16ab32c36970edb68e77d2d5d9925d57e76
     }
     
     private func _caching(_ rect: CGRect) {
@@ -292,6 +323,25 @@ public class ScrubberView: UIView {
         guard range != _displayedRange else {
             return
         }
+<<<<<<< HEAD
+        
+        _displayedRange?.forEach {
+
+            guard !range.contains($0) else {
+                return
+            }
+            guard let layer = _displayingLayers[$0] else {
+                return
+            }
+            layer.isHidden = true
+
+            _resuableLayers.append(layer)
+            _displayingLayers.removeValue(forKey: $0)
+        }
+
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+=======
         
         _displayedRange?.forEach {
 
@@ -310,6 +360,7 @@ public class ScrubberView: UIView {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         
+>>>>>>> 7b9fb16ab32c36970edb68e77d2d5d9925d57e76
         range.forEach {
 
             guard _displayingLayers[$0] == nil else {
@@ -327,9 +378,13 @@ public class ScrubberView: UIView {
 
             willDisplay(layer, at: $0)
         }
-        
         CATransaction.commit()
         
+<<<<<<< HEAD
+=======
+        CATransaction.commit()
+        
+>>>>>>> 7b9fb16ab32c36970edb68e77d2d5d9925d57e76
 
         _displayedRange = range
     }
@@ -351,6 +406,7 @@ public class ScrubberView: UIView {
             _seeking = false
             return
         }
+<<<<<<< HEAD
         
         // Seek on pausing after
         if _player?.rate != 0 {
@@ -362,6 +418,19 @@ public class ScrubberView: UIView {
             return
         }
         
+=======
+        
+        // Seek on pausing after
+        if _player?.rate != 0 {
+            _player?.pause()
+        }
+        
+        // Generate local variables, for the closure captured
+        guard let seek = _offset else {
+            return
+        }
+        
+>>>>>>> 7b9fb16ab32c36970edb68e77d2d5d9925d57e76
         // Start the update
         _seeking = true
         _player?.seek(to: seek, toleranceBefore: kCMTimeZero, toleranceAfter: kCMTimeZero) { finished in
@@ -384,7 +453,11 @@ public class ScrubberView: UIView {
     private var _cachedRange: CountableClosedRange<Int>?
     private var _displayedRange: CountableClosedRange<Int>?
     
+<<<<<<< HEAD
+    private lazy var _cachedImages: [Int: UIImage] = [:]
+=======
     private lazy var _cachedImages: [Int: CGImage?] = [:]
+>>>>>>> 7b9fb16ab32c36970edb68e77d2d5d9925d57e76
     private lazy var _resuableLayers: [ScrubberTileLayer] = []
     private lazy var _displayingLayers: [Int: ScrubberTileLayer] = [:]
     
@@ -901,13 +974,20 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate, 
         collectionView.layoutAttributesForItem(at: indexPath).map {
             let x1 = $0.frame.minX
             let x2 = $0.frame.maxX
+<<<<<<< HEAD
+=======
             
+>>>>>>> 7b9fb16ab32c36970edb68e77d2d5d9925d57e76
             ex = .init(top: 0,
                        left: -x1,
                        bottom: 0,
                        right: -(collectionViewLayout.collectionViewContentSize.width - x2))
             
+<<<<<<< HEAD
+            collectionView.setContentOffset(.init(x: 0, y: 0), animated: true)
+=======
             collectionView.setContentOffset(.init(x: -collectionView.contentInset.left, y: 0), animated: true)
+>>>>>>> 7b9fb16ab32c36970edb68e77d2d5d9925d57e76
         }
     }
     

@@ -71,7 +71,7 @@ internal class NavigationFooterView: UIView {
     private func _configure() {
         
         _titleLabel.font = UIFont.systemFont(ofSize: 17)
-        _titleLabel.textColor = .black
+        _titleLabel.textColor = .white
         _titleLabel.textAlignment = .center
         _titleLabel.numberOfLines = 0
         _titleLabel.translatesAutoresizingMaskIntoConstraints = false

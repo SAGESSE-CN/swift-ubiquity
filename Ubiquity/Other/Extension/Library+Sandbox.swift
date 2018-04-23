@@ -254,12 +254,12 @@ extension UHLocalAssetCollection: Collection {
     
     /// The type of the asset collection, such as an album or a moment.
     open var ub_collectionType: CollectionType {
-        return collectionType
+        return collectionType      //.regular
     }
     
     /// The subtype of the asset collection.
     open var ub_collectionSubtype: CollectionSubtype {
-        return collectionSubtype
+        return collectionSubtype  //.smartAlbumGeneric
     }
     
     /// The number of assets in the asset collection.

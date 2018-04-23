@@ -135,6 +135,7 @@ public protocol Library {
     /// - Returns: The collection list for the specifed type.
     ///
     func ub_request(forCollectionList type: CollectionType) -> CollectionList
+    func ub_request(forCollectionList type: CollectionType,identifier: String?) -> CollectionList
 
     ///
     /// Requests an image representation for the specified asset.

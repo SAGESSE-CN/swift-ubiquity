@@ -85,7 +85,6 @@
 		0C983BC81EBC552300A5A932 /* PhotoContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C983BC61EBC552300A5A932 /* PhotoContentView.swift */; };
 		0C983BC91EBC552300A5A932 /* VideoContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C983BC71EBC552300A5A932 /* VideoContentView.swift */; };
 		0CB00FAC1ED6E453003B0596 /* UIImageView+Animation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB00FAB1ED6E453003B0596 /* UIImageView+Animation.swift */; };
-		0CBDA6021ECAE54F0016675C /* AnimatedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CBDA6011ECAE54F0016675C /* AnimatedImage.swift */; };
 		0CBDA60A1ECAF7350016675C /* DisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CBDA6091ECAF7350016675C /* DisplayView.swift */; };
 		0CBDA60C1ECB3E330016675C /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CBDA60B1ECB3E330016675C /* NavigationController.swift */; };
 		0CC5FAC01EE571E500821D0A /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC5FABF1EE571E500821D0A /* PlayerView.swift */; };
@@ -742,7 +741,6 @@
 				0C983BC91EBC552300A5A932 /* VideoContentView.swift in Sources */,
 				0C7D45231EAB7AE800D56AB5 /* TilingViewLayoutAttributes.swift in Sources */,
 				0CE49E141E7A3F0B0058F5F8 /* Picker.swift in Sources */,
-				0CBDA6021ECAE54F0016675C /* AnimatedImage.swift in Sources */,
 				0CB00FAC1ED6E453003B0596 /* UIImageView+Animation.swift in Sources */,
 				0CE49DC11E7A3E570058F5F8 /* Browser.swift in Sources */,
 			);

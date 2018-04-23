@@ -144,9 +144,9 @@ open class SourceCollectionViewCell: UICollectionViewCell {
     
     /// Remove the item data on screen.
     open func endDisplay(_ container: Container) {
-        self.asset = nil
-        self.collection = nil
-        self.container = nil
+        //self.asset = nil
+        //self.collection = nil
+        //self.container = nil
     }
     
     /// Provide content view of class

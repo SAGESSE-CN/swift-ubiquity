@@ -112,7 +112,7 @@ internal class BrowserAlbumController: SourceCollectionViewController, Transitio
         // update cache
         _cachedSize = size
     }
-
+    
     // MARK: Collection View Configure
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

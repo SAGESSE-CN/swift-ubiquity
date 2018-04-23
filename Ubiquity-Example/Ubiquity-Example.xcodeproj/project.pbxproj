@@ -313,6 +313,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+<<<<<<< HEAD
+				0CC50E811FC727DF008B1614 /* Shared.swift in Sources */,
+=======
+>>>>>>> 7b9fb16ab32c36970edb68e77d2d5d9925d57e76
 				0C7D4A5C1FF1ECBB0061A28D /* TestVideoFilmstripViewController.swift in Sources */,
 				0C1E4F791F5B337F00299E64 /* TextLargetImageLoader.swift in Sources */,
 				0CE49EA71E7B978E0058F5F8 /* ViewController.swift in Sources */,

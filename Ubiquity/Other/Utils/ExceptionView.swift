@@ -188,6 +188,7 @@ internal class ExceptionContainerView: UIView, UIGestureRecognizerDelegate {
         let tap = UIPanGestureRecognizer()
         tap.delegate = self
         addGestureRecognizer(tap)
+        backgroundColor = .clear
     }
     
     // content view
@@ -345,7 +346,7 @@ internal extension ExceptionHandling where Self: UIViewController {
                 containerView.layer.masksToBounds = true
                 
                 // the background color same from self.view
-                containerView.backgroundColor = view.backgroundColor
+                containerView.backgroundColor = .clear
                 containerView.translatesAutoresizingMaskIntoConstraints = false
                 
                 // as to prevent affect other views, the need to insert to the second position

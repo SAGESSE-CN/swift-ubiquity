@@ -158,12 +158,8 @@ internal class BrowserAlbumListCell: SourceCollectionViewCell {
     }
     
     override var accessibilityIdentifier: String? {
-        set {
-            return super.accessibilityIdentifier = newValue
-        }
-        get {
-            return super.accessibilityIdentifier ?? _titleLabel.accessibilityLabel
-        }
+        set { return super.accessibilityIdentifier = newValue }
+        get { return super.accessibilityIdentifier ?? _titleLabel.accessibilityLabel }
     }
     
     private func _switch(_ enabeld: Bool) {
@@ -184,5 +180,5 @@ internal class BrowserAlbumListCell: SourceCollectionViewCell {
     private lazy var _thumbView: ThumbView = ThumbView(frame: .zero)
     private lazy var _badgeView: BadgeView = BadgeView(frame: .zero)
     
-    private lazy var _indicatorImageView: UIImageView = UIImageView(image: R.image( "ubiquity_button_indicator"))
+    private lazy var _indicatorImageView: UIImageView = UIImageView(image: R.image("ubiquity_button_indicator"))
 }

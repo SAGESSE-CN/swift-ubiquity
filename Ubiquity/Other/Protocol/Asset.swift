@@ -98,6 +98,9 @@ public protocol Asset: class {
     var ub_type: AssetType { get }
     /// The subtypes of the asset, an option of type `AssetSubtype`
     var ub_subtype: UInt { get }
+    
+    /// The collection in which asset is located.
+    var ub_collection: Collection? { get }
 }
 
 

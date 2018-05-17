@@ -384,6 +384,13 @@ extension UHAsset: Asset {
         return subtype.rawValue
     }
     
+    /// The collection in which asset is located.
+    public var ub_collection: Collection? {
+        set { return objc_setAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_collection).hashValue), newValue, .OBJC_ASSOCIATION_ASSIGN) }
+        get { return objc_getAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_collection).hashValue)) as? Collection }
+    }
+
+    
     /// The asset filename
     @NSManaged internal var filename: String?
 }
@@ -453,7 +460,20 @@ extension UHAssetCollection: Collection {
     }
     /// Retrieves assets from the specified asset collection.
     public func ub_asset(at index: Int) -> Asset {
-        return fetchResultLoaded.object(at: index)
+        let asset = fetchResultLoaded.object(at: index)
+        asset.ub_collection = self
+        return asset
+    }
+    
+    /// The asset whether include is in this collection
+    public func ub_contains(_ asset: Asset) -> Bool {
+        guard asset.ub_collection !== self else {
+            return true
+        }
+        guard let asset = asset as? UHAsset else {
+            return false
+        }
+        return self.fetchResultLoaded.contains(asset)
     }
 }
 extension UHAssetCollectionList: CollectionList {

@@ -250,7 +250,7 @@ internal class BadgeView: UIImageView {
     }
     
     static var defaultBackgroundImage: UIImage? {
-        return R.image( "ubiquity_background_gradient")
+        return R.image("ubiquity_background_gradient")
     }
 
     

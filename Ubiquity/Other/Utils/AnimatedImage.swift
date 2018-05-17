@@ -17,56 +17,56 @@ import MobileCoreServices
 
 
 internal class AnimatedImage: UIImage {
+//    
+//    init?(source: CGImageSource) {
+//        // check whether the type support
+//        guard let type = CGImageSourceGetType(source), UTTypeConformsTo(type, kUTTypeGIF) else {
+//            return nil
+//        }
+//        // try prase gif file
+//        guard let info = AnimatedImageInfo(source: source) else {
+//            return nil
+//        }
+//        // init
+//        _info = info
+//        _source = source
+//        
+//        super.init()
+//    }
+//    
+//    convenience init?(named name: String) {
+//        self.init(named: name, in: nil, compatibleWith: nil)
+//    }
+//
+//    convenience init?(named name: String, in bundle: Bundle?, compatibleWith traitCollection: UITraitCollection?) {
+//        // not found
+//        let ext = (name as NSString).pathExtension.isEmpty ? "gif" : ""
+//        guard let url = (bundle ?? .main).url(forResource: name, withExtension: ext) else {
+//            return nil
+//        }
+//        // try to load the file
+//        guard let data = try? Data(contentsOf: url) else {
+//            return nil
+//        }
+//        // create a image data source
+//        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
+//            return nil
+//        }
+//        // create image
+//        self.init(source: source)
+//    }
     
-    init?(source: CGImageSource) {
-        // check whether the type support
-        guard let type = CGImageSourceGetType(source), UTTypeConformsTo(type, kUTTypeGIF) else {
-            return nil
-        }
-        // try prase gif file
-        guard let info = AnimatedImageInfo(source: source) else {
-            return nil
-        }
-        // init
-        _info = info
-        _source = source
-        
-        super.init()
-    }
-    
-    convenience init?(named name: String) {
-        self.init(named: name, in: nil, compatibleWith: nil)
-    }
-
-    convenience init?(named name: String, in bundle: Bundle?, compatibleWith traitCollection: UITraitCollection?) {
-        // not found
-        let ext = (name as NSString).pathExtension.isEmpty ? "gif" : ""
-        guard let url = (bundle ?? .main).url(forResource: name, withExtension: ext) else {
-            return nil
-        }
-        // try to load the file
-        guard let data = try? Data(contentsOf: url) else {
-            return nil
-        }
-        // create a image data source
-        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
-            return nil
-        }
-        // create image
-        self.init(source: source)
-    }
-    
-    required convenience init(imageLiteralResourceName name: String) {
-        self.init(named: name)!
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    required init(itemProviderData data: Data, typeIdentifier: String) throws {
-        fatalError("init(itemProviderData:typeIdentifier:) has not been implemented")
-    }
+//    required convenience init(imageLiteralResourceName name: String) {
+//        self.init(named: name)!
+//    }
+//
+//    required init?(coder aDecoder: NSCoder) {
+//        fatalError("init(coder:) has not been implemented")
+//    }
+//
+//    required init(itemProviderData data: Data, typeIdentifier: String) throws {
+//        fatalError("init(itemProviderData:typeIdentifier:) has not been implemented")
+//    }
     
     override var size: CGSize {
         // check whether there is a frame

@@ -14,7 +14,7 @@ public protocol Displayable: class {
     ///
     /// the displayer delegate
     ///
-    weak var delegate: AnyObject? { set get }
+    var delegate: AnyObject? { set get }
     
     ///
     /// Apply data with asset

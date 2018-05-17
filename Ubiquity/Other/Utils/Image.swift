@@ -20,7 +20,6 @@ public class Image: UIImage {
 //    public /*not inherited*/ init?(named name: String) {
 //        return nil
 //    }
-//
 //    public /*not inherited*/ init?(named name: String, in bundle: Bundle?, compatibleWith traitCollection: UITraitCollection?) {
 //        return nil
 //    }
@@ -44,33 +43,21 @@ public class Image: UIImage {
 ////        self.init(source: source)
 //    }
     
-//    public required init?(coder aDecoder: NSCoder) {
-//        super.init(coder: aDecoder)
+//    public override init?(data: Data) {
+//        super.init(data: data)
+//
+//        // load other info
+//        super.cgImage.map { _load(image: $0) }
+//    }
+//    public override init?(data: Data, scale: CGFloat) {
+//        super.init(data: data, scale: scale)
+//
+//        // load other info
+//        super.cgImage.map { _load(image: $0) }
 //    }
 //
-    public convenience init?(custom data: Data) {
-        self.init(data: data)
-
-        // load other info
-        super.cgImage.map { _load(image: $0) }
-    }
-    public convenience init?(custom data: Data, scale: CGFloat) {
-        self.init(data: data, scale: scale)
-
-        // load other info
-        super.cgImage.map { _load(image: $0) }
-    }
-    
-//    public required convenience init(imageLiteralResourceName name: String) {
+//    required convenience public init(imageLiteralResourceName name: String) {
 //        fatalError("init(imageLiteralResourceName:) has not been implemented")
-//    }
-
-//    public required init?(coder aDecoder: NSCoder) {
-//        fatalError("init(coder:) has not been implemented")
-//    }
-//
-//    public required init(itemProviderData data: Data, typeIdentifier: String) throws {
-//        fatalError("init(itemProviderData:typeIdentifier:) has not been implemented")
 //    }
 //
     /// The definition a size of the standard large image, defaults is 2048x2048

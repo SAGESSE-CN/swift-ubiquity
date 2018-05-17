@@ -8,6 +8,25 @@
 
 import UIKit
 
+public enum ControllerType: Int, CustomStringConvertible {
+    
+    case albums
+    case albumsList
+    
+    case popover
+    
+    case detail
+    
+    public var description: String {
+        switch self {
+        case .albumsList: return "albums-list"
+        case .albums: return "albums"
+        case .detail: return "detail"
+        case .popover: return "popover"
+        }
+    }
+}
+
 public protocol Controller {
     
     /// Base controller craete method
@@ -74,7 +93,7 @@ open class FactoryCollectionViewController: UICollectionViewController {
         let identifier = self.collectionView(collectionView, reuseIdentifierForItemAt: indexPath)
         
         // Convert the identifier to known identifier.
-        let newIdentifier = _mapping[identifier].ub_coalescing {
+        let newIdentifier = _mapping[identifier] ?? {
             // Query identifier from the factory.
             let newIdentifier = factory.slice(for: .cell).matching(identifier)
 
@@ -84,7 +103,7 @@ open class FactoryCollectionViewController: UICollectionViewController {
             logger.debug?.write("Mapping \"\(identifier)\" to \"\(newIdentifier)\"")
             
             return newIdentifier
-        }
+        }()
             
         return collectionView.dequeueReusableCell(withReuseIdentifier: newIdentifier, for: indexPath)
     }
@@ -284,10 +303,10 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
     /// Asks your data source object for the reuse identifier that corresponds to the specified item in the collection view.
     open override func collectionView(_ collectionView: UICollectionView, reuseIdentifierForItemAt indexPath: IndexPath) -> String {
         // Get the type of the asset at index path.
-        return ((data(source, at: indexPath) as? Asset)?.ub_type.description).ub_coalescing {
+        return ((data(source, at: indexPath) as? Asset)?.ub_type.description) ?? {
             // If the asset is not found, the use of identifier provided by the superclass.
             return super.collectionView(collectionView, reuseIdentifierForItemAt: indexPath)
-        }
+        }()
     }
     
     /// Asks your data source object for the cell that corresponds to the specified item in the collection view.

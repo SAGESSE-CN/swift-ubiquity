@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class PickerDetailController: BrowserDetailController, SelectionStatusUpdateDelegate, ContainerOptionsDelegate {
+internal class PickerDetailController: BrowserDetailController, SelectionItemUpdateDelegate, ContainerOptionsDelegate {
 
     override func loadView() {
         super.loadView()
@@ -47,13 +47,13 @@ internal class PickerDetailController: BrowserDetailController, SelectionStatusU
         }
 
         // update current asset selection status
-        _selectedView.setStatus((container as? Picker)?.statusOfItem(with: asset), animated: true)
+        _selectedView.update((container as? Picker)?.statusOfItem(with: asset), animated: true)
     }
 
     // MARK: Selection change
 
 
-    func selectionStatus(_ selectionStatus: SelectionStatus, didSelectItem asset: Asset, sender: AnyObject) {
+    func selectionItem(_ selectionItem: SelectionItem, didSelectItem asset: Asset, sender: AnyObject) {
         // ignore the events that itself sent
         // ignores events other than the currently displayed asset
         guard sender !== self, asset.ub_identifier == displayedItem?.ub_identifier else {
@@ -62,10 +62,10 @@ internal class PickerDetailController: BrowserDetailController, SelectionStatusU
         logger.debug?.write()
 
         // update selection status
-        _selectedView.status = selectionStatus
+        _selectedView.update(selectionItem, animated: false)
     }
 
-    func selectionStatus(_ selectionStatus: SelectionStatus, didDeselectItem asset: Asset, sender: AnyObject) {
+    func selectionItem(_ selectionItem: SelectionItem, didDeselectItem asset: Asset, sender: AnyObject) {
         // ignore the events that itself sent
         // ignores events other than the currently displayed asset
         guard sender !== self, asset.ub_identifier == displayedItem?.ub_identifier else {
@@ -74,7 +74,7 @@ internal class PickerDetailController: BrowserDetailController, SelectionStatusU
         logger.debug?.write()
 
         // clear selection status
-        _selectedView.status = nil
+        _selectedView.update(nil, animated: false)
     }
 
     // MARK: Events
@@ -87,14 +87,13 @@ internal class PickerDetailController: BrowserDetailController, SelectionStatusU
         }
 
         // check old status
-        if _selectedView.status == nil {
+        if _selectedView.item == nil {
             // select asset
-            _selectedView.status = (container as? Picker)?.selectItem(with: asset, sender: self)
+            _selectedView.update((container as? Picker)?.selectItem(with: asset, sender: self), animated: false)
 
         } else {
             // deselect asset
-            _selectedView.status = (container as? Picker)?.deselectItem(with: asset, sender: self)
-
+            _selectedView.update((container as? Picker)?.deselectItem(with: asset, sender: self), animated: false)
         }
 
         // add animation
@@ -107,5 +106,5 @@ internal class PickerDetailController: BrowserDetailController, SelectionStatusU
         _selectedView.layer.add(ani, forKey: "selected")
     }
 
-    private lazy var _selectedView: SelectionStatusView = .init(frame: .init(x: 0, y: 0, width: 24, height: 24))
+    private lazy var _selectedView: SelectionItemView = .init(frame: .init(x: 0, y: 0, width: 24, height: 24))
 }

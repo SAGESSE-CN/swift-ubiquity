@@ -18,7 +18,7 @@ import UIKit
 }
 
 /// A media picker
-@objc open class Picker: Browser {
+@objc open class Picker: Browser, SelectionControllerDelegate {
     
     /// Create a media picker
     public override init(library: Library) {
@@ -41,6 +41,9 @@ import UIKit
             $0.setClass(PickerPreviewCell.self, for: .cell)
             $0.setClass(PickerPreviewController.self, for: .controller)
         }
+        
+        // Setup selection controller delegate.
+        selectionController.delegate = self
     }
     
     /// The picker delegate
@@ -123,14 +126,14 @@ import UIKit
     
     /// Select a item
     @discardableResult
-    func selectItem(with asset: Asset, sender: AnyObject) -> SelectionStatus? {
+    func selectItem(with asset: Asset, sender: AnyObject) -> SelectionItem? {
         // the asset has been selected?
         if let status = _selectedItems[asset.ub_identifier] {
             return status
         }
         
         // generate a selection info
-        let status = SelectionStatus(asset: asset, number: _selectedItems.count + 1)
+        let status = SelectionItem(asset: asset, number: _selectedItems.count + 1)
         
         // ask the library the asset is allowed to be select?
         guard _item(shouldSelectItem: asset, status: status, sender: sender) else {
@@ -148,7 +151,7 @@ import UIKit
     
     /// Deselect a item
     @discardableResult
-    func deselectItem(with asset: Asset, sender: AnyObject) -> SelectionStatus? {
+    func deselectItem(with asset: Asset, sender: AnyObject) -> SelectionItem? {
         // the asset has been selected?
         if let status = _selectedItems.removeValue(forKey: asset.ub_identifier) {
             // the all number is smaller than the deleted item and needs to be updated 
@@ -167,36 +170,51 @@ import UIKit
     }
     
     /// Returns a item select status
-    func statusOfItem(with asset: Asset) -> SelectionStatus? {
+    func statusOfItem(with asset: Asset) -> SelectionItem? {
         if !_selectedItems.isEmpty  {
             return _selectedItems[asset.ub_identifier]
         }
         return nil
     }
     
+    func selectionController(_ selectionController: SelectionController, shouldSelectItem selection: Selection) -> Bool {
+        return true
+    }
     
-    private func _item(shouldSelectItem asset: Asset, status: SelectionStatus, sender: AnyObject) -> Bool {
+    func selectionController(_ selectionController: SelectionController, didSelectItem selection: Selection) {
+    }
+    
+    func selectionController(_ selectionController: SelectionController, shouldDeselectItem selection: Selection) -> Bool {
+        return true
+    }
+    func selectionController(_ selectionController: SelectionController, didDeselectItem selection: Selection) {
+    }
+    
+    internal let selectionController: SelectionController = .init()
+    
+    
+    private func _item(shouldSelectItem asset: Asset, status: SelectionItem, sender: AnyObject) -> Bool {
         // ask the user if the asset is allowed to be select
         return delegate?.picker?(self, shouldSelectItem: asset) ?? true
     }
-    private func _item(didSelectItem asset: Asset, status: SelectionStatus, sender: AnyObject) {
+    private func _item(didSelectItem asset: Asset, status: SelectionItem, sender: AnyObject) {
         
         // tell the user that the asset is already selected
         delegate?.picker?(self, didSelectItem: asset)
         
         // tell all observers
-        _forEach(SelectionStatusUpdateDelegate.self) {
-            $0.selectionStatus(status, didSelectItem: asset, sender: sender)
+        _forEach(SelectionItemUpdateDelegate.self) {
+            $0.selectionItem(status, didSelectItem: asset, sender: sender)
         }
     }
-    private func _item(didDeselect asset: Asset, status: SelectionStatus, sender: AnyObject) {
+    private func _item(didDeselect asset: Asset, status: SelectionItem, sender: AnyObject) {
         
         // tell the user that the asset is already selected
         delegate?.picker?(self, didDeselectItem: asset)
         
         // tell all observers
-        _forEach(SelectionStatusUpdateDelegate.self) {
-            $0.selectionStatus(status, didDeselectItem: asset, sender: sender)
+        _forEach(SelectionItemUpdateDelegate.self) {
+            $0.selectionItem(status, didDeselectItem: asset, sender: sender)
         }
     }
     
@@ -208,5 +226,5 @@ import UIKit
     
     // MARK: Ivar
     
-    private lazy var _selectedItems: [String: SelectionStatus] = [:]
+    private lazy var _selectedItems: [String: SelectionItem] = [:]
 }

@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Ubiquity
 
 internal class DebugingCanvasViewController: UIViewController, CanvasViewDelegate {
     

@@ -638,6 +638,19 @@ public class SourceFolding: NSObject, Collection {
         fatalError()
     }
     
+    /// The asset whether include is in this collection
+    public func ub_contains(_ asset: Asset) -> Bool {
+        
+        for section in 0 ..< numberOfCollections {
+            if collectionList.ub_collection(at: section).ub_contains(asset) {
+                return true
+            }
+        }
+        
+        return false
+    }
+
+    
     private var _cachedTitle: String?
     
     private var _cachedAsset: [Int: Asset]?

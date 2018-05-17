@@ -27,18 +27,18 @@ internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
         }
         
         // extend response region
-        guard !selectedStatusView.isHidden, view === contentView, UIEdgeInsetsInsetRect(selectedStatusView.frame, UIEdgeInsetsMake(-8, -8, -8, -8)).contains(point) else {
+        guard !selectedItemView.isHidden, view === contentView, UIEdgeInsetsInsetRect(selectedItemView.frame, UIEdgeInsetsMake(-8, -8, -8, -8)).contains(point) else {
             return view
         }
         
-        return selectedStatusView
+        return selectedItemView
     }
     
     /// Update selection status for animate
-    private func setStatus(_ status: SelectionStatus?, animated: Bool) {
+    private func setStatus(_ status: SelectionItem?, animated: Bool) {
         
-        selectedStatusView.status = status
-        selectedForegroundView.isHidden = !selectedStatusView.isSelected
+        selectedItemView.update(status, animated: false)
+        selectedForegroundView.isHidden = !selectedItemView.isSelected
         
         // need add animation?
         guard animated else {
@@ -51,7 +51,7 @@ internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
         ani.duration = 0.25
         ani.calculationMode = kCAAnimationCubic
         
-        selectedStatusView.layer.add(ani, forKey: "selected")
+        selectedItemView.layer.add(ani, forKey: "selected")
     }
     
     override func willDisplay(_ container: Container, orientation: UIImageOrientation) {
@@ -66,8 +66,8 @@ internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
         setStatus(picker.statusOfItem(with: asset), animated: false)
 
         // update options for picker
-        selectedStatusView.isHidden = !picker.allowsSelection
-        selectedForegroundView.isHidden = !picker.allowsSelection || !selectedStatusView.isSelected
+        selectedItemView.isHidden = !picker.allowsSelection
+        selectedForegroundView.isHidden = !picker.allowsSelection || !selectedItemView.isSelected
     }
     
     // MARK: Options change
@@ -78,8 +78,8 @@ internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
             return
         }
         // the selection of whether to support the cell
-        selectedStatusView.isHidden = !picker.allowsSelection
-        selectedForegroundView.isHidden = !picker.allowsSelection || !selectedStatusView.isSelected
+        selectedItemView.isHidden = !picker.allowsSelection
+        selectedForegroundView.isHidden = !picker.allowsSelection || !selectedItemView.isSelected
     }
     
     @objc private dynamic func _select(_ sender: Any) {
@@ -104,9 +104,9 @@ internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
     private func _configure() {
         
         // setup selected view
-        selectedStatusView.frame = .init(x: bounds.width - contentInset.right - 24, y: contentInset.top, width: 24, height: 24)
-        selectedStatusView.autoresizingMask = [.flexibleLeftMargin, .flexibleBottomMargin]
-        selectedStatusView.addTarget(self, action: #selector(_select(_:)), for: .touchUpInside)
+        selectedItemView.frame = .init(x: bounds.width - contentInset.right - 24, y: contentInset.top, width: 24, height: 24)
+        selectedItemView.autoresizingMask = [.flexibleLeftMargin, .flexibleBottomMargin]
+        selectedItemView.addTarget(self, action: #selector(_select(_:)), for: .touchUpInside)
         
         // setup selected background view
         selectedForegroundView.frame = bounds
@@ -119,7 +119,7 @@ internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
         contentView.isUserInteractionEnabled = true
         
         // add subview
-        contentView.addSubview(selectedStatusView)
+        contentView.addSubview(selectedItemView)
         contentView.insertSubview(selectedForegroundView, at: 0)
     }
     
@@ -129,11 +129,11 @@ internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
     lazy var selectedForegroundView: UIView = UIView()
     
     /// The picker selection status view.
-    lazy var selectedStatusView: SelectionStatusView = SelectionStatusView()
+    lazy var selectedItemView: SelectionItemView = SelectionItemView()
     
     /// The asset selection status
-    var status: SelectionStatus? {
-        set { return setStatus(newValue, animated: false) }
-        get { return selectedStatusView.status }
+    var status: SelectionItem? {
+        set { return selectedItemView.update(newValue, animated: false) }
+        get { return selectedItemView.item }
     }
 }

@@ -8,16 +8,24 @@
 
 import UIKit
 
-internal extension Optional {
-    @inline(__always) func ub_coalescing(_ closure: () throws -> Wrapped) rethrows -> Wrapped {
-        return try self ?? closure()
-    }
-}
 internal extension OpaquePointer {
     @inline(__always)
     @discardableResult
     func ub_map<T>(_ closure: (OpaquePointer) throws -> T) rethrows -> T {
         return try closure(self)
+    }
+}
+
+internal extension Dictionary {
+    func ub_filter(_ isIncluded: (Dictionary.Element) throws -> Bool) rethrows -> [Dictionary.Key : Dictionary.Value] {
+        var result = [Dictionary.Key : Dictionary.Value](minimumCapacity: self.capacity)
+        for (key, value) in self {
+            guard try isIncluded((key, value)) else {
+                continue
+            }
+            result[key] = value
+        }
+        return result
     }
 }
 

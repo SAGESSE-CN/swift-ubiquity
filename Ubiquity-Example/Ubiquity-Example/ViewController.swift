@@ -46,7 +46,6 @@ class ViewController: UIViewController, Ubiquity.PickerDelegate, UIPopoverPresen
         dismiss(animated: true, completion: nil)
     }
     
-    
     @IBAction func confirm(_ sender: Any) {
         
         let library: Library

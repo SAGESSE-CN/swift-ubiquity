@@ -335,9 +335,9 @@ import UIKit
                 return // 不允许重用
             }
             let queue = _reusableDequeues[identifier] ?? {
-                let tmp = TilingViewReusableDequeue()
-                _reusableDequeues[identifier] = tmp
-                return tmp
+                let queue = TilingViewReusableDequeue()
+                _reusableDequeues[identifier] = queue
+                return queue
             }()
             queue.push(for: indexPath, reuseableView: cell)
         }

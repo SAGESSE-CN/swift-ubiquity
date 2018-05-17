@@ -23,7 +23,6 @@
 		0CB104C61EEFF589002CB7FA /* Ubiquity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CE49E4C1E7A411D0058F5F8 /* Ubiquity.framework */; };
 		0CB104C71EEFF589002CB7FA /* Ubiquity.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0CE49E4C1E7A411D0058F5F8 /* Ubiquity.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		0CB709591FC747F700E1DD4A /* ExampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB709581FC747F100E1DD4A /* ExampleTests.swift */; };
-		0CB7095C1FC7485500E1DD4A /* CanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB7095B1FC7485500E1DD4A /* CanvasView.swift */; };
 		0CC50E861FC74742008B1614 /* DebugingCanvasViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC50E841FC74742008B1614 /* DebugingCanvasViewController.swift */; };
 		0CC50E881FC74742008B1614 /* DebugingTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC50E851FC74742008B1614 /* DebugingTableViewController.swift */; };
 		0CE49E221E7A3F690058F5F8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CE49E211E7A3F690058F5F8 /* AppDelegate.swift */; };
@@ -74,7 +73,6 @@
 		0CAB226F1F31A91E000171A0 /* XViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XViewController.swift; sourceTree = "<group>"; };
 		0CB709571FC747F100E1DD4A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = "Ubiquity-Example-Tests/Info.plist"; sourceTree = "<group>"; };
 		0CB709581FC747F100E1DD4A /* ExampleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ExampleTests.swift; path = "Ubiquity-Example-Tests/ExampleTests.swift"; sourceTree = "<group>"; };
-		0CB7095B1FC7485500E1DD4A /* CanvasView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CanvasView.swift; path = ../../../Ubiquity/Other/Utils/CanvasView.swift; sourceTree = "<group>"; };
 		0CC50E841FC74742008B1614 /* DebugingCanvasViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugingCanvasViewController.swift; sourceTree = "<group>"; };
 		0CC50E851FC74742008B1614 /* DebugingTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugingTableViewController.swift; sourceTree = "<group>"; };
 		0CE49E1E1E7A3F690058F5F8 /* Ubiquity-Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ubiquity-Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -126,18 +124,9 @@
 			name = "Example-Tests";
 			sourceTree = "<group>";
 		};
-		0CB7095A1FC7480100E1DD4A /* Reference */ = {
-			isa = PBXGroup;
-			children = (
-				0CB7095B1FC7485500E1DD4A /* CanvasView.swift */,
-			);
-			name = Reference;
-			sourceTree = "<group>";
-		};
 		0CC50E831FC74742008B1614 /* Debuging */ = {
 			isa = PBXGroup;
 			children = (
-				0CB7095A1FC7480100E1DD4A /* Reference */,
 				0CC50E841FC74742008B1614 /* DebugingCanvasViewController.swift */,
 				0CC50E851FC74742008B1614 /* DebugingTableViewController.swift */,
 				0C5459D61FD132FB0055AE40 /* DebugingBrowserViewController.swift */,
@@ -243,7 +232,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0910;
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 0930;
 				ORGANIZATIONNAME = SAGESSE;
 				TargetAttributes = {
 					0C05A2A41FC66D520084CDAB = {
@@ -327,7 +316,6 @@
 				0C7792091FDE3F130058FF8A /* Logger.swift in Sources */,
 				0C77920A1FDE3F130058FF8A /* UIColor+Random.swift in Sources */,
 				0C1004041F1CA60100D7B09A /* TestIndicatorViewController.swift in Sources */,
-				0CB7095C1FC7485500E1DD4A /* CanvasView.swift in Sources */,
 				0C30A78B1F5FD60400E5980B /* TestAnimatedImageViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -417,6 +405,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -424,6 +413,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -472,6 +462,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -479,6 +470,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;

@@ -31,10 +31,10 @@ internal protocol DetailControllerItemUpdateDelegate: class {
 
 
 // If controller implements the protocol, it will receive the change automatically
-internal protocol SelectionStatusUpdateDelegate: class {
+internal protocol SelectionItemUpdateDelegate: class {
     
-    func selectionStatus(_ selectionStatus: SelectionStatus, didSelectItem asset: Asset, sender: AnyObject)
-    func selectionStatus(_ selectionStatus: SelectionStatus, didDeselectItem status: Asset, sender: AnyObject)
+    func selectionItem(_ selectionItem: SelectionItem, didSelectItem asset: Asset, sender: AnyObject)
+    func selectionItem(_ selectionItem: SelectionItem, didDeselectItem status: Asset, sender: AnyObject)
 }
 
 internal protocol ContainerOptionsDelegate: class {

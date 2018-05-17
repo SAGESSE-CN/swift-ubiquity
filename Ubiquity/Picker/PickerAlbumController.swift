@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerDelegate, SelectionRectangleDelegate, UIGestureRecognizerDelegate, SelectionStatusUpdateDelegate, ContainerOptionsDelegate {
+internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerDelegate, SelectionRectangleDelegate, UIGestureRecognizerDelegate, SelectionItemUpdateDelegate, ContainerOptionsDelegate {
     
     override func loadView() {
         super.loadView()
@@ -160,7 +160,7 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
     
     // MARK: Selection change
     
-    func selectionStatus(_ selectionStatus: SelectionStatus, didSelectItem asset: Asset, sender: AnyObject) {
+    func selectionItem(_ selectionItem: SelectionItem, didSelectItem asset: Asset, sender: AnyObject) {
         // ignore the events that itself sent
         guard sender !== self else {
             return
@@ -174,11 +174,11 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
                 return
             }
             // update selection
-            cell.status = selectionStatus
+            cell.status = selectionItem
         }
     }
     
-    func selectionStatus(_ selectionStatus: SelectionStatus, didDeselectItem asset: Asset, sender: AnyObject) {
+    func selectionItem(_ selectionItem: SelectionItem, didDeselectItem asset: Asset, sender: AnyObject) {
         // ignore the events that itself sent
         guard sender !== self else {
             return

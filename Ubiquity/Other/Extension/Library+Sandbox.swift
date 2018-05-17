@@ -84,6 +84,11 @@ open class UHLocalAssetCollection: NSObject {
     open func changeDetails(for change: UHLocalAssetChange) -> ChangeDetails? {
         return nil
     }
+    
+    /// The asset whether include is in this collection
+    open func contains(_ asset: UHLocalAsset) -> Bool {
+        return false
+    }
 }
 open class UHLocalAssetCollectionList: NSObject {
     
@@ -236,6 +241,12 @@ extension UHLocalAsset: Asset {
     open var ub_subtype: UInt {
         return subtype.rawValue
     }
+    
+    /// The collection in which asset is located.
+    public var ub_collection: Collection? {
+        set { return objc_setAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_collection).hashValue), newValue, .OBJC_ASSOCIATION_ASSIGN) }
+        get { return objc_getAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_collection).hashValue)) as? Collection }
+    }
 }
 extension UHLocalAssetCollection: Collection {
     
@@ -272,7 +283,17 @@ extension UHLocalAssetCollection: Collection {
     }
     /// Retrieves assets from the specified asset collection.
     open func ub_asset(at index: Int) -> Asset {
-        return asset(at: index)
+        let asset = self.asset(at: index)
+        asset.ub_collection = self
+        return asset
+    }
+    
+    /// The asset whether include is in this collection
+    public func ub_contains(_ asset: Asset) -> Bool {
+        guard let asset = asset as? UHLocalAsset else {
+            return false
+        }
+        return contains(asset)
     }
 }
 extension UHLocalAssetCollectionList: CollectionList {

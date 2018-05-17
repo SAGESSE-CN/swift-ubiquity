@@ -14,7 +14,7 @@ public protocol Playable: class {
     ///
     /// the player delegate
     ///
-    weak var delegate: AnyObject? { set get }
+    var delegate: AnyObject? { set get }
     
     ///
     /// Start the player or Resume the player

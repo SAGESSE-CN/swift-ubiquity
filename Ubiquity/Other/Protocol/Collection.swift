@@ -80,6 +80,9 @@ public protocol Collection: NSObjectProtocol {
     func ub_count(with type: AssetType) -> Int
     /// Retrieves assets from the specified asset collection.
     func ub_asset(at index: Int) -> Asset
+    
+    /// The asset whether include is in this collection
+    func ub_contains(_ asset: Asset) -> Bool
 }
 
 

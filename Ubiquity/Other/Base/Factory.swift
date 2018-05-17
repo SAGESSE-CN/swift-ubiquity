@@ -8,25 +8,6 @@
 
 import UIKit
 
-public enum ControllerType: Int, CustomStringConvertible {
-    
-    case albums
-    case albumsList
-    
-    case popover
-    
-    case detail
-    
-    public var description: String {
-        switch self {
-        case .albumsList: return "albums-list"
-        case .albums: return "albums"
-        case .detail: return "detail"
-        case .popover: return "popover"
-        }
-    }
-}
-
 public class Factory: NSObject {
     
     public enum Key: String {
@@ -202,14 +183,14 @@ public class Factory: NSObject {
         return _registedClasss[key]
     }
     public func `slice`(for key: Key) -> Slice {
-        return _registedFactorySlices[key].ub_coalescing {
+        return _registedFactorySlices[key] ?? {
             // Create a new slice.
             let slice = Slice(factory: self, key: key)
             
             _registedFactorySlices[key] = slice
             
             return slice
-        }
+        }()
     }
     
     public func instantiateViewController(with container: Container, source: Source, parameter: Any?) -> UIViewController? {

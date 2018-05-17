@@ -45,14 +45,14 @@ internal class PickerPreviewCell: PickerAlbumCell {
         let nbounds = UIEdgeInsetsInsetRect(superview.bounds, contentInset)
         let nframe = UIEdgeInsetsInsetRect(frame, contentInset)
         
-        let x = max(nframe.minX, min(nbounds.maxX, nframe.maxX) - selectedStatusView.frame.width)
-        let y = min(max(nframe.minY, nbounds.minY), nbounds.maxY - selectedStatusView.frame.height)
+        let x = max(nframe.minX, min(nbounds.maxX, nframe.maxX) - selectedItemView.frame.width)
+        let y = min(max(nframe.minY, nbounds.minY), nbounds.maxY - selectedItemView.frame.height)
      
         let origin = convert(.init(x: x, y: y), from: superview)
         
         // has the position changed?
-        if selectedStatusView.frame.origin != origin {
-            selectedStatusView.frame.origin = origin
+        if selectedItemView.frame.origin != origin {
+            selectedItemView.frame.origin = origin
         }
     }
 }

@@ -10,12 +10,10 @@ import UIKit
 import AVFoundation
 
 /// A asset request object
-@objc
 public protocol Request {
 }
 
 /// A asset response object
-@objc
 public protocol Response {
     
     /// An error that occurred when Photos attempted to load the image.
@@ -32,7 +30,6 @@ public protocol Response {
 }
 
 /// Options for fitting an image's aspect ratio to a requested size.
-@objc
 public enum RequestContentMode: Int {
     
     /// Scales the image so that its larger dimension fits the target size.
@@ -52,7 +49,6 @@ public enum RequestContentMode: Int {
 }
 
 /// Options for delivering requested image data, used by the deliveryMode property.
-@objc
 public enum RequestDeliveryMode : Int {
     
     /// client may get several image results when the call is asynchronous or will get one result when the call is synchronous
@@ -66,7 +62,6 @@ public enum RequestDeliveryMode : Int {
 }
 
 /// A set of options affecting the delivery of still image representations of Photos assets you request from an image manager.
-@objc
 public class RequestOptions: NSObject {
     
     public static var image: RequestOptions {
@@ -96,8 +91,7 @@ public class RequestOptions: NSObject {
 }
 
 /// Provides methods for retrieving or generating preview thumbnails and full-size image or video data associated with Photos assets.
-@objc
-public protocol Library {
+public protocol Library: class {
     
     // MARK: Authorization
     
@@ -180,7 +174,7 @@ public protocol Library {
     /// - Returns:
     ///   A numeric identifier for the request. If you need to cancel the request before it completes, pass this request to the [ub_cancel(with:)](file://) method.
     ///
-    @objc optional func ub_request(forData asset: Asset, options: RequestOptions, resultHandler: @escaping (_ imageData: Data?, _ response: Response) -> ()) -> Request?
+    func ub_request(forData asset: Asset, options: RequestOptions, resultHandler: @escaping (_ imageData: Data?, _ response: Response) -> ()) -> Request?
     
     ///
     /// Requests a representation of the video asset for playback, to be loaded asynchronously.
@@ -199,7 +193,7 @@ public protocol Library {
     /// - Returns:
     ///   A numeric identifier for the request. If you need to cancel the request before it completes, pass this request to the [ub_cancel(with:)](file://) method.
     ///
-    @objc optional func ub_request(forVideo asset: Asset, options: RequestOptions, resultHandler: @escaping (_ playerItem: AVPlayerItem?, _ response: Response) -> ()) -> Request?
+    func ub_request(forVideo asset: Asset, options: RequestOptions, resultHandler: @escaping (_ playerItem: AVPlayerItem?, _ response: Response) -> ()) -> Request?
     
     // MARK: Cacher
     
@@ -217,7 +211,7 @@ public protocol Library {
     // MARK: Configure
 
     /// Predefined size of the original request
-    static var ub_requestMaximumSize: CGSize { get }
+    var ub_requestMaximumSize: CGSize { get }
 }
 
 

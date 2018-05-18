@@ -58,12 +58,12 @@ extension UIViewController {
     
     /// A Boolean value that indicates whether enabled controller warp protection.
     internal var ub_warp: Bool {
-        set { return objc_setAssociatedObject(self, UnsafePointer(bitPattern: #selector(ub_warp(_:)).hashValue), ub_warp(newValue), .OBJC_ASSOCIATION_ASSIGN) }
-        get { return objc_getAssociatedObject(self, UnsafePointer(bitPattern: #selector(ub_warp(_:)).hashValue)) as? Bool ?? false }
+        set { return objc_setAssociatedObject(self, UnsafePointer(bitPattern: #selector(ub_warp(_:)).hashValue)!, ub_warp(newValue), .OBJC_ASSOCIATION_ASSIGN) }
+        get { return objc_getAssociatedObject(self, UnsafePointer(bitPattern: #selector(ub_warp(_:)).hashValue)!) as? Bool ?? false }
     }
     
     /// Hook presetn view controller event
-    private dynamic func ub_warp(_ warp: Bool) -> Bool {
+    @objc private dynamic func ub_warp(_ warp: Bool) -> Bool {
         
         // replace the implementation method to ensure that the method is called only once
         let getter: @convention(block) (AnyObject, Bool) -> Bool = { _, warp in
@@ -75,14 +75,14 @@ extension UIViewController {
         let method3 = class_getInstanceMethod(UIViewController.self, #selector(present(_:animated:completion:)))
         
         // exchange method
-        method_setImplementation(method1, imp_implementationWithBlock(unsafeBitCast(getter, to: AnyObject.self)))
-        method_exchangeImplementations(method2, method3)
+        method_setImplementation(method1!, imp_implementationWithBlock(unsafeBitCast(getter, to: AnyObject.self)))
+        method_exchangeImplementations(method2!, method3!)
         
         return warp
     }
     
     /// Process presetn view controller event
-    private dynamic func ub_present(_ viewControllerToPresent: UIViewController, animated: Bool, completion: (() -> Void)?) {
+    @objc private dynamic func ub_present(_ viewControllerToPresent: UIViewController, animated: Bool, completion: (() -> Void)?) {
         // check whether the enabled warp protection
         guard viewControllerToPresent.ub_warp else {
             return ub_present(viewControllerToPresent, animated: animated, completion: completion)
@@ -103,7 +103,7 @@ extension UIViewController {
 /// navigation controller custom transitioning support
 fileprivate extension UINavigationController {
     
-    fileprivate dynamic func __ub_pushViewController(_ viewController: UIViewController, animated: Bool) {
+    @objc fileprivate dynamic func __ub_pushViewController(_ viewController: UIViewController, animated: Bool) {
         // if view controller need custom transitioning animation
         guard let transitioningDelegate = viewController.ub_transitioningDelegate, animated else {
             // no need, ignore
@@ -114,7 +114,7 @@ fileprivate extension UINavigationController {
             return __ub_pushViewController(viewController, animated: animated)
         }
     }
-    fileprivate dynamic func __ub_popViewController(animated: Bool) -> UIViewController? {
+    @objc fileprivate dynamic func __ub_popViewController(animated: Bool) -> UIViewController? {
         // if view controller need custom transitioning animation
         guard let transitioningDelegate = topViewController?.ub_transitioningDelegate else {
             // no need, ignore
@@ -198,8 +198,8 @@ private var __ub_file_init: (UIViewControllerTransitioningDelegate?) -> UIViewCo
     let m12 = class_getInstanceMethod(cls, #selector(cls.__ub_pushViewController(_:animated:)))
     let m22 = class_getInstanceMethod(cls, #selector(cls.__ub_popViewController(animated:)))
     
-    method_exchangeImplementations(m11, m12)
-    method_exchangeImplementations(m21, m22)
+    method_exchangeImplementations(m11!, m12!)
+    method_exchangeImplementations(m21!, m22!)
     
     return { $0 }
 }()

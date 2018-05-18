@@ -765,7 +765,7 @@ class TestVideoFilmstripViewController: UIViewController, UIScrollViewDelegate, 
         }
         
         
-        private dynamic class var _contentViewClass: AnyClass {
+        @objc private dynamic class var _contentViewClass: AnyClass {
             return ScrubberView.self
         }
     }

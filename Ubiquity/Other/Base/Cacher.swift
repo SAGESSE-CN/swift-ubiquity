@@ -6,6 +6,7 @@
 //  Copyright © 2017 SAGESSE. All rights reserved.
 //
 
+#if false
 import UIKit
 import AVFoundation
 
@@ -34,7 +35,6 @@ internal class Cacher: NSObject {
         // create collection list and cache
         let collectionList = _library.ub_request(forCollectionList: type)
         _collectionLists[type] = Cacher.bridging(of: collectionList)
-        collectionList.ub_preheat()
         return collectionList
     }
     
@@ -1202,4 +1202,4 @@ private func __ub_property<T>(_ self: Any, selector: Selector, newValue: @autocl
     objc_setAssociatedObject(self, UnsafeRawPointer(bitPattern: selector.hashValue), object, .OBJC_ASSOCIATION_RETAIN)
     return object
 }
-
+#endif

@@ -57,7 +57,7 @@ class DebuggingCustomAlbumsListCell: Ubiquity.SourceCollectionViewCell {
             let asset = collection.ub_asset(at: 0)
             let size = CGSize(width: frame.width * UIScreen.main.scale,
                               height: frame.height * UIScreen.main.scale)
-            _request = container.request(forImage: asset, size: size, mode: .aspectFill, options: .image, resultHandler: { [weak self](contents, response) in
+            _request = container.library.ub_request(forImage: asset, targetSize: size, contentMode: .aspectFill, options: .image, resultHandler: { [weak self](contents, response) in
                 self?._imageView.image = contents
             })
         }
@@ -67,7 +67,7 @@ class DebuggingCustomAlbumsListCell: Ubiquity.SourceCollectionViewCell {
         super.endDisplay(container)
         
         _request.map {
-            container.cancel(with: $0)
+            container.library.ub_cancel(with: $0)
         }
         _request = nil
     }

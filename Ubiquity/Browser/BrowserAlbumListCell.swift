@@ -107,7 +107,7 @@ internal class BrowserAlbumListCell: SourceCollectionViewCell {
                              animated: false)
         _requests = assets.reversed().enumerated().flatMap { offset, asset in
             // request thumbnail image
-            container.request(forImage: asset, size: size, mode: .aspectFill, options: options) { [weak self, weak collection] contents, response in
+            container.library.ub_request(forImage: asset, targetSize: size, contentMode: .aspectFill, options: options) { [weak self, weak collection] contents, response in
                 // if the asset is nil, the asset has been released
                 guard let collection = collection else {
                     return
@@ -126,7 +126,7 @@ internal class BrowserAlbumListCell: SourceCollectionViewCell {
         // when are requesting an image, please cancel it
         _requests?.forEach { request in
             // cancel
-            container.cancel(with: request)
+            container.library.ub_cancel(with: request)
         }
         
         // clear context

@@ -115,7 +115,7 @@ public class UHAssetCollectionList: NSObject {
         let result = PHAssetCollection.fetchAssetCollections(with: collectionType, subtype: collectionSubtype, options: nil)
         
         // convert to `_PHCollection`
-        return (0 ..< result.count).flatMap { index in
+        return (0 ..< result.count).compactMap { index in
             return .init(collection: result.object(at: index), collectionType: .regular)
         }
     }
@@ -126,7 +126,7 @@ public class UHAssetCollectionList: NSObject {
             let result = PHAssetCollection.fetchMoments(with: nil)
             
             // merge to result
-            return (0 ..< result.count).flatMap { index in
+            return (0 ..< result.count).compactMap { index in
                 return .init(collection: result.object(at: index), collectionType: .moment)
             }
         }
@@ -340,7 +340,7 @@ extension UHAsset: Asset {
         }
     }
     /// The subtypes of the asset, an option of type `AssetSubtype`
-    public var ub_subtype: UInt {
+    public var ub_subtype: AssetSubtype {
         var subtype: AssetSubtype = []
         
         // is photo
@@ -381,13 +381,14 @@ extension UHAsset: Asset {
             }
         }
         
-        return subtype.rawValue
+        return subtype
     }
     
     /// The collection in which asset is located.
     public var ub_collection: Collection? {
-        set { return objc_setAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_collection).hashValue), newValue, .OBJC_ASSOCIATION_ASSIGN) }
-        get { return objc_getAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_collection).hashValue)) as? Collection }
+        return nil
+//        set { return objc_setAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_collection).hashValue), newValue, .OBJC_ASSOCIATION_ASSIGN) }
+//        get { return objc_getAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_collection).hashValue)) as? Collection }
     }
 
     
@@ -461,7 +462,7 @@ extension UHAssetCollection: Collection {
     /// Retrieves assets from the specified asset collection.
     public func ub_asset(at index: Int) -> Asset {
         let asset = fetchResultLoaded.object(at: index)
-        asset.ub_collection = self
+//        asset.ub_collection = self
         return asset
     }
     
@@ -770,7 +771,7 @@ extension UHAssetLibrary: Library {
         let request = UHAssetRequest(targetSize: targetSize, contentMode: _convert(forMode: contentMode))
         
         // special processing is required when loading larger images
-        if targetSize == UHAssetLibrary.ub_requestMaximumSize {
+        if targetSize == ub_requestMaximumSize {
             
             // estimate the memory space required for an image
             let width = (asset.pixelWidth + min(.init(targetSize.width), asset.pixelWidth) + 1) % (asset.pixelWidth + 1)
@@ -797,7 +798,7 @@ extension UHAssetLibrary: Library {
             }
             
             // for GIF special loading methods are required
-            if request.data == nil && asset.ub_subtype & AssetSubtype.photoGIF.rawValue != 0 {
+            if request.data == nil && asset.ub_subtype.contains(.photoGIF) {
                 // the image is GIF.
                 logger.info?.write("request GIF image")
                 
@@ -907,7 +908,7 @@ extension UHAssetLibrary: Library {
     }
     
     /// Predefined size of the original request
-    public static var ub_requestMaximumSize: CGSize {
+    public var ub_requestMaximumSize: CGSize {
         return PHImageManagerMaximumSize
     }
 }

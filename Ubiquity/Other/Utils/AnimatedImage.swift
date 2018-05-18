@@ -405,7 +405,7 @@ internal class AnimatedImageInfo: NSObject {
         let count: Int = CGImageSourceGetCount(source)
         
         // Iterate through frame images
-        let frames = (0 ..< count).flatMap { index -> AnimatedImageFrameInfo? in
+        let frames = (0 ..< count).compactMap { index -> AnimatedImageFrameInfo? in
             // must include the GIF info
             guard let info = AnimatedImageFrameInfo(source: source, at: index, previous: last) else {
                 return nil

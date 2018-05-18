@@ -211,7 +211,7 @@ internal class FPSLabel: UILabel {
         layer.masksToBounds = true
     }
     
-    private dynamic func tack(_ link: CADisplayLink) {
+    @objc private func tack(_ link: CADisplayLink) {
         guard let lastTime = _lastTime else {
             _lastTime = link.timestamp
             return

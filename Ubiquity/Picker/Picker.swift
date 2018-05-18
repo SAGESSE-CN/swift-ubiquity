@@ -9,12 +9,12 @@
 import UIKit
 
 /// Picker delegate events
-@objc public protocol PickerDelegate: class {
+public protocol PickerDelegate: class {
     
     // Check whether item can select
-    @objc optional func picker(_ picker: Picker, shouldSelectItem asset: Asset) -> Bool
-    @objc optional func picker(_ picker: Picker, didSelectItem asset: Asset)
-    @objc optional func picker(_ picker: Picker, didDeselectItem asset: Asset)
+    func picker(_ picker: Picker, shouldSelectItem asset: Asset) -> Bool
+    func picker(_ picker: Picker, didSelectItem asset: Asset)
+    func picker(_ picker: Picker, didDeselectItem asset: Asset)
 }
 
 /// A media picker
@@ -195,27 +195,28 @@ import UIKit
     
     private func _item(shouldSelectItem asset: Asset, status: SelectionItem, sender: AnyObject) -> Bool {
         // ask the user if the asset is allowed to be select
-        return delegate?.picker?(self, shouldSelectItem: asset) ?? true
+//        return delegate?.picker?(self, shouldSelectItem: asset) ?? true
+        return false
     }
     private func _item(didSelectItem asset: Asset, status: SelectionItem, sender: AnyObject) {
         
         // tell the user that the asset is already selected
-        delegate?.picker?(self, didSelectItem: asset)
-        
-        // tell all observers
-        _forEach(SelectionItemUpdateDelegate.self) {
-            $0.selectionItem(status, didSelectItem: asset, sender: sender)
-        }
+//        delegate?.picker?(self, didSelectItem: asset)
+//
+//        // tell all observers
+//        _forEach(SelectionItemUpdateDelegate.self) {
+//            $0.selectionItem(status, didSelectItem: asset, sender: sender)
+//        }
     }
     private func _item(didDeselect asset: Asset, status: SelectionItem, sender: AnyObject) {
         
         // tell the user that the asset is already selected
-        delegate?.picker?(self, didDeselectItem: asset)
-        
-        // tell all observers
-        _forEach(SelectionItemUpdateDelegate.self) {
-            $0.selectionItem(status, didDeselectItem: asset, sender: sender)
-        }
+//        delegate?.picker?(self, didDeselectItem: asset)
+//        
+//        // tell all observers
+//        _forEach(SelectionItemUpdateDelegate.self) {
+//            $0.selectionItem(status, didDeselectItem: asset, sender: sender)
+//        }
     }
     
     private func _forEach<T>(_ _: T.Type, _ body: (T) -> Void) {

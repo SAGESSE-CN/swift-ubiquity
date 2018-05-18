@@ -140,7 +140,7 @@ public class Factory: NSObject {
             
             
             // Rewrite the class method.
-            class_getClassMethod(superclass, selector).ub_map {
+            class_getClassMethod(superclass, selector)?.ub_map {
                class_addMethod(metaClass, selector, imp_implementationWithBlock(unsafeBitCast(getter, to: AnyObject.self)), method_getTypeEncoding($0))
             }
 

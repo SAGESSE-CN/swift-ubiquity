@@ -56,7 +56,7 @@ public class Source: NSObject {
         
         // configure title
         _title = title
-        _defaultTitle = collectionLists.flatMap({ $0.ub_title }).first ?? ub_defaultTitle(with: collectionLists.map({ $0.ub_collectionType }))
+        _defaultTitle = collectionLists.compactMap({ $0.ub_title }).first ?? ub_defaultTitle(with: collectionLists.map({ $0.ub_collectionType }))
     }
     /// A data source with multiple collection list types.
     public convenience init(collectionTypes: [CollectionType], filter: CustomFilter? = nil, title: String? = nil) {
@@ -152,8 +152,8 @@ public class Source: NSObject {
         
         // fetch collection list with types if needed
         _collectionListTypes.map {
-            _collectionLists = $0.flatMap {
-                container.request(forCollectionList: $0)
+            _collectionLists = $0.compactMap {
+                container.library.ub_request(forCollectionList: $0)
             }
         }
         
@@ -170,7 +170,7 @@ public class Source: NSObject {
     /// Load filtered collections
     private func _loadCollections(with filter: CustomFilter?) {
         // get all the collection for collections & collection lists
-        var collections = (_collections.map { [$0] } ?? []) + (_collectionLists ?? []).flatMap { collectionList in
+        var collections = (_collections.map { [$0] } ?? []) + (_collectionLists ?? []).compactMap { collectionList in
             return (0 ..< collectionList.ub_count).map { index in
                 return collectionList.ub_collection(at: index)
             }
@@ -195,7 +195,7 @@ public class Source: NSObject {
         }
         
         // fetch collcetion lists
-        _filteredCollectionLists = (_collections.map { [$0] } ?? []) + (_collectionLists ?? []).flatMap { $0 }
+        _filteredCollectionLists = (_collections.map { [$0] } ?? []) + (_collectionLists ?? []).compactMap { $0 }
         
         // fetch and filter success
         _filteredCollectionsOfPlane = collections
@@ -269,7 +269,10 @@ public class Source: NSObject {
     /// Retrieves collection list from the source.
     public func collectionList(at index: Int) -> CollectionList? {
         // may be is CollectionList and Arrary<Collection>.
-        return _filteredCollectionLists?[index] as? CollectionList
+        guard let collectionList = _filteredCollectionLists?[index] else {
+            return nil
+        }
+        return collectionList as? CollectionList
     }
     
     /// Generate a new source with change.
@@ -284,7 +287,7 @@ public class Source: NSObject {
         newSource._identifier = _identifier
         newSource._filter = _filter
         newSource._collectionListTypes = _collectionListTypes
-        newSource._collectionLists = _collectionLists?.flatMap {
+        newSource._collectionLists = _collectionLists?.compactMap {
             // if the collection list has not change, use the original collection list
             guard let details = change.ub_changeDetails(forCollectionList: $0) else {
                 return $0
@@ -294,7 +297,7 @@ public class Source: NSObject {
             // if after is nil, indicates that the collection list has been deleted
             return details.after as? CollectionList
         }
-        newSource._collections = _collections?.flatMap {
+        newSource._collections = _collections?.compactMap {
             // if the collection has not change, use the original collection
             guard let details = change.ub_changeDetails(forCollection: $0) else {
                 return $0
@@ -320,88 +323,89 @@ public class Source: NSObject {
     /// Get assets change details info.
     public func changeDetails(forAssets change: Change) -> SourceChangeDetails? {
         // hit cache?
+        let caching = change as? Caching<Change>
         let cachedKey = "source-assets-\(_identifier)"
-        if let cachedDetails = Cacher.cache(of: change, forKey: cachedKey) as? SourceChangeDetails {
+        if let cachedDetails = caching?.extra[cachedKey] as? SourceChangeDetails {
             return cachedDetails
         }
-        
+
         // generate a new source
         guard let newSource = _newSource(with: change) else {
             return nil
         }
-        
+
         // compare the difference between the collections changes
         let collections = diff(_filteredCollections ?? [], dest: newSource._filteredCollections ?? []) {
             return ($0 === $1)
         }
-        
+
         // if no any changes, the event is ignore
         guard !collections.isEmpty else {
-            return nil 
+            return nil
         }
-        
+
         // generate new change details
         let newDetails = SourceChangeDetails(before: self, after: newSource)
-        
+
         // must be some changes
         newDetails.hasItemChanges = true
         newDetails.hasIncrementalChanges = true
-        
+
         // handling collections change information
         collections.forEach {
             switch $0 {
             case .move(let from, let to):
                 // move a section
                 newDetails.moveSections?.append((from, to))
-                
+
             case .insert(_, let to):
                 // insert a new section
                 newDetails.insertSections?.insert(to)
-                
+
             case .remove(let from, _):
                 // remove a section
                 newDetails.deleteSections?.insert(from)
-                
+
             case .update(let from, _):
                 // update a section
                 // check the change information
                 guard let collection = _filteredCollections?[from] else {
                     return
                 }
-                
+
                 // get the collection change details
                 guard let details = change.ub_changeDetails(forCollection: collection) else {
                     return
                 }
-                
+
                 // if hasItemChanges is false, the collection is changed, but asset no any change
                 guard details.hasItemChanges else {
                     return // ignore the event
                 }
-                
+
                 // if hasIncrementalChanges is false, the change can’t support incremental
                 guard details.hasIncrementalChanges else {
                     newDetails.reloadSections?.insert(from)
-                    return 
+                    return
                 }
-                
+
                 // convert to source change details
                 details.insertedIndexes?.forEach { newDetails.insertItems?.append(.init(item: $0, section: from)) }
                 details.removedIndexes?.forEach { newDetails.removeItems?.append(.init(item: $0, section: from)) }
                 details.changedIndexes?.forEach { newDetails.reloadItems?.append(.init(item: $0, section: from)) }
-                
+
                 details.movedIndexes?.forEach {
                     newDetails.moveItems?.append((.init(item: $0, section: from), .init(item: $1, section: from)))
                 }
             }
         }
-        
+
         // repair data conflict
         newDetails.fix()
-        
+
         // save to cacher
-        Cacher.cache(of: change, value: newDetails, forKey: cachedKey)
-        
+        caching?.extra[cachedKey] = newDetails
+
         // submit changes
         return newDetails
     }
@@ -409,100 +413,101 @@ public class Source: NSObject {
     /// Get collections change details info.
     public func changeDetails(forCollections change: Change) -> SourceChangeDetails? {
         // hit cache?
+        let caching = change as? Caching<Change>
         let cachedKey = "source-collections-\(_identifier)"
-        if let cachedDetails = Cacher.cache(of: change, forKey: cachedKey) as? SourceChangeDetails {
+        if let cachedDetails = caching?.extra[cachedKey] as? SourceChangeDetails {
             return cachedDetails
         }
-        
+
         // generate a new source
         guard let newSource = _newSource(with: change) else {
             return nil
         }
-        
+
         // compare the difference between the collection list changes
         let collectionLists = diff(_filteredCollectionLists ?? [], dest: newSource._filteredCollectionLists ?? []) {
             return ($0 as? CollectionList)?.ub_identifier == ($1 as? CollectionList)?.ub_identifier
         }
-        
+
         // compare the difference between the collections changes
         let collections = diff(_filteredCollections ?? [], dest: newSource._filteredCollections ?? []) {
             return ($0 === $1)
         }
-        
+
         // if no any changes, the event is ignore
         guard !collectionLists.isEmpty || !collections.isEmpty else {
             return nil
         }
-        
+
         // generate old index paths
         let indexPaths: [IndexPath] = _filteredCollectionsOfPlane?.enumerated().flatMap { section, collections in
-            return collections.enumerated().flatMap { item, collection in
+            return collections.enumerated().compactMap { item, collection in
                 return IndexPath(item: item, section: section)
             }
         } ?? []
-        
+
         // generate new index paths
         let newIndexPaths: [IndexPath] = newSource._filteredCollectionsOfPlane?.enumerated().flatMap { section, collections in
-            return collections.enumerated().flatMap { item, collection in
+            return collections.enumerated().compactMap { item, collection in
                 return IndexPath(item: item, section: section)
             }
         } ?? []
-        
+
         // generate new change details
         let newDetails = SourceChangeDetails(before: self, after: newSource)
-        
+
         // must be some changes
         newDetails.hasItemChanges = true
         newDetails.hasIncrementalChanges = true
-        
+
         // handling collection lists change information
         collectionLists.forEach {
             switch $0 {
             case .move(let from, let to):
                 // move a section
                 newDetails.moveSections?.append((from, to))
-                
+
             case .insert(_, let to):
                 // insert a new section
                 newDetails.insertSections?.insert(to)
-                
+
             case .remove(let from, _):
                 // remove a section
                 newDetails.deleteSections?.insert(from)
-                
+
             case .update(let from, _):
                 // update a section
                 newDetails.reloadSections?.insert(from)
             }
         }
-        
+
         // handling collections change information
         collections.forEach {
             switch $0 {
             case .move(let from, let to):
                 // move a collection
                 newDetails.moveItems?.append((indexPaths[from], newIndexPaths[to]))
-                
+
             case .insert(_, let to):
                 // insert a new collection
                 newDetails.insertItems?.append(newIndexPaths[to])
-                
+
             case .remove(let from, _):
                 // remove a collection
                 newDetails.removeItems?.append(indexPaths[from])
-                
+
             case .update(let from, _):
                 // udpate a collection
                 newDetails.reloadItems?.append(indexPaths[from])
             }
         }
-        
+
         // repair data conflict
         newDetails.fix()
-        
+
         // save to cacher
-        Cacher.cache(of: change, value: newDetails, forKey: cachedKey)
-        
+        caching?.extra[cachedKey] = newDetails
+
         // submit changes
         return newDetails
     }
@@ -748,7 +753,7 @@ public class SourceChangeDetails: NSObject {
         ]
         
         // convert to string
-        let str = tmp.flatMap { $0 }.flatMap { $0 }.reduce("") {
+        let str = tmp.compactMap { $0 }.flatMap { $0 }.reduce("") {
             guard !$0.isEmpty else {
                 return $1
             }

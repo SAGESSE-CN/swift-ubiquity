@@ -169,16 +169,16 @@ open class SourceCollectionViewCell: UICollectionViewCell {
     }
     
     /// Provide content view of class
-    open dynamic class var contentViewClass: AnyClass {
+    @objc open dynamic class var contentViewClass: AnyClass {
         return UIView.self
     }
     /// Provide container view of class
-    open dynamic class var containerViewClass: AnyClass {
+    @objc open dynamic class var containerViewClass: AnyClass {
         return contentViewClass
     }
     
     /// Provide content view of class, iOS 8+
-    private dynamic class var _contentViewClass: AnyClass {
+    @objc private dynamic class var _contentViewClass: AnyClass {
         return containerViewClass
     }
 }
@@ -205,7 +205,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         self.automaticallyAdjustsScrollViewInsets = true
         
         // add change observer for library.
-        self.container.addChangeObserver(self)
+//        self.container.library.ub_addChangeObserver(self)
         
         logger.trace?.write()
     }
@@ -219,7 +219,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         logger.trace?.write()
         
         // Remove chnage observer for library.
-        self.container.removeChangeObserver(self)
+//        self.container.library.ub_removeChangeObserver(self)
         
         // Clear all cache request when destroyed
         self.cachingClear()
@@ -453,7 +453,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         logger.trace?.write(collectionView.contentOffset)
         
         // Stop cache all
-        container.stopCachingImagesForAllAssets()
+        container.library.ub_stopCachingImagesForAllAssets()
         
         // Reset all cache preheat rect.
         previousPreheatRect = .zero
@@ -530,12 +530,12 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         }
         
         // Update the assets the PHCachingImageManager is caching.
-        container.startCachingImages(for: cachingItems(at: added),
+        container.library.ub_startCachingImages(for: cachingItems(at: added),
                                      size: cachingItemSize,
                                      mode: .aspectFill,
                                      options: nil)
         
-        container.stopCachingImages(for: cachingItems(at: removed),
+        container.library.ub_stopCachingImages(for: cachingItems(at: removed),
                                     size: cachingItemSize,
                                     mode: .aspectFill,
                                     options: nil)
@@ -544,7 +544,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
     /// Get the index path that needs to be cached in the specified rect.
     open func cachingIndexPaths(in rect: CGRect) -> [IndexPath] {
         //logger.trace?.write(rect)
-        return collectionViewLayout.layoutAttributesForElements(in: rect)?.flatMap {
+        return collectionViewLayout.layoutAttributesForElements(in: rect)?.compactMap {
             guard $0.representedElementCategory == .cell else {
                 return nil
             }
@@ -555,7 +555,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
     /// Get the asset that needs to be cached in the specified index paths.
     open func cachingItems(at indexPaths: [IndexPath]) -> [Asset] {
         //logger.trace?.write(indexPaths)
-        return indexPaths.flatMap {
+        return indexPaths.compactMap {
             return data(source, at: $0) as? Asset
         }
     }

@@ -360,7 +360,7 @@ internal extension PlayerView {
         
     }
     
-    fileprivate dynamic func _ntf_interruptioned(_ sender: Notification) {
+    @objc fileprivate dynamic func _ntf_interruptioned(_ sender: Notification) {
         // if item is nil, the player is not ready
         guard let _ = _item else {
             return
@@ -373,7 +373,7 @@ internal extension PlayerView {
         _player?.pause()
         _cb_didSuspend()
     }
-    fileprivate dynamic func _ntf_finished(_ sender: Notification) {
+    @objc fileprivate dynamic func _ntf_finished(_ sender: Notification) {
         // if item is nil, the player is not ready
         // if item no equ to sender, the notification is other
         guard let item = _item, item === sender.object as? AVPlayerItem else {
@@ -386,7 +386,7 @@ internal extension PlayerView {
         _player?.pause()
         _cb_didFinish()
     }
-    fileprivate dynamic func _ntf_stalled(_ sender: Notification) {
+    @objc fileprivate dynamic func _ntf_stalled(_ sender: Notification) {
         // if item is nil, the player is not ready
         guard let _ = _item else {
             return
@@ -398,7 +398,7 @@ internal extension PlayerView {
         _cb_didStalled()
     }
     
-    fileprivate dynamic func _ntf_suspend(_ sender: Notification) {
+    @objc fileprivate dynamic func _ntf_suspend(_ sender: Notification) {
         // if item is nil, the player is not ready
         guard let _ = _item else {
             return
@@ -416,7 +416,7 @@ internal extension PlayerView {
         _player?.pause()
         _cb_didSuspend()
     }
-    fileprivate dynamic func _ntf_resume(_ sender: Notification) {
+    @objc fileprivate dynamic func _ntf_resume(_ sender: Notification) {
         // if item is nil, the player is not ready
         guard let _ = _item else {
             return

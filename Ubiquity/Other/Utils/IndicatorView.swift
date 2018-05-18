@@ -97,7 +97,7 @@ import UIKit
         _interactivingToIndexPath = nil
         
         let size = estimatedItemSize
-        let indexPaths = Set([ofidx, otidx, oldValue, newValue].flatMap({ $0 })).sorted()
+        let indexPaths = Set([ofidx, otidx, oldValue, newValue].compactMap({ $0 })).sorted()
         
         let animations = { () -> Void in
             self._tilingView.reloadItems(at: indexPaths)
@@ -175,7 +175,7 @@ import UIKit
 //        
 //        _performWithoutContentOffsetChange {
 //            // 生成需要变更的元素
-//            let ops = Set([ofidx, otidx, nfidx, ntidx, ocidx].flatMap({ $0 })).sorted()
+//            let ops = Set([ofidx, otidx, nfidx, ntidx, ocidx].compactMap({ $0 })).sorted()
 //            
 //            _tilingView.reloadItems(at: ops) { attr in
 //                if attr.indexPath == nfidx {

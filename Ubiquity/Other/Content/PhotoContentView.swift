@@ -37,7 +37,7 @@ internal class PhotoContentView: ImageView, Displayable {
         let thumbSize = BrowserAlbumLayout.thumbnailItemSize
         let thumbOptions = RequestOptions()
         
-        let largeSize = type(of: container.library).ub_requestMaximumSize
+        let largeSize = container.library.ub_requestMaximumSize
         let largeOptions = RequestOptions()
         
         thumbOptions.isSynchronous = true
@@ -56,7 +56,7 @@ internal class PhotoContentView: ImageView, Displayable {
         
         _requests = [
             // request thumb image
-            container.request(forImage: asset, size: thumbSize, mode: .aspectFill, options: thumbOptions) { [weak self, weak asset] contents, response in
+            container.library.ub_request(forImage: asset, targetSize: thumbSize, contentMode: .aspectFill, options: thumbOptions) { [weak self, weak asset] contents, response in
                 // if the asset is nil, the asset has been released
                 guard let asset = asset else {
                     return
@@ -69,7 +69,7 @@ internal class PhotoContentView: ImageView, Displayable {
                 self?._updateContents(contents, response: response, asset: asset)
             },
             // request large image
-            container.request(forImage: asset, size: largeSize, mode: .aspectFill, options: largeOptions) { [weak self, weak asset] contents, response in
+            container.library.ub_request(forImage: asset, targetSize: largeSize, contentMode: .aspectFill, options: largeOptions) { [weak self, weak asset] contents, response in
                 // if the asset is nil, the asset has been released
                 guard let asset = asset else {
                     return
@@ -91,7 +91,7 @@ internal class PhotoContentView: ImageView, Displayable {
         // when are requesting an image, please cancel it
         _requests?.forEach { request in
             request.map { request in
-                container.cancel(with: request)
+                container.library.ub_cancel(with: request)
             }
         }
         

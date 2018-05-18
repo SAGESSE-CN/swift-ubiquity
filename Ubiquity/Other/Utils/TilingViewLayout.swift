@@ -103,7 +103,7 @@ internal class TilingViewLayout: NSObject {
         guard !indexPaths.isEmpty else {
             return // indexPaths is empty, no change
         }
-        let reloadElements = indexPaths.sorted().flatMap { _tilingViewLayoutElementMaps[$0] }
+        let reloadElements = indexPaths.sorted().compactMap { _tilingViewLayoutElementMaps[$0] }
         if reloadElements.isEmpty {
             return // reloadElements is empty(all remove), no change
         }

@@ -9,7 +9,6 @@
 import Foundation
 
 /// Constants identifying the general type of an asset, such as image or video.
-@objc
 public enum AssetType: Int, CustomStringConvertible {
     
     /// The asset’s type is unknown.
@@ -69,7 +68,6 @@ public struct AssetSubtype: OptionSet {
 }
 
 /// A representation of an image, video
-@objc
 public protocol Asset: class {
     
     /// The localized title of the asset.
@@ -97,7 +95,7 @@ public protocol Asset: class {
     /// The type of the asset, such as video or audio.
     var ub_type: AssetType { get }
     /// The subtypes of the asset, an option of type `AssetSubtype`
-    var ub_subtype: UInt { get }
+    var ub_subtype: AssetSubtype { get }
     
     /// The collection in which asset is located.
     var ub_collection: Collection? { get }

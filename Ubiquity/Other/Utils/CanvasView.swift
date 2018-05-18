@@ -463,7 +463,7 @@ extension CanvasView {
     }
     
     /// rotation handler
-    fileprivate dynamic func rotationHandler(_ sender: UIRotationGestureRecognizer) {
+    @objc fileprivate dynamic func rotationHandler(_ sender: UIRotationGestureRecognizer) {
         // is opened rotation?
         guard _isRotationing else {
             return

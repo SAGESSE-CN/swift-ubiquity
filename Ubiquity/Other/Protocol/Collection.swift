@@ -9,7 +9,6 @@
 import Foundation
 
 /// Major distinctions between kinds of asset collections
-@objc
 public enum CollectionType : Int {
     
     /// All albums except moment.
@@ -22,9 +21,7 @@ public enum CollectionType : Int {
     case recentlyAdded = 2
 }
 
-
 /// Minor distinctions between kinds of asset collections
-@objc
 public enum CollectionSubtype : Int {
 
     /// A smart album of no more specific subtype.
@@ -57,10 +54,8 @@ public enum CollectionSubtype : Int {
     case smartAlbumScreenshots = 211
 }
 
-
 /// The abstract superclass for Photos asset collections.
-@objc
-public protocol Collection: NSObjectProtocol {
+public protocol Collection: class {
     
     /// The localized title of the collection.
     var ub_title: String? { get }
@@ -85,24 +80,4 @@ public protocol Collection: NSObjectProtocol {
     func ub_contains(_ asset: Asset) -> Bool
 }
 
-
-/// The abstract superclass for Photos asset collection lists.
-@objc
-public protocol CollectionList: NSObjectProtocol {
-    
-    /// The localized title of the collection list.
-    var ub_title: String? { get }
-    /// The localized subtitle of the collection list.
-    var ub_subtitle: String? { get }
-    /// A unique string that persistently identifies the object.
-    var ub_identifier: String { get }
-    
-    /// The type of the asset collection, such as an album or a moment.
-    var ub_collectionType: CollectionType { get }
-    
-    /// The number of collection in the collection list.
-    var ub_count: Int { get }
-    /// Retrieves collection from the specified collection list.
-    func ub_collection(at index: Int) -> Collection
-}
 

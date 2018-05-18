@@ -61,7 +61,7 @@ internal class BrowserAlbumCell: SourceCollectionViewCell, TransitioningView {
         _allowsInvaildContents = true
         
         // setup content
-        self.request = container.request(forImage: asset, size: contentSize, mode: .aspectFill, options: .init()) { [weak self, weak asset] contents, response in
+        self.request = container.library.ub_request(forImage: asset, targetSize: contentSize, contentMode: .aspectFill, options: .init()) { [weak self, weak asset] contents, response in
             // if the asset is nil, the asset has been released
             guard let asset = asset else {
                 return
@@ -76,7 +76,7 @@ internal class BrowserAlbumCell: SourceCollectionViewCell, TransitioningView {
         
         // when are requesting an image, please cancel it
         request.map {
-            container.cancel(with: $0)
+            container.library.ub_cancel(with: $0)
         }
         
         // clear context
@@ -147,7 +147,7 @@ internal class BrowserAlbumCell: SourceCollectionViewCell, TransitioningView {
     private func _updateBadge(with downloading: Bool) {
         
         let mediaType = asset?.ub_type ?? .unknown
-        let mediaSubtypes = AssetSubtype(rawValue: asset?.ub_subtype ?? 0)
+        let mediaSubtypes = asset?.ub_subtype ?? []
         
         // setup badge item
         switch mediaType {

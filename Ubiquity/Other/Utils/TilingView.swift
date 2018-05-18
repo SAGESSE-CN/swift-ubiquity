@@ -105,7 +105,7 @@ import UIKit
         // 收集动画信息
         _animationDuration = _visableCells.reduce(0) { dur, ele in
             let layer = ele.value.layer
-            let tmp = layer.animationKeys()?.flatMap({ layer.animation(forKey: $0)?.duration }).max()
+            let tmp = layer.animationKeys()?.compactMap({ layer.animation(forKey: $0)?.duration }).max()
             return max(dur, tmp ?? 0)
         }
     }
@@ -130,7 +130,7 @@ import UIKit
     }
     
     var indexPathsForVisibleItems: [IndexPath] { 
-        return _visableCells.flatMap {
+        return _visableCells.compactMap {
             return $0.key
         }
     }
@@ -141,7 +141,7 @@ import UIKit
     }
     
     var visibleCells: [TilingViewCell] { 
-        return _visableCells.flatMap {
+        return _visableCells.compactMap {
             return $0.value
         }
     }
@@ -298,7 +298,7 @@ import UIKit
             
         } else {
             // 没有任何元素, 移除所有
-            removeIndexPaths = _visableLayoutElements?.flatMap {
+            removeIndexPaths = _visableLayoutElements?.compactMap {
                 return $0.indexPath
             } ?? []
             _visibleLayoutRect = .zero
@@ -387,7 +387,7 @@ import UIKit
                     return false // 动画己经执行过了
                 }
                 return true
-            }()
+            }(())
             //print("animation at \(attr.indexPath): \(cell.frame)(\(cell.layer.presentation()?.frame)), \(attr.fromFrame) to \(attr.frame)")
             if (UIView.areAnimationsEnabled || hasCustomAnimation) {
                 UIView.performWithoutAnimation {
@@ -426,7 +426,7 @@ import UIKit
         return attr.frame.union(attr.fromFrame)
     }
     
-    private dynamic func _tapHandler(_ sender: UITapGestureRecognizer) {
+    @objc private dynamic func _tapHandler(_ sender: UITapGestureRecognizer) {
         let location = sender.location(in: self)
         guard let attr = _visableLayoutElements?.filter({ $0.frame.contains(location) }).first else {
             return

@@ -37,7 +37,7 @@ class SelectionTests: XCTestCase {
         assets = collections.map { collection in
             collection.assets = (0 ..< 100).map {
                 let asset = AssetT(identifier: "asset-\($0) in \(collection.identifier)")
-                asset.ub_collection = collection
+//                asset.ub_collection = collection
                 return asset
             }
             return collection.assets

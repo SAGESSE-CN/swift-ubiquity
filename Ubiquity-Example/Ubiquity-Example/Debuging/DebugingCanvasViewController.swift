@@ -78,7 +78,7 @@ internal class DebugingCanvasViewController: UIViewController, CanvasViewDelegat
         }
     }
     
-    func tapHandler(_ sender: UITapGestureRecognizer) {
+    @objc func tapHandler(_ sender: UITapGestureRecognizer) {
         
         let pt = sender.location(in: imageView)
         

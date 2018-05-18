@@ -78,7 +78,7 @@ extension VideoContentView: Displayable {
         // when are requesting an player item, please cancel it
         _request.map { request in
             // reveal cancel
-            container.cancel(with: request)
+            container.library.ub_cancel(with: request)
         }
         
         // stop player if needed
@@ -138,7 +138,7 @@ extension VideoContentView: Playable {
         // request player item
         _prepareing = true
         _prepared = false
-        _request = container.request(forVideo: asset, options: .video) { [weak self, weak asset] item, response in
+        _request = container.library.ub_request(forVideo: asset, options: .video) { [weak self, weak asset] item, response in
             // if the asset is nil, the asset has been released
             guard let asset = asset, let item = item else {
                 return

@@ -18,7 +18,7 @@ internal extension CADisplayLink {
         }
         
         // forward
-        func tick(_ sender: CADisplayLink) {
+        @objc func tick(_ sender: CADisplayLink) {
             block(sender)
         }
         

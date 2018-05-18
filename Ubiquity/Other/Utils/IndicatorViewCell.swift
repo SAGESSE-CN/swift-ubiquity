@@ -101,15 +101,15 @@ internal class IndicatorViewCell: TilingViewCell {
 /// Add dynamic class support
 extension IndicatorViewCell {
     // with `conetntClass` generates a new class
-    dynamic class func `class`(with conetntClass: AnyClass) -> AnyClass {
+    @objc dynamic class func `class`(with conetntClass: AnyClass) -> AnyClass {
         // if the class has been registered, ignore
         let name = "\(NSStringFromClass(self))<\(NSStringFromClass(conetntClass))>"
         if let newClass = objc_getClass(name) as? AnyClass {
             return newClass
         }
         // if you have not registered this, dynamically generate it
-        let newClass: AnyClass = objc_allocateClassPair(self, name, 0)
-        let method: Method = class_getClassMethod(self, #selector(getter: contentViewClass))
+        let newClass: AnyClass = objc_allocateClassPair(self, name, 0)!
+        let method: Method = class_getClassMethod(self, #selector(getter: contentViewClass))!
         objc_registerClassPair(newClass)
         // because it is a class method, it can not used class, need to use meta class
         guard let metaClass = objc_getMetaClass(name) as? AnyClass else {
@@ -123,7 +123,7 @@ extension IndicatorViewCell {
         return newClass
     }
     // provide content view of class
-    dynamic class var contentViewClass: AnyClass {
+    @objc dynamic class var contentViewClass: AnyClass {
         return UIView.self
     }
 }

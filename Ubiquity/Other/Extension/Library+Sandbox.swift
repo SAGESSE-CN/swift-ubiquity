@@ -238,14 +238,15 @@ extension UHLocalAsset: Asset {
         return type
     }
     /// The subtypes of the asset, an option of type `AssetSubtype`
-    open var ub_subtype: UInt {
-        return subtype.rawValue
+    open var ub_subtype: AssetSubtype {
+        return subtype
     }
     
     /// The collection in which asset is located.
     public var ub_collection: Collection? {
-        set { return objc_setAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_collection).hashValue), newValue, .OBJC_ASSOCIATION_ASSIGN) }
-        get { return objc_getAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_collection).hashValue)) as? Collection }
+        return nil
+//        set { return objc_setAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_collection).hashValue), newValue, .OBJC_ASSOCIATION_ASSIGN) }
+//        get { return objc_getAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_collection).hashValue)) as? Collection }
     }
 }
 extension UHLocalAssetCollection: Collection {
@@ -284,7 +285,7 @@ extension UHLocalAssetCollection: Collection {
     /// Retrieves assets from the specified asset collection.
     open func ub_asset(at index: Int) -> Asset {
         let asset = self.asset(at: index)
-        asset.ub_collection = self
+//        asset.ub_collection = self
         return asset
     }
     
@@ -460,7 +461,7 @@ extension UHLocalAssetLibrary: Library {
     }
     
     /// Predefined size of the original request
-    open static var ub_requestMaximumSize: CGSize {
+    open var ub_requestMaximumSize: CGSize {
         return .init(width: -1, height: -1)
     }
 }

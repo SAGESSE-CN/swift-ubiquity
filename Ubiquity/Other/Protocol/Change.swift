@@ -9,7 +9,6 @@
 import Foundation
 
 /// A change info
-@objc
 public protocol Change {
     
     /// Returns detailed change information for the specified collection.
@@ -19,7 +18,6 @@ public protocol Change {
 }
 
 /// A change details info
-@objc
 public class ChangeDetails: NSObject {
     
     /// Generate a change details info
@@ -61,14 +59,13 @@ public class ChangeDetails: NSObject {
         ]
         
         // map
-        let diffs = tmp.flatMap { $0 }.flatMap { $0 }
+        let diffs = tmp.compactMap { $0 }.compactMap { $0 }
         
         return "\(super.description), diffs: \(diffs)"
     }
 }
 
 /// A protocol you can implement to be notified of changes that occur in the Photos library.
-@objc
 public protocol ChangeObserver: class {
     
     /// Tells your observer that a set of changes has occurred in the Photos library.

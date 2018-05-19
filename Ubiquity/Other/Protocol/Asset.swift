@@ -98,7 +98,7 @@ public protocol Asset: class {
     var ub_subtype: AssetSubtype { get }
     
     /// The collection in which asset is located.
-    var ub_collection: Collection? { get }
+    var ub_collection: Collection? { set get }
 }
 
 

@@ -143,7 +143,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0C004FC91F36CCFF00212C93 /* Library+Photos.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Library+Photos.swift"; sourceTree = "<group>"; };
+		0C004FC91F36CCFF00212C93 /* Library+Photos.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Library+Photos.swift"; sourceTree = "<group>"; wrapsLines = 0; };
 		0C013AA91ED52C47002617AE /* ExceptionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExceptionView.swift; sourceTree = "<group>"; };
 		0C013AAD1ED56496002617AE /* UIColor+Hex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+Hex.swift"; sourceTree = "<group>"; };
 		0C05A26D1FC41C6E0084CDAB /* BrowserPreviewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserPreviewController.swift; sourceTree = "<group>"; };
@@ -323,6 +323,17 @@
 			path = Protocol;
 			sourceTree = "<group>";
 		};
+		0C38D0C020AFF68300B60B84 /* Selection */ = {
+			isa = PBXGroup;
+			children = (
+				0C1D79001F2D263F0044E757 /* SelectionRectangle.swift */,
+				0C189CE31F299BE800E2699D /* SelectionScroller.swift */,
+				0CD65B741F381BD8008CD3A7 /* SelectionItem.swift */,
+				0CE283DF20AD397D00E867AC /* Selection.swift */,
+			);
+			path = Selection;
+			sourceTree = "<group>";
+		};
 		0C7D45051EAB7AE800D56AB5 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -350,10 +361,6 @@
 				0C7D45101EAB7AE800D56AB5 /* ProgressView.swift */,
 				0C24977A1EEA95BC00CDD68C /* Protocol.swift */,
 				0C5CA9E61FECF55F002FB158 /* R.swift */,
-				0C1D79001F2D263F0044E757 /* SelectionRectangle.swift */,
-				0C189CE31F299BE800E2699D /* SelectionScroller.swift */,
-				0CD65B741F381BD8008CD3A7 /* SelectionItem.swift */,
-				0CE283DF20AD397D00E867AC /* Selection.swift */,
 				0C983BBD1EBB90BE00A5A932 /* ThumbView.swift */,
 				0C7D45111EAB7AE800D56AB5 /* TilingView.swift */,
 				0C7D45121EAB7AE800D56AB5 /* TilingViewCell.swift */,
@@ -501,6 +508,7 @@
 		0CE49E801E7AAF760058F5F8 /* Other */ = {
 			isa = PBXGroup;
 			children = (
+				0C38D0C020AFF68300B60B84 /* Selection */,
 				0C13964520AEAF0500279072 /* Caching */,
 				0C8725001FED83A400E4BC7C /* Base */,
 				0C983BC51EBC552300A5A932 /* Content */,

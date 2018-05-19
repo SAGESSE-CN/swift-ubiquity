@@ -380,14 +380,14 @@ internal class BrowserAlbumController: SourceCollectionViewController, Transitio
     }
 
 
-    // MARK: Container Observer
+    // MARK: Library Change Observer
 
-    override func container(_ container: Container, change: Change, source: Source, apply changeDetails: SourceChangeDetails) {
+    override func library(_ library: Library, change: Change, source: Source, apply changeDetails: SourceChangeDetails) {
         // Must update header & footer before update the data source.
         _headerView?.source = source
         _footerView?.source = source
         
-        super.container(container, change: change, source: source, apply: changeDetails)
+        super.library(library, change: change, source: source, apply: changeDetails)
         
         // Update header & footer layout
         _updateHeaderView()

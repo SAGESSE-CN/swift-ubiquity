@@ -85,19 +85,34 @@ private class Cacher<T>: Caching<Collection>, Collection  {
 }
 
 extension Caching where T == Collection {
-
-    static func unwarp(_ value: Collection) -> Collection {
-        if let value = value as? Cacher<Collection> {
+    
+    static func unwarp<R>(_ value: R) -> R where R == T {
+        if let value = value as? Cacher<R> {
             return value.ref
         }
         return value
     }
 
-    static func warp(_ value: Collection) -> Collection {
-        if let value = value as? Cacher<Collection> {
+    static func warp<R>(_ value: R) -> R where R == T {
+        if let value = value as? Cacher<R> {
             return value
         }
-        return Cacher<Collection>(value)
+        return Cacher<R>(value)
+    }
+    
+    
+    static func unwarp<R>(_ value: R?) -> R? where R == T {
+        if let value = value {
+            return unwarp(value) as R
+        }
+        return value
+    }
+    
+    static func warp<R>(_ value: R?) -> R? where R == T {
+        if let value = value {
+            return warp(value) as R
+        }
+        return value
     }
 }
 

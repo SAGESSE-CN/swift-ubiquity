@@ -8,6 +8,33 @@
 
 import Foundation
 
+private class DifferenceNode {
+    init(insert from: Int, to: Int, _ next: DifferenceNode? = nil) {
+        self.mode = 1
+        self.from = from
+        self.to = to
+        self.next = next
+    }
+    init(equal from: Int, to: Int, _ next: DifferenceNode? = nil) {
+        self.mode = 0
+        self.from = from
+        self.to = to
+        self.next = next
+
+    }
+    init(remove from: Int, to: Int, _ next: DifferenceNode? = nil) {
+        self.mode = -1
+        self.from = from
+        self.to = to
+        self.next = next
+    }
+    
+    var mode: Int
+    var from: Int
+    var to: Int
+    var next: DifferenceNode?
+}
+
 /// Difference result
 public enum DifferenceResult: CustomStringConvertible, Equatable {
     
@@ -141,17 +168,17 @@ public func diff<Element>(_ src: Array<Element>, dest: Array<Element>, equal: (E
     
     var si = slen
     var di = dlen
-    var matching = false // match a remove & add group
+    var mp = false // match a remove & add group
     
-    var rms: [(from: Int, to: Int)] = []
-    var adds: [(from: Int, to: Int)] = []
-    
+    var head: DifferenceNode?
+    var results: [DifferenceResult] = []
+
     // create the optimal path
     repeat {
         guard si != 0 else {
             // the remaining is add
             while di > 0 {
-                adds.append((from: si - 1, to: di - 1))
+                head = .init(insert: si - 1, to: di - 1, head)
                 di -= 1
             }
             break
@@ -159,16 +186,17 @@ public func diff<Element>(_ src: Array<Element>, dest: Array<Element>, equal: (E
         guard di != 0 else {
             // the remaining is remove
             while si > 0 {
-                rms.append((from: si - 1, to: di - 1))
+                head = .init(remove: si - 1, to: di - 1, head)
                 si -= 1
             }
             break
         }
         guard !equal(src[si - 1], dest[di - 1]) else {
             // no change, ignore
+            head = .init(equal: si - 1, to: di - 1, head)
             si -= 1
             di -= 1
-            matching = false
+            mp = false
             continue
         }
         // check the weight
@@ -176,70 +204,86 @@ public func diff<Element>(_ src: Array<Element>, dest: Array<Element>, equal: (E
         
         // the item is remove?
         guard !(weight.x > weight.y) else {
-            rms.append((from: si - 1, to: di - 1))
+            head = .init(remove: si - 1, to: di - 1, head)
             si -= 1
-            matching = false
+            mp = false
             continue
         }
         
         // the item is add?
         guard !(weight.x < weight.y) else {
-            adds.append((from: si - 1, to: di - 1))
+            head = .init(insert: si - 1, to: di - 1, head)
             di -= 1
-            matching = false
+            mp = false
             continue
         }
         
         // the item is automatic match
-        guard !(matching) else {
+        guard !(mp) else {
             // remove
-            rms.append((from: si - 1, to: di - 1))
+            head = .init(remove: si - 1, to: di - 1, head)
             si -= 1
-            matching = false
+            mp = false
             continue
         }
         
         // add
-        adds.append((from: si - 1, to: di - 1))
+        head = .init(insert: si - 1, to: di - 1, head)
         di -= 1
-        matching = true
+        mp = true
         
     } while si > 0 || di > 0
-    
-    var results: [DifferenceResult] = []
-    
-    results.reserveCapacity(rms.count + adds.count)
-    
-    // move(f,t): f = remove(f), t = insert(t), new move(f,t): f = remove(f), t = insert(f)
-    // update: remove.from == insert.from && remove.to == insert.to - 1
-    
-    // automatic merge delete and update items
-    results.append(contentsOf: rms.map({ item in
-        let from = item.from
-        let delElement = src[from]
-        // can't merge to move item?
-        if let addIndex = adds.index(where: { equal(dest[$0.to], delElement) }) {
-            let addItem = adds.remove(at: addIndex)
-            return .move(from: from, to: addItem.to)
-        }
-        // can't merge to update item?
-        if let addIndex = adds.index(where: { item.from == $0.from && item.to == $0.to - 1 }) {
-            let addItem = adds[addIndex]
-            //let addElement = dest[addItem.to]
+
+    // The order of processing is from head to tail.
+    while let node = head {
+        switch node.mode {
+        case +1: // This is insert node.
+            // Skip all the same nodes.
+            var current = node
+            while let same = current.next, same.mode == node.mode {
+                current = same
+            }
+
+            // Move: Find any of the same remove node.
+
+            // Reload: Next is remove node. e.g. I+R
+            if let remove = current.next, remove.mode == -1 {
+                results.append(.update(from: remove.from, to: node.to))
+                current.next = remove.next
+                head = node.next
+                continue
+            }
             
-            // if delete and add at the same time, merged to update
-            adds.remove(at: addIndex)
-            return .update(from: from, to: addItem.to)
+            // Insert: Other case.
+            results.append(.insert(from: -1, to: node.to))
+
+        case -1: // This is remove node.
+            // Skip all the same nodes.
+            var current = node
+            while let same = current.next, same.mode == node.mode {
+                current = same
+            }
+
+            // Move: Find any of the same insert node.
+            
+            // Reload: Next is insert node. e.g. R+I
+            if let insert = current.next, insert.mode == +1 {
+                results.append(.update(from: node.from, to: insert.to))
+                current.next = insert.next
+                head = node.next
+                continue
+            }
+
+            // Remove: Other case.
+            results.append(.remove(from: node.from, to: -1))
+
+        default: // This is equal node.
+            break
         }
-        return .remove(from: item.from, to: -1)
-    }))
-    
-    // automatic merge insert items
-    results.append(contentsOf: adds.map({ item in
-        return .insert(from: -1, to: item.to)
-    }))
-    
-    // sort
-    return results.sorted { $0.from < $1.from }
+        // Processing to next node.
+        head = node.next
+    }
+
+    return results
 }
 

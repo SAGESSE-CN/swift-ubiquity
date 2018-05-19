@@ -11,7 +11,7 @@ import UIKit
 public class Caching<T>: Logport {
     
     public let ref: T
-    public init(_ ref: T) {
+    internal init(_ ref: T) {
         self.ref = ref
     }
     

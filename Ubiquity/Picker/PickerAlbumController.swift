@@ -35,8 +35,8 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
     }
     
     /// Apply the change details to UI.
-    override func container(_ container: Container, change: Change, source: Source, apply changeDetails: SourceChangeDetails) {
-        super.container(container, change: change, source: source, apply: changeDetails)
+    override func library(_ library: Library, change: Change, source: Source, apply changeDetails: SourceChangeDetails) {
+        super.library(library, change: change, source: source, apply: changeDetails)
         
         // clear selector cache
         _selectionRectangle.clear()

@@ -34,15 +34,15 @@ class DifferenceTestCase: XCTestCase {
         XCTAssertEqual(diff([1,2], dest: [1,0,2]), [.insert(from: -1, to: 1)])
         XCTAssertEqual(diff([1,2], dest: [1,2,0]), [.insert(from: -1, to: 2)])
         
-        XCTAssertEqual(diff([1,2], dest: [0,0,1,2]), [.insert(from: -1, to: 1), .insert(from: -1, to: 0)])
-        XCTAssertEqual(diff([1,2], dest: [1,0,0,2]), [.insert(from: -1, to: 2), .insert(from: -1, to: 1)])
-        XCTAssertEqual(diff([1,2], dest: [1,2,0,0]), [.insert(from: -1, to: 3), .insert(from: -1, to: 2)])
-        XCTAssertEqual(diff([1,2], dest: [0,1,2,0]), [.insert(from: -1, to: 3), .insert(from: -1, to: 0)])
-        XCTAssertEqual(diff([1,2], dest: [0,1,0,2]), [.insert(from: -1, to: 2), .insert(from: -1, to: 0)])
+        XCTAssertEqual(diff([1,2], dest: [0,0,1,2]), [.insert(from: -1, to: 0), .insert(from: -1, to: 1)])
+        XCTAssertEqual(diff([1,2], dest: [1,0,0,2]), [.insert(from: -1, to: 1), .insert(from: -1, to: 2)])
+        XCTAssertEqual(diff([1,2], dest: [1,2,0,0]), [.insert(from: -1, to: 2), .insert(from: -1, to: 3)])
+        XCTAssertEqual(diff([1,2], dest: [0,1,2,0]), [.insert(from: -1, to: 0), .insert(from: -1, to: 3)])
+        XCTAssertEqual(diff([1,2], dest: [0,1,0,2]), [.insert(from: -1, to: 0), .insert(from: -1, to: 2)])
         
-        XCTAssertEqual(diff([1,2], dest: [0,1,0,2,0]), [.insert(from: -1, to: 4), .insert(from: -1, to: 2), .insert(from: -1, to: 0)])
+        XCTAssertEqual(diff([1,2], dest: [0,1,0,2,0]), [.insert(from: -1, to: 0), .insert(from: -1, to: 2), .insert(from: -1, to: 4)])
         
-        XCTAssertEqual(diff([], dest: [1,2,3]), [.insert(from: -1, to: 2), .insert(from: -1, to: 1), .insert(from: -1, to: 0)])
+        XCTAssertEqual(diff([], dest: [1,2,3]), [.insert(from: -1, to: 0), .insert(from: -1, to: 1), .insert(from: -1, to: 2)])
     }
     func testUpdate() {
         
@@ -58,10 +58,11 @@ class DifferenceTestCase: XCTestCase {
         XCTAssertEqual(diff([1,2,3,4], dest: [0,2,0,4]), [.update(from: 0, to: 0), .update(from: 2, to: 2)])
     }
     
-    func testInsertAndRemove() {
+    func testInsertAndUpdate() {
+        XCTAssertEqual(diff([1,2,3], dest: [1,2,4,5]), [.update(from: 2, to: 2), .insert(from: -1, to: 3)])
     }
     
     func testRemoveAndUpdate() {
-        XCTAssertEqual(diff([0,1,2,3,4,5,6,7,8], dest: [0,1,0,4,0,6,7,8]), [.remove(from: 2, to: -1), .update(from: 3, to: 2), .update(from: 5, to: 4)])
+        XCTAssertEqual(diff([0,1,2,3,4,5,6,7,8], dest: [0,1,0,4,0,6,7,8]), [.update(from: 2, to: 2), .remove(from: 3, to: -1), .update(from: 5, to: 4)])
     }
 }

@@ -12,9 +12,9 @@ import Foundation
 public protocol Change {
     
     /// Returns detailed change information for the specified collection.
-    func ub_changeDetails(forCollection collection: Collection) -> ChangeDetails?
+    func ub_changeDetails(_ change: Change, collection: Collection) -> ChangeDetails?
     /// Returns detailed change information for the specified colleciotn list.
-    func ub_changeDetails(forCollectionList collectionList: CollectionList) -> ChangeDetails?
+    func ub_changeDetails(_ change: Change, collectionList: CollectionList) -> ChangeDetails?
 }
 
 /// A change details info

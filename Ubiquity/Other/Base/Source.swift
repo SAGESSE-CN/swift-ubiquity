@@ -289,23 +289,23 @@ public class Source: NSObject {
         newSource._collectionListTypes = _collectionListTypes
         newSource._collectionLists = _collectionLists?.compactMap {
             // if the collection list has not change, use the original collection list
-            guard let details = change.ub_changeDetails(forCollectionList: $0) else {
+            guard let details = change.ub_changeDetails(change, collectionList: $0) else {
                 return $0
             }
             hasChanges = true
             // if the collectoin list have change, use the changed collectoin list
             // if after is nil, indicates that the collection list has been deleted
-            return details.after as? CollectionList
+            return Caching.warp(details.after as? CollectionList)
         }
         newSource._collections = _collections?.compactMap {
             // if the collection has not change, use the original collection
-            guard let details = change.ub_changeDetails(forCollection: $0) else {
+            guard let details = change.ub_changeDetails(change, collection: $0) else {
                 return $0
             }
             hasChanges = true
             // if the collectoin have change, use the changed collectoin
             // if after is nil, indicates that the collection has been deleted
-            return details.after as? Collection
+            return Caching.warp(details.after as? Collection)
         }
         
         // if no difference is compared, the event is ignored
@@ -336,7 +336,10 @@ public class Source: NSObject {
 
         // compare the difference between the collections changes
         let collections = diff(_filteredCollections ?? [], dest: newSource._filteredCollections ?? []) {
-            return ($0 === $1)
+            // Warning: If collection has been warp, it will always be different.
+            let lhs = Caching.unwarp($0)
+            let rhs = Caching.unwarp($1)
+            return lhs === rhs
         }
 
         // if no any changes, the event is ignore
@@ -374,7 +377,7 @@ public class Source: NSObject {
                 }
 
                 // get the collection change details
-                guard let details = change.ub_changeDetails(forCollection: collection) else {
+                guard let details = change.ub_changeDetails(change, collection: collection) else {
                     return
                 }
 
@@ -428,10 +431,13 @@ public class Source: NSObject {
         let collectionLists = diff(_filteredCollectionLists ?? [], dest: newSource._filteredCollectionLists ?? []) {
             return ($0 as? CollectionList)?.ub_identifier == ($1 as? CollectionList)?.ub_identifier
         }
-
+        
         // compare the difference between the collections changes
         let collections = diff(_filteredCollections ?? [], dest: newSource._filteredCollections ?? []) {
-            return ($0 === $1)
+            // Warning: If collection has been warp, it will always be different.
+            let lhs = Caching.unwarp($0)
+            let rhs = Caching.unwarp($1)
+            return lhs === rhs
         }
 
         // if no any changes, the event is ignore

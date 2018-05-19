@@ -60,7 +60,8 @@ private class Cacher<T>: Caching<Asset>, Asset  {
     
     /// The collection in which asset is located.
     var ub_collection: Collection? {
-        return nil
+        set { return _collection = newValue }
+        get { return _collection }
     }
     
     // MARK: -
@@ -71,22 +72,39 @@ private class Cacher<T>: Caching<Asset>, Asset  {
     
     private var _type: AssetType?
     private var _subtype: AssetSubtype?
+    
+    private weak var _collection: Collection?
 }
 
 extension Caching where T == Asset {
     
-    static func unwarp(_ value: Asset) -> Asset {
-        if let value = value as? Cacher<Asset> {
+    static func unwarp<R>(_ value: R) -> R where R == T {
+        if let value = value as? Cacher<R> {
             return value.ref
         }
         return value
     }
     
-    static func warp(_ value: Asset) -> Asset {
-        if let value = value as? Cacher<Asset> {
+    static func warp<R>(_ value: R) -> R where R == T {
+        if let value = value as? Cacher<R> {
             return value
         }
-        return Cacher<Asset>(value)
+        return Cacher<R>(value)
+    }
+    
+    
+    static func unwarp<R>(_ value: R?) -> R? where R == T {
+        if let value = value {
+            return unwarp(value) as R
+        }
+        return value
+    }
+    
+    static func warp<R>(_ value: R?) -> R? where R == T {
+        if let value = value {
+            return warp(value) as R
+        }
+        return value
     }
 }
 

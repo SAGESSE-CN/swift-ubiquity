@@ -386,9 +386,8 @@ extension UHAsset: Asset {
     
     /// The collection in which asset is located.
     public var ub_collection: Collection? {
-        return nil
-//        set { return objc_setAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_collection).hashValue), newValue, .OBJC_ASSOCIATION_ASSIGN) }
-//        get { return objc_getAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_collection).hashValue)) as? Collection }
+        set { return objc_setAssociatedObject(self, &_ub_collection_key, newValue, .OBJC_ASSOCIATION_ASSIGN) }
+        get { return objc_getAssociatedObject(self, &_ub_collection_key) as? Collection }
     }
 
     
@@ -511,7 +510,7 @@ extension UHAssetCollectionList: CollectionList {
 extension UHAssetChange: Change {
 
     /// Returns detailed change information for the specified collection.
-    public func ub_changeDetails(forCollection collection: Collection) -> ChangeDetails? {
+    public func ub_changeDetails(_ change: Change, collection: Collection) -> ChangeDetails? {
         // collection must king of `PHAssetCollection`
         guard let collection = collection as? UHAssetCollection else {
             return nil
@@ -605,7 +604,7 @@ extension UHAssetChange: Change {
     }
     
     /// Returns detailed change information for the specified colleciotn list.
-    public func ub_changeDetails(forCollectionList collectionList: CollectionList) -> ChangeDetails? {
+    public func ub_changeDetails(_ change: Change, collectionList: CollectionList) -> ChangeDetails? {
         // collection must king of `UHAssetCollectionList`
         guard let collectionList = collectionList as? UHAssetCollectionList else {
             return nil
@@ -625,7 +624,7 @@ extension UHAssetChange: Change {
             }
             
             // if collection is has any change
-            guard let details = ub_changeDetails(forCollection: collectionList.collections[index]) else {
+            guard let details = change.ub_changeDetails(change, collection: collectionList.collections[index]) else {
                 // no change, reset collection
                 newCollectionList.collections[$0] = collectionList.collections[index]
                 return
@@ -957,5 +956,6 @@ private func _convert(forVideo options: RequestOptions?) -> PHVideoRequestOption
     return newOptions
 }
 
+private var _ub_collection_key: String = "_ub_collection_key"
 
 

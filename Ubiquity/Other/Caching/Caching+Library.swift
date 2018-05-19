@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 
 /// Provides methods for retrieving or generating preview thumbnails and full-size image or video data associated with Photos assets.
-private class Cacher<T>: Caching<Library>, Library  {
+private class Cacher<T>: Caching<Library>, Library, ChangeObserver  {
     
     override init(_ ref: Library) {
         super.init(ref)
@@ -319,21 +319,6 @@ private class Cacher<T>: Caching<Library>, Library  {
         return ref.ub_requestMaximumSize
     }
     
-    //    /// Tells your observer that a set of changes has occurred in the Photos library.
-    //    open func ub_library(_ library: Library, didChange change: Change) {
-    //        // update all collection
-    //        _ = Cacher.bridging(of: change)
-    //        _collectionLists.forEach { type, collectionList in
-    //            // the collection list has any change?
-    //            guard let details = change.ub_changeDetails(forCollectionList: collectionList) else {
-    //                return
-    //            }
-    //
-    //            // update value
-    //            _collectionLists[type] = details.after as? CollectionList
-    //        }
-    //    }
-    
     // MARK: -
     
     func addTask(for subtask: RequestTask, options: RequestOptions? = nil, forwarder: @escaping (Task) -> Request?) {
@@ -500,6 +485,20 @@ private class Cacher<T>: Caching<Library>, Library  {
                     $0.start()
                 }
             }
+        }
+    }
+    
+    /// Tells your observer that a set of changes has occurred in the Photos library.
+    func library(_ library: Library, didChange change: Change) {
+        // update all collection
+        _collectionLists.forEach { type, collectionList in
+            // the collection list has any change?
+            guard let details = change.ub_changeDetails(change, collectionList: collectionList) else {
+                return
+            }
+            
+            // update value
+            _collectionLists[type] = Caching.warp(details.after as? CollectionList)
         }
     }
 
@@ -943,18 +942,33 @@ extension DispatchQueue {
 
 extension Caching where T == Library {
     
-    static func unwarp(_ value: Library) -> Library {
-        if let value = value as? Cacher<Library> {
+    static func unwarp<R>(_ value: R) -> R where R == T {
+        if let value = value as? Cacher<R> {
             return value.ref
         }
         return value
     }
-
-    static func warp(_ value: Library) -> Library {
-        if let value = value as? Cacher<Library> {
+    
+    static func warp<R>(_ value: R) -> R where R == T {
+        if let value = value as? Cacher<R> {
             return value
         }
-        return Cacher<Library>(value)
+        return Cacher<R>(value)
+    }
+    
+    
+    static func unwarp<R>(_ value: R?) -> R? where R == T {
+        if let value = value {
+            return unwarp(value) as R
+        }
+        return value
+    }
+    
+    static func warp<R>(_ value: R?) -> R? where R == T {
+        if let value = value {
+            return warp(value) as R
+        }
+        return value
     }
 }
 

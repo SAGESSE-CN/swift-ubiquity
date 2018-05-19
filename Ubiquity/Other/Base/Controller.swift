@@ -184,7 +184,7 @@ open class SourceCollectionViewCell: UICollectionViewCell {
 }
 
 /// Templated collection view controller.
-open class SourceCollectionViewController: FactoryCollectionViewController, Controller, ContainerObserver, ExceptionHandling {
+open class SourceCollectionViewController: FactoryCollectionViewController, Controller, ChangeObserver, ExceptionHandling {
     
     /// Create an instance using class factory.
     public required init(container: Container, source: Source, factory: Factory, parameter: Any?) {
@@ -205,7 +205,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         self.automaticallyAdjustsScrollViewInsets = true
         
         // add change observer for library.
-//        self.container.library.ub_addChangeObserver(self)
+        self.container.addChangeObserver(self)
         
         logger.trace?.write()
     }
@@ -219,7 +219,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         logger.trace?.write()
         
         // Remove chnage observer for library.
-//        self.container.library.ub_removeChangeObserver(self)
+        self.container.removeChangeObserver(self)
         
         // Clear all cache request when destroyed
         self.cachingClear()
@@ -560,10 +560,10 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         }
     }
 
-    // MARK: Container Observer
+    // MARK: Library Change Observer
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
-    open func container(_ container: Container, didChange change: Change) {
+    open func library(_ library: Library, didChange change: Change) {
         // if the library no authorized, ignore all change
         guard authorized else {
             return
@@ -571,7 +571,7 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         logger.debug?.write()
         
         // Fetch the source change.
-        guard let newChangeDetails = self.container(container, change: change, fetch: source) else {
+        guard let newChangeDetails = self.library(library, change: change, fetch: source) else {
             return
         }
         
@@ -584,16 +584,16 @@ open class SourceCollectionViewController: FactoryCollectionViewController, Cont
         // Re-dispatch to the main queue to update the UI.
         DispatchQueue.main.async {
             // progressing
-            self.container(self.container, change: change, source: newSource, apply: newChangeDetails)
+            self.library(library, change: change, source: newSource, apply: newChangeDetails)
         }
     }
     
     /// Get the details of the change.
-    open func container(_ container: Container, change: Change, fetch source: Source) -> SourceChangeDetails? {
+    open func library(_ library: Library, change: Change, fetch source: Source) -> SourceChangeDetails? {
         return source.changeDetails(forAssets: change)
     }
     /// Apply the change details to UI.
-    open func container(_ container: Container, change: Change, source: Source, apply changeDetails: SourceChangeDetails) {
+    open func library(_ library: Library, change: Change, source: Source, apply changeDetails: SourceChangeDetails) {
         logger.trace?.write(changeDetails)
         
         // The collectionView must be set

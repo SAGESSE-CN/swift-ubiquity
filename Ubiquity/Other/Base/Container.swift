@@ -10,14 +10,6 @@ import UIKit
 import AVFoundation
 
 
-/// A protocol you can implement to be notified of changes that occur in the Photos library.
-public protocol ContainerObserver: class {
-    
-    /// Tells your observer that a set of changes has occurred in the Photos library.
-    func container(_ container: Container, didChange change: Change)
-}
-
-
 /// The base container
 open class Container: NSObject, ChangeObserver {
     
@@ -39,96 +31,16 @@ open class Container: NSObject, ChangeObserver {
         self.library.ub_removeChangeObserver(self)
     }
     
-//    // MARK: Observer
-//
-//    /// Registers an object to receive messages when objects in the photo library change.
-//    internal func addChangeObserver(_ observer: ContainerObserver) {
-//        observers.insert(observer)
-//    }
-//    /// Unregisters an object so that it no longer receives change messages.
-//    internal func removeChangeObserver(_ observer: ContainerObserver) {
-//        observers.remove(observer)
-//    }
-//
-//    // MARK: Fetch
-//
-//    ///A Boolean value that determines whether the image manager prepares high-quality images.
-//    open var allowsCachingHighQualityImages: Bool {
-//        set { return library.ub_allowsCachingHighQualityImages = newValue }
-//        get { return library.ub_allowsCachingHighQualityImages }
-//    }
-//
-//    /// Returns collections with collectoin type
-//    open func request(forCollectionList type: CollectionType) -> CollectionList {
-//        fatalError()
-////        return cacher.request(forCollectionList: type)
-//    }
-//    /// Requests an image representation for the specified asset.
-//    open func request(forImage asset: Asset, size: CGSize, mode: RequestContentMode, options: RequestOptions, resultHandler: @escaping (UIImage?, Response) -> ()) -> Request? {
-//        #if DEBUG
-//        guard !_debug else {
-//            return nil
-//        }
-//        #endif
-//        fatalError()
-////        return cacher.request(forImage: asset, targetSize: size, contentMode: mode, options: options, resultHandler: resultHandler)
-//    }
-//
-//    /// Requests a representation of the video asset for playback, to be loaded asynchronously.
-//    open func request(forVideo asset: Asset, options: RequestOptions, resultHandler: @escaping (AVPlayerItem?, Response) -> ()) -> Request? {
-//        #if DEBUG
-//        guard !_debug else {
-//            return nil
-//        }
-//        #endif
-//        fatalError()
-////        return library.ub_request?(forVideo: asset, options: options, resultHandler: resultHandler)
-//    }
-//
-//    /// Cancels an asynchronous request
-//    open func cancel(with request: Request) {
-//        #if DEBUG
-//        guard !_debug else {
-//            return
-//        }
-//        #endif
-//        fatalError()
-////        return cacher.cancel(with: request)
-//    }
-//
-//    // MARK: Cacher
-//
-//    /// Prepares image representations of the specified assets for later use.
-//    open func startCachingImages(for assets: Array<Asset>, size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
-//        #if DEBUG
-//        guard !_debug else {
-//            return
-//        }
-//        #endif
-//        fatalError()
-////        return cacher.startCachingImages(for: assets, size: size, mode: mode, options: options)
-//    }
-//    /// Cancels image preparation for the specified assets and options.
-//    open func stopCachingImages(for assets: Array<Asset>, size: CGSize, mode: RequestContentMode, options: RequestOptions?) {
-//        #if DEBUG
-//        guard !_debug else {
-//            return
-//        }
-//        #endif
-//        fatalError()
-////        return cacher.stopCachingImages(for: assets, size: size, mode: mode, options: options)
-//    }
-//
-//    /// Cancels all image preparation that is currently in progress.
-//    open func stopCachingImagesForAllAssets() {
-//        #if DEBUG
-//        guard !_debug else {
-//            return
-//        }
-//        #endif
-//        fatalError()
-////        return cacher.stopCachingImagesForAllAssets()
-//    }
+    // MARK: Observer
+
+    /// Registers an object to receive messages when objects in the photo library change.
+    internal func addChangeObserver(_ observer: ChangeObserver) {
+        observers.insert(observer)
+    }
+    /// Unregisters an object so that it no longer receives change messages.
+    internal func removeChangeObserver(_ observer: ChangeObserver) {
+        observers.remove(observer)
+    }
     
     // MARK: Library Change
     
@@ -162,7 +74,7 @@ open class Container: NSObject, ChangeObserver {
     
     /// Tells your observer that a set of changes has occurred in the Photos library.
     open func library(_ library: Library, didChange change: Change) {
-        // ignoring is begin?
+        // Ignoring is begin?
         guard _dispatch == nil else {
             _dispatch?.async {
                 self.library(library, didChange: change)
@@ -170,18 +82,17 @@ open class Container: NSObject, ChangeObserver {
             return
         }
         
-        // update cache for library change
-//        self.cacher.ub_library(library, didChange: change)
+        // Make a new change
+        let newChange = Caching.warp(change)
         
-        // notifity all observers
+        // Update cache for library change
+        (self.library as? ChangeObserver)?.library(self.library, didChange: newChange)
+        
+        // Notifity all observers
         self.observers.forEach {
-            $0.container(self, didChange: change)
+            $0.library(self.library, didChange: newChange)
         }
     }
-    
-    // MARK: Pre-configuration
-    
-    
     
     // MARK: Content
     
@@ -235,7 +146,7 @@ open class Container: NSObject, ChangeObserver {
     
     // cache
 //    private(set) var cacher: Cacher
-    private(set) var observers: WSet<ContainerObserver> = []
+    private(set) var observers: WSet<ChangeObserver> = []
     
 
     // lock

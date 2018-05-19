@@ -503,9 +503,9 @@ internal class BrowserDetailController: SourceCollectionViewController, Transiti
         return _orientationes[asset.ub_identifier] ?? .up
     }
 
-    // MARK: Container Observer
+    // MARK: Library Change Observer
 
-    override func container(_ container: Container, change: Change, source: Source, apply changeDetails: SourceChangeDetails) {
+    override func library(_ library: Library, change: Change, source: Source, apply changeDetails: SourceChangeDetails) {
         // Must be clear the layout attributes cache
         _clearItemCache()
 
@@ -519,7 +519,7 @@ internal class BrowserDetailController: SourceCollectionViewController, Transiti
             return
         }
 
-        super.container(container, change: change, source: source, apply: changeDetails)
+        super.library(library, change: change, source: source, apply: changeDetails)
 
         // Update current item.
         self.collectionView.map {

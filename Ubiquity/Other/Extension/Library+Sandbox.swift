@@ -45,6 +45,9 @@ open class UHLocalAsset: NSObject {
     open var type: AssetType = .unknown
     /// The subtypes of the asset, identifying special kinds of assets such as panoramic photo or high-framerate video.
     open var subtype: AssetSubtype = []
+    
+    /// The collection in which asset is located.
+    open weak var collectoin: Collection?
 }
 open class UHLocalAssetCollection: NSObject {
     
@@ -244,9 +247,8 @@ extension UHLocalAsset: Asset {
     
     /// The collection in which asset is located.
     public var ub_collection: Collection? {
-        return nil
-//        set { return objc_setAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_collection).hashValue), newValue, .OBJC_ASSOCIATION_ASSIGN) }
-//        get { return objc_getAssociatedObject(self, UnsafePointer(bitPattern: #selector(getter: self.ub_collection).hashValue)) as? Collection }
+        set { return collectoin = newValue }
+        get { return collectoin }
     }
 }
 extension UHLocalAssetCollection: Collection {
@@ -331,7 +333,7 @@ extension UHLocalAssetCollectionList: CollectionList {
 extension UHLocalAssetChange: Change {
 
     /// Returns detailed change information for the specified collection.
-    open func ub_changeDetails(forCollection collection: Collection) -> ChangeDetails? {
+    open func ub_changeDetails(_ change: Change, collection: Collection) -> ChangeDetails? {
         // must king of `UHLocalAssetCollection`
         guard let collection = collection as? UHLocalAssetCollection else {
             return nil
@@ -340,7 +342,7 @@ extension UHLocalAssetChange: Change {
     }
     
     /// Returns detailed change information for the specified colleciotn list.
-    open func ub_changeDetails(forCollectionList collectionList: CollectionList) -> ChangeDetails? {
+    open func ub_changeDetails(_ change: Change, collectionList: CollectionList) -> ChangeDetails? {
         // must king of `UHLocalAssetCollectionList`
         guard let collectionList = collectionList as? UHLocalAssetCollectionList else {
             return nil

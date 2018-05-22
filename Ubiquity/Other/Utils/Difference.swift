@@ -8,21 +8,22 @@
 
 import Foundation
 
-private class DifferenceNode {
-    init(insert from: Int, to: Int, _ next: DifferenceNode? = nil) {
+/// A difference node.
+private class Node {
+    init(insert from: Int, to: Int, _ next: Node? = nil) {
         self.mode = 1
         self.from = from
         self.to = to
         self.next = next
     }
-    init(equal from: Int, to: Int, _ next: DifferenceNode? = nil) {
+    init(equal from: Int, to: Int, _ next: Node? = nil) {
         self.mode = 0
         self.from = from
         self.to = to
         self.next = next
 
     }
-    init(remove from: Int, to: Int, _ next: DifferenceNode? = nil) {
+    init(remove from: Int, to: Int, _ next: Node? = nil) {
         self.mode = -1
         self.from = from
         self.to = to
@@ -32,11 +33,11 @@ private class DifferenceNode {
     var mode: Int
     var from: Int
     var to: Int
-    var next: DifferenceNode?
+    var next: Node?
 }
 
-/// Difference result
-public enum DifferenceResult: CustomStringConvertible, Equatable {
+/// A difference.
+public enum Difference: CustomStringConvertible, Equatable {
     
     /// A moved item
     case move(from: Int, to: Int)
@@ -96,7 +97,7 @@ public enum DifferenceResult: CustomStringConvertible, Equatable {
     /// - Parameters:
     ///   - lhs: A value to compare.
     ///   - rhs: Another value to compare.
-    public static func ==(lhs: DifferenceResult, rhs: DifferenceResult) -> Bool {
+    public static func ==(lhs: Difference, rhs: Difference) -> Bool {
         switch (lhs, rhs) {
         case (.remove(let f1, _), .remove(let f2, _)):
             return f1 == f2
@@ -116,15 +117,19 @@ public enum DifferenceResult: CustomStringConvertible, Equatable {
     }
 }
 
-/// Compare the differences between the two arrays
-public func diff<Element: Equatable>(_ src: Array<Element>, dest: Array<Element>) -> Array<DifferenceResult> {
+
+// MARK: -
+
+
+/// Compare the differences between the two arrays.
+public func diff<S>(_ src: S, dest: S) -> Array<Difference> where S: RandomAccessCollection, S.Index == Int, S.Element: Equatable {
     return diff(src, dest: dest) {
         $0 == $1
     }
 }
 
-/// Compare the differences between the two arrays
-public func diff<Element>(_ src: Array<Element>, dest: Array<Element>, equal: (Element, Element) -> Bool) -> Array<DifferenceResult> {
+/// Compare the differences between the two arrays.
+public func diff<S>(_ src: S, dest: S, equal: (S.Element, S.Element) -> Bool) -> Array<Difference> where S: RandomAccessCollection, S.Index == Int {
     
     let slen = src.count
     let dlen = dest.count
@@ -152,26 +157,26 @@ public func diff<Element>(_ src: Array<Element>, dest: Array<Element>, equal: (E
         }
     }
     
-//    print("  ", terminator: "")
-//    dest.forEach {
-//        print($0, terminator: " ")
-//    }
-//    print()
-//    for si in 1 ..< slen + 1 {
-//        print(src[si - 1], terminator: " ")
-//        for di in 1 ..< dlen + 1 {
-//            // comparative differences
-//            print(diffs[si][di], terminator: " ")
-//        }
-//        print()
-//    }
+    //    print("  ", terminator: "")
+    //    dest.forEach {
+    //        print($0, terminator: " ")
+    //    }
+    //    print()
+    //    for si in 1 ..< slen + 1 {
+    //        print(src[si - 1], terminator: " ")
+    //        for di in 1 ..< dlen + 1 {
+    //            // comparative differences
+    //            print(diffs[si][di], terminator: " ")
+    //        }
+    //        print()
+    //    }
     
     var si = slen
     var di = dlen
     var mp = false // match a remove & add group
     
-    var head: DifferenceNode?
-    var results: [DifferenceResult] = []
+    var head: Node?
+    var results: [Difference] = []
 
     // create the optimal path
     repeat {
@@ -191,14 +196,6 @@ public func diff<Element>(_ src: Array<Element>, dest: Array<Element>, equal: (E
             }
             break
         }
-        guard !equal(src[si - 1], dest[di - 1]) else {
-            // no change, ignore
-            head = .init(equal: si - 1, to: di - 1, head)
-            si -= 1
-            di -= 1
-            mp = false
-            continue
-        }
         // check the weight
         let weight = (x: diffs[si - 1][di], y: diffs[si][di - 1])
         
@@ -213,6 +210,16 @@ public func diff<Element>(_ src: Array<Element>, dest: Array<Element>, equal: (E
         // the item is add?
         guard !(weight.x < weight.y) else {
             head = .init(insert: si - 1, to: di - 1, head)
+            di -= 1
+            mp = false
+            continue
+        }
+        
+        // the is is equal?
+        guard !equal(src[si - 1], dest[di - 1]) else {
+            // no change, ignore
+            head = .init(equal: si - 1, to: di - 1, head)
+            si -= 1
             di -= 1
             mp = false
             continue
@@ -286,4 +293,5 @@ public func diff<Element>(_ src: Array<Element>, dest: Array<Element>, equal: (E
 
     return results
 }
+
 

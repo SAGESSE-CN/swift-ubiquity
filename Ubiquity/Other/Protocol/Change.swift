@@ -52,10 +52,10 @@ public class ChangeDetails: NSObject {
     public override var description: String {
         // fetch all change
         let tmp = [
-            insertedIndexes?.map { index -> DifferenceResult in .insert(from: -1, to: index) },
-            removedIndexes?.map { index -> DifferenceResult in .remove(from: index, to: -1) },
-            changedIndexes?.map { index -> DifferenceResult in .update(from: index, to: index) },
-            movedIndexes?.map { from, to -> DifferenceResult in .update(from: from, to: to) }
+            insertedIndexes?.map { index -> Difference in .insert(from: -1, to: index) },
+            removedIndexes?.map { index -> Difference in .remove(from: index, to: -1) },
+            changedIndexes?.map { index -> Difference in .update(from: index, to: index) },
+            movedIndexes?.map { from, to -> Difference in .update(from: from, to: to) }
         ]
         
         // map

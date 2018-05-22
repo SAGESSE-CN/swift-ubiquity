@@ -54,7 +54,7 @@ class ViewController: UIViewController, Ubiquity.PickerDelegate, UIPopoverPresen
         
         library = Ubiquity.UHAssetLibrary()
         
-        // create an image browser
+        // Create an image browser
         switch type.selectedSegmentIndex {
         case 1:
             let picker = Ubiquity.Picker(library: library)
@@ -68,7 +68,7 @@ class ViewController: UIViewController, Ubiquity.PickerDelegate, UIPopoverPresen
             container = browser
         }
         
-        // create an view controller for albums
+        // Create an view controller for albums
         switch page.selectedSegmentIndex {
         case 0: // albums
             //controller = container.instantiateViewController(with: .albumsList, source: .init(collectionType: .regular))
@@ -98,7 +98,7 @@ class ViewController: UIViewController, Ubiquity.PickerDelegate, UIPopoverPresen
             }))
         }
         
-        // display controller
+        // Display controller
         switch style.selectedSegmentIndex {
         case 0:
             controller.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(cancel(_:)))

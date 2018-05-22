@@ -12,7 +12,7 @@ import UIKit
 public class Source: NSObject {
     
     /// Custom album filter. if return false, the collection will not be displayed.
-    /// Notice: that every change is filtered again 
+    /// Notice: that every change is filtered again .
     public typealias CustomFilter = ((offset: Int, collectoin: Collection)) -> Bool
     
     /// A empy data source.
@@ -150,17 +150,17 @@ public class Source: NSObject {
     
     private func _loadData(with container: Container) {
         
-        // fetch collection list with types if needed
+        // Fetch collection list with types if needed.
         _collectionListTypes.map {
             _collectionLists = $0.compactMap {
                 container.library.ub_request(forCollectionList: $0)
             }
         }
         
-        // load data for filter
+        // Load data for filter.
         _loadCollections(with: _filter)
         
-        // need to recalculate all cached info
+        // Need to recalculate all cached info
         _cachedAssetCount = nil
         _cachedAssetsCounts = nil
         _cachedCollectionSubtypes = nil
@@ -169,15 +169,15 @@ public class Source: NSObject {
     
     /// Load filtered collections
     private func _loadCollections(with filter: CustomFilter?) {
-        // get all the collection for collections & collection lists
+        // Get all the collection for collections & collection lists
         var collections = (_collections.map { [$0] } ?? []) + (_collectionLists ?? []).compactMap { collectionList in
             return (0 ..< collectionList.ub_count).map { index in
                 return collectionList.ub_collection(at: index)
             }
         }
         
-        // filter collections if needed
-        // setting filters is a few cases, so check separately 
+        // Filter collections if needed
+        // Setting filters is a few cases, so check separately
         filter.map { filter in
             // a self increasing clouser
             let fetch = { () -> (() -> Int) in
@@ -188,20 +188,20 @@ public class Source: NSObject {
                 }
             }()
             
-            // filter all collection
+            // Filter all collection
             collections.enumerated().forEach {
                 collections[$0] = $1.filter { filter((fetch(), $0)) }
             }
         }
         
-        // fetch collcetion lists
+        // Fetch collcetion lists
         _filteredCollectionLists = (_collections.map { [$0] } ?? []) + (_collectionLists ?? []).compactMap { $0 }
         
-        // fetch and filter success
+        // Fetch and filter success
         _filteredCollectionsOfPlane = collections
         _filteredCollections = collections.flatMap { $0 }
         
-        // in title no set and only one collection, take the title of collection
+        // In title no set and only one collection, take the title of collection
         if let collection = _filteredCollections?.first, _filteredCollections?.count == 1 {
             _defaultTitle = collection.ub_title
         }
@@ -209,11 +209,11 @@ public class Source: NSObject {
     
     /// Returns the number of all assets from the source.
     public var numberOfAssets: Int {
-        // count hit cache.
+        // Count hit cache.
         if let count = _cachedAssetCount {
             return count
         }
-        // fetch assets count for all collections
+        // Fetch assets count for all collections
         let count = (0 ..< numberOfCollections).reduce(0) { $0 + (collection(at: $1)?.ub_count ?? 0) }
         _cachedAssetCount = count
         return count
@@ -229,15 +229,15 @@ public class Source: NSObject {
     
     /// Returns the number of all assets for `type` from the source.
     public func numberOfAssets(with type: AssetType) -> Int {
-        // count hit cache.
+        // Count hit cache.
         if let count = _cachedAssetsCounts?[type] {
             return count
         }
-        // is first cache.
+        // Is first cache.
         if _cachedAssetsCounts == nil {
             _cachedAssetsCounts = [:]
         }
-        // fetch assets count for all collections
+        // Fetch assets count for all collections
         let count = (0 ..< numberOfCollections).reduce(0) { $0 + (collection(at: $1)?.ub_count(with: type) ?? 0) }
         _cachedAssetsCounts?[type] = count
         return count
@@ -277,38 +277,38 @@ public class Source: NSObject {
     
     /// Generate a new source with change.
     private func _newSource(with change: Change) -> Source? {
-        // generate a new source
+        // Generate a new source
         var hasChanges = false
         let newSource = Source(collectionTypes: _collectionListTypes ?? [])
 
-        // copy source
+        // Copy old source to new source.
         newSource._title = _title
         newSource._defaultTitle = _defaultTitle
         newSource._identifier = _identifier
         newSource._filter = _filter
         newSource._collectionListTypes = _collectionListTypes
         newSource._collectionLists = _collectionLists?.compactMap {
-            // if the collection list has not change, use the original collection list
+            // If the collection list has not change, use the original collection list
             guard let details = change.ub_changeDetails(change, collectionList: $0) else {
                 return $0
             }
             hasChanges = true
-            // if the collectoin list have change, use the changed collectoin list
-            // if after is nil, indicates that the collection list has been deleted
+            // If the collectoin list have change, use the changed collectoin list
+            // If after is nil, indicates that the collection list has been deleted
             return Caching.warp(details.after as? CollectionList)
         }
         newSource._collections = _collections?.compactMap {
-            // if the collection has not change, use the original collection
+            // If the collection has not change, use the original collection
             guard let details = change.ub_changeDetails(change, collection: $0) else {
                 return $0
             }
             hasChanges = true
-            // if the collectoin have change, use the changed collectoin
-            // if after is nil, indicates that the collection has been deleted
+            // If the collectoin have change, use the changed collectoin
+            // If after is nil, indicates that the collection has been deleted
             return Caching.warp(details.after as? Collection)
         }
         
-        // if no difference is compared, the event is ignored
+        // If no difference is compared, the event is ignored
         guard hasChanges else {
             return nil
         }
@@ -316,25 +316,30 @@ public class Source: NSObject {
         /// Load filtered collections
         newSource._loadCollections(with: _filter)
         
-        // generate success
         return newSource
     }
     
     /// Get assets change details info.
     public func changeDetails(forAssets change: Change) -> SourceChangeDetails? {
-        // hit cache?
+        // This call hit cache?
         let caching = change as? Caching<Change>
-        let cachedKey = "source-assets-\(_identifier)"
+        let cachedKey = "\(#function)-\(_identifier)"
         if let cachedDetails = caching?.extra[cachedKey] as? SourceChangeDetails {
-            return cachedDetails
+            if cachedDetails.isVaild {
+                return cachedDetails
+            }
+            return nil // cached, but the change details is invalid.
         }
 
-        // generate a new source
+        // Generate a new source.
         guard let newSource = _newSource(with: change) else {
             return nil
         }
-
-        // compare the difference between the collections changes
+        
+        // Generate new change details.
+        let newDetails = SourceChangeDetails(before: self, after: newSource)
+        
+        // Compare the difference between the collections changes
         let collections = diff(_filteredCollections ?? [], dest: newSource._filteredCollections ?? []) {
             // Warning: If collection has been warp, it will always be different.
             let lhs = Caching.unwarp($0)
@@ -342,15 +347,16 @@ public class Source: NSObject {
             return lhs === rhs
         }
 
-        // if no any changes, the event is ignore
+        // Must set a value in caching to prevent the next recalculate.
+        caching?.extra[cachedKey] = newDetails
+        
+        // If no any changes, the event is ignore.
         guard !collections.isEmpty else {
             return nil
         }
 
-        // generate new change details
-        let newDetails = SourceChangeDetails(before: self, after: newSource)
-
-        // must be some changes
+        // Must be some changes
+        newDetails.isVaild = true
         newDetails.hasItemChanges = true
         newDetails.hasIncrementalChanges = true
 
@@ -403,119 +409,171 @@ public class Source: NSObject {
             }
         }
 
-        // repair data conflict
+        // Repair data conflict
         newDetails.fix()
 
-        // save to cacher
-        caching?.extra[cachedKey] = newDetails
-
-        // submit changes
         return newDetails
     }
     
     /// Get collections change details info.
     public func changeDetails(forCollections change: Change) -> SourceChangeDetails? {
-        // hit cache?
+        // This call hit cache?
         let caching = change as? Caching<Change>
-        let cachedKey = "source-collections-\(_identifier)"
+        let cachedKey = "\(#function)-\(_identifier)"
         if let cachedDetails = caching?.extra[cachedKey] as? SourceChangeDetails {
-            return cachedDetails
+            if cachedDetails.isVaild {
+                return cachedDetails
+            }
+            return nil // cached, but the change details is invalid.
         }
 
-        // generate a new source
+        // Generate a new source
         guard let newSource = _newSource(with: change) else {
             return nil
         }
 
-        // compare the difference between the collection list changes
-        let collectionLists = diff(_filteredCollectionLists ?? [], dest: newSource._filteredCollectionLists ?? []) {
+        // Compare the difference between the collection list changes
+        let oldCollectionLists = _filteredCollectionLists ?? []
+        let newCollectionLists = newSource._filteredCollectionLists ?? []
+        let collectionLists = diff(oldCollectionLists, dest: newCollectionLists) {
             return ($0 as? CollectionList)?.ub_identifier == ($1 as? CollectionList)?.ub_identifier
         }
         
-        // compare the difference between the collections changes
-        let collections = diff(_filteredCollections ?? [], dest: newSource._filteredCollections ?? []) {
-            // Warning: If collection has been warp, it will always be different.
-            let lhs = Caching.unwarp($0)
-            let rhs = Caching.unwarp($1)
-            return lhs === rhs
-        }
-
-        // if no any changes, the event is ignore
-        guard !collectionLists.isEmpty || !collections.isEmpty else {
-            return nil
-        }
-
-        // generate old index paths
-        let indexPaths: [IndexPath] = _filteredCollectionsOfPlane?.enumerated().flatMap { section, collections in
-            return collections.enumerated().compactMap { item, collection in
-                return IndexPath(item: item, section: section)
-            }
-        } ?? []
-
-        // generate new index paths
-        let newIndexPaths: [IndexPath] = newSource._filteredCollectionsOfPlane?.enumerated().flatMap { section, collections in
-            return collections.enumerated().compactMap { item, collection in
-                return IndexPath(item: item, section: section)
-            }
-        } ?? []
-
-        // generate new change details
+        // Generate new change details.
         let newDetails = SourceChangeDetails(before: self, after: newSource)
-
-        // must be some changes
-        newDetails.hasItemChanges = true
-        newDetails.hasIncrementalChanges = true
-
-        // handling collection lists change information
-        collectionLists.forEach {
-            switch $0 {
-            case .move(let from, let to):
-                // move a section
-                newDetails.moveSections?.append((from, to))
-
-            case .insert(_, let to):
-                // insert a new section
-                newDetails.insertSections?.insert(to)
-
-            case .remove(let from, _):
-                // remove a section
-                newDetails.deleteSections?.insert(from)
-
-            case .update(let from, _):
-                // update a section
-                newDetails.reloadSections?.insert(from)
-            }
-        }
-
-        // handling collections change information
-        collections.forEach {
-            switch $0 {
-            case .move(let from, let to):
-                // move a collection
-                newDetails.moveItems?.append((indexPaths[from], newIndexPaths[to]))
-
-            case .insert(_, let to):
-                // insert a new collection
-                newDetails.insertItems?.append(newIndexPaths[to])
-
-            case .remove(let from, _):
-                // remove a collection
-                newDetails.removeItems?.append(indexPaths[from])
-
-            case .update(let from, _):
-                // udpate a collection
-                newDetails.reloadItems?.append(indexPaths[from])
-            }
-        }
-
-        // repair data conflict
-        newDetails.fix()
-
-        // save to cacher
+        
+        // Must set a value in caching to prevent the next recalculate
         caching?.extra[cachedKey] = newDetails
 
-        // submit changes
-        return newDetails
+        // Must be some changes.
+        newDetails.hasItemChanges = true
+        newDetails.hasIncrementalChanges = true
+        
+        // Check every collection list
+        var (si, di, fi, ti) = (0, 0, 0, 0)
+        while si < oldCollectionLists.count || di < newCollectionLists.count {
+            // This is a diff content node.
+            var item: Difference?
+            
+            // Search from index in diff results.
+            while item == nil && fi < collectionLists.count {
+                // If than fi, interrupt
+                if collectionLists[fi].from > si {
+                    break
+                }
+                
+                // If is equal, found
+                if collectionLists[fi].from == si {
+                    item = collectionLists[fi]
+                }
+                
+                fi += 1
+            }
+            
+            // Search to index in diff results.
+            while item == nil && ti < collectionLists.count {
+                // If than di, interrupt
+                if collectionLists[ti].to > di {
+                    break
+                }
+                
+                // If is equal, found
+                if collectionLists[ti].to == di {
+                    item = collectionLists[ti]
+                }
+                
+                ti += 1
+            }
+            
+            switch item {
+            case .update(let from, _)?:
+                // The item is reload
+                newDetails.isVaild = true
+                newDetails.reloadSections?.insert(from)
+
+                si += 1
+                di += 1
+                
+            case .remove(let from, _)?:
+                // The item is remove
+                newDetails.isVaild = true
+                newDetails.deleteSections?.insert(from)
+
+                si += 1
+                
+            case .move(let from, let to)?:
+                // The item is move
+                newDetails.isVaild = true
+                newDetails.moveSections?.append((from, to))
+
+                si += 1
+                di += 1
+                
+            case .insert(_, let to)?:
+                // The item is insert
+                newDetails.isVaild = true
+                newDetails.insertSections?.insert(to)
+
+                di += 1
+                
+            case .none:
+                // The item is equal
+                let oldSection = si
+                let newSection = di
+                let oldCollections = _filteredCollectionsOfPlane?[oldSection] ?? []
+                let newCollections = newSource._filteredCollectionsOfPlane?[newSection] ?? []
+
+                si += 1
+                di += 1
+                
+                // Check whether the collection in collection list has changed.
+                let collections = diff(oldCollections, dest: newCollections) {
+                    // Warning: If collection has been warp, it will always be different.
+                    let lhs = Caching.unwarp($0)
+                    let rhs = Caching.unwarp($1)
+                    return lhs === rhs
+                }
+                
+                // If collections doesn't change, ignore it.
+                guard !collections.isEmpty else {
+                    continue // next node
+                }
+                
+                // Is changed ...
+                // handling collections change information
+                newDetails.isVaild = true
+                collections.forEach {
+                    switch $0 {
+                    case .move(let from, let to):
+                        // Move a collection
+                        newDetails.moveItems?.append((.init(row: from, section: oldSection),
+                                                      .init(row: to, section: newSection)))
+                        
+                    case .insert(_, let to):
+                        // Insert a new collection
+                        newDetails.insertItems?.append(.init(row: to, section: newSection))
+                        
+                    case .remove(let from, _):
+                        // Remove a collection
+                        newDetails.removeItems?.append(.init(row: from, section: oldSection))
+                        
+                    case .update(let from, _):
+                        // Udpate a collection
+                        newDetails.reloadItems?.append(.init(row: from, section: oldSection))
+                    }
+                }
+            }
+        }
+        
+        // Repair data conflict
+        newDetails.fix()
+        
+        // If no any changes, the event is ignore.
+        if newDetails.isVaild {
+            return newDetails
+        }
+        
+        return nil
     }
     
     /// Content identifier
@@ -705,10 +763,13 @@ public class SourceChangeDetails: NSObject {
     /// The indexs where new object have move
     public var moveSections: [(Int, Int)]? = []
     
+    // The change details is vaild.
+    internal var isVaild: Bool = false
+    
     // fixed invalid data
     internal func fix() {
         
-         // if the section has been deleted, clear all data about that section
+         // If the section has been deleted, clear all data about that section
         deleteSections?.forEach { section in
             moveItems = moveItems?.filter { $0.section != section && $1.section != section }
             removeItems = removeItems?.filter { $0.section != section }
@@ -716,7 +777,7 @@ public class SourceChangeDetails: NSObject {
             reloadItems = reloadItems?.filter { $0.section != section }
         }
         
-        // if the section has been reloaded, clear all data about that section
+        // If the section has been reloaded, clear all data about that section
         reloadSections?.forEach { section in
             moveItems = moveItems?.filter { $0.section != section && $1.section != section }
             removeItems = removeItems?.filter { $0.section != section }
@@ -724,7 +785,7 @@ public class SourceChangeDetails: NSObject {
             reloadItems = reloadItems?.filter { $0.section != section }
         }
         
-        // if the section has been move, clear all data about that section
+        // If the section has been move, clear all data about that section
         moveSections?.forEach { section, _ in
             moveItems = moveItems?.filter { $0.section != section && $1.section != section }
             removeItems = removeItems?.filter { $0.section != section }

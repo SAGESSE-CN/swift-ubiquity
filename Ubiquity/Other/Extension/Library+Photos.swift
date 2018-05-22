@@ -475,6 +475,39 @@ extension UHAssetCollection: Collection {
         }
         return self.fetchResultLoaded.contains(asset)
     }
+    
+    
+    /// Retrieves prefix assets from the specified asset collection.
+    public func ub_prefix(_ maxLenght: Int) -> Array<Asset> {
+        var results = Array<Asset>()
+        
+        results.reserveCapacity(maxLenght)
+        fetchResultLoaded.enumerateObjects(options: []) { (asset, index, stop) in
+            if results.count < maxLenght {
+                results.append(asset)
+            } else {
+                stop.pointee = true
+            }
+        }
+        
+        return results
+    }
+    
+    /// Retrieves suffix assets from the specified asset collection.
+    public func ub_suffix(_ maxLenght: Int) -> Array<Asset> {
+        var results = Array<Asset>()
+        
+        results.reserveCapacity(maxLenght)
+        fetchResultLoaded.enumerateObjects(options: .reverse) { (asset, index, stop) in
+            if results.count < maxLenght {
+                results.insert(asset, at: 0)
+            } else {
+                stop.pointee = true
+            }
+        }
+        
+        return results
+    }
 }
 extension UHAssetCollectionList: CollectionList {
     

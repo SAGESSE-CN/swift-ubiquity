@@ -18,8 +18,8 @@ internal class BrowserAlbumCell: SourceCollectionViewCell, TransitioningView {
     var contentInset: UIEdgeInsets = .zero
 
     
-    override func configure() {
-        super.configure()
+    override func prepare() {
+        super.prepare()
         
         // setup badge view
         let badgeView = BadgeView(frame: .zero)

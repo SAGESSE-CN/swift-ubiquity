@@ -132,7 +132,7 @@ class DebugingBrowserLibrary: Ubiquity.UHLocalAssetLibrary {
     }
     
     /// Requests the user’s permission, if needed, for accessing the library.
-    override func ub_requestAuthorization(_ handler: @escaping (Error?) -> Void) {
+    override func requestAuthorization(_ handler: @escaping (Error?) -> Void) {
         if _cmds.contains("cl-error") {
             handler(Exception.denied)
         } else {

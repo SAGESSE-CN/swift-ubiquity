@@ -27,47 +27,53 @@ internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
         }
         
         // extend response region
-        guard !selectedItemView.isHidden, view === contentView, UIEdgeInsetsInsetRect(selectedItemView.frame, UIEdgeInsetsMake(-8, -8, -8, -8)).contains(point) else {
+        guard !selectionItemView.isHidden, view === contentView, UIEdgeInsetsInsetRect(selectionItemView.frame, UIEdgeInsetsMake(-8, -8, -8, -8)).contains(point) else {
             return view
         }
         
-        return selectedItemView
+        return selectionItemView
     }
     
     /// Update selection status for animate
-    private func setStatus(_ status: SelectionItem?, animated: Bool) {
+    func updateSelectionItem(_ selectionItem: SelectionItem?, animated: Bool) {
         
-        selectedItemView.update(status, animated: false)
-        selectedForegroundView.isHidden = !selectedItemView.isSelected
-        
-        // need add animation?
-        guard animated else {
-            return
-        }
-        
-        let ani = CAKeyframeAnimation(keyPath: "transform.scale")
-        
-        ani.values = [0.8, 1.2, 1]
-        ani.duration = 0.25
-        ani.calculationMode = kCAAnimationCubic
-        
-        selectedItemView.layer.add(ani, forKey: "selected")
+//        selectedItemView.update(status, animated: false)
+//        selectedForegroundView.isHidden = !selectedItemView.isSelected
+//        
+//        // need add animation?
+//        guard animated else {
+//            return
+//        }
+//        
+//        let ani = CAKeyframeAnimation(keyPath: "transform.scale")
+//        
+//        ani.values = [0.8, 1.2, 1]
+//        ani.duration = 0.25
+//        ani.calculationMode = kCAAnimationCubic
+//        
+//        selectedItemView.layer.add(ani, forKey: "selected")
     }
+    
     
     override func willDisplay(_ container: Container, orientation: UIImageOrientation) {
         super.willDisplay(container, orientation: orientation)
         
-        // if it is not picker, ignore
+        // The asset must be set.
+        // The container must is king of Picker.
         guard let asset = asset, let picker = container as? Picker else {
             return
         }
-
-        // update cell selection status
-        setStatus(picker.statusOfItem(with: asset), animated: false)
-
-        // update options for picker
-        selectedItemView.isHidden = !picker.allowsSelection
-        selectedForegroundView.isHidden = !picker.allowsSelection || !selectedItemView.isSelected
+        
+//        // Connect selection item to container with asset.
+//        selectionItem.connect(asset, in: picker)
+        
+//
+//        // update cell selection status
+//        setStatus(picker.statusOfItem(with: asset), animated: false)
+//
+//        // update options for picker
+//        selectedItemView.isHidden = !picker.allowsSelection
+//        selectedForegroundView.isHidden = !picker.allowsSelection || !selectedItemView.isSelected
     }
     
     // MARK: Options change
@@ -78,62 +84,60 @@ internal class PickerAlbumCell: BrowserAlbumCell, ContainerOptionsDelegate {
             return
         }
         // the selection of whether to support the cell
-        selectedItemView.isHidden = !picker.allowsSelection
-        selectedForegroundView.isHidden = !picker.allowsSelection || !selectedItemView.isSelected
+        selectionItemView.isHidden = !picker.allowsSelection
+        selectionItemForegroundView.isHidden = !picker.allowsSelection || !selectionItemView.isSelected
     }
     
-    @objc private dynamic func _select(_ sender: Any) {
-        // the asset must be set
-        // if it is not picker, ignore
+    @objc private func _handle(_ sender: Any) {
+        // The asset must be set.
+        // The container must is king of Picker.
         guard let asset = asset, let picker = container as? Picker else {
             return
         }
         
-        // check old status
-        if status == nil {
-            // select asset
-            setStatus(picker.selectItem(with: asset, sender: self), animated: true)
-            
-        } else {
-            // deselect asset
-            setStatus(picker.deselectItem(with: asset, sender: self), animated: true)
+        switch selectionItem {            
+        case .none:
+            // Select a item with asset for picker.
+            picker.selectionController.select(.single(asset))
+
+        case .some:
+            // Deselect a item with asset for picker.
+            picker.selectionController.deselect(.single(asset))
         }
     }
     
     // Init UI
     private func _configure() {
         
-        // setup selected view
-        selectedItemView.frame = .init(x: bounds.width - contentInset.right - 24, y: contentInset.top, width: 24, height: 24)
-        selectedItemView.autoresizingMask = [.flexibleLeftMargin, .flexibleBottomMargin]
-        selectedItemView.addTarget(self, action: #selector(_select(_:)), for: .touchUpInside)
+        // Setup selection item.
+        selectionItemView.isSelected = false
         
-        // setup selected background view
-        selectedForegroundView.frame = bounds
-        selectedForegroundView.backgroundColor = UIColor(white: 0.0, alpha: 0.2)
-        selectedForegroundView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        selectedForegroundView.isUserInteractionEnabled = false
-        selectedForegroundView.isHidden = true
+        // Setup selection item view.
+        selectionItemView.frame = .init(x: bounds.width - contentInset.right - 24, y: contentInset.top, width: 24, height: 24)
+        selectionItemView.autoresizingMask = [.flexibleLeftMargin, .flexibleBottomMargin]
+        selectionItemView.addTarget(self, action: #selector(_handle(_:)), for: .touchUpInside)
         
-        // enable user interaction
+        // Setup selection item foreground view.
+        selectionItemForegroundView.frame = bounds
+        selectionItemForegroundView.backgroundColor = UIColor(white: 0.0, alpha: 0.2)
+        selectionItemForegroundView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        selectionItemForegroundView.isUserInteractionEnabled = false
+        selectionItemForegroundView.isHidden = true
+        
+        // Enable user interaction.
         contentView.isUserInteractionEnabled = true
         
-        // add subview
-        contentView.addSubview(selectedItemView)
-        contentView.insertSubview(selectedForegroundView, at: 0)
+        contentView.addSubview(selectionItemView)
+        contentView.insertSubview(selectionItemForegroundView, belowSubview: selectionItemView)
     }
     
     // MARK: Property
     
-    /// The picker selection background view.
-    lazy var selectedForegroundView: UIView = UIView()
+    var selectionItemForegroundView: UIView = .init()
     
-    /// The picker selection status view.
-    lazy var selectedItemView: SelectionItemView = SelectionItemView()
+    var selectionItemView: SelectionItemView = .init()
     
-    /// The asset selection status
-    var status: SelectionItem? {
-        set { return selectedItemView.update(newValue, animated: false) }
-        get { return selectedItemView.item }
+    var selectionItem: SelectionItem? {
+        return selectionItemView.selectionItem 
     }
 }

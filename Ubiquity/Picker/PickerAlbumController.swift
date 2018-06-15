@@ -24,7 +24,7 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
         _selectionRectangle.delegate = self
         _selectionRectangle.collectionView = collectionView
         _selectionGestureRecognizer.delegate = self
-        _selectionGestureRecognizer.addTarget(self, action: #selector(_selectionHandler(_:)))
+        _selectionGestureRecognizer.addTarget(self, action: #selector(_handle(_:)))
 
         // add selection gesture recognizer
         collectionView?.panGestureRecognizer.require(toFail: _selectionGestureRecognizer)
@@ -85,39 +85,39 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
     
     // MARK: Rectangle Selection
     
-    /// Start rectangle select
+    /// Start rectangle select.
     func selectionRectangle(_ selectionRectangle: SelectionRectangle, shouldBeginSelection indexPath: IndexPath) -> Bool {
-        // if the first item is selected, it is necessary to reverse selection rect
+        // If the first item is selected, it is necessary to reverse selection rect
         _selectionReversed = _statusOfItem(at: indexPath)
         _selectionFastCaches = []
        
-        // begin ignore change events
+        // Begin ignore change events.
         container.beginIgnoringChangeEvents()
         
-        // allows selection rect
+        // Allows selection rect.
         return true
     }
     
-    /// End rectangle select
+    /// End rectangle select.
     func selectionRectangle(didEndSelection selectionRectangle: SelectionRectangle) {
-        // reset selection flag
+        // Reset selection flag.
         _selectionReversed = false
         _selectionFastCaches = nil
         
-        // end ignore change events
+        // End ignore change events
         container.endIgnoringChangeEvents()
     }
     
-    /// Update selected item
+    /// Update selected item.
     func selectionRectangle(_ selectionRectangle: SelectionRectangle, didSelectItem indexPath: IndexPath) {
-        // get select status at index path
+        // Fetch select status at index path.
         let selected = _statusOfItem(at: indexPath)
         if selected {
-            // cache select status at index path
+            // Cache select status at index path.
             _selectionFastCaches?.insert(indexPath)
         }
         
-        // check whether need to reverse
+        // Check whether need to reverse.
         guard _selectionReversed else {
             _selectItem(at: indexPath, oldStatus: selected) // normal
             return
@@ -127,10 +127,10 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
     
     /// Update deselected item
     func selectionRectangle(_ selectionRectangle: SelectionRectangle, didDeselectItem indexPath: IndexPath) {
-        // get cached select status at index path
+        // Fetch cached select status at index path
         let selected = _selectionFastCaches?.contains(indexPath) ?? false
         
-        // check whether need to reverse
+        // Check whether need to reverse
         guard _selectionReversed else {
             _deselectItem(at: indexPath, oldStatus: !selected) // normal
             return
@@ -142,18 +142,18 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
     
     /// Update contetn offset for timeover
     func selectionScroller(_ selectionScroller: SelectionScroller, didAutoScroll timestamp: CFTimeInterval, offset: CGPoint) {
-        // if last udpate timestamp is nil, ignore the update event
+        // If last udpate timestamp is nil, ignore the update event.
         guard let lastTimestamp = _selectionLastUpdateTimestamp else {
             _selectionLastUpdateTimestamp = timestamp
             return
         }
         
-        // if updated when timestamp is greater than the threshold
+        // If updated when timestamp is greater than the threshold.
         guard timestamp - lastTimestamp > 0.2 else {
             return
         }
         
-        // update selected items with current content offset
+        // Update selected items with current content offset.
         _selectionLastUpdateTimestamp = timestamp
         _selectionRectangle.update(at: _selectionGestureRecognizer.location(in: collectionView))
     }
@@ -161,21 +161,21 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
     // MARK: Selection change
     
     func selectionItem(_ selectionItem: SelectionItem, didSelectItem asset: Asset, sender: AnyObject) {
-        // ignore the events that itself sent
+        // Ignore the events that itself sent.
         guard sender !== self else {
             return
         }
         logger.debug?.write()
         
-        // udpate all visable cell
-        collectionView?.visibleCells.forEach {
-            // the asset in displaying
-            guard let cell = ($0 as? PickerAlbumCell), cell.asset?.ub_identifier == asset.ub_identifier else {
-                return
-            }
-            // update selection
-            cell.status = selectionItem
-        }
+//        // Update all visable cell.
+//        collectionView?.visibleCells.forEach {
+//            // The asset in displaying
+//            guard let cell = ($0 as? PickerAlbumCell), cell.asset?.ub_identifier == asset.ub_identifier else {
+//                return
+//            }
+//            // Update selection.
+//            cell.status = selectionItem
+//        }
     }
     
     func selectionItem(_ selectionItem: SelectionItem, didDeselectItem asset: Asset, sender: AnyObject) {
@@ -185,118 +185,112 @@ internal class PickerAlbumController: BrowserAlbumController, SelectionScrollerD
         }
         logger.debug?.write()
         
-        // udpate all visable cell
-        collectionView?.visibleCells.forEach {
-            // the asset in displaying
-            guard let cell = ($0 as? PickerAlbumCell), cell.asset?.ub_identifier == asset.ub_identifier else {
-                return
-            }
-            // clear selection
-            cell.status = nil
-        }
+//        // udpate all visable cell
+//        collectionView?.visibleCells.forEach {
+//            // the asset in displaying
+//            guard let cell = ($0 as? PickerAlbumCell), cell.asset?.ub_identifier == asset.ub_identifier else {
+//                return
+//            }
+//            // clear selection
+//            cell.status = nil
+//        }
     }
     
     // MARK: Selection Event
     
-    /// Returns the item selected status at index path
+    /// Returns the item selected status at index path.
     private func _statusOfItem(at indexPath: IndexPath) -> Bool {
-        // if can fetch cell at index path, use the cell select status
+        // If can fetch cell at index path, use the cell select status.
         if let cell = collectionView?.cellForItem(at: indexPath) as? PickerAlbumCell {
-            return cell.status != nil
+            return cell.selectionItem != nil
         }
-        
-        // fetch asset at index path
-        guard let asset = source.asset(at: indexPath) else {
+
+        // Fetch asset at index path.
+        guard let asset = source.asset(at: indexPath), let picker = container as? Picker else {
             return false
         }
-        
-        // fetch select status for asset
-        return (container as? Picker)?.statusOfItem(with: asset) != nil
+
+        // Fetch select status for asset
+        return picker.selectionController.contains(asset)
     }
     
-    /// Select the item at index path
+    /// Select the item at index path.
     private func _selectItem(at indexPath: IndexPath, oldStatus: Bool) {
-        // if status is true, status no change ignore
-        guard let collectionView = collectionView, !oldStatus else {
+        // If status is true, status no change ignore.
+        guard !oldStatus else {
             return
         }
         
-        // fetch asset at index path
-        guard let asset = source.asset(at: indexPath) else {
+        // Fetch asset at index path.
+        guard let asset = source.asset(at: indexPath), let picker = container as? Picker else {
             return
         }
         
-        // select item for picker
-        let status = (container as? Picker)?.selectItem(with: asset, sender: self)
-        
-        // update cell selection status
-        (collectionView.cellForItem(at: indexPath) as? PickerAlbumCell)?.status = status
+        // Select a item with asset for picker.
+        picker.selectionController.select(.single(asset))
     }
     
-    /// Deselect the item at index path
+    /// Deselect the item at index path.
     private func _deselectItem(at indexPath: IndexPath, oldStatus: Bool) {
-        // if status is false, status no change ignore
-        guard let collectionView = collectionView, oldStatus else {
+        // If status is false, status no change ignore.
+        guard oldStatus else {
             return
         }
         
-        // fetch asset at index path
-        guard let asset = source.asset(at: indexPath) else {
+        // Fetch asset at index path
+        guard let asset = source.asset(at: indexPath), let picker = container as? Picker else {
             return
         }
         
-        // deselect item for picker
-        let status = (container as? Picker)?.deselectItem(with: asset, sender: self)
-        
-        // update cell selection status
-        (collectionView.cellForItem(at: indexPath) as? PickerAlbumCell)?.status = status
+        // Deselect a item with asset for picker.
+        picker.selectionController.deselect(.single(asset))
     }
     
     /// Selection hanlder
-    @objc private dynamic func _selectionHandler(_ sender: UIPanGestureRecognizer) {
+    @objc private func _handle(_ sender: UIPanGestureRecognizer) {
         //logger.trace?.write()
         
-        // if selection region can select, try to prepare region
+        // If selection region can select, try to prepare region.
         guard _selectionRectangle.isSelectable
             || _selectionRectangle.begin(at: sender.location(in: collectionView)) else {
             return
         }
 
-        // update the selected items
+        // Update the selected items.
         _selectionLastUpdateTimestamp = nil
         _selectionRectangle.update(at: sender.location(in: collectionView))
 
-        // if the gesture recognizer is ended?
+        // If the gesture recognizer is ended?
         if sender.state == .cancelled || sender.state == .failed || sender.state == .ended {
-            // yes, stop auto scroll
+            // Yes, stop auto scroller.
             _selectionScroller.speed = 0
             _selectionRectangle.end()
             return
         }
 
-        // compute origin
+        // Compute origin.
         let origin = sender.location(in: view)
 
-        // compute mininum visable rect
+        // Compute mininum visable rect
         let item = Settings.default.minimumItemSize.height
         let inset = UIEdgeInsetsMake(topLayoutGuide.length + item, 0, bottomLayoutGuide.length + item, 0)
         let bounds = UIEdgeInsetsInsetRect(view.bounds, inset)
         
-        // if y less than bounds, scroll up automatically
+        // If y less than bounds, scroll up automatically.
         if origin.y < bounds.minY {
-            // update scroll speed(is up) & start auto scroll
+            // Update scroll speed(is up) & start auto scroll.
             _selectionScroller.speed = -((bounds.minY - origin.y) / inset.top)
             return
         }
 
-        // if y greater than bounds, scroll down automatically
+        // If y greater than bounds, scroll down automatically.
         if origin.y > bounds.maxY {
-            // update scroll speed(is down) & start auto scroll
+            // Update scroll speed(is down) & start auto scroll
             _selectionScroller.speed = +((origin.y - bounds.maxY) / inset.bottom)
             return
         }
 
-        // stop auto scroll
+        // Stop auto scroller.
         _selectionScroller.speed = 0
     }
     

@@ -124,58 +124,67 @@ public protocol PickerDelegate: class {
     
     // MARK: Selection Item
     
-    /// Select a item
+    /// Select a item with asset.
     @discardableResult
-    func selectItem(with asset: Asset, sender: AnyObject) -> SelectionItem? {
-        // the asset has been selected?
-        if let status = _selectedItems[asset.ub_identifier] {
-            return status
-        }
+    func selectItem(_ asset: Asset, sender: AnyObject? = nil) -> SelectionItem? {
         
-        // generate a selection info
-        let status = SelectionItem(asset: asset, number: _selectedItems.count + 1)
-        
-        // ask the library the asset is allowed to be select?
-        guard _item(shouldSelectItem: asset, status: status, sender: sender) else {
-            return nil
-        }
-        
-        // add to selection
-        _selectedItems[asset.ub_identifier] = status
-        
-        // notify all observers
-        _item(didSelectItem: asset, status: status, sender: sender)
-        
-        return status
+        logger.debug?.write(asset.ub_identifier)
+
+        return nil
+//        // the asset has been selected?
+//        if let status = _selectedItems[asset.ub_identifier] {
+//            return status
+//        }
+//
+//        // generate a selection info
+//        let status = SelectionItem(asset: asset, number: _selectedItems.count + 1)
+//
+//        // ask the library the asset is allowed to be select?
+//        guard _item(shouldSelectItem: asset, status: status, sender: sender) else {
+//            return nil
+//        }
+//
+//        // add to selection
+//        _selectedItems[asset.ub_identifier] = status
+//
+//        // notify all observers
+//        _item(didSelectItem: asset, status: status, sender: sender)
+//
+//        return status
     }
     
-    /// Deselect a item
+    /// Deselect a item with asset.
     @discardableResult
-    func deselectItem(with asset: Asset, sender: AnyObject) -> SelectionItem? {
-        // the asset has been selected?
-        if let status = _selectedItems.removeValue(forKey: asset.ub_identifier) {
-            // the all number is smaller than the deleted item and needs to be updated 
-            _selectedItems.forEach {
-                // meet the conditions? 
-                guard $1.number > status.number else {
-                    return
-                }
-                $1.number -= 1
-            }
-            
-            // notify all observers
-            _item(didDeselect: asset, status: status, sender: sender)
-        }
+    func deselectItem(_ asset: Asset, sender: AnyObject? = nil) -> SelectionItem? {
+        
+        logger.debug?.write(asset.ub_identifier)
+        
         return nil
+//        // the asset has been selected?
+//        if let status = _selectedItems.removeValue(forKey: asset.ub_identifier) {
+//            // the all number is smaller than the deleted item and needs to be updated
+//            _selectedItems.forEach {
+//                // meet the conditions?
+//                guard $1.number > status.number else {
+//                    return
+//                }
+//                $1.number -= 1
+//            }
+//
+//            // notify all observers
+//            _item(didDeselect: asset, status: status, sender: sender)
+//        }
+//        return nil
     }
     
     /// Returns a item select status
     func statusOfItem(with asset: Asset) -> SelectionItem? {
-        if !_selectedItems.isEmpty  {
-            return _selectedItems[asset.ub_identifier]
-        }
+//        if !_selectedItems.isEmpty  {
+//            return _selectedItems[asset.ub_identifier]
+//        }
         return nil
     }
+    
     
     func selectionController(_ selectionController: SelectionController, shouldSelectItem selection: Selection) -> Bool {
         return true

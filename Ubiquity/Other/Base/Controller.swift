@@ -119,12 +119,12 @@ open class SourceCollectionViewCell: UICollectionViewCell {
     /// Create an instance with rect.
     public override init(frame: CGRect) {
         super.init(frame: frame)
-        self.configure()
+        self.prepare()
     }
     /// Create an instance with file.
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        self.configure()
+        self.prepare()
     }
     
     deinit {
@@ -146,7 +146,7 @@ open class SourceCollectionViewCell: UICollectionViewCell {
     
     
     /// Configure the cell.
-    open func configure() {
+    open func prepare() {
     }
     
     /// Apply the cell with item data.

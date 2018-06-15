@@ -572,7 +572,7 @@ public class Source: NSObject {
         if newDetails.isVaild {
             return newDetails
         }
-        
+
         return nil
     }
     

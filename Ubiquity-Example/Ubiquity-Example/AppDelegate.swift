@@ -66,8 +66,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         logger.debug?.write(launchOptions ?? [:])
-        logger.debug?.write(ProcessInfo.processInfo.arguments)
-        logger.debug?.write(ProcessInfo.processInfo.environment)
+        //logger.debug?.write(ProcessInfo.processInfo.arguments)
+        //logger.debug?.write(ProcessInfo.processInfo.environment)
         
         // Connect to the debugger.
         ProcessInfo.processInfo.environment["XPCDebugger"].map {

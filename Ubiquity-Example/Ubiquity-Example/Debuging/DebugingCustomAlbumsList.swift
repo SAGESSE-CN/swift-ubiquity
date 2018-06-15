@@ -11,8 +11,8 @@ import Ubiquity
 
 class DebuggingCustomAlbumsListCell: Ubiquity.SourceCollectionViewCell {
     
-    override func configure() {
-        super.configure()
+    override func prepare() {
+        super.prepare()
         
         contentView.backgroundColor = .white
         contentView.layer.cornerRadius = 4
@@ -39,7 +39,7 @@ class DebuggingCustomAlbumsListCell: Ubiquity.SourceCollectionViewCell {
             .ub_make(_titleLabel, .left, .equal, contentView, .left, 8),
             .ub_make(_titleLabel, .right, .equal, contentView, .right, -8),
             .ub_make(_titleLabel, .bottom, .equal, contentView, .bottom, -8),
-            ])
+        ])
     }
     
     override func willDisplay(_ container: Container, orientation: UIImageOrientation) {

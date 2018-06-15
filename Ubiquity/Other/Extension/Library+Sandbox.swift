@@ -152,6 +152,11 @@ open class UHLocalAssetResponse: NSObject {
 
 open class UHLocalAssetLibrary: NSObject {
     
+    /// Requests the user’s permission, if needed, for accessing the library.
+    open func requestAuthorization(_ handler: @escaping (Error?) -> Void) {
+        handler(nil)
+    }
+
     /// Check asset exists
     open func exists(forItem asset: UHLocalAsset) -> Bool {
         return true
@@ -378,7 +383,7 @@ extension UHLocalAssetLibrary: Library {
 
     /// Requests the user’s permission, if needed, for accessing the library.
     open func ub_requestAuthorization(_ handler: @escaping (Error?) -> Void) {
-        handler(nil)
+        self.requestAuthorization(handler)
     }
     
     /// Registers an object to receive messages when objects in the photo library change.

@@ -43,10 +43,10 @@ internal class BrowserAlbumController: SourceCollectionViewController, Transitio
     
     override func loadView() {
         super.loadView()
-
+        
         // the collectionView must king of `BrowserAlbumView`
         object_setClass(collectionView, BrowserAlbumView.self)
-
+        
         collectionView?.alwaysBounceVertical = true
         collectionView?.register(NavigationHeaderView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "HEADER")
 

@@ -13,8 +13,8 @@ internal class BrowserDetailCell: SourceCollectionViewCell {
     /// The displayer delegate & event delegate
     weak var delegate: AnyObject?
     
-    override func configure() {
-        super.configure()
+    override func prepare() {
+        super.prepare()
 
         // make detail & container view
         _detailView = (type(of: self).contentViewClass as? UIView.Type)?.init()

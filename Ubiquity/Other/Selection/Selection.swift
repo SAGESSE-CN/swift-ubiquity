@@ -70,12 +70,12 @@ internal class SelectionController: Logport {
         // Asset check priority: _selectedAssets > _deselectedAssets > _selectedCollections > _deselectedCollections > _selectingAll
         
         // User require selected this asset.
-        if _selectedAssets[asset.ub_identifier] != nil {
+        if !_selectedAssets.isEmpty && _selectedAssets[asset.ub_identifier] != nil {
             return true
         }
         
         // User require deselected this asset.
-        if _deselectedAssets[asset.ub_identifier] != nil {
+        if !_deselectedAssets.isEmpty && _deselectedAssets[asset.ub_identifier] != nil {
             return false
         }
         
@@ -91,6 +91,40 @@ internal class SelectionController: Logport {
         
         // If you select all, this asset is of course selected.
         return _selectingAll
+    }
+    
+    /// Returns selection status with asset.
+    internal func status(_ asset: Asset) -> SelectionItem2? {
+        // Asset check priority: _selectedAssets > _deselectedAssets > _selectedCollections > _deselectedCollections > _selectingAll
+
+        // User require selected this asset.
+        if !_selectedAssets.isEmpty, let item = _selectedAssets[asset.ub_identifier] {
+            return item
+        }
+
+        // User require deselected this asset.
+        if !_deselectedAssets.isEmpty && _deselectedAssets[asset.ub_identifier] != nil {
+            return nil
+        }
+
+        // Infer the asset has been selected in selected collection.
+        if _selectedCollections.contains(where: { $1.ub_contains(asset) }) {
+            // .. status in collection
+            return nil
+        }
+
+        // Infer the asset has been deselected in deselected collection.
+        if _deselectedCollections.contains(where: { $1.ub_contains(asset) }) {
+            return nil
+        }
+
+        // If you select all, this asset is of course selected.
+        if _selectingAll {
+            // .. status in all
+            return nil
+        }
+        
+        return nil
     }
     
     
@@ -121,7 +155,6 @@ internal class SelectionController: Logport {
         // Callback delegate selected items is did change.
         delegate?.selectionController(self, didDeselectItem: selection)
     }
-
     
     
     // MARK: -
@@ -145,25 +178,26 @@ internal class SelectionController: Logport {
             _deselectedAssets.removeValue(forKey: asset.ub_identifier)
             
             // If is selected all assets, all reselect will be ignore.
-            guard !_selectingAll else {
-                logger.debug?.write("ignore select asset \"\(asset.ub_identifier)\", because all assets is selected.")
-                return
+            if _selectingAll {
+                logger.debug?.write("Ignore select asset \"\(asset.ub_identifier)\", because all assets is selected.")
+                return 
             }
             
             // If the asset is inside of selected collection, ignore it.
-            guard !_selectedCollections.values.contains(where: { $0.ub_identifier == asset.ub_collection?.ub_identifier }) else {
-                logger.debug?.write("ignore select asset \"\(asset.ub_identifier)\", because asset inside of selected collection.")
+            if _selectedCollections.values.contains(where: { $0.ub_identifier == asset.ub_collection?.ub_identifier }) {
+                logger.debug?.write("Ignore select asset \"\(asset.ub_identifier)\", because asset inside of selected collection.")
                 return
             }
             
             // If the asset has been selected, ignore it.
-            guard _selectedAssets[asset.ub_identifier] == nil else {
-                logger.debug?.write("ignore select asset \"\(asset.ub_identifier)\", because the asset has been selected.")
-                return
+            if let item = _selectedAssets[asset.ub_identifier] {
+                logger.debug?.write("Ignore select asset \"\(asset.ub_identifier)\", because the asset has been selected.")
+                _ = item
+                return //item
             }
             
             // If it is not contains in _selectedCollections, this is an additional asset.
-            _selectedAssets[asset.ub_identifier] = asset
+            _selectedAssets[asset.ub_identifier] = .init(asset, index: _selectedAssets.count)
             
         case .multiple(let assets):
             // Execute multiple select, but do not notify
@@ -173,21 +207,21 @@ internal class SelectionController: Logport {
             
         case .collection(let collection):
             // If _selectedAssets or _deselectedAssets has been asset in collection must be remove.
-            _selectedAssets = _selectedAssets.ub_filter { $1.ub_collection?.ub_identifier != collection.ub_identifier }
+            _selectedAssets = _selectedAssets.ub_filter { $1.asset.ub_collection?.ub_identifier != collection.ub_identifier }
             _deselectedAssets = _deselectedAssets.ub_filter { $1.ub_collection?.ub_identifier != collection.ub_identifier }
-            
+
             // If _deselectedCollections has been collection must be remove.
             _deselectedCollections.removeValue(forKey: collection.ub_identifier)
             
             // If is selected all assets, all reselect will be ignore.
-            guard !_selectingAll else {
-                logger.debug?.write("ignore select collection \"\(collection.ub_identifier)\", because all assets is selected.")
+            if _selectingAll {
+                logger.debug?.write("Ignore select collection \"\(collection.ub_identifier)\", because all assets is selected.")
                 return
             }
             
             // If the colleciton has been selected, ignore it.
-            guard _selectedCollections[collection.ub_identifier] == nil else {
-                logger.debug?.write("ignore select collection \"\(collection.ub_identifier)\", because the collection has been selected.")
+            if _selectedCollections[collection.ub_identifier] != nil {
+                logger.debug?.write("Ignore select collection \"\(collection.ub_identifier)\", because the collection has been selected.")
                 return
             }
             
@@ -214,21 +248,20 @@ internal class SelectionController: Logport {
             // If _selectedAssets has been this asset must be remove.
             _selectedAssets.removeValue(forKey: asset.ub_identifier)
             
-            // If the asset is inside of deselected collection, ignore it.
-            guard !_deselectedCollections.values.contains(where: { $0.ub_identifier == asset.ub_collection?.ub_identifier }) else {
-                logger.debug?.write("ignore deselect asset \"\(asset.ub_identifier)\", because asset inside of deselected collection.")
+            // If there is no selecting the collection, ignore it.
+            if !_selectingAll && _selectedCollections.isEmpty {
                 return
             }
             
-            // If there is no selecting the collection, ignore it
-            guard _selectingAll || !_selectedCollections.isEmpty else {
-                logger.debug?.write("ignore deselect asset \"\(asset.ub_identifier)\", because don't has any colleciton is selected.")
+            // If the asset is inside of deselected collection, ignore it.
+            if _deselectedCollections.values.contains(where: { $0.ub_identifier == asset.ub_collection?.ub_identifier }) {
+                logger.debug?.write("Ignore deselect asset \"\(asset.ub_identifier)\", because asset inside of deselected collection.")
                 return
             }
             
             // If the asset has been deselected, ignore it.
-            guard _deselectedAssets[asset.ub_identifier] == nil else {
-                logger.debug?.write("ignore deselect asset \"\(asset.ub_identifier)\", because the asset has been deselected.")
+            if _deselectedAssets[asset.ub_identifier] != nil {
+                logger.debug?.write("Ignore deselect asset \"\(asset.ub_identifier)\", because the asset has been deselected.")
                 return
             }
             
@@ -243,21 +276,21 @@ internal class SelectionController: Logport {
             
         case .collection(let collection):
             // If _selectedAssets or _deselectedAssets has been asset in collection must be remove.
-            _selectedAssets = _selectedAssets.ub_filter { $1.ub_collection?.ub_identifier != collection.ub_identifier }
+            _selectedAssets = _selectedAssets.ub_filter { $1.asset.ub_collection?.ub_identifier != collection.ub_identifier }
             _deselectedAssets = _deselectedAssets.ub_filter { $1.ub_collection?.ub_identifier != collection.ub_identifier }
 
             // If _selectedCollections has been collection must be remove.
             _selectedCollections.removeValue(forKey: collection.ub_identifier)
         
             // If you do not selected all asset, not need to use _deselectedCollections to deselect.
-            guard _selectingAll else {
-                logger.debug?.write("ignore deselect collection \"\(collection.ub_identifier)\", because does not have any assets selected.")
+            if !_selectingAll {
+                logger.debug?.write("Ignore deselect collection \"\(collection.ub_identifier)\", because does not have any assets selected.")
                 return
             }
             
             // If the colleciton has been deselected, ignore it.
-            guard _deselectedCollections[collection.ub_identifier] == nil else {
-                logger.debug?.write("ignore deselect collection \"\(collection.ub_identifier)\", because the collection has been deselected.")
+            if _deselectedCollections[collection.ub_identifier] != nil {
+                logger.debug?.write("Ignore deselect collection \"\(collection.ub_identifier)\", because the collection has been deselected.")
                 return
             }
             
@@ -273,7 +306,7 @@ internal class SelectionController: Logport {
     private var _selectingAll: Bool = false
     
     /// The current selected all assets of non-collection.
-    private var _selectedAssets: Dictionary<String, Asset> = [:]
+    private var _selectedAssets: Dictionary<String, SelectionItem2> = [:]
     /// The current selected all collecitons.
     private var _selectedCollections: Dictionary<String, Collection> = [:]
     

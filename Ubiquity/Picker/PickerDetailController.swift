@@ -47,7 +47,7 @@ internal class PickerDetailController: BrowserDetailController, SelectionItemUpd
         }
 
         // update current asset selection status
-        _selectedView.update((container as? Picker)?.statusOfItem(with: asset), animated: true)
+//        _selectedView.update((container as? Picker)?.statusOfItem(with: asset), animated: true)
     }
 
     // MARK: Selection change
@@ -62,7 +62,7 @@ internal class PickerDetailController: BrowserDetailController, SelectionItemUpd
         logger.debug?.write()
 
         // update selection status
-        _selectedView.update(selectionItem, animated: false)
+//        _selectedView.update(selectionItem, animated: false)
     }
 
     func selectionItem(_ selectionItem: SelectionItem, didDeselectItem asset: Asset, sender: AnyObject) {
@@ -74,7 +74,7 @@ internal class PickerDetailController: BrowserDetailController, SelectionItemUpd
         logger.debug?.write()
 
         // clear selection status
-        _selectedView.update(nil, animated: false)
+//        _selectedView.update(nil, animated: false)
     }
 
     // MARK: Events
@@ -86,24 +86,24 @@ internal class PickerDetailController: BrowserDetailController, SelectionItemUpd
             return
         }
 
-        // check old status
-        if _selectedView.item == nil {
-            // select asset
-            _selectedView.update((container as? Picker)?.selectItem(with: asset, sender: self), animated: false)
-
-        } else {
-            // deselect asset
-            _selectedView.update((container as? Picker)?.deselectItem(with: asset, sender: self), animated: false)
-        }
-
-        // add animation
-        let ani = CAKeyframeAnimation(keyPath: "transform.scale")
-
-        ani.values = [0.8, 1.2, 1]
-        ani.duration = 0.25
-        ani.calculationMode = kCAAnimationCubic
-
-        _selectedView.layer.add(ani, forKey: "selected")
+//        // check old status
+//        if _selectedView.item == nil {
+//            // select asset
+//            _selectedView.update((container as? Picker)?.selectItem(with: asset, sender: self), animated: false)
+//
+//        } else {
+//            // deselect asset
+//            _selectedView.update((container as? Picker)?.deselectItem(with: asset, sender: self), animated: false)
+//        }
+//
+//        // add animation
+//        let ani = CAKeyframeAnimation(keyPath: "transform.scale")
+//
+//        ani.values = [0.8, 1.2, 1]
+//        ani.duration = 0.25
+//        ani.calculationMode = kCAAnimationCubic
+//
+//        _selectedView.layer.add(ani, forKey: "selected")
     }
 
     private lazy var _selectedView: SelectionItemView = .init(frame: .init(x: 0, y: 0, width: 24, height: 24))

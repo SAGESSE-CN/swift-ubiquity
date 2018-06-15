@@ -69,6 +69,10 @@ private class Cacher<T>: Caching<Collection>, Collection  {
     
     /// The asset whether include is in this collection
     func ub_contains(_ asset: Asset) -> Bool {
+        // If it is the same collection, it must contain it.
+        if let collection = asset.ub_collection, collection.ub_identifier == ub_identifier {
+            return true
+        }
         return ref.ub_contains(asset)
     }
     

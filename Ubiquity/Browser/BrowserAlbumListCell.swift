@@ -10,8 +10,8 @@ import UIKit
 
 internal class BrowserAlbumListCell: SourceCollectionViewCell {
     
-    override func configure() {
-        super.configure()
+    override func prepare() {
+        super.prepare()
         
         // Setup thumb
         _thumbView.frame = .init(x: 0, y: 0, width: 70, height: 70)

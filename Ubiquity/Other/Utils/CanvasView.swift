@@ -46,11 +46,11 @@ import UIKit
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
-        _configure()
+        self.prepare()
     }
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        _configure()
+        self.prepare()
     }
     
     public weak var delegate: CanvasViewDelegate?
@@ -316,7 +316,7 @@ import UIKit
         }()
     }
     
-    fileprivate func _configure() {
+    fileprivate func prepare() {
         
         clipsToBounds = true
         
